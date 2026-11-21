@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>程序化载具优化与流式渲染验收报告 · V001</title>
+  <style>
+    :root {
+      --bg: #121815; --card: #18221c; --slot: #202d25; --line: rgba(150,176,144,.32);
+      --text: #eef3e6; --muted: #98ab95; --ok: #d4ee80; --warn: #f0b85a; --bad: #ff6b57; --cyan: #44d2be;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; background: var(--bg); color: var(--text); font-family: "Microsoft YaHei", "Bahnschrift", sans-serif; line-height: 1.55; }
+    .wrap { max-width: 1460px; margin: 0 auto; }
+    h1 { margin: 0 0 6px; font-size: 24px; }
+    h2 { margin: 28px 0 12px; font-size: 18px; border-left: 4px solid var(--ok); padding-left: 10px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .kpi { background: var(--card); border: 1px solid var(--line); padding: 14px; border-radius: 4px; }
+    .kpi .label { font-size: 12px; color: var(--muted); }
+    .kpi .val { font-size: 22px; font-weight: 700; color: var(--ok); font-family: Consolas, monospace; margin-top: 4px; }
+    .kpi .note { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); font-size: 12px; }
+    th, td { padding: 7px 9px; border-bottom: 1px solid rgba(150,176,144,.16); text-align: left; }
+    th { background: var(--slot); color: var(--muted); font-weight: 600; position: sticky; top: 0; }
+    td.num { font-family: Consolas, monospace; text-align: right; }
+    .ok { color: var(--ok); font-weight: 600; }
+    .pill { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+    .pill.pass { background: rgba(212,238,128,.16); color: var(--ok); border: 1px solid var(--ok); }
+    .pill.warn { background: rgba(240,184,90,.16); color: var(--warn); border: 1px solid var(--warn); }
+    .shots-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 14px; }
+    .shot-card { margin: 0; background: var(--card); border: 1px solid var(--line); padding: 10px; border-radius: 4px; }
+    .shot-card img { width: 100%; display: block; border-radius: 2px; }
+    .shot-card figcaption { margin-top: 8px; font-size: 12px; color: var(--muted); }
+    .sheet-card { background: var(--card); border: 1px solid var(--line); padding: 12px; border-radius: 4px; margin-bottom: 14px; }
+    .sheet-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .sheet-metrics { font-family: Consolas, monospace; font-size: 12px; color: var(--muted); }
+    .sheet-metrics b { color: var(--text); }
+    .sheet-card img { width: 100%; display: block; border-radius: 2px; }
+    .toolbar { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .toolbar input, .toolbar select { background: var(--slot); color: var(--text); border: 1px solid var(--line); padding: 6px 10px; border-radius: 3px; font-size: 12px; }
+    .table-wrap { max-height: 540px; overflow: auto; border: 1px solid var(--line); }
+    code { background: var(--slot); padding: 1px 5px; border-radius: 3px; font-family: Consolas, monospace; font-size: 11px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>程序化载具优化与流式渲染 · V001 自动化测试与视觉验收报告</h1>
+  <div class="sub">
+    批次编号：<code>V001-b4570e71</code> · 生成时间：<code>2026-11-20T01:54:21.852790+00:00</code> ·
+    渲染基线：<code>stylized-680p-v1 (1208×680 / 1588×680)</code> ·
+    独立在线对比预览入口：<code>http://127.0.0.1:8822/showcase</code> 与 <code>/battlefield</code>（本页为离线自包含交付报告）
+  </div>
+
+  <section class="kpi-grid">
+    <div class="kpi"><div class="label">全库 129 车归档总包体</div><div class="val">72.58 MiB</div><div class="note">较旧 256默认+远景 (270.63 MiB) 缩减 73.2%；含 1024 底色 + 256 法线 + 256 中景 Mip</div></div>
+    <div class="kpi"><div class="label">二进制索引 & 全库常驻底座</div><div class="val">36.8 KB / 1.54 MiB</div><div class="note">vehicles-index.scvi (≤64KB) + 129 车 LOD2 秒开常驻 (≤3MiB)</div></div>
+    <div class="kpi"><div class="label">场景节点 & DrawCall 压缩</div><div class="val">-99.0% / 中位 DC 4</div><div class="note">总节点 18,584 → 189；可动部件自动识别 37 车</div></div>
+    <div class="kpi"><div class="label">129 车六视角自动视觉测试</div><div class="val">121/129 通过</div><div class="note">均 LOD0 IoU 0.9896 · 均 SSIM 0.8569 · 自修 4 车</div></div>
+    <div class="kpi"><div class="label">20 Mbps 冷启动（中位）</div><div class="val">1.40s / 3.41s</div><div class="note">底座 ≤1.5s / 30车型详模 ≤3.5s · 单车切换 457ms</div></div>
+    <div class="kpi"><div class="label">双浏览器 30型×100混编</div><div class="val">587 / 653 FPS</div><div class="note">Chrome / Edge (16:9 680p) · 零报错 · 5轮遍历零泄漏</div></div>
+  </section>
+
+  <h2>一、分层归档体积与 Range 回读账本（V3）</h2>
+  <table>
+    <thead><tr><th>产物文件</th><th>用途与内容</th><th style="text-align:right">条目数</th><th style="text-align:right">体积</th><th>Range 206 逐条回读核验</th></tr></thead>
+    <tbody>
+      <tr><td><code>vehicles-index.scvi</code></td><td>定长二进制头部 + 偏移表 + 129 车 OBB/轴心/挂点元数据</td><td class="num">927</td><td class="num">36.80 KiB</td><td class="ok">通过（≤ 64 KiB）</td></tr>
+      <tr><td><code>vehicles-far.scvveh</code></td><td>全库 129 款 LOD2 无贴图实心远景壳（开局秒下常驻）</td><td class="num">129</td><td class="num">1.544 MiB</td><td class="ok">通过（≤ 3.0 MiB）</td></tr>
+      <tr><td><code>vehicles-shared-tex.scvveh</code></td><td>跨车共享去重外置 KTX2 贴图池（消除跨车重复）</td><td class="num">301</td><td class="num">9.886 MiB</td><td class="ok">通过</td></tr>
+      <tr><td><code>vehicles-detail.scvveh</code></td><td>129 款同源 LOD0/LOD1 量化网格 + 单车独有 1024 底色/256 法线图集</td><td class="num">497</td><td class="num">61.116 MiB</td><td class="ok">通过（927/927 SHA256 100% 匹配）</td></tr>
+    </tbody>
+  </table>
+
+  <h2>二、Chrome &amp; Edge 双浏览器全矩阵实测（stylized-680p-v1）</h2>
+  <table>
+    <thead><tr><th>浏览器</th><th>测试场景与画幅</th><th style="text-align:right">平均 FPS</th><th style="text-align:right">P50 (ms)</th><th style="text-align:right">P95 (ms)</th><th style="text-align:right">P99 (ms)</th><th style="text-align:right">长帧率(&gt;33.3ms)</th><th style="text-align:right">DrawCall</th><th style="text-align:right">三角面</th><th style="text-align:right">LOD0/1/2分布</th></tr></thead>
+    <tbody><tr><td>CHROME</td><td>单车 360° 展示台 (16:9)</td><td class='num ok'>5540.0</td><td class='num'>0.20</td><td class='num'>0.40</td><td class='num'>0.60</td><td class='num'>0.00%</td><td class='num'>10</td><td class='num'>41,076</td><td class='num'>-</td></tr><tr><td>CHROME</td><td>单车 360° 展示台 (21:9)</td><td class='num ok'>5810.6</td><td class='num'>0.20</td><td class='num'>0.40</td><td class='num'>0.51</td><td class='num'>0.00%</td><td class='num'>10</td><td class='num'>41,076</td><td class='num'>-</td></tr><tr><td>CHROME</td><td>10车近景全LOD0 (16:9)</td><td class='num ok'>797.5</td><td class='num'>1.10</td><td class='num'>1.80</td><td class='num'>6.50</td><td class='num'>0.00%</td><td class='num'>130</td><td class='num'>287,868</td><td class='num'>10/0/0</td></tr><tr><td>CHROME</td><td>30车型×100混编交战 (16:9)</td><td class='num ok'>586.8</td><td class='num'>1.60</td><td class='num'>2.30</td><td class='num'>4.07</td><td class='num'>0.00%</td><td class='num'>274</td><td class='num'>1,155,289</td><td class='num'>0/100/0</td></tr><tr><td>CHROME</td><td>30车型×100混编交战 (21:9)</td><td class='num ok'>540.1</td><td class='num'>1.80</td><td class='num'>2.53</td><td class='num'>6.91</td><td class='num'>0.00%</td><td class='num'>274</td><td class='num'>1,155,289</td><td class='num'>0/100/0</td></tr><tr><td>CHROME</td><td>30车型×300压力探索 (16:9)</td><td class='num ok'>557.1</td><td class='num'>1.70</td><td class='num'>2.50</td><td class='num'>4.41</td><td class='num'>0.00%</td><td class='num'>274</td><td class='num'>3,501,972</td><td class='num'>0/300/0</td></tr><tr><td>CHROME</td><td>全库129车型大阅兵 (16:9)</td><td class='num ok'>212.4</td><td class='num'>4.50</td><td class='num'>6.30</td><td class='num'>8.06</td><td class='num'>0.00%</td><td class='num'>1085</td><td class='num'>1,405,789</td><td class='num'>0/129/0</td></tr><tr><td>CHROME</td><td>70m↔9000m连续缩放 (16:9)</td><td class='num ok'>1467.7</td><td class='num'>0.60</td><td class='num'>1.20</td><td class='num'>1.60</td><td class='num'>0.00%</td><td class='num'>31</td><td class='num'>179,530</td><td class='num'>0/0/100</td></tr><tr><td>MSEDGE</td><td>单车 360° 展示台 (16:9)</td><td class='num ok'>5677.5</td><td class='num'>0.20</td><td class='num'>0.40</td><td class='num'>0.60</td><td class='num'>0.00%</td><td class='num'>10</td><td class='num'>41,076</td><td class='num'>-</td></tr><tr><td>MSEDGE</td><td>单车 360° 展示台 (21:9)</td><td class='num ok'>5565.9</td><td class='num'>0.20</td><td class='num'>0.40</td><td class='num'>0.51</td><td class='num'>0.00%</td><td class='num'>10</td><td class='num'>41,076</td><td class='num'>-</td></tr><tr><td>MSEDGE</td><td>10车近景全LOD0 (16:9)</td><td class='num ok'>870.9</td><td class='num'>1.10</td><td class='num'>1.70</td><td class='num'>2.01</td><td class='num'>0.00%</td><td class='num'>130</td><td class='num'>287,868</td><td class='num'>10/0/0</td></tr><tr><td>MSEDGE</td><td>30车型×100混编交战 (16:9)</td><td class='num ok'>653.1</td><td class='num'>1.50</td><td class='num'>2.10</td><td class='num'>2.40</td><td class='num'>0.00%</td><td class='num'>274</td><td class='num'>1,155,289</td><td class='num'>0/100/0</td></tr><tr><td>MSEDGE</td><td>30车型×100混编交战 (21:9)</td><td class='num ok'>686.6</td><td class='num'>1.40</td><td class='num'>2.00</td><td class='num'>2.30</td><td class='num'>0.00%</td><td class='num'>274</td><td class='num'>1,155,289</td><td class='num'>0/100/0</td></tr><tr><td>MSEDGE</td><td>30车型×300压力探索 (16:9)</td><td class='num ok'>609.8</td><td class='num'>1.60</td><td class='num'>2.20</td><td class='num'>2.60</td><td class='num'>0.00%</td><td class='num'>274</td><td class='num'>3,501,972</td><td class='num'>0/300/0</td></tr><tr><td>MSEDGE</td><td>全库129车型大阅兵 (16:9)</td><td class='num ok'>214.5</td><td class='num'>4.60</td><td class='num'>5.80</td><td class='num'>6.85</td><td class='num'>0.00%</td><td class='num'>1085</td><td class='num'>1,405,789</td><td class='num'>0/129/0</td></tr><tr><td>MSEDGE</td><td>70m↔9000m连续缩放 (16:9)</td><td class='num ok'>1661.6</td><td class='num'>0.60</td><td class='num'>1.00</td><td class='num'>1.40</td><td class='num'>0.00%</td><td class='num'>31</td><td class='num'>179,530</td><td class='num'>0/0/100</td></tr></tbody>
+  </table>
+  <p class="sub" style="margin-top:8px;">
+    20 Mbps / 80 ms RTT 限速网络中位数：Chrome（冷底座 1.401s / 30型详模 3.412s / 温启 0.804s / 单车切换 456.8ms）；
+    Edge（冷底座 1.412s / 30型详模 3.358s / 温启 0.821s / 单车切换 469.1ms）。<br/>
+    5 轮 129 车遍历显存增长率（第2轮→第5轮）：Chrome 几何 0.00% / 堆 -15.71%；Edge 几何 0.00% / 堆 -18.65%。
+    路线 B 契约与黄金轴心校验：全部通过。
+  </p>
+
+  <h2>三、实机画面取证（单车展示台与多车型混编场）</h2>
+  <div class="shots-grid"><figure class="shot-card">
+          <img src="assets/V5-单车展示台-16x9.png" alt="V5-单车展示台-16x9" loading="lazy" />
+          <figcaption>V5-单车展示台-16x9</figcaption>
+        </figure><figure class="shot-card">
+          <img src="assets/V5-混编场-100_mixed-16x9.png" alt="V5-混编场-100_mixed-16x9" loading="lazy" />
+          <figcaption>V5-混编场-100_mixed-16x9</figcaption>
+        </figure><figure class="shot-card">
+          <img src="assets/V5-混编场-100_mixed-21x9.png" alt="V5-混编场-100_mixed-21x9" loading="lazy" />
+          <figcaption>V5-混编场-100_mixed-21x9</figcaption>
+        </figure><figure class="shot-card">
+          <img src="assets/V5-混编场-129_parade-16x9.png" alt="V5-混编场-129_parade-16x9" loading="lazy" />
+          <figcaption>V5-混编场-129_parade-16x9</figcaption>
+        </figure></div>
+
+  <h2>四、最差 Top 15 优先人工抽查联系表（全库 129 车视觉下限）</h2>
+  <p class="sub">按综合通过状态、LOD0 白色剪影 IoU 与前景 SSIM 倒排置顶；每图 4 行依次为：高清原件基准 / 新版 LOD0(1024+法线) / 新版 LOD1 / 新版 LOD2。</p>
+  <article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#1 Stryker ESV</strong> <code>model:US_STRYKER_ESV</code>
+                  <span class="pill warn">建议复核</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.989</b> · SSIM <b>0.850</b> ·
+                  LOD1 IoU <b>0.953</b> · LOD2 IoU <b>0.721</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_STRYKER_ESV.png" alt="Stryker ESV 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#2 US_AC130U</strong> <code>model:US_AC130U</code>
+                  <span class="pill warn">建议复核</span>
+                  <span class="pill warn">原库PARTIAL</span>
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.997</b> · SSIM <b>0.275</b> ·
+                  LOD1 IoU <b>0.955</b> · LOD2 IoU <b>0.917</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_AC130U.png" alt="US_AC130U 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#3 US_AC130J</strong> <code>model:US_AC130J</code>
+                  <span class="pill warn">建议复核</span>
+                  <span class="pill warn">原库PARTIAL</span>
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.997</b> · SSIM <b>0.275</b> ·
+                  LOD1 IoU <b>0.952</b> · LOD2 IoU <b>0.916</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_AC130J.png" alt="US_AC130J 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#4 M1A2 SEP v2 TUA</strong> <code>model:US_AbramsTUA</code>
+                  <span class="pill warn">建议复核</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.999</b> · SSIM <b>0.758</b> ·
+                  LOD1 IoU <b>0.984</b> · LOD2 IoU <b>0.935</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_AbramsTUA.png" alt="M1A2 SEP v2 TUA 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#5 M3A3 CFV</strong> <code>model:US_M3A3</code>
+                  <span class="pill warn">建议复核</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.999</b> · SSIM <b>0.755</b> ·
+                  LOD1 IoU <b>0.983</b> · LOD2 IoU <b>0.910</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_M3A3.png" alt="M3A3 CFV 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#6 M3A2 CFV</strong> <code>model:US_M3A2</code>
+                  <span class="pill warn">建议复核</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>1.000</b> · SSIM <b>0.752</b> ·
+                  LOD1 IoU <b>0.984</b> · LOD2 IoU <b>0.916</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_M3A2.png" alt="M3A2 CFV 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#7 LMTV</strong> <code>model:US_LMTV</code>
+                  <span class="pill warn">建议复核</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>1.000</b> · SSIM <b>0.786</b> ·
+                  LOD1 IoU <b>0.983</b> · LOD2 IoU <b>0.955</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_LMTV.png" alt="LMTV 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#8 US_LAV_AT-M_body</strong> <code>model:US_LAV_AT-M_body</code>
+                  <span class="pill warn">建议复核</span>
+                  <span class="pill warn">原库PARTIAL</span>
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>1.000</b> · SSIM <b>0.439</b> ·
+                  LOD1 IoU <b>0.982</b> · LOD2 IoU <b>0.959</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_LAV_AT-M_body.png" alt="US_LAV_AT-M_body 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#9 F/A-18C Hornet</strong> <code>model:US_FA18C</code>
+                  <span class="pill pass">通过</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.967</b> · SSIM <b>0.883</b> ·
+                  LOD1 IoU <b>0.940</b> · LOD2 IoU <b>0.822</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_FA18C.png" alt="F/A-18C Hornet 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#10 AH-6 Killer Egg</strong> <code>model:US_AH6</code>
+                  <span class="pill pass">通过</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.970</b> · SSIM <b>0.853</b> ·
+                  LOD1 IoU <b>0.931</b> · LOD2 IoU <b>0.805</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_AH6.png" alt="AH-6 Killer Egg 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#11 UH-1Y Venom</strong> <code>model:US_UH-1Y</code>
+                  <span class="pill pass">通过</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.971</b> · SSIM <b>0.880</b> ·
+                  LOD1 IoU <b>0.952</b> · LOD2 IoU <b>0.896</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_UH-1Y.png" alt="UH-1Y Venom 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#12 MH-60M DAP</strong> <code>model:US_MH60M_IDAP</code>
+                  <span class="pill pass">通过</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.971</b> · SSIM <b>0.892</b> ·
+                  LOD1 IoU <b>0.949</b> · LOD2 IoU <b>0.884</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_MH60M_IDAP.png" alt="MH-60M DAP 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#13 AH-64D Longbow</strong> <code>model:US_AH64L</code>
+                  <span class="pill pass">通过</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.971</b> · SSIM <b>0.905</b> ·
+                  LOD1 IoU <b>0.947</b> · LOD2 IoU <b>0.893</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_AH64L.png" alt="AH-64D Longbow 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#14 AH-64E Guardian</strong> <code>model:US_AH64E</code>
+                  <span class="pill pass">通过</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.973</b> · SSIM <b>0.898</b> ·
+                  LOD1 IoU <b>0.950</b> · LOD2 IoU <b>0.888</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_AH64E.png" alt="AH-64E Guardian 六视角联系表" loading="lazy" />
+            </article><article class="sheet-card">
+              <div class="sheet-head">
+                <div><strong>#15 AH-1Z Viper</strong> <code>model:US_AH-1Z Viper</code>
+                  <span class="pill pass">通过</span>
+                  
+                </div>
+                <div class="sheet-metrics">
+                  LOD0 IoU <b>0.973</b> · SSIM <b>0.912</b> ·
+                  LOD1 IoU <b>0.947</b> · LOD2 IoU <b>0.888</b> ·
+                  动作 <b>OK</b>
+                </div>
+              </div>
+              <img src="assets/sheet_US_AH-1Z_Viper.png" alt="AH-1Z Viper 六视角联系表" loading="lazy" />
+            </article>
+
+  <h2>五、全库 129 款载具逐车指标明细</h2>
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="筛选型号 / 稳定ID / 槽位…" />
+    <select id="role-f">
+      <option value="all">全部角色 (129)</option>
+      <option value="ground">地面载具 (77)</option>
+      <option value="rotorcraft">旋翼机 (20)</option>
+      <option value="fixed_wing">固定翼 (26)</option>
+      <option value="uav">无人机 (6)</option>
+    </select>
+    <select id="pass-f">
+      <option value="all">全部视觉状态</option>
+      <option value="pass">视觉通过</option>
+      <option value="warn">建议复核 / partial</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>稳定ID</th><th>型号</th><th>角色</th><th>原库状态</th><th>可动槽位</th>
+          <th style="text-align:right">LOD0面</th><th style="text-align:right">LOD1面</th><th style="text-align:right">LOD2面</th>
+          <th style="text-align:right">DC</th><th style="text-align:right">独有KB(旧)</th>
+          <th style="text-align:right">LOD0 IoU</th><th style="text-align:right">SSIM</th><th style="text-align:right">LOD1 IoU</th><th style="text-align:right">LOD2 IoU</th>
+          <th>动作</th><th>视觉</th>
+        </tr>
+      </thead>
+      <tbody id="all-tbody"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+  const ROWS = [{"id": "model:US_A10", "slug": "US_A10", "name": "A-10C Thunderbolt II", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14950, "lod1_tris": 2770, "lod2_tris": 1346, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 410.4, "old_kb": 994.4, "iou0": 0.9925, "ssim0": 0.9581, "iou1": 0.9495, "iou2": 0.9391, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AAVP7A1", "slug": "US_AAVP7A1", "name": "AAVP-7A1", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 13830, "lod1_tris": 4456, "lod2_tris": 968, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 247.9, "old_kb": 760.3, "iou0": 0.9936, "ssim0": 0.8008, "iou1": 0.9864, "iou2": 0.9525, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AAVP_Arty", "slug": "US_AAVP_Arty", "name": "AAVP MICLIC", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 14960, "lod1_tris": 4790, "lod2_tris": 961, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 269.6, "old_kb": 851.1, "iou0": 0.995, "ssim0": 0.8175, "iou1": 0.9881, "iou2": 0.9406, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AC130J", "slug": "US_AC130J", "name": "US_AC130J", "role": "fixed_wing", "status": "partial", "retry": 2, "lod0_tris": 33083, "lod1_tris": 4178, "lod2_tris": 1347, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 408.2, "old_kb": 1053.9, "iou0": 0.9971, "ssim0": 0.2747, "iou1": 0.952, "iou2": 0.9156, "blk": 0.0, "mot": "OK", "vis_pass": false}, {"id": "model:US_AC130U", "slug": "US_AC130U", "name": "US_AC130U", "role": "fixed_wing", "status": "partial", "retry": 2, "lod0_tris": 33850, "lod1_tris": 4163, "lod2_tris": 1345, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 418.7, "old_kb": 1157.4, "iou0": 0.9966, "ssim0": 0.2746, "iou1": 0.9553, "iou2": 0.9173, "blk": 0.0, "mot": "OK", "vis_pass": false}, {"id": "model:US_AC130_Base", "slug": "US_AC130_Base", "name": "AC-130", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14255, "lod1_tris": 4138, "lod2_tris": 1341, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 488.3, "old_kb": 1776.6, "iou0": 0.9935, "ssim0": 0.9487, "iou1": 0.9566, "iou2": 0.9204, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_ACV", "slug": "US_ACV", "name": "ACV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 14219, "lod1_tris": 4692, "lod2_tris": 966, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 523.7, "old_kb": 767.1, "iou0": 0.9931, "ssim0": 0.8805, "iou1": 0.9793, "iou2": 0.9136, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AH-1W Super_Cobra", "slug": "US_AH-1W_Super_Cobra", "name": "AH-1W Supercobra", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 14630, "lod1_tris": 4679, "lod2_tris": 1800, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 386.5, "old_kb": 1744.9, "iou0": 0.9836, "ssim0": 0.9171, "iou1": 0.9437, "iou2": 0.8945, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AH-1Z Viper", "slug": "US_AH-1Z_Viper", "name": "AH-1Z Viper", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 16121, "lod1_tris": 6183, "lod2_tris": 2636, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 720.3, "old_kb": 1988.2, "iou0": 0.973, "ssim0": 0.9123, "iou1": 0.9467, "iou2": 0.8884, "blk": 0.02, "mot": "OK", "vis_pass": true}, {"id": "model:US_AH6", "slug": "US_AH6", "name": "AH-6 Killer Egg", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 19126, "lod1_tris": 4515, "lod2_tris": 2055, "dc": 7, "nodes": 3, "slots": "hull+tail_rotor+main_rotor", "own_kb": 475.2, "old_kb": 1443.1, "iou0": 0.97, "ssim0": 0.8529, "iou1": 0.931, "iou2": 0.8048, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AH64D", "slug": "US_AH64D", "name": "AH-64D Apache", "role": "rotorcraft", "status": "passed", "retry": 1, "lod0_tris": 20934, "lod1_tris": 5639, "lod2_tris": 2601, "dc": 5, "nodes": 4, "slots": "hull+main_rotor+tail_rotor+gun", "own_kb": 517.6, "old_kb": 1155.4, "iou0": 0.9913, "ssim0": 0.9711, "iou1": 0.954, "iou2": 0.8859, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AH64E", "slug": "US_AH64E", "name": "AH-64E Guardian", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 18060, "lod1_tris": 6934, "lod2_tris": 3116, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 542.1, "old_kb": 1895.7, "iou0": 0.9725, "ssim0": 0.8983, "iou1": 0.9495, "iou2": 0.8885, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AH64L", "slug": "US_AH64L", "name": "AH-64D Longbow", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 18803, "lod1_tris": 6314, "lod2_tris": 3254, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 526.1, "old_kb": 1168.2, "iou0": 0.9712, "ssim0": 0.9051, "iou1": 0.9466, "iou2": 0.8929, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AMPV", "slug": "US_AMPV", "name": "M1283 AMPV", "role": "ground", "status": "passed", "retry": 1, "lod0_tris": 29793, "lod1_tris": 5429, "lod2_tris": 975, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 616.6, "old_kb": 1188.4, "iou0": 0.9981, "ssim0": 0.835, "iou1": 0.9854, "iou2": 0.9195, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AMPV_MCV", "slug": "US_AMPV_MCV", "name": "M1287 MCV", "role": "ground", "status": "passed", "retry": 1, "lod0_tris": 34419, "lod1_tris": 6428, "lod2_tris": 964, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 523.5, "old_kb": 1496.6, "iou0": 0.9981, "ssim0": 0.8275, "iou1": 0.9867, "iou2": 0.9189, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AV8B_NightAttack", "slug": "US_AV8B_NightAttack", "name": "AV-8B Night attack", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14360, "lod1_tris": 3324, "lod2_tris": 1349, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 383.6, "old_kb": 1025.8, "iou0": 0.9734, "ssim0": 0.9164, "iou1": 0.9337, "iou2": 0.8548, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AV8B_Plus", "slug": "US_AV8B_Plus", "name": "AV-8B Harrier II Plus", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 13968, "lod1_tris": 2986, "lod2_tris": 1331, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 434.8, "old_kb": 961.4, "iou0": 0.9822, "ssim0": 0.9275, "iou1": 0.9395, "iou2": 0.859, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_AbramsTUA", "slug": "US_AbramsTUA", "name": "M1A2 SEP v2 TUA", "role": "ground", "status": "passed", "retry": 2, "lod0_tris": 45225, "lod1_tris": 6526, "lod2_tris": 971, "dc": 4, "nodes": 2, "slots": "hull+turret", "own_kb": 802.5, "old_kb": 1327.0, "iou0": 0.9989, "ssim0": 0.758, "iou1": 0.9836, "iou2": 0.9346, "blk": 0.0, "mot": "OK", "vis_pass": false}, {"id": "model:US_B1B", "slug": "US_B1B", "name": "B-1B Lancer", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14123, "lod1_tris": 3716, "lod2_tris": 1348, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 499.5, "old_kb": 718.2, "iou0": 0.9797, "ssim0": 0.9088, "iou1": 0.9565, "iou2": 0.9449, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_B2", "slug": "US_B2", "name": "B-2 Spirit", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 16877, "lod1_tris": 5943, "lod2_tris": 1319, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 533.7, "old_kb": 869.4, "iou0": 0.9932, "ssim0": 0.8885, "iou1": 0.97, "iou2": 0.9564, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_B52H", "slug": "US_B52H", "name": "B-52H Stratofortress", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 21767, "lod1_tris": 7954, "lod2_tris": 1329, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 606.0, "old_kb": 1485.5, "iou0": 0.9765, "ssim0": 0.8772, "iou1": 0.9586, "iou2": 0.8548, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_C130_SuperHercules", "slug": "US_C130_SuperHercules", "name": "C-130J-30 Hercules", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 13997, "lod1_tris": 4904, "lod2_tris": 1328, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 219.8, "old_kb": 1724.5, "iou0": 0.993, "ssim0": 0.9487, "iou1": 0.9586, "iou2": 0.9307, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_C17_GLOBEMASTER", "slug": "US_C17_GLOBEMASTER", "name": "C-17 Globemaster", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 21714, "lod1_tris": 9146, "lod2_tris": 1346, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 595.0, "old_kb": 1191.3, "iou0": 0.9789, "ssim0": 0.9303, "iou1": 0.962, "iou2": 0.8573, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_CH53", "slug": "US_CH53", "name": "CH-53E Super Stallion", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 22367, "lod1_tris": 11193, "lod2_tris": 6673, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 713.2, "old_kb": 1418.9, "iou0": 0.9787, "ssim0": 0.9276, "iou1": 0.9541, "iou2": 0.8462, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_CH53K", "slug": "US_CH53K", "name": "CH-53K King Stallion", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 19861, "lod1_tris": 10632, "lod2_tris": 4985, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 617.1, "old_kb": 1657.2, "iou0": 0.9796, "ssim0": 0.9413, "iou1": 0.9678, "iou2": 0.8843, "blk": 0.01, "mot": "OK", "vis_pass": true}, {"id": "model:US_CRAM", "slug": "US_CRAM", "name": "Centurion C-RAM", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 20973, "lod1_tris": 7375, "lod2_tris": 969, "dc": 4, "nodes": 2, "slots": "hull+turret", "own_kb": 758.0, "old_kb": 1532.3, "iou0": 0.992, "ssim0": 0.8304, "iou1": 0.9804, "iou2": 0.8957, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_CV-22_b", "slug": "US_CV-22_b", "name": "CV-22B Osprey", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 15155, "lod1_tris": 4584, "lod2_tris": 1325, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 255.6, "old_kb": 1072.2, "iou0": 0.9739, "ssim0": 0.8943, "iou1": 0.953, "iou2": 0.9407, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_Ch47", "slug": "US_Ch47", "name": "CH-47 Chinook", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 22301, "lod1_tris": 8714, "lod2_tris": 3685, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 655.5, "old_kb": 1387.6, "iou0": 0.9865, "ssim0": 0.892, "iou1": 0.9765, "iou2": 0.9571, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_EA6B_Prowler", "slug": "US_EA6B_Prowler", "name": "EA-6B Prowler", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14827, "lod1_tris": 4174, "lod2_tris": 1326, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 452.7, "old_kb": 1534.4, "iou0": 0.9776, "ssim0": 0.8809, "iou1": 0.956, "iou2": 0.9125, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F117", "slug": "US_F117", "name": "F-117 Nighthawk", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 13800, "lod1_tris": 1383, "lod2_tris": 1349, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 360.4, "old_kb": 465.2, "iou0": 0.9994, "ssim0": 0.907, "iou1": 0.9873, "iou2": 0.9873, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F15C", "slug": "US_F15C", "name": "F-15C Eagle", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14704, "lod1_tris": 2765, "lod2_tris": 1349, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 492.2, "old_kb": 823.0, "iou0": 0.9842, "ssim0": 0.9025, "iou1": 0.9669, "iou2": 0.9111, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F15E", "slug": "US_F15E", "name": "F-15E Strike Eagle", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 27393, "lod1_tris": 4519, "lod2_tris": 1344, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 682.6, "old_kb": 1757.2, "iou0": 0.983, "ssim0": 0.8953, "iou1": 0.9734, "iou2": 0.8557, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F15EX", "slug": "US_F15EX", "name": "F-15EX Eagle II", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 17823, "lod1_tris": 3723, "lod2_tris": 1344, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 550.9, "old_kb": 1112.4, "iou0": 0.9833, "ssim0": 0.8956, "iou1": 0.9584, "iou2": 0.8593, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F16CJ", "slug": "US_F16CJ", "name": "F-16CJ", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 15228, "lod1_tris": 3364, "lod2_tris": 1331, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 421.1, "old_kb": 1031.2, "iou0": 0.9871, "ssim0": 0.9177, "iou1": 0.9638, "iou2": 0.8298, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F16block52", "slug": "US_F16block52", "name": "F-16C Fighting Falcon", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14529, "lod1_tris": 2915, "lod2_tris": 1310, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 399.0, "old_kb": 1156.9, "iou0": 0.9836, "ssim0": 0.9128, "iou1": 0.9597, "iou2": 0.8297, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F16block70", "slug": "US_F16block70", "name": "F-16V Viper", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14521, "lod1_tris": 2384, "lod2_tris": 1334, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 432.8, "old_kb": 713.5, "iou0": 0.9934, "ssim0": 0.9392, "iou1": 0.9666, "iou2": 0.8794, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F22", "slug": "US_F22", "name": "F-22 Raptor", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 18297, "lod1_tris": 2783, "lod2_tris": 1343, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 560.8, "old_kb": 1016.1, "iou0": 0.9928, "ssim0": 0.9229, "iou1": 0.968, "iou2": 0.9047, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F35A", "slug": "US_F35A", "name": "F-35A", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 13826, "lod1_tris": 1515, "lod2_tris": 1349, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 478.2, "old_kb": 492.4, "iou0": 0.9977, "ssim0": 0.9687, "iou1": 0.9683, "iou2": 0.9682, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_F35B", "slug": "US_F35B", "name": "F-35B", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 13821, "lod1_tris": 1218, "lod2_tris": 1218, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 441.3, "old_kb": 468.4, "iou0": 0.9986, "ssim0": 0.9439, "iou1": 0.9709, "iou2": 0.9709, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_FA18C", "slug": "US_FA18C", "name": "F/A-18C Hornet", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 19749, "lod1_tris": 3519, "lod2_tris": 1328, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 489.1, "old_kb": 1427.3, "iou0": 0.9674, "ssim0": 0.8827, "iou1": 0.9403, "iou2": 0.8219, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_FA18D", "slug": "US_FA18D", "name": "F/A-18D Hornet ", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 17892, "lod1_tris": 4070, "lod2_tris": 1316, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 493.6, "old_kb": 1411.9, "iou0": 0.9818, "ssim0": 0.9346, "iou1": 0.9517, "iou2": 0.8392, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_HEMTT", "slug": "US_HEMTT", "name": "HEMTT", "role": "ground", "status": "passed", "retry": 1, "lod0_tris": 27906, "lod1_tris": 6528, "lod2_tris": 956, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 383.9, "old_kb": 1092.4, "iou0": 0.9976, "ssim0": 0.8007, "iou1": 0.983, "iou2": 0.8966, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_HIMARS", "slug": "US_HIMARS", "name": "M142 HIMARS", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 13915, "lod1_tris": 4365, "lod2_tris": 962, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 515.5, "old_kb": 702.9, "iou0": 0.993, "ssim0": 0.8903, "iou1": 0.9823, "iou2": 0.9261, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_HMMWV_Avenger", "slug": "US_HMMWV_Avenger", "name": "AN/TWQ-1 Avenger", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 23148, "lod1_tris": 5713, "lod2_tris": 973, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 673.6, "old_kb": 1115.5, "iou0": 0.9944, "ssim0": 0.8912, "iou1": 0.9846, "iou2": 0.9132, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_HMMWV_BASE", "slug": "US_HMMWV_BASE", "name": "Humvee", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 23255, "lod1_tris": 5913, "lod2_tris": 990, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 708.3, "old_kb": 1327.6, "iou0": 0.9914, "ssim0": 0.8787, "iou1": 0.9818, "iou2": 0.9054, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_HMMWV_Hawkeye", "slug": "US_HMMWV_Hawkeye", "name": "Hawkeye MWS", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 21761, "lod1_tris": 5338, "lod2_tris": 969, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 701.7, "old_kb": 1113.6, "iou0": 0.989, "ssim0": 0.8779, "iou1": 0.9718, "iou2": 0.8505, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_HMMWV_LRAS3", "slug": "US_HMMWV_LRAS3", "name": "Humvee LRAS3", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 23460, "lod1_tris": 5825, "lod2_tris": 1003, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 695.7, "old_kb": 1309.0, "iou0": 0.9912, "ssim0": 0.8651, "iou1": 0.9784, "iou2": 0.9082, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_HMMWV_TOW", "slug": "US_HMMWV_TOW", "name": "Humvee TOW-2", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 24038, "lod1_tris": 6150, "lod2_tris": 1035, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 745.0, "old_kb": 1391.3, "iou0": 0.9897, "ssim0": 0.8604, "iou1": 0.9736, "iou2": 0.9051, "blk": 0.01, "mot": "OK", "vis_pass": true}, {"id": "model:US_HMMWV_gmv", "slug": "US_HMMWV_gmv", "name": "Humvee GMV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 24717, "lod1_tris": 6045, "lod2_tris": 977, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 586.5, "old_kb": 1358.7, "iou0": 0.9931, "ssim0": 0.8759, "iou1": 0.9781, "iou2": 0.8776, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_IFAV", "slug": "US_IFAV", "name": "IFAV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 17199, "lod1_tris": 3631, "lod2_tris": 974, "dc": 5, "nodes": 3, "slots": "hull+barrel+turret", "own_kb": 781.9, "old_kb": 994.1, "iou0": 0.9914, "ssim0": 0.8812, "iou1": 0.966, "iou2": 0.9024, "blk": 0.01, "mot": "OK", "vis_pass": true}, {"id": "model:US_KC130_HarvestHawk", "slug": "US_KC130_HarvestHawk", "name": "KC-130J Harvest Hawk", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14110, "lod1_tris": 4994, "lod2_tris": 1333, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 430.4, "old_kb": 1507.0, "iou0": 0.9858, "ssim0": 0.9284, "iou1": 0.9421, "iou2": 0.9204, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_LAV25", "slug": "US_LAV25", "name": "LAV-25", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 13807, "lod1_tris": 3998, "lod2_tris": 978, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 261.2, "old_kb": 797.0, "iou0": 0.994, "ssim0": 0.8498, "iou1": 0.9751, "iou2": 0.944, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_LAV_AD", "slug": "US_LAV_AD", "name": "LAV-AD", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 19359, "lod1_tris": 5928, "lod2_tris": 973, "dc": 4, "nodes": 2, "slots": "hull+turret", "own_kb": 341.8, "old_kb": 1170.2, "iou0": 0.9937, "ssim0": 0.8421, "iou1": 0.9804, "iou2": 0.9281, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_LAV_AT-M_body", "slug": "US_LAV_AT-M_body", "name": "US_LAV_AT-M_body", "role": "ground", "status": "partial", "retry": 2, "lod0_tris": 16057, "lod1_tris": 2400, "lod2_tris": 972, "dc": 1, "nodes": 1, "slots": "hull", "own_kb": 281.8, "old_kb": 395.6, "iou0": 0.9998, "ssim0": 0.439, "iou1": 0.9815, "iou2": 0.9593, "blk": 0.0, "mot": "OK", "vis_pass": false}, {"id": "model:US_LAV_AT", "slug": "US_LAV_AT", "name": "LAV-AT", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 14743, "lod1_tris": 3849, "lod2_tris": 974, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 279.2, "old_kb": 922.8, "iou0": 0.9911, "ssim0": 0.8223, "iou1": 0.9708, "iou2": 0.9339, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_LAV_L", "slug": "US_LAV_L", "name": "LAV-L", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 13802, "lod1_tris": 3108, "lod2_tris": 957, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 263.3, "old_kb": 791.4, "iou0": 0.9934, "ssim0": 0.8386, "iou1": 0.972, "iou2": 0.9424, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_LAV_M", "slug": "US_LAV_M", "name": "LAV-M", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 22696, "lod1_tris": 5072, "lod2_tris": 973, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 533.6, "old_kb": 1516.5, "iou0": 0.9913, "ssim0": 0.8333, "iou1": 0.9703, "iou2": 0.9109, "blk": 0.01, "mot": "OK", "vis_pass": true}, {"id": "model:US_LMTV", "slug": "US_LMTV", "name": "LMTV", "role": "ground", "status": "passed", "retry": 2, "lod0_tris": 27711, "lod1_tris": 3240, "lod2_tris": 953, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 649.7, "old_kb": 663.5, "iou0": 0.9995, "ssim0": 0.7856, "iou1": 0.9834, "iou2": 0.9546, "blk": 0.0, "mot": "OK", "vis_pass": false}, {"id": "model:US_LMTV_Brutus", "slug": "US_LMTV_Brutus", "name": "Brutus", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 24457, "lod1_tris": 6372, "lod2_tris": 979, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 698.8, "old_kb": 1311.2, "iou0": 0.9824, "ssim0": 0.8289, "iou1": 0.9607, "iou2": 0.8195, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_LMTV_MML", "slug": "US_LMTV_MML", "name": "MML", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 28953, "lod1_tris": 10188, "lod2_tris": 2137, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 772.0, "old_kb": 1723.0, "iou0": 0.9929, "ssim0": 0.87, "iou1": 0.9829, "iou2": 0.8286, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_LMTV_SLAMRAAM", "slug": "US_LMTV_SLAMRAAM", "name": "SLAMRAAM", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 28135, "lod1_tris": 7541, "lod2_tris": 978, "dc": 5, "nodes": 2, "slots": "hull+turret", "own_kb": 622.1, "old_kb": 1232.9, "iou0": 0.9903, "ssim0": 0.8198, "iou1": 0.9736, "iou2": 0.8491, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_LMTV_Warpig", "slug": "US_LMTV_Warpig", "name": "LMTV War Pig", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 22235, "lod1_tris": 6888, "lod2_tris": 955, "dc": 5, "nodes": 2, "slots": "hull+turret", "own_kb": 635.9, "old_kb": 2762.5, "iou0": 0.9757, "ssim0": 0.8087, "iou1": 0.9525, "iou2": 0.8453, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_LVSR", "slug": "US_LVSR", "name": "LVSR", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 17652, "lod1_tris": 6344, "lod2_tris": 1346, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 416.0, "old_kb": 1039.9, "iou0": 0.9927, "ssim0": 0.8826, "iou1": 0.987, "iou2": 0.9583, "blk": 0.01, "mot": "OK", "vis_pass": true}, {"id": "model:US_M10", "slug": "US_M10", "name": "M10 Booker", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 17460, "lod1_tris": 4594, "lod2_tris": 975, "dc": 5, "nodes": 2, "slots": "hull+turret", "own_kb": 581.0, "old_kb": 889.7, "iou0": 0.9934, "ssim0": 0.86, "iou1": 0.9792, "iou2": 0.9107, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1064A3", "slug": "US_M1064A3", "name": "M1064A3", "role": "ground", "status": "passed", "retry": 1, "lod0_tris": 30012, "lod1_tris": 5341, "lod2_tris": 977, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 593.4, "old_kb": 1362.7, "iou0": 0.9976, "ssim0": 0.8381, "iou1": 0.9853, "iou2": 0.9534, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M109A6", "slug": "US_M109A6", "name": "M109A6 Paladin", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 18627, "lod1_tris": 7422, "lod2_tris": 1338, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 601.9, "old_kb": 961.4, "iou0": 0.992, "ssim0": 0.8768, "iou1": 0.9834, "iou2": 0.9432, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M109a7", "slug": "US_M109a7", "name": "M109A7 Paladin", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 18006, "lod1_tris": 5737, "lod2_tris": 1346, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 593.3, "old_kb": 965.3, "iou0": 0.9907, "ssim0": 0.8947, "iou1": 0.9793, "iou2": 0.934, "blk": 0.03, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1117_M1200", "slug": "US_M1117_M1200", "name": "M1117 Guardian", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 18933, "lod1_tris": 5442, "lod2_tris": 970, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 669.7, "old_kb": 1110.2, "iou0": 0.9929, "ssim0": 0.8272, "iou1": 0.9828, "iou2": 0.9237, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M113A3", "slug": "US_M113A3", "name": "M113A3", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 15490, "lod1_tris": 4438, "lod2_tris": 956, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 488.0, "old_kb": 1018.4, "iou0": 0.9949, "ssim0": 0.8118, "iou1": 0.9862, "iou2": 0.9614, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1301_ISV", "slug": "US_M1301_ISV", "name": "M1301 ISV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 22092, "lod1_tris": 4053, "lod2_tris": 980, "dc": 5, "nodes": 3, "slots": "hull+barrel+turret", "own_kb": 624.9, "old_kb": 1249.8, "iou0": 0.9859, "ssim0": 0.8757, "iou1": 0.9522, "iou2": 0.8492, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M163_PIVADS", "slug": "US_M163_PIVADS", "name": "M163 PIVADS", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 16208, "lod1_tris": 4869, "lod2_tris": 976, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 437.3, "old_kb": 1029.8, "iou0": 0.9952, "ssim0": 0.8076, "iou1": 0.986, "iou2": 0.9346, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1A1FEP", "slug": "US_M1A1FEP", "name": "M1A1 FEP", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 21900, "lod1_tris": 5883, "lod2_tris": 971, "dc": 6, "nodes": 2, "slots": "hull+turret", "own_kb": 545.3, "old_kb": 1238.5, "iou0": 0.9922, "ssim0": 0.8162, "iou1": 0.9817, "iou2": 0.9325, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1A1HC", "slug": "US_M1A1HC", "name": "M1A1 HC", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 20420, "lod1_tris": 5492, "lod2_tris": 963, "dc": 4, "nodes": 2, "slots": "hull+turret", "own_kb": 517.9, "old_kb": 1175.2, "iou0": 0.993, "ssim0": 0.8178, "iou1": 0.9842, "iou2": 0.9402, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1A2", "slug": "US_M1A2", "name": "M1A2 Abrams", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 20514, "lod1_tris": 5870, "lod2_tris": 946, "dc": 4, "nodes": 3, "slots": "hull+turret+barrel", "own_kb": 764.5, "old_kb": 1209.5, "iou0": 0.9938, "ssim0": 0.8327, "iou1": 0.9875, "iou2": 0.9398, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1A2C", "slug": "US_M1A2C", "name": "M1A2 SEP v3", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 21964, "lod1_tris": 6064, "lod2_tris": 940, "dc": 4, "nodes": 2, "slots": "hull+turret", "own_kb": 547.3, "old_kb": 1258.1, "iou0": 0.9936, "ssim0": 0.826, "iou1": 0.9842, "iou2": 0.9282, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1A2SEP", "slug": "US_M1A2SEP", "name": "M1A2 SEP", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 20983, "lod1_tris": 5776, "lod2_tris": 946, "dc": 4, "nodes": 2, "slots": "hull+turret", "own_kb": 527.4, "old_kb": 1219.4, "iou0": 0.9933, "ssim0": 0.8311, "iou1": 0.9849, "iou2": 0.9375, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1A2SEP2", "slug": "US_M1A2SEP2", "name": "M1A2 SEP v2", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 22589, "lod1_tris": 6192, "lod2_tris": 947, "dc": 5, "nodes": 2, "slots": "hull+turret", "own_kb": 572.4, "old_kb": 1276.1, "iou0": 0.9935, "ssim0": 0.8263, "iou1": 0.9838, "iou2": 0.9293, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M1_ABV", "slug": "US_M1_ABV", "name": "M1150 Assault Breacher", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 29834, "lod1_tris": 8163, "lod2_tris": 1346, "dc": 4, "nodes": 2, "slots": "hull+turret", "own_kb": 836.1, "old_kb": 1492.2, "iou0": 0.9848, "ssim0": 0.8508, "iou1": 0.9598, "iou2": 0.8724, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M270_A1", "slug": "US_M270_A1", "name": "M270A1 MLRS", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 25333, "lod1_tris": 10045, "lod2_tris": 1074, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 427.6, "old_kb": 1844.3, "iou0": 0.9962, "ssim0": 0.8396, "iou1": 0.9905, "iou2": 0.9262, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M270_A2", "slug": "US_M270_A2", "name": "M270A2 GMLRS", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 25548, "lod1_tris": 10080, "lod2_tris": 1053, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 428.0, "old_kb": 1808.0, "iou0": 0.9892, "ssim0": 0.8458, "iou1": 0.9825, "iou2": 0.9191, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M2A2", "slug": "US_M2A2", "name": "M2A2 Bradley", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 21603, "lod1_tris": 6540, "lod2_tris": 974, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 383.4, "old_kb": 1128.7, "iou0": 0.9948, "ssim0": 0.8243, "iou1": 0.9865, "iou2": 0.9275, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M2A2_BEV", "slug": "US_M2A2_BEV", "name": "M2A2 Bradley ESV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 24884, "lod1_tris": 7381, "lod2_tris": 972, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 580.9, "old_kb": 1473.1, "iou0": 0.993, "ssim0": 0.8268, "iou1": 0.9787, "iou2": 0.8239, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M2A3", "slug": "US_M2A3", "name": "M2A3 Bradley", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 22505, "lod1_tris": 6832, "lod2_tris": 970, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 401.1, "old_kb": 1191.3, "iou0": 0.9946, "ssim0": 0.8268, "iou1": 0.9851, "iou2": 0.9239, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M2A3_BEV", "slug": "US_M2A3_BEV", "name": "M2A3 Bradley ESV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 25916, "lod1_tris": 7671, "lod2_tris": 973, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 600.4, "old_kb": 1537.3, "iou0": 0.9924, "ssim0": 0.8298, "iou1": 0.9757, "iou2": 0.8168, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M3A2", "slug": "US_M3A2", "name": "M3A2 CFV", "role": "ground", "status": "passed", "retry": 2, "lod0_tris": 43789, "lod1_tris": 7095, "lod2_tris": 969, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 817.9, "old_kb": 1335.2, "iou0": 0.9995, "ssim0": 0.7518, "iou1": 0.9844, "iou2": 0.9162, "blk": 0.0, "mot": "OK", "vis_pass": false}, {"id": "model:US_M3A3", "slug": "US_M3A3", "name": "M3A3 CFV", "role": "ground", "status": "passed", "retry": 2, "lod0_tris": 45431, "lod1_tris": 7387, "lod2_tris": 969, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 845.2, "old_kb": 1410.3, "iou0": 0.9994, "ssim0": 0.7551, "iou1": 0.9827, "iou2": 0.9101, "blk": 0.0, "mot": "OK", "vis_pass": false}, {"id": "model:US_M548A3", "slug": "US_M548A3", "name": "M548A3 ", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 20537, "lod1_tris": 5706, "lod2_tris": 974, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 645.4, "old_kb": 974.8, "iou0": 0.9945, "ssim0": 0.8695, "iou1": 0.9883, "iou2": 0.9582, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M551A1", "slug": "US_M551A1", "name": "M551A1 Sheridan", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 14157, "lod1_tris": 4003, "lod2_tris": 966, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 809.3, "old_kb": 798.6, "iou0": 0.9966, "ssim0": 0.8207, "iou1": 0.9867, "iou2": 0.9442, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M60", "slug": "US_M60", "name": "M60A1", "role": "ground", "status": "passed", "retry": 1, "lod0_tris": 28300, "lod1_tris": 7924, "lod2_tris": 970, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 800.8, "old_kb": 1109.9, "iou0": 0.9966, "ssim0": 0.8546, "iou1": 0.98, "iou2": 0.9066, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M6_Linebacker", "slug": "US_M6_Linebacker", "name": "M6 Linebacker ", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 20557, "lod1_tris": 6244, "lod2_tris": 969, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 661.4, "old_kb": 1043.7, "iou0": 0.995, "ssim0": 0.847, "iou1": 0.9876, "iou2": 0.9227, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M7_BFIST", "slug": "US_M7_BFIST", "name": "M7 BFIST", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 21455, "lod1_tris": 6591, "lod2_tris": 974, "dc": 4, "nodes": 2, "slots": "hull+turret", "own_kb": 680.9, "old_kb": 1065.2, "iou0": 0.9954, "ssim0": 0.8183, "iou1": 0.987, "iou2": 0.9168, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M8Thunderbolt", "slug": "US_M8Thunderbolt", "name": "M8 AGS", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 14223, "lod1_tris": 3296, "lod2_tris": 966, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 557.9, "old_kb": 712.1, "iou0": 0.9965, "ssim0": 0.912, "iou1": 0.9801, "iou2": 0.9554, "blk": 0.01, "mot": "OK", "vis_pass": true}, {"id": "model:US_M901A3", "slug": "US_M901A3", "name": "M901A3", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 14941, "lod1_tris": 4709, "lod2_tris": 950, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 460.5, "old_kb": 1010.5, "iou0": 0.9953, "ssim0": 0.8227, "iou1": 0.9859, "iou2": 0.9467, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_M985_Battleship", "slug": "US_M985_Battleship", "name": "M985 Battleship", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 20255, "lod1_tris": 7726, "lod2_tris": 1323, "dc": 7, "nodes": 3, "slots": "hull+turret+barrel", "own_kb": 571.2, "old_kb": 1898.8, "iou0": 0.9881, "ssim0": 0.8884, "iou1": 0.9793, "iou2": 0.9146, "blk": 0.01, "mot": "OK", "vis_pass": true}, {"id": "model:US_MATV", "slug": "US_MATV", "name": "M-ATV", "role": "ground", "status": "passed", "retry": 1, "lod0_tris": 51850, "lod1_tris": 6527, "lod2_tris": 1041, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 1014.6, "old_kb": 2687.2, "iou0": 0.9953, "ssim0": 0.8771, "iou1": 0.9598, "iou2": 0.8109, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MC130H", "slug": "US_MC130H", "name": "MC-130H ", "role": "fixed_wing", "status": "passed", "retry": 0, "lod0_tris": 14191, "lod1_tris": 5414, "lod2_tris": 1298, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 231.6, "old_kb": 2157.1, "iou0": 0.9759, "ssim0": 0.9025, "iou1": 0.9521, "iou2": 0.9171, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MH47", "slug": "US_MH47", "name": "MH-47G SOAR", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 22104, "lod1_tris": 9829, "lod2_tris": 5215, "dc": 7, "nodes": 3, "slots": "main_rotor+hull+tail_rotor", "own_kb": 617.9, "old_kb": 2547.3, "iou0": 0.9851, "ssim0": 0.8681, "iou1": 0.9734, "iou2": 0.9386, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MH6", "slug": "US_MH6", "name": "MH-6 Little Bird", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 14746, "lod1_tris": 3250, "lod2_tris": 2069, "dc": 6, "nodes": 3, "slots": "tail_rotor+hull+main_rotor", "own_kb": 234.5, "old_kb": 887.8, "iou0": 0.9798, "ssim0": 0.8898, "iou1": 0.9382, "iou2": 0.8573, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MH60M_IDAP", "slug": "US_MH60M_IDAP", "name": "MH-60M DAP", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 20025, "lod1_tris": 8443, "lod2_tris": 2777, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 595.3, "old_kb": 2121.0, "iou0": 0.9711, "ssim0": 0.8921, "iou1": 0.9485, "iou2": 0.8845, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MH60M_SOAR", "slug": "US_MH60M_SOAR", "name": "MH-60M SOAR", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 21111, "lod1_tris": 9138, "lod2_tris": 3569, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 548.0, "old_kb": 2059.1, "iou0": 0.9788, "ssim0": 0.8655, "iou1": 0.9622, "iou2": 0.9197, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MH60X", "slug": "US_MH60X", "name": "MH-60X Silent Hawk", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 14861, "lod1_tris": 4159, "lod2_tris": 2069, "dc": 5, "nodes": 3, "slots": "hull+tail_rotor+main_rotor", "own_kb": 514.8, "old_kb": 752.0, "iou0": 0.9915, "ssim0": 0.8659, "iou1": 0.9907, "iou2": 0.9642, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MQ1B", "slug": "US_MQ1B", "name": "MQ-1 Predator", "role": "uav", "status": "passed", "retry": 0, "lod0_tris": 9902, "lod1_tris": 2704, "lod2_tris": 1336, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 266.2, "old_kb": 487.4, "iou0": 0.9982, "ssim0": 0.9932, "iou1": 0.9884, "iou2": 0.9784, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MQ1C", "slug": "US_MQ1C", "name": "MQ-1C Gray Eagle", "role": "uav", "status": "passed", "retry": 0, "lod0_tris": 9512, "lod1_tris": 2443, "lod2_tris": 1347, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 268.7, "old_kb": 387.3, "iou0": 0.9992, "ssim0": 0.9872, "iou1": 0.9911, "iou2": 0.9601, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MQ9", "slug": "US_MQ9", "name": "MQ-9 Reaper", "role": "uav", "status": "passed", "retry": 0, "lod0_tris": 9507, "lod1_tris": 2331, "lod2_tris": 1348, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 258.4, "old_kb": 330.8, "iou0": 0.9989, "ssim0": 0.9888, "iou1": 0.9885, "iou2": 0.9809, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MTV", "slug": "US_MTV", "name": "MTV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 23037, "lod1_tris": 5136, "lod2_tris": 965, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 740.9, "old_kb": 942.5, "iou0": 0.9931, "ssim0": 0.8428, "iou1": 0.9842, "iou2": 0.937, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MTVR", "slug": "US_MTVR", "name": "MTVR", "role": "ground", "status": "passed", "retry": 1, "lod0_tris": 21197, "lod1_tris": 3633, "lod2_tris": 959, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 630.1, "old_kb": 654.5, "iou0": 0.9967, "ssim0": 0.8417, "iou1": 0.9739, "iou2": 0.9407, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_MV-22_b", "slug": "US_MV-22_b", "name": "MV-22B Osprey", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 14631, "lod1_tris": 4509, "lod2_tris": 1333, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 649.8, "old_kb": 1089.6, "iou0": 0.9742, "ssim0": 0.898, "iou1": 0.9556, "iou2": 0.9438, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_OH58Kiowa", "slug": "US_OH58Kiowa", "name": "OH-58D Kiowa Warrior", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 15394, "lod1_tris": 4211, "lod2_tris": 1905, "dc": 6, "nodes": 3, "slots": "hull+main_rotor+tail_rotor", "own_kb": 537.3, "old_kb": 1155.1, "iou0": 0.9846, "ssim0": 0.8973, "iou1": 0.9565, "iou2": 0.7803, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_PATRIOT_PAC2", "slug": "US_PATRIOT_PAC2", "name": "Patriot PAC-2", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 21845, "lod1_tris": 10080, "lod2_tris": 1294, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 373.5, "old_kb": 1397.3, "iou0": 0.9819, "ssim0": 0.8115, "iou1": 0.9593, "iou2": 0.8493, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_PATRIOT_PAC3", "slug": "US_PATRIOT_PAC3", "name": "Patriot PAC-3", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 23682, "lod1_tris": 10010, "lod2_tris": 1312, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 405.4, "old_kb": 1505.9, "iou0": 0.9816, "ssim0": 0.8171, "iou1": 0.9598, "iou2": 0.851, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_PATRIOT_PAC3MSE", "slug": "US_PATRIOT_PAC3MSE", "name": "Patriot PAC-3 MSE", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 25279, "lod1_tris": 10089, "lod2_tris": 1310, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 434.6, "old_kb": 1527.6, "iou0": 0.9803, "ssim0": 0.8037, "iou1": 0.9604, "iou2": 0.8319, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_PLS", "slug": "US_PLS", "name": "M1075A1 PLS", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 17877, "lod1_tris": 6584, "lod2_tris": 942, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 421.1, "old_kb": 1086.3, "iou0": 0.9909, "ssim0": 0.8747, "iou1": 0.9868, "iou2": 0.9326, "blk": 0.01, "mot": "OK", "vis_pass": true}, {"id": "model:US_RAH66", "slug": "US_RAH66", "name": "RAH-66 Comanche", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 15667, "lod1_tris": 4025, "lod2_tris": 1650, "dc": 7, "nodes": 3, "slots": "hull+tail_rotor+main_rotor", "own_kb": 451.8, "old_kb": 712.9, "iou0": 0.988, "ssim0": 0.9396, "iou1": 0.973, "iou2": 0.9532, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_RQ170", "slug": "US_RQ170", "name": "RQ-170 Sentinel", "role": "uav", "status": "passed", "retry": 0, "lod0_tris": 3758, "lod1_tris": 2377, "lod2_tris": 1346, "dc": 1, "nodes": 1, "slots": "hull", "own_kb": 166.1, "old_kb": 90.1, "iou0": 0.9995, "ssim0": 0.9431, "iou1": 0.998, "iou2": 0.9961, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_RQ4B", "slug": "US_RQ4B", "name": "RQ-4 Global Hawk", "role": "uav", "status": "passed", "retry": 0, "lod0_tris": 7940, "lod1_tris": 2399, "lod2_tris": 1326, "dc": 1, "nodes": 1, "slots": "hull", "own_kb": 178.7, "old_kb": 150.3, "iou0": 0.9994, "ssim0": 0.9847, "iou1": 0.9936, "iou2": 0.9745, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_RQ7", "slug": "US_RQ7", "name": "RQ-7 Shadow", "role": "uav", "status": "passed", "retry": 0, "lod0_tris": 7901, "lod1_tris": 720, "lod2_tris": 720, "dc": 1, "nodes": 1, "slots": "hull", "own_kb": 256.9, "old_kb": 228.5, "iou0": 0.9996, "ssim0": 0.987, "iou1": 0.9532, "iou2": 0.9532, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_RSOV", "slug": "US_RSOV", "name": "RSOV", "role": "ground", "status": "passed", "retry": 1, "lod0_tris": 41002, "lod1_tris": 3120, "lod2_tris": 965, "dc": 5, "nodes": 2, "slots": "hull+turret", "own_kb": 968.1, "old_kb": 1643.0, "iou0": 0.9978, "ssim0": 0.874, "iou1": 0.9498, "iou2": 0.8741, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_STRYKER_ATGM", "slug": "US_STRYKER_ATGM", "name": "Stryker ATGM", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 20512, "lod1_tris": 4684, "lod2_tris": 976, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 600.8, "old_kb": 1020.0, "iou0": 0.9905, "ssim0": 0.8051, "iou1": 0.9777, "iou2": 0.8875, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_STRYKER_ESV", "slug": "US_STRYKER_ESV", "name": "Stryker ESV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 27393, "lod1_tris": 6724, "lod2_tris": 1121, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 615.4, "old_kb": 1333.6, "iou0": 0.9891, "ssim0": 0.85, "iou1": 0.9533, "iou2": 0.7211, "blk": 0.0, "mot": "OK", "vis_pass": false}, {"id": "model:US_STRYKER_ICV", "slug": "US_STRYKER_ICV", "name": "Stryker ICV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 19695, "lod1_tris": 4590, "lod2_tris": 964, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 323.6, "old_kb": 925.7, "iou0": 0.991, "ssim0": 0.8064, "iou1": 0.9791, "iou2": 0.8942, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_STRYKER_RV", "slug": "US_STRYKER_RV", "name": "Stryker RV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 21904, "lod1_tris": 4772, "lod2_tris": 977, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 627.4, "old_kb": 1077.3, "iou0": 0.9898, "ssim0": 0.8099, "iou1": 0.9727, "iou2": 0.8851, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_STRYKER_SHORAD", "slug": "US_STRYKER_SHORAD", "name": "Stryker M-SHORAD", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 20794, "lod1_tris": 5176, "lod2_tris": 972, "dc": 2, "nodes": 1, "slots": "hull", "own_kb": 614.4, "old_kb": 963.0, "iou0": 0.9918, "ssim0": 0.8211, "iou1": 0.9789, "iou2": 0.895, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_STRYKER_SPH", "slug": "US_STRYKER_SPH", "name": "Stryker SPH", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 14607, "lod1_tris": 3546, "lod2_tris": 968, "dc": 1, "nodes": 1, "slots": "hull", "own_kb": 501.5, "old_kb": 662.2, "iou0": 0.9881, "ssim0": 0.8163, "iou1": 0.973, "iou2": 0.9126, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_UH-1Y", "slug": "US_UH-1Y", "name": "UH-1Y Venom", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 20818, "lod1_tris": 6703, "lod2_tris": 3140, "dc": 6, "nodes": 3, "slots": "hull+tail_rotor+main_rotor", "own_kb": 651.6, "old_kb": 1349.6, "iou0": 0.9709, "ssim0": 0.8797, "iou1": 0.9516, "iou2": 0.8961, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_UH60M", "slug": "US_UH60M", "name": "UH-60M Blackhawk", "role": "rotorcraft", "status": "passed", "retry": 0, "lod0_tris": 17062, "lod1_tris": 6739, "lod2_tris": 3214, "dc": 6, "nodes": 3, "slots": "main_rotor+hull+tail_rotor", "own_kb": 287.7, "old_kb": 1794.9, "iou0": 0.9781, "ssim0": 0.9005, "iou1": 0.9554, "iou2": 0.9224, "blk": 0.1, "mot": "OK", "vis_pass": true}, {"id": "model:US_m1288_base", "slug": "US_m1288_base", "name": "Flyer GMV", "role": "ground", "status": "partial", "retry": 0, "lod0_tris": 24943, "lod1_tris": 4304, "lod2_tris": 977, "dc": 4, "nodes": 1, "slots": "hull", "own_kb": 810.6, "old_kb": 1223.8, "iou0": 0.9934, "ssim0": 0.8328, "iou1": 0.9852, "iou2": 0.9264, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_m981_fist", "slug": "US_m981_fist", "name": "M981 FISTV", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 14713, "lod1_tris": 4960, "lod2_tris": 976, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 404.8, "old_kb": 931.2, "iou0": 0.9953, "ssim0": 0.8284, "iou1": 0.9866, "iou2": 0.9536, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_stryker_mc", "slug": "US_stryker_mc", "name": "Stryker MC", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 26746, "lod1_tris": 6196, "lod2_tris": 955, "dc": 3, "nodes": 1, "slots": "hull", "own_kb": 908.9, "old_kb": 1464.9, "iou0": 0.9917, "ssim0": 0.8211, "iou1": 0.9788, "iou2": 0.9027, "blk": 0.0, "mot": "OK", "vis_pass": true}, {"id": "model:US_stryker_mgs", "slug": "US_stryker_mgs", "name": "Stryker MGS", "role": "ground", "status": "passed", "retry": 0, "lod0_tris": 22706, "lod1_tris": 5137, "lod2_tris": 970, "dc": 5, "nodes": 2, "slots": "hull+turret", "own_kb": 724.7, "old_kb": 1223.7, "iou0": 0.9906, "ssim0": 0.8089, "iou1": 0.9775, "iou2": 0.8766, "blk": 0.0, "mot": "OK", "vis_pass": true}];
+  const qEl = document.getElementById('q');
+  const rEl = document.getElementById('role-f');
+  const pEl = document.getElementById('pass-f');
+  const tb = document.getElementById('all-tbody');
+  function render() {
+    const q = qEl.value.trim().toLowerCase();
+    const role = rEl.value;
+    const pf = pEl.value;
+    const list = ROWS.filter(r => {
+      if (role !== 'all' && r.role !== role) return false;
+      if (pf === 'pass' && !r.vis_pass) return false;
+      if (pf === 'warn' && r.vis_pass && r.status === 'passed') return false;
+      if (q && !`${r.id} ${r.name} ${r.slots}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+    tb.innerHTML = list.map((r, i) => `<tr>
+      <td class="num">${i + 1}</td>
+      <td><code>${r.id}</code></td>
+      <td>${r.name}</td>
+      <td>${r.role}</td>
+      <td>${r.status === 'partial' ? '<span class="pill warn">partial</span>' : 'passed'}</td>
+      <td><code>${r.slots}</code></td>
+      <td class="num">${r.lod0_tris.toLocaleString()}</td>
+      <td class="num">${r.lod1_tris.toLocaleString()}</td>
+      <td class="num">${r.lod2_tris.toLocaleString()}</td>
+      <td class="num">${r.dc}</td>
+      <td class="num">${r.own_kb} <span style="color:var(--muted)">(${r.old_kb})</span></td>
+      <td class="num">${r.iou0.toFixed(3)}</td>
+      <td class="num">${r.ssim0.toFixed(3)}</td>
+      <td class="num">${r.iou1.toFixed(3)}</td>
+      <td class="num">${r.iou2.toFixed(3)}</td>
+      <td>${r.mot}</td>
+      <td>${r.vis_pass ? '<span class="pill pass">PASS</span>' : '<span class="pill warn">REVIEW</span>'}</td>
+    </tr>`).join('');
+  }
+  qEl.addEventListener('input', render);
+  rEl.addEventListener('change', render);
+  pEl.addEventListener('change', render);
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="data:," />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>程序化载具 · 多车型混编演训场 (680p 复古微缩 Stylized)</title>
+  <link rel="stylesheet" href="/ui/令牌.css" />
+  <link rel="stylesheet" href="/ui/组件.css" />
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+      background: #0b0f0c; color: var(--ui-text-primary);
+      font-family: var(--ui-font-sans); user-select: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #aspect-frame {
+      position: relative; background: #1e251d;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.78); overflow: hidden;
+    }
+    #aspect-frame canvas {
+      width: 100% !important; height: 100% !important; display: block;
+    }
+    .hud-layer { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
+    .hud-top {
+      position: absolute; top: 10px; left: 10px; right: 10px;
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+    }
+    .hud-card {
+      pointer-events: auto; padding: 7px 11px;
+      display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+    }
+    .hud-btn {
+      padding: 4px 9px; font-size: var(--ui-fs-xs); cursor: pointer;
+      background: var(--ui-bg-slot); color: var(--ui-text-secondary);
+      border: 1px solid var(--ui-line-base); border-radius: var(--ui-radius-xs);
+      text-decoration: none;
+    }
+    .hud-btn:hover { background: var(--ui-bg-hover); color: var(--ui-text-primary); }
+    .hud-btn.active {
+      background: var(--ui-state-select-fill); color: var(--ui-state-select);
+      border-color: var(--ui-state-select); font-weight: 600;
+    }
+    .hud-bottom {
+      position: absolute; bottom: 10px; left: 10px; right: 10px;
+      display: flex; justify-content: space-between; align-items: flex-end; gap: 10px;
+    }
+    .stat-grid {
+      display: grid; grid-template-columns: repeat(6, auto); gap: 4px 14px;
+      font-family: var(--ui-font-mono); font-size: var(--ui-fs-xs);
+    }
+    .s-l { display: block; font-size: var(--ui-fs-2xs); color: var(--ui-text-muted); }
+    .s-v { font-weight: 600; color: var(--ui-text-primary); }
+    .s-v.hi { color: var(--ui-state-select); }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/vendor/build/three.module.js",
+        "three/addons/": "/vendor/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="aspect-frame">
+    <div class="hud-layer">
+      <div class="hud-top">
+        <div class="ui-pod hud-card">
+          <strong style="font-size:13px;">混编演训场</strong>
+          <span class="ui-divider"></span>
+          <button class="hud-btn" data-preset="10_near">10车近景</button>
+          <button class="hud-btn active" data-preset="100_mixed">30车型×100混编</button>
+          <button class="hud-btn" data-preset="300_stress">30车型×300探索</button>
+          <button class="hud-btn" data-preset="129_parade">全库129车阅兵</button>
+          <span class="ui-divider"></span>
+          <button class="hud-btn" id="btn-zoom-sweep">70m↔9000m 连续缩放</button>
+        </div>
+        <div class="ui-pod hud-card">
+          <button class="hud-btn active" data-aspect="16:9">16:9 (1208×680)</button>
+          <button class="hud-btn" data-aspect="21:9">21:9 (1588×680)</button>
+          <span class="ui-divider"></span>
+          <a class="hud-btn" href="/showcase">单车展示台</a>
+          <a class="hud-btn" href="/report">验收报告</a>
+        </div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="ui-pod hud-card" style="padding:7px 12px;">
+          <div class="stat-grid">
+            <div><span class="s-l">FPS / 帧耗时</span><span class="s-v hi" id="st-fps">-</span></div>
+            <div><span class="s-l">DrawCall / 三角面</span><span class="s-v" id="st-dc">-</span></div>
+            <div><span class="s-l">视野跨度 (span)</span><span class="s-v" id="st-span">-</span></div>
+            <div><span class="s-l">LOD0 / LOD1 / LOD2</span><span class="s-v hi" id="st-lod">-</span></div>
+            <div><span class="s-l">Range 请求 / 传输</span><span class="s-v" id="st-net">-</span></div>
+            <div><span class="s-l">共享去重纹理</span><span class="s-v" id="st-tex">-</span></div>
+          </div>
+        </div>
+        <div class="ui-pod hud-card" style="font-size:11px;color:var(--ui-text-secondary);">
+          WASD 平移 · 滚轮缩放(70m–9000m) · Q/E 旋转视角
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import {
+      RENDER_STYLE_BASELINE,
+      applyStylized680pCanvas,
+      computeHorPlusCameraFrustum,
+      getStandardAspectSpec,
+      layoutAspectFrameBox,
+    } from '/src/程序化地图/渲染基线.mjs';
+    import {ProceduralVehicleLoader} from '/src/程序化载具/载具流式加载器.mjs';
+    import {ProceduralVehicleRenderer} from '/src/程序化载具/载具实例化渲染器.mjs';
+
+    const params = new URLSearchParams(location.search);
+    const sourceMode = params.get('source') || 'archive';
+    const baseUrl = params.get('base') || '/v2';
+    const archiveBaseUrl = params.get('archive') || '/v3';
+    let currentAspect = params.get('aspect') === '21:9' ? '21:9' : '16:9';
+    let currentPreset = params.get('preset') || '100_mixed';
+
+    const frameEl = document.getElementById('aspect-frame');
+    const renderer = new THREE.WebGLRenderer({
+      antialias: RENDER_STYLE_BASELINE.webgl.antialias,
+      powerPreference: 'high-performance',
+    });
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = RENDER_STYLE_BASELINE.webgl.exposure;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
+    frameEl.prepend(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x3a4736);
+    scene.fog = new THREE.Fog(0x3a4736, 2600, 12000);
+
+    const hemi = new THREE.HemisphereLight(0xeef3e2, 0x5c6a53, 1.35);
+    const sun = new THREE.DirectionalLight(0xffeed4, 2.8);
+    sun.position.set(-140, 220, 90);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.near = 10;
+    sun.shadow.camera.far = 900;
+    sun.shadow.camera.left = -220;
+    sun.shadow.camera.right = 220;
+    sun.shadow.camera.top = 220;
+    sun.shadow.camera.bottom = -220;
+    sun.shadow.bias = -0.0002;
+    scene.add(hemi, sun, sun.target);
+
+    // 战术演训大地面（9km × 9km 对齐大地图尺度，程序化格子纹理防重复）
+    const groundCanvas = document.createElement('canvas');
+    groundCanvas.width = groundCanvas.height = 256;
+    const gctx = groundCanvas.getContext('2d');
+    gctx.fillStyle = '#536146';
+    gctx.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 1800; i++) {
+      gctx.fillStyle = i % 2 ? '#4d5b41' : '#5b694d';
+      gctx.fillRect((i * 53) % 256, (i * 97) % 256, 4, 4);
+    }
+    gctx.strokeStyle = 'rgba(210, 225, 185, 0.14)';
+    gctx.lineWidth = 2;
+    gctx.strokeRect(1, 1, 254, 254);
+    const gTex = new THREE.CanvasTexture(groundCanvas);
+    gTex.wrapS = gTex.wrapT = THREE.RepeatWrapping;
+    gTex.repeat.set(180, 180);
+    gTex.colorSpace = THREE.SRGBColorSpace;
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(9000, 9000),
+      new THREE.MeshStandardMaterial({map: gTex, roughness: 0.96, metalness: 0.02}),
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    const camera = new THREE.OrthographicCamera(-100, 100, 56, -56, 0.5, 22000);
+    let camSpan = 210;
+    let camYaw = 0;
+    const camCenter = new THREE.Vector3(0, 0, 0);
+    const keys = new Set();
+
+    function updateCamera() {
+      const spec = getStandardAspectSpec(currentAspect);
+      const {halfW, halfH} = computeHorPlusCameraFrustum(camSpan, spec.ratio);
+      camera.left = -halfW;
+      camera.right = halfW;
+      camera.top = halfH;
+      camera.bottom = -halfH;
+      const dist = Math.max(180, camSpan * 1.45);
+      const elev = (48 * Math.PI) / 180;
+      const hDist = Math.cos(elev) * dist;
+      const vDist = Math.sin(elev) * dist;
+      camera.position.set(
+        camCenter.x + Math.sin(camYaw) * hDist,
+        camCenter.y + vDist,
+        camCenter.z + Math.cos(camYaw) * hDist,
+      );
+      camera.lookAt(camCenter);
+      camera.updateProjectionMatrix();
+      camera.updateMatrixWorld();
+
+      sun.position.set(camCenter.x - 140, 220, camCenter.z + 90);
+      sun.target.position.copy(camCenter);
+      sun.target.updateMatrixWorld();
+    }
+
+    function updateAspectLayout() {
+      const spec = applyStylized680pCanvas(renderer, currentAspect);
+      const box = layoutAspectFrameBox(spec.ratio, window.innerWidth - 16, window.innerHeight - 16);
+      frameEl.style.width = `${box.width}px`;
+      frameEl.style.height = `${box.height}px`;
+      updateCamera();
+      document.querySelectorAll('[data-aspect]').forEach(b => b.classList.toggle('active', b.dataset.aspect === currentAspect));
+    }
+    window.addEventListener('resize', updateAspectLayout);
+    updateAspectLayout();
+
+    window.addEventListener('keydown', e => keys.add(e.code));
+    window.addEventListener('keyup', e => keys.delete(e.code));
+    frameEl.addEventListener('wheel', e => {
+      e.preventDefault();
+      camSpan = THREE.MathUtils.clamp(camSpan * (e.deltaY > 0 ? 1.12 : 0.89), 70, 9000);
+      updateCamera();
+    }, {passive: false});
+
+    const loader = new ProceduralVehicleLoader(renderer, {
+      mode: sourceMode,
+      baseUrl,
+      archiveBaseUrl,
+      maxCachedDetailVehicles: 140,
+    });
+    const vehRenderer = new ProceduralVehicleRenderer({scene, loader});
+
+    let allVehicles = [];
+    let units = [];
+    let sweepActive = false;
+    let sweepTime = 0;
+    let simTime = 0;
+    let coreReady = false;
+
+    function pickDiverseTypes(count) {
+      const passed = allVehicles.filter(v => (v.st || v.quality_status) !== 'R' && v.quality_status !== 'partial');
+      const grounds = passed.filter(v => v.role === 'ground');
+      const helis = passed.filter(v => v.role === 'rotorcraft');
+      const planes = passed.filter(v => v.role === 'fixed_wing' || v.role === 'uav');
+      const chosen = [];
+      const must = ['US_M1A2', 'US_AH64D', 'US_A10', 'US_AH64E', 'US_F15E', 'US_MC130H', 'US_LMTV_Warpig'];
+      for (const s of must) {
+        const hit = passed.find(v => v.slug === s);
+        if (hit && !chosen.includes(hit)) chosen.push(hit);
+      }
+      let gi = 0, hi = 0, pi = 0;
+      while (chosen.length < Math.min(count, passed.length)) {
+        if (gi < grounds.length && !chosen.includes(grounds[gi])) chosen.push(grounds[gi]);
+        gi += 1;
+        if (chosen.length >= count) break;
+        if (hi < helis.length && !chosen.includes(helis[hi])) chosen.push(helis[hi]);
+        hi += 1;
+        if (chosen.length >= count) break;
+        if (pi < planes.length && !chosen.includes(planes[pi])) chosen.push(planes[pi]);
+        pi += 1;
+        if (gi >= grounds.length && hi >= helis.length && pi >= planes.length) break;
+      }
+      return chosen;
+    }
+
+    async function applyPreset(preset) {
+      currentPreset = preset;
+      document.querySelectorAll('[data-preset]').forEach(b => b.classList.toggle('active', b.dataset.preset === preset));
+      units = [];
+      let types, totalCount, spacing;
+      if (preset === '10_near') {
+        types = pickDiverseTypes(10);
+        totalCount = 10;
+        spacing = 18;
+        camSpan = 115;
+      } else if (preset === '300_stress') {
+        types = pickDiverseTypes(30);
+        totalCount = 300;
+        spacing = 24;
+        camSpan = 340;
+      } else if (preset === '129_parade') {
+        types = allVehicles;
+        totalCount = allVehicles.length;
+        spacing = 24;
+        camSpan = 280;
+      } else {
+        types = pickDiverseTypes(30);
+        totalCount = 100;
+        spacing = 17;
+        camSpan = 188;
+      }
+
+      const cols = Math.ceil(Math.sqrt(totalCount));
+      for (let i = 0; i < totalCount; i++) {
+        const v = types[i % types.length];
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const bx = (col - (cols - 1) * 0.5) * spacing;
+        const bz = (row - (Math.ceil(totalCount / cols) - 1) * 0.5) * spacing;
+        const alt = v.role === 'ground' ? 0 : v.role === 'rotorcraft' ? 24 : 58;
+        units.push({
+          id: `u_${i}`,
+          slug: v.slug,
+          role: v.role,
+          baseX: bx,
+          baseZ: bz,
+          alt,
+          orbitR: v.role === 'fixed_wing' || v.role === 'uav' ? 36 + (i % 5) * 8 : v.role === 'rotorcraft' ? 14 : 7,
+          speed: v.role === 'fixed_wing' || v.role === 'uav' ? 0.55 : v.role === 'rotorcraft' ? 0.45 : 0.35,
+          phase: (i * 0.73) % (Math.PI * 2),
+          pos: [bx, alt, bz],
+          yaw: 0,
+          pitch: 0,
+          roll: 0,
+          turretYaw: 0,
+          barrelPitch: 0,
+          mainRotorAngle: 0,
+          tailRotorAngle: 0,
+          gunYaw: 0,
+        });
+      }
+      camCenter.set(0, 0, 0);
+      updateCamera();
+      await vehRenderer.setUnits(units);
+      vehRenderer.update(camSpan, camCenter);
+    }
+
+    document.querySelectorAll('[data-preset]').forEach(btn => {
+      btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+    });
+    document.querySelectorAll('[data-aspect]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentAspect = btn.dataset.aspect;
+        updateAspectLayout();
+      });
+    });
+    document.getElementById('btn-zoom-sweep').addEventListener('click', e => {
+      sweepActive = !sweepActive;
+      sweepTime = 0;
+      e.target.classList.toggle('active', sweepActive);
+    });
+
+    let lastT = performance.now();
+    let fpsAcc = 0, fpsFrames = 0;
+    const frameTimes = [];
+
+    function animate(now) {
+      requestAnimationFrame(animate);
+      const dt = Math.min(0.1, (now - lastT) / 1000);
+      lastT = now;
+      simTime += dt;
+      frameTimes.push(dt * 1000);
+      if (frameTimes.length > 1200) frameTimes.shift();
+
+      const panSpeed = camSpan * 0.55 * dt;
+      if (keys.has('KeyW')) camCenter.z -= panSpeed;
+      if (keys.has('KeyS')) camCenter.z += panSpeed;
+      if (keys.has('KeyA')) camCenter.x -= panSpeed;
+      if (keys.has('KeyD')) camCenter.x += panSpeed;
+      if (keys.has('KeyQ')) camYaw -= 1.2 * dt;
+      if (keys.has('KeyE')) camYaw += 1.2 * dt;
+
+      if (sweepActive) {
+        sweepTime += dt;
+        const t = (1 - Math.cos(sweepTime * 0.9)) * 0.5;
+        camSpan = 70 * Math.pow(9000 / 70, t);
+      }
+
+      for (const u of units) {
+        const ang = u.phase + simTime * u.speed;
+        const nx = u.baseX + Math.cos(ang) * u.orbitR;
+        const nz = u.baseZ + Math.sin(ang) * u.orbitR;
+        u.yaw = Math.atan2(nx - u.pos[0], nz - u.pos[2]) + Math.PI;
+        u.pos[0] = nx;
+        u.pos[1] = u.alt;
+        u.pos[2] = nz;
+        u.turretYaw = Math.sin(simTime * 0.9 + u.phase) * 1.1;
+        u.barrelPitch = Math.sin(simTime * 1.4 + u.phase) * 0.14;
+        u.mainRotorAngle = simTime * 15.0 + u.phase;
+        u.tailRotorAngle = simTime * 26.0 + u.phase;
+        u.gunYaw = Math.sin(simTime * 1.6 + u.phase) * 0.6;
+      }
+
+      updateCamera();
+      vehRenderer.update(camSpan, camCenter);
+      renderer.render(scene, camera);
+
+      fpsAcc += dt;
+      fpsFrames += 1;
+      if (fpsAcc >= 0.4) {
+        const fps = fpsFrames / fpsAcc;
+        const st = vehRenderer.stats;
+        const ls = loader.stats;
+        document.getElementById('st-fps').textContent = `${fps.toFixed(1)} / ${(1000 / Math.max(1, fps)).toFixed(2)}ms`;
+        document.getElementById('st-dc').textContent = `${renderer.info.render.calls} / ${renderer.info.render.triangles.toLocaleString()}`;
+        document.getElementById('st-span').textContent = `${camSpan.toFixed(0)} m`;
+        document.getElementById('st-lod').textContent = `${st.lod0Count} / ${st.lod1Count} / ${st.lod2Count}`;
+        document.getElementById('st-net').textContent = `${ls.rangeRequests}次 / ${(ls.bytesFetched / 1048576).toFixed(2)}MiB`;
+        document.getElementById('st-tex').textContent = `${ls.uniqueTexturesLoaded} 张 (命中 ${ls.cacheHits})`;
+        fpsAcc = 0;
+        fpsFrames = 0;
+      }
+    }
+    requestAnimationFrame(animate);
+
+    async function boot() {
+      const idx = await loader.loadIndex();
+      if (sourceMode === 'archive') await loader.ensureFarBase();
+      allVehicles = idx.vehicles;
+      await applyPreset(currentPreset);
+      coreReady = true;
+      window.__VEH_BATTLE__ = {
+        isCoreReady: () => coreReady,
+        baseline: RENDER_STYLE_BASELINE.id,
+        applyPreset,
+        setAspect: a => { currentAspect = a; updateAspectLayout(); },
+        setSpan: s => { camSpan = THREE.MathUtils.clamp(s, 70, 9000); updateCamera(); vehRenderer.update(camSpan, camCenter); },
+        setSweep: on => { sweepActive = Boolean(on); sweepTime = 0; },
+        waitDetailIdle: async (timeoutMs = 15000) => {
+          const t0 = performance.now();
+          while (performance.now() - t0 < timeoutMs) {
+            let busy = false;
+            for (const p of vehRenderer.typePools.values()) if (p.loading.size > 0) busy = true;
+            if (!busy && loader.inflight === 0) return true;
+            await new Promise(r => setTimeout(r, 80));
+          }
+          return false;
+        },
+        resetFrameTimes: () => { frameTimes.length = 0; },
+        sampleFrameTimes: () => [...frameTimes],
+        getStats: () => ({
+          span: camSpan,
+          aspect: currentAspect,
+          render: {...renderer.info.render},
+          memory: {...renderer.info.memory},
+          vehicles: {...vehRenderer.stats},
+          loader: {...loader.stats},
+          jsHeap: performance.memory?.usedJSHeapSize || 0,
+        }),
+      };
+    }
+    boot();
+  </script>
+</body>
+</html>

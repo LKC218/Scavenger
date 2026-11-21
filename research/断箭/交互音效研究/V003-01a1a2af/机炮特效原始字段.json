@@ -1,0 +1,318 @@
+[
+  {
+    "path": "Assets/VFX/Configs/Ammunitions/AMMUNITION_VFX_PRESET_M230_BushMstr_HELI_US.asset",
+    "preset": {
+      "m_GameObject": {
+        "m_FileID": 0,
+        "m_PathID": 0
+      },
+      "m_Enabled": 1,
+      "m_Script": {
+        "m_FileID": 1,
+        "m_PathID": -4135820320245471730
+      },
+      "m_Name": "AMMUNITION_VFX_PRESET_M230_BushMstr_HELI_US",
+      "AmmunitionCollection": {
+        "m_FileID": 0,
+        "m_PathID": -5282016129764519642
+      }
+    },
+    "collection": {
+      "m_GameObject": {
+        "m_FileID": 0,
+        "m_PathID": 0
+      },
+      "m_Enabled": 1,
+      "m_Script": {
+        "m_FileID": 1,
+        "m_PathID": -8380904965288280601
+      },
+      "m_Name": "AMMUNITION_M230_BushMstr_SHELL_COLLECTION_HELI_ US",
+      "Shot": {
+        "m_FileID": 0,
+        "m_PathID": -5319164872390146566
+      },
+      "Tracer": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 2428439389874378794
+        }
+      ],
+      "TracerOptions": [
+        {
+          "Scale": {
+            "x": 0.10000000149011612,
+            "y": 25.0,
+            "z": 0.10000000149011612,
+            "w": 25.0
+          },
+          "Color": {
+            "r": 2.1789662837982178,
+            "g": 11.984314918518066,
+            "b": 0.0,
+            "a": 1.0
+          },
+          "ColorMultiply": {
+            "r": 0.2723707854747772,
+            "g": 1.4980393648147583,
+            "b": 0.0,
+            "a": 1.0
+          },
+          "Size": 0.44999998807907104,
+          "LifeTimeTrail": 0.0
+        }
+      ],
+      "Smoke": [],
+      "SmokeBurst": [],
+      "WaterImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 94306266530872233
+        }
+      ],
+      "VehicleImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": -8550725903588976340
+        }
+      ],
+      "InfantryImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 9208274612861383500
+        }
+      ],
+      "GroundImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 9208274612861383500
+        }
+      ],
+      "RadioFuseImpact": [],
+      "MissileInterceptionImpact": [],
+      "BuildingImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 5992728192383062602
+        },
+        {
+          "m_FileID": 0,
+          "m_PathID": 7429418132320884462
+        },
+        {
+          "m_FileID": 0,
+          "m_PathID": -3238067487873337581
+        },
+        {
+          "m_FileID": 0,
+          "m_PathID": 5081765255972941425
+        },
+        {
+          "m_FileID": 0,
+          "m_PathID": -2493555012877075171
+        },
+        {
+          "m_FileID": 0,
+          "m_PathID": 9098800510248625763
+        }
+      ],
+      "SmokeScreen": []
+    },
+    "references": {
+      "Shot": [
+        {
+          "id": -5319164872390146566,
+          "name": "VFX_M230_Bushmaster_SHOT_HELI_US"
+        }
+      ],
+      "Tracer": [
+        {
+          "id": 2428439389874378794,
+          "name": "Tracer_Universal"
+        }
+      ],
+      "InfantryImpact": [
+        {
+          "id": 9208274612861383500,
+          "name": "30mmExplosion_Radius_Ground"
+        }
+      ],
+      "GroundImpact": [
+        {
+          "id": 9208274612861383500,
+          "name": "30mmExplosion_Radius_Ground"
+        }
+      ],
+      "VehicleImpact": [
+        {
+          "id": -8550725903588976340,
+          "name": "VFX_30mm_IMPACT_VEHICLE_Radius"
+        }
+      ],
+      "BuildingImpact": [
+        {
+          "id": 5992728192383062602,
+          "name": "30mmExplosionGround"
+        },
+        {
+          "id": 7429418132320884462,
+          "name": "30mmExplosionGround_2"
+        },
+        {
+          "id": -3238067487873337581,
+          "name": "30mmVehicleImpact"
+        },
+        {
+          "id": 5081765255972941425,
+          "name": "Bullet_12.7-14mm_Impact_Building"
+        },
+        {
+          "id": -2493555012877075171,
+          "name": "VFX_Explosion_40mm_Impact_GRENADE_Building"
+        },
+        {
+          "id": 9098800510248625763,
+          "name": "VFX_Explosion_ROUND_GRENADE_40-57mm_HE_Building_Impact_1"
+        }
+      ]
+    }
+  },
+  {
+    "path": "Assets/VFX/Configs/Ammunitions/AMMUNITION_VFX_PRESET_MinigunAircraft.asset",
+    "preset": {
+      "m_GameObject": {
+        "m_FileID": 0,
+        "m_PathID": 0
+      },
+      "m_Enabled": 1,
+      "m_Script": {
+        "m_FileID": 1,
+        "m_PathID": -4135820320245471730
+      },
+      "m_Name": "AMMUNITION_VFX_PRESET_MinigunAircraft",
+      "AmmunitionCollection": {
+        "m_FileID": 0,
+        "m_PathID": -2836416841412062221
+      }
+    },
+    "collection": {
+      "m_GameObject": {
+        "m_FileID": 0,
+        "m_PathID": 0
+      },
+      "m_Enabled": 1,
+      "m_Script": {
+        "m_FileID": 1,
+        "m_PathID": -8380904965288280601
+      },
+      "m_Name": "AMMUNITION_MinigunAircraft_COLLECTION",
+      "Shot": {
+        "m_FileID": 0,
+        "m_PathID": 601508329421844324
+      },
+      "Tracer": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 2428439389874378794
+        }
+      ],
+      "TracerOptions": [
+        {
+          "Scale": {
+            "x": 0.20000000298023224,
+            "y": 65.0,
+            "z": 0.20000000298023224,
+            "w": 70.0
+          },
+          "Color": {
+            "r": 12.844466209411621,
+            "g": 0.23166373372077942,
+            "b": 0.0,
+            "a": 1.0
+          },
+          "ColorMultiply": {
+            "r": 1.498039960861206,
+            "g": 0.027018757537007332,
+            "b": 0.0,
+            "a": 1.0
+          },
+          "Size": 0.18000000715255737,
+          "LifeTimeTrail": 0.0
+        }
+      ],
+      "Smoke": [],
+      "SmokeBurst": [],
+      "WaterImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 94306266530872233
+        }
+      ],
+      "VehicleImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": -8550725903588976340
+        }
+      ],
+      "InfantryImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 9208274612861383500
+        }
+      ],
+      "GroundImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 9208274612861383500
+        }
+      ],
+      "RadioFuseImpact": [],
+      "MissileInterceptionImpact": [],
+      "BuildingImpact": [
+        {
+          "m_FileID": 0,
+          "m_PathID": 9208274612861383500
+        }
+      ],
+      "SmokeScreen": []
+    },
+    "references": {
+      "Shot": [
+        {
+          "id": 601508329421844324,
+          "name": "VFX_20mm_SHOT_Autocannon_Plane_R"
+        }
+      ],
+      "Tracer": [
+        {
+          "id": 2428439389874378794,
+          "name": "Tracer_Universal"
+        }
+      ],
+      "InfantryImpact": [
+        {
+          "id": 9208274612861383500,
+          "name": "30mmExplosion_Radius_Ground"
+        }
+      ],
+      "GroundImpact": [
+        {
+          "id": 9208274612861383500,
+          "name": "30mmExplosion_Radius_Ground"
+        }
+      ],
+      "VehicleImpact": [
+        {
+          "id": -8550725903588976340,
+          "name": "VFX_30mm_IMPACT_VEHICLE_Radius"
+        }
+      ],
+      "BuildingImpact": [
+        {
+          "id": 9208274612861383500,
+          "name": "30mmExplosion_Radius_Ground"
+        }
+      ]
+    }
+  }
+]

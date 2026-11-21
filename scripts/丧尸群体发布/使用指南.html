@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="丧尸群体模拟开发项目导入 WorkBuddy 的三步离线使用指南">
+  <title>丧尸群体模拟｜WorkBuddy 项目接入指南</title>
+  <style>
+    :root {
+      --paper: #f2ecdc;
+      --paper-strong: #fffaf0;
+      --ink: #182522;
+      --muted: #65706a;
+      --line: #c9c2af;
+      --accent: #e4572e;
+      --accent-soft: #ffd8c7;
+      --signal: #b7df4f;
+      --blue: #5f91aa;
+      --blue-soft: #dcebf0;
+      --shadow: 0 24px 70px rgba(44, 52, 45, .12);
+      --serif: "Noto Serif CJK SC", "Source Han Serif SC", "STSong", "SimSun", serif;
+      --sans: "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+      --mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at 9% 8%, rgba(228, 87, 46, .14), transparent 24rem),
+        radial-gradient(circle at 92% 26%, rgba(95, 145, 170, .15), transparent 28rem),
+        linear-gradient(115deg, #e7dfcc 0%, #f5f0e3 48%, #e9e4d7 100%);
+      line-height: 1.7;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      pointer-events: none;
+      opacity: .52;
+      background-image:
+        linear-gradient(rgba(24, 37, 34, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24, 37, 34, .045) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sheet {
+      width: min(1180px, calc(100% - 40px));
+      margin: 32px auto;
+      overflow: hidden;
+      background: var(--paper);
+      border: 1px solid rgba(24, 37, 34, .18);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 390px;
+      padding: 54px clamp(28px, 6vw, 78px) 48px;
+      overflow: hidden;
+      color: #f8f4e9;
+      background:
+        linear-gradient(115deg, rgba(10, 25, 22, .92), rgba(28, 50, 45, .82)),
+        repeating-linear-gradient(135deg, transparent 0 18px, rgba(255, 255, 255, .04) 18px 19px);
+    }
+
+    .hero::after {
+      position: absolute;
+      right: -80px;
+      bottom: -140px;
+      width: 390px;
+      height: 390px;
+      content: "";
+      border: 68px solid rgba(183, 223, 79, .28);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 34px rgba(228, 87, 46, .1),
+        0 0 0 96px rgba(255, 255, 255, .035);
+    }
+
+    .eyebrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px 18px;
+      align-items: center;
+      margin-bottom: 42px;
+      color: #d7e3dd;
+      font: 600 12px/1.3 var(--mono);
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow strong {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--signal);
+    }
+
+    .eyebrow strong::before {
+      width: 8px;
+      height: 8px;
+      content: "";
+      background: currentColor;
+      border-radius: 50%;
+      box-shadow: 0 0 0 5px rgba(183, 223, 79, .13);
+    }
+
+    h1 {
+      position: relative;
+      z-index: 1;
+      max-width: 820px;
+      margin: 0;
+      font: 700 clamp(42px, 7vw, 82px)/1.08 var(--serif);
+      letter-spacing: -.05em;
+    }
+
+    h1 span {
+      color: var(--signal);
+    }
+
+    .hero p {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 26px 0 0;
+      color: #d9e4df;
+      font-size: clamp(16px, 2vw, 19px);
+    }
+
+    .route {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 38px;
+      color: #eaf0ed;
+      font: 600 13px/1.4 var(--mono);
+    }
+
+    .route span {
+      padding: 9px 13px;
+      background: rgba(255, 255, 255, .09);
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+    }
+
+    .route i {
+      color: var(--signal);
+      font-style: normal;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(280px, .72fr);
+      gap: 0;
+    }
+
+    .steps {
+      padding: clamp(34px, 5vw, 62px);
+    }
+
+    .section-label {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font: 700 12px/1.4 var(--mono);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .steps > h2,
+    .finish h2 {
+      margin: 0;
+      font: 700 clamp(28px, 4vw, 42px)/1.18 var(--serif);
+      letter-spacing: -.035em;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 62px minmax(0, 1fr);
+      gap: clamp(18px, 3vw, 32px);
+      padding: 42px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .step:first-of-type {
+      margin-top: 34px;
+      border-top: 1px solid var(--line);
+    }
+
+    .step-index {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      color: var(--paper-strong);
+      font: 700 18px/1 var(--mono);
+      background: var(--ink);
+      border-radius: 17px 17px 17px 4px;
+      box-shadow: 6px 6px 0 var(--accent-soft);
+    }
+
+    .step h3 {
+      margin: 0 0 10px;
+      font: 700 clamp(23px, 3vw, 31px)/1.3 var(--serif);
+      letter-spacing: -.025em;
+    }
+
+    .step p {
+      margin: 0;
+      color: #4d5b55;
+    }
+
+    .step p + p {
+      margin-top: 10px;
+    }
+
+    .folder-card,
+    .screenshot-figure,
+    .picker {
+      margin-top: 22px;
+      overflow: hidden;
+      background: var(--paper-strong);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 12px 32px rgba(41, 49, 43, .08);
+    }
+
+    .window-bar {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 15px;
+      color: #59645e;
+      font: 600 11px/1 var(--mono);
+      background: #e6e0d2;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .window-bar b {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 14px 0 0 #e0b941, 28px 0 0 #6ca585;
+    }
+
+    .window-bar span {
+      margin-left: 24px;
+    }
+
+    .tree {
+      margin: 0;
+      padding: 24px;
+      overflow: auto;
+      color: #26342f;
+      font: 13px/1.9 var(--mono);
+      white-space: pre;
+    }
+
+    .tree em {
+      color: var(--accent);
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .callout {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-top: 16px;
+      padding: 14px 16px;
+      color: #4b3929;
+      background: #fae4cd;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      font-size: 14px;
+    }
+
+    .callout::before {
+      content: "!";
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font: 800 13px/1 var(--mono);
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .screenshot-link {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      background: #e8eef1;
+    }
+
+    .screenshot-link img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .zoom-hint {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      padding: 7px 10px;
+      color: #fff;
+      font: 700 11px/1.3 var(--sans);
+      background: rgba(24, 37, 34, .82);
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+    }
+
+    .screenshot-figure figcaption {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      justify-content: space-between;
+      padding: 13px 15px;
+      color: #59645e;
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+    }
+
+    .screenshot-figure figcaption a {
+      color: var(--accent);
+      font-weight: 800;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 3px;
+    }
+
+    .screenshot-link:focus-visible,
+    .screenshot-figure figcaption a:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .picker {
+      padding: 18px;
+    }
+
+    .picker-path {
+      padding: 11px 13px;
+      overflow: hidden;
+      color: #65706a;
+      font: 12px/1.4 var(--mono);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background: #ede8da;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+    }
+
+    .picker-row {
+      display: flex;
+      gap: 13px;
+      align-items: center;
+      margin-top: 13px;
+      padding: 14px;
+      background: #fff;
+      border: 1px solid #d9d2c2;
+      border-radius: 11px;
+    }
+
+    .picker-row .folder-icon {
+      position: relative;
+      width: 35px;
+      height: 26px;
+      flex: 0 0 auto;
+      background: #deb849;
+      border-radius: 4px 7px 7px 7px;
+    }
+
+    .picker-row .folder-icon::before {
+      position: absolute;
+      top: -6px;
+      left: 3px;
+      width: 15px;
+      height: 8px;
+      content: "";
+      background: #deb849;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .picker-row b {
+      display: block;
+      font-size: 14px;
+    }
+
+    .picker-row small {
+      color: var(--muted);
+    }
+
+    .picker-row span:last-child {
+      margin-left: auto;
+      padding: 5px 9px;
+      color: #315f3b;
+      font-size: 11px;
+      font-weight: 800;
+      background: #e1f3c2;
+      border-radius: 999px;
+    }
+
+    .sidebar {
+      padding: clamp(34px, 4vw, 54px) clamp(24px, 3vw, 38px);
+      background:
+        linear-gradient(180deg, rgba(255, 250, 240, .9), rgba(237, 231, 216, .94)),
+        repeating-linear-gradient(0deg, transparent 0 23px, rgba(24, 37, 34, .035) 23px 24px);
+      border-left: 1px solid var(--line);
+    }
+
+    .side-card {
+      padding: 22px;
+      background: rgba(255, 250, 240, .82);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    .side-card + .side-card {
+      margin-top: 18px;
+    }
+
+    .side-card h3 {
+      margin: 0 0 14px;
+      font: 700 20px/1.35 var(--serif);
+    }
+
+    .side-card p {
+      margin: 0;
+      color: #59645e;
+      font-size: 14px;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .check-list li {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: #40504a;
+      font-size: 14px;
+    }
+
+    .check-list li::before {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      content: "✓";
+      color: #183022;
+      font: 800 12px/1 var(--sans);
+      background: var(--signal);
+      border-radius: 50%;
+    }
+
+    .prompt-box {
+      margin: 15px 0 0;
+      padding: 14px;
+      color: #35433e;
+      font: 13px/1.7 var(--mono);
+      background: #e9e3d5;
+      border: 1px dashed #aaa28f;
+      border-radius: 12px;
+    }
+
+    .copy-button {
+      width: 100%;
+      margin-top: 13px;
+      padding: 11px 14px;
+      color: #fff;
+      font: 700 13px/1.3 var(--sans);
+      cursor: pointer;
+      background: var(--ink);
+      border: 0;
+      border-radius: 10px;
+      transition: transform .16s ease, background .16s ease;
+    }
+
+    .copy-button:hover {
+      background: #2d4640;
+      transform: translateY(-2px);
+    }
+
+    .copy-button:focus-visible,
+    .resource-card:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .copy-status {
+      min-height: 22px;
+      margin-top: 8px;
+      color: #376044;
+      font-size: 12px;
+    }
+
+    .resource-links {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .resource-card {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 14px;
+      text-decoration: none;
+      background: var(--paper-strong);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      transition: transform .16s ease, border-color .16s ease;
+    }
+
+    .resource-card:hover {
+      border-color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    .resource-card span:first-child {
+      color: var(--accent);
+      font: 800 12px/1 var(--mono);
+    }
+
+    .resource-card b {
+      display: block;
+      font-size: 14px;
+    }
+
+    .resource-card small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .finish {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 32px;
+      align-items: center;
+      padding: 42px clamp(28px, 6vw, 78px);
+      color: #f4f0e6;
+      background: var(--ink);
+    }
+
+    .finish p {
+      max-width: 720px;
+      margin: 10px 0 0;
+      color: #cbd5d0;
+    }
+
+    .finish-mark {
+      width: 104px;
+      height: 104px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: var(--ink);
+      font: 900 30px/1 var(--mono);
+      background: var(--signal);
+      border-radius: 50%;
+      transform: rotate(-8deg);
+    }
+
+    footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      justify-content: space-between;
+      padding: 20px clamp(28px, 6vw, 78px);
+      color: #727c76;
+      font: 11px/1.5 var(--mono);
+      border-top: 1px solid var(--line);
+    }
+
+    .reveal {
+      animation: reveal .58s cubic-bezier(.22, .78, .22, 1) both;
+    }
+
+    .hero > * {
+      animation: reveal .65s cubic-bezier(.22, .78, .22, 1) both;
+    }
+
+    .hero .eyebrow {
+      animation-delay: .05s;
+    }
+
+    .hero h1 {
+      animation-delay: .11s;
+    }
+
+    .hero p {
+      animation-delay: .17s;
+    }
+
+    .hero .route {
+      animation-delay: .23s;
+    }
+
+    @keyframes reveal {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-top: 1px solid var(--line);
+        border-left: 0;
+      }
+
+      .finish {
+        grid-template-columns: 1fr;
+      }
+
+      .finish-mark {
+        width: 74px;
+        height: 74px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .sheet {
+        width: min(100% - 20px, 1180px);
+        margin: 10px auto;
+        border-radius: 20px;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 34px 24px 38px;
+      }
+
+      h1 {
+        font-size: clamp(38px, 13vw, 58px);
+      }
+
+      .route {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .route i {
+        display: none;
+      }
+
+      .steps {
+        padding: 30px 22px;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+      }
+
+      .step-index {
+        width: 46px;
+        height: 46px;
+      }
+
+      .tree {
+        font-size: 11px;
+      }
+
+      .finish {
+        padding: 34px 24px;
+      }
+
+      footer {
+        padding: 18px 24px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      body::before,
+      .copy-button,
+      .copy-status {
+        display: none;
+      }
+
+      .sheet {
+        width: 100%;
+        margin: 0;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-top: 1px solid var(--line);
+        border-left: 0;
+      }
+
+      .step,
+      .side-card,
+      .finish {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <header class="hero">
+      <div class="eyebrow">
+        <strong>WorkBuddy / 本地项目</strong>
+        <span>项目接入说明</span>
+        <span>离线 HTML</span>
+      </div>
+      <h1>先解压，<br><span>再交给 WorkBuddy。</span></h1>
+      <p>这是开发项目。把压缩包解压到一个固定、可写的位置，然后在 WorkBuddy 中新建任务，通过“选择工作空间”添加解压后的项目文件夹。</p>
+      <div class="route" aria-label="三步流程">
+        <span>01 解压</span>
+        <i>→</i>
+        <span>02 新建任务</span>
+        <i>→</i>
+        <span>03 添加项目文件夹</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="steps" aria-labelledby="steps-title">
+        <p class="section-label">首次接入 / 约 1 分钟</p>
+        <h2 id="steps-title">按顺序完成三步</h2>
+
+        <article class="step">
+          <div class="step-index">01</div>
+          <div>
+            <h3>先把压缩包解压</h3>
+            <p>选择一个固定、可写且以后容易找到的本地目录。解压后会出现名为<strong>“运行研究版”</strong>或<strong>“完整研究版”</strong>的文件夹；这个文件夹就是 WorkBuddy 要添加的项目根目录。</p>
+            <div class="folder-card">
+              <div class="window-bar"><b></b><span>项目根目录</span></div>
+              <pre class="tree">运行研究版/
+├─ <em>README.md</em>
+├─ <em>使用指南.html</em>
+├─ 开发者阅读说明书.md
+├─ 启动丧尸群体测试.cmd
+├─ src/
+├─ runtime/
+└─ scripts/</pre>
+            </div>
+            <div class="callout">不要在压缩软件的预览窗口里直接运行项目。先完整解压，再添加解压后的文件夹。</div>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="step-index">02</div>
+          <div>
+            <h3>在 WorkBuddy 新建任务</h3>
+            <p>打开 WorkBuddy，在左侧选择“新建任务”。这样后续对话会以这个开发项目作为工作空间。</p>
+            <figure class="screenshot-figure">
+              <a class="screenshot-link" href="./assets/WorkBuddy操作截图.png" target="_blank" rel="noopener">
+                <img src="./assets/WorkBuddy操作截图.png" alt="WorkBuddy 界面中新建任务、选择工作空间和打开本地文件夹的位置" loading="lazy">
+                <span class="zoom-hint">点击查看原图</span>
+              </a>
+              <figcaption>
+                <span>红色箭头对应“新建任务”和“打开本地文件夹”两个操作。</span>
+                <a href="./assets/WorkBuddy操作截图.png" target="_blank" rel="noopener">打开原始截图</a>
+              </figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="step-index">03</div>
+          <div>
+            <h3>打开并添加项目文件夹</h3>
+            <p>在输入框下方点击“选择工作空间”，再选择“打开本地文件夹”。在系统目录选择器中找到解压后的项目根目录，选中后添加。</p>
+            <div class="picker">
+              <div class="picker-path">选择文件夹：运行研究版／完整研究版</div>
+              <div class="picker-row">
+                <span class="folder-icon" aria-hidden="true"></span>
+                <span><b>运行研究版</b><small>包含 README.md、使用指南.html、src、runtime</small></span>
+                <span>项目根目录</span>
+              </div>
+            </div>
+            <div class="callout">请选中“运行研究版”或“完整研究版”本身，不要选中它的上一级目录，也不要直接选择 ZIP 文件。</div>
+          </div>
+        </article>
+      </section>
+
+      <aside class="sidebar" aria-label="检查与继续阅读">
+        <section class="side-card">
+          <h3>添加前检查</h3>
+          <ul class="check-list">
+            <li>已经完整解压，文件可直接访问。</li>
+            <li>选中的是项目根目录，不是 ZIP 文件。</li>
+            <li>目录中能看到 README.md 和 src。</li>
+          </ul>
+        </section>
+
+        <section class="side-card">
+          <h3>给 WorkBuddy 的开场指令</h3>
+          <p>添加项目后，可以直接发送下面这段说明，让后续工作从项目文档开始。</p>
+          <div class="prompt-box" id="starter-prompt">先阅读 README.md 和开发者阅读说明书.md，确认项目结构、启动方式和已知限制；在未得到确认前不要修改资源或性能样本。</div>
+          <button class="copy-button" type="button" data-copy-target="starter-prompt">复制开场指令</button>
+          <div class="copy-status" aria-live="polite"></div>
+        </section>
+
+        <section class="side-card">
+          <h3>继续阅读</h3>
+          <div class="resource-links">
+            <a class="resource-card" href="./README.md">
+              <span>01</span>
+              <span><b>项目入口说明</b><small>启动、操作与目录导航</small></span>
+            </a>
+            <a class="resource-card" href="./开发者阅读说明书.md">
+              <span>02</span>
+              <span><b>开发者阅读说明书</b><small>修改流程、核验与性能口径</small></span>
+            </a>
+            <a class="resource-card" href="./已知限制.md">
+              <span>03</span>
+              <span><b>已知限制</b><small>尚未验收项与结论边界</small></span>
+            </a>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="finish">
+      <div>
+        <p class="section-label">完成标志</p>
+        <h2>WorkBuddy 左侧出现项目名称</h2>
+        <p>项目文件已经作为工作空间载入。此时可以继续阅读说明，或双击“启动丧尸群体测试.cmd”运行模拟。</p>
+      </div>
+      <div class="finish-mark" aria-hidden="true">就位</div>
+    </section>
+
+    <footer>
+      <span>丧尸群体模拟 · WorkBuddy 项目接入指南</span>
+      <span>界面为示意，按钮文字可能随 WorkBuddy 版本略有变化。</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const status = document.querySelector(".copy-status");
+      document.querySelector("[data-copy-target]").addEventListener("click", async (event) => {
+        const target = document.getElementById(event.currentTarget.dataset.copyTarget);
+        const text = target.textContent.trim();
+        try {
+          await navigator.clipboard.writeText(text);
+          status.textContent = "已复制，可直接粘贴到 WorkBuddy。";
+        } catch {
+          const range = document.createRange();
+          range.selectNodeContents(target);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          status.textContent = "已选中文本，请使用 Ctrl+C 复制。";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

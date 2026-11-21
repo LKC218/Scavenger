@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="paper">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>大地图肃清 · 玩法与载具协作关系图谱 V001</title>
+  <style>
+    :root {
+      /* 暖米图纸浅色（默认：参考图同款高可读策划看板） */
+      --bg-app: #f3f1eb;
+      --bg-panel: #faf9f5;
+      --bg-card: #ffffff;
+      --bg-card-subtle: #f5f3ec;
+      --bg-pill: #f0ede4;
+      --bg-pill-active: #252b26;
+      --text-pill-active: #faf9f5;
+      --border-base: #dfd9cc;
+      --border-strong: #c5bdb0;
+      --border-soft: #ebe6db;
+      --text-primary: #1f2421;
+      --text-secondary: #545d56;
+      --text-muted: #7f877f;
+      --shadow-card: 0 1px 2px rgba(28, 32, 26, 0.05);
+      --shadow-active: 0 4px 14px rgba(31, 36, 33, 0.12);
+      --grid-dot: rgba(120, 114, 98, 0.16);
+      --edge-label-bg: rgba(250, 249, 245, 0.94);
+
+      /* 通道与语义色（呼应全局UI-UX规范五维语义，针对浅底校准对比度） */
+      --ch-ground: #139684;
+      --ch-ground-soft: rgba(19, 150, 132, 0.11);
+      --ch-heli: #1a84c6;
+      --ch-heli-soft: rgba(26, 132, 198, 0.11);
+      --ch-plane: #7a58d6;
+      --ch-plane-soft: rgba(122, 88, 214, 0.11);
+      --ch-logistics: #c77c14;
+      --ch-logistics-soft: rgba(199, 124, 20, 0.12);
+      --ch-danger: #d44738;
+      --ch-danger-soft: rgba(212, 71, 56, 0.11);
+      --ch-zone: #2b8a4b;
+      --ch-zone-soft: rgba(43, 138, 75, 0.11);
+      --ch-select: #4b7c1e;
+      --ch-select-ring: #6da82a;
+
+      /* 六维职能堆叠条色盘 */
+      --dim-recon: #1a84c6;     /* 视野侦察 */
+      --dim-lure: #7a58d6;      /* 诱饵牵引 */
+      --dim-fire: #d44738;      /* 火力清群 */
+      --dim-armor: #476072;     /* 抗压耐久 */
+      --dim-supply: #d98218;    /* 后勤补给 */
+      --dim-cap: #2b8a4b;       /* 占区控制 */
+      --dim-idle: #e6e2d8;
+
+      /* 连线语义色 */
+      --edge-intel: #1a84c6;
+      --edge-lure: #7a58d6;
+      --edge-fire: #d44738;
+      --edge-supply: #d98218;
+      --edge-econ: #2b8a4b;
+      --edge-threat: #c43b3b;
+
+      --font-sans: "Bahnschrift", "DIN Alternate", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+      --font-mono: "Cascadia Mono", "Consolas", "JetBrains Mono", "Microsoft YaHei UI", monospace;
+    }
+
+    html[data-theme="tactical"] {
+      /* 战术深色（对齐全局UI-UX规范暗色沙盘风格） */
+      --bg-app: #101613;
+      --bg-panel: #151d18;
+      --bg-card: #1a241e;
+      --bg-card-subtle: #131b16;
+      --bg-pill: #202c25;
+      --bg-pill-active: #d4ee80;
+      --text-pill-active: #121815;
+      --border-base: rgba(150, 176, 144, 0.28);
+      --border-strong: rgba(186, 212, 172, 0.56);
+      --border-soft: rgba(150, 176, 144, 0.15);
+      --text-primary: #eef3e6;
+      --text-secondary: #b9c8b5;
+      --text-muted: #849682;
+      --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.28);
+      --shadow-active: 0 0 0 1px rgba(212, 238, 128, 0.5), 0 6px 20px rgba(0, 0, 0, 0.45);
+      --grid-dot: rgba(150, 176, 144, 0.12);
+      --edge-label-bg: rgba(18, 25, 21, 0.94);
+
+      --ch-ground: #44d2be;
+      --ch-ground-soft: rgba(68, 210, 190, 0.15);
+      --ch-heli: #62c8ff;
+      --ch-heli-soft: rgba(98, 200, 255, 0.15);
+      --ch-plane: #bfa8ff;
+      --ch-plane-soft: rgba(191, 168, 255, 0.15);
+      --ch-logistics: #f0b85a;
+      --ch-logistics-soft: rgba(240, 184, 90, 0.16);
+      --ch-danger: #ff6b57;
+      --ch-danger-soft: rgba(255, 107, 87, 0.16);
+      --ch-zone: #6de096;
+      --ch-zone-soft: rgba(109, 224, 150, 0.15);
+      --ch-select: #d4ee80;
+      --ch-select-ring: #d4ee80;
+
+      --dim-recon: #62c8ff;
+      --dim-lure: #bfa8ff;
+      --dim-fire: #ff6b57;
+      --dim-armor: #7fa0b5;
+      --dim-supply: #f0b85a;
+      --dim-cap: #6de096;
+      --dim-idle: rgba(150, 176, 144, 0.16);
+
+      --edge-intel: #62c8ff;
+      --edge-lure: #bfa8ff;
+      --edge-fire: #ff6b57;
+      --edge-supply: #f0b85a;
+      --edge-econ: #6de096;
+      --edge-threat: #ff6b57;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg-app);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .tabular {
+      font-variant-numeric: tabular-nums;
+      font-family: var(--font-mono);
+    }
+
+    /* 应用外壳：顶栏 + 左右分舱 */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      min-height: 700px;
+      padding: 10px 12px 12px;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    /* 顶栏 KPI 总览条 */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-base);
+      border-radius: 10px;
+      padding: 7px 12px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .kpi-group {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .kpi-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-base);
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .kpi-pill strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .kpi-pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .win-progress {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .win-bar {
+      width: 96px;
+      height: 7px;
+      border-radius: 99px;
+      background: var(--dim-idle);
+      overflow: hidden;
+      display: flex;
+      gap: 2px;
+      padding: 1px;
+    }
+
+    .win-bar span {
+      flex: 1;
+      border-radius: 99px;
+      background: var(--ch-zone);
+      opacity: 0.9;
+    }
+
+    .win-bar span.pending {
+      background: var(--border-strong);
+      opacity: 0.35;
+    }
+
+    .btn-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-base);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.12s;
+    }
+
+    .btn-mini:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-card-subtle);
+    }
+
+    .btn-mini.active {
+      background: var(--bg-pill-active);
+      color: var(--text-pill-active);
+      border-color: var(--bg-pill-active);
+    }
+
+    /* 主体双栏工作区 */
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(560px, 1.18fr) minmax(420px, 0.88fr);
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-base);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 13px;
+      border-bottom: 1px solid var(--border-soft);
+      flex-shrink: 0;
+    }
+
+    .panel-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .panel-badge {
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 99px;
+      background: var(--bg-pill);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-soft);
+      white-space: nowrap;
+    }
+
+    .panel-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 左侧拓扑区头部指标与双图例 */
+    .graph-meta-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px 13px;
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--bg-card-subtle);
+      flex-shrink: 0;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .legend-caption {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 11px;
+      margin-right: 2px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .swatch {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .line-swatch {
+      width: 16px;
+      height: 0;
+      border-top: 2px solid currentColor;
+      display: inline-block;
+    }
+
+    .line-swatch.dashed {
+      border-top-style: dashed;
+    }
+
+    /* 拓扑画布容器 */
+    .graph-stage-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+      background-size: 18px 18px;
+      padding: 14px 44px 16px 18px;
+    }
+
+    .graph-stage {
+      position: relative;
+      width: 100%;
+      min-width: 560px;
+      min-height: 515px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 36px;
+    }
+
+    /* 泳道行标签（轻量水印式） */
+    .swimlane-row {
+      position: relative;
+      display: grid;
+      gap: 14px;
+      z-index: 2;
+    }
+
+    .swimlane-row.cols-1 {
+      grid-template-columns: minmax(210px, 265px);
+      justify-content: center;
+    }
+
+    .swimlane-row.cols-3 {
+      grid-template-columns: repeat(3, minmax(168px, 1fr));
+    }
+
+    .swimlane-row.cols-2 {
+      grid-template-columns: repeat(2, minmax(220px, 278px));
+      justify-content: center;
+      gap: 28px;
+    }
+
+    .lane-tag {
+      position: absolute;
+      left: -6px;
+      top: -17px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      background: var(--bg-panel);
+      padding: 0 5px;
+      border-radius: 3px;
+      border: 1px solid var(--border-soft);
+      pointer-events: none;
+    }
+
+    /* SVG 连线覆盖层 */
+    .edges-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    .edge-path {
+      fill: none;
+      stroke-width: 1.85;
+      stroke-linecap: round;
+      opacity: 0.42;
+      transition: opacity 0.2s ease, stroke-width 0.2s ease;
+      pointer-events: stroke;
+      cursor: pointer;
+    }
+
+    .edge-path.is-dashed {
+      stroke-dasharray: 5 4;
+    }
+
+    .edge-path.is-dim {
+      opacity: 0.1;
+      stroke-width: 1.3;
+    }
+
+    .edge-path.is-active {
+      opacity: 0.96;
+      stroke-width: 2.55;
+    }
+
+    .edge-path.is-flow {
+      stroke-dasharray: 7 5;
+      animation: edgeFlow 1.05s linear infinite;
+    }
+
+    @keyframes edgeFlow {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .edge-label-group {
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      pointer-events: none;
+    }
+
+    .edge-label-group.is-visible {
+      opacity: 1;
+    }
+
+    .edge-label-bg {
+      fill: var(--edge-label-bg);
+      stroke-width: 1;
+      rx: 4;
+      ry: 4;
+    }
+
+    .edge-label-text {
+      font-size: 10.5px;
+      font-weight: 600;
+      fill: var(--text-primary);
+      text-anchor: middle;
+      dominant-baseline: central;
+      font-family: var(--font-sans);
+    }
+
+    /* 拓扑节点卡片（复刻参考图卡片的信息层次） */
+    .node-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-base);
+      border-radius: 9px;
+      padding: 9px 10px 8px;
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+      user-select: none;
+    }
+
+    .node-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--node-color, var(--ch-ground));
+    }
+
+    .node-card:hover {
+      border-color: var(--node-color, var(--border-strong));
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-active);
+    }
+
+    .node-card.is-selected {
+      border-color: var(--node-color, var(--ch-select-ring));
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--node-color, var(--ch-select-ring)) 28%, transparent), var(--shadow-active);
+    }
+
+    .node-card.is-related {
+      border-color: color-mix(in srgb, var(--node-color, var(--border-strong)) 75%, var(--border-base));
+    }
+
+    .node-card.is-dim {
+      opacity: 0.24;
+    }
+
+    .node-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 5px;
+    }
+
+    .node-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .node-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--node-color);
+      flex-shrink: 0;
+    }
+
+    .node-icon {
+      width: 15px;
+      height: 15px;
+      color: var(--node-color);
+      flex-shrink: 0;
+    }
+
+    .node-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-tag {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: var(--node-soft);
+      color: var(--node-color);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .node-kpi {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-kpi strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* 多段堆叠职能占比条 */
+    .stack-bar {
+      height: 6px;
+      width: 100%;
+      border-radius: 99px;
+      background: var(--dim-idle);
+      overflow: hidden;
+      display: flex;
+      gap: 1px;
+      margin-bottom: 6px;
+      cursor: help;
+    }
+
+    .stack-seg {
+      height: 100%;
+      transition: filter 0.15s;
+    }
+
+    .stack-seg:hover {
+      filter: brightness(1.15);
+    }
+
+    .node-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    .node-dominant {
+      font-weight: 700;
+      color: var(--node-color);
+    }
+
+    /* 底部自检诊断栏（选中节点或剧本时给出结构化玩法自检） */
+    .audit-dock {
+      border-top: 1px solid var(--border-base);
+      background: var(--bg-card);
+      padding: 9px 13px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      min-height: 66px;
+    }
+
+    .audit-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.15fr 1.15fr;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .audit-col-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .audit-col-val {
+      font-size: 12px;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .audit-col-val.warn {
+      color: var(--ch-danger);
+    }
+
+    .audit-col-val.ok {
+      color: var(--ch-zone);
+    }
+
+    /* 右侧双面板：上编制卡片墙 + 下剧本清单 */
+    .right-column {
+      display: grid;
+      grid-template-rows: minmax(250px, 1.16fr) minmax(200px, 0.84fr);
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border-bottom: 1px solid var(--border-soft);
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 120px;
+      height: 27px;
+      padding: 0 9px;
+      border-radius: 6px;
+      border: 1px solid var(--border-base);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--border-strong);
+    }
+
+    .filter-pills {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-base);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.14s;
+    }
+
+    .filter-pill:hover {
+      border-color: var(--border-strong);
+    }
+
+    .filter-pill.active {
+      background: var(--bg-pill-active);
+      color: var(--text-pill-active);
+      border-color: var(--bg-pill-active);
+      font-weight: 600;
+    }
+
+    .sort-select {
+      height: 27px;
+      padding: 0 7px;
+      border-radius: 6px;
+      border: 1px solid var(--border-base);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 11.5px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .scroll-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 10px 11px 12px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin: 2px 0 7px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* 置顶中枢卡（对应参考图 lead 卡片） */
+    .lead-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-base);
+      border-left: 3px solid var(--ch-logistics);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .lead-card:hover, .lead-card.is-selected {
+      border-color: var(--ch-logistics);
+      box-shadow: var(--shadow-active);
+    }
+
+    .lead-card.is-dim {
+      opacity: 0.34;
+    }
+
+    .lead-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .lead-title {
+      font-weight: 700;
+      font-size: 12.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-group {
+      display: flex;
+      gap: 4px;
+    }
+
+    .micro-chip {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: var(--bg-pill);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-soft);
+    }
+
+    .lead-desc {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* 成员矩阵卡片墙 */
+    .member-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .member-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-base);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .member-card:hover {
+      border-color: var(--node-color, var(--border-strong));
+      box-shadow: var(--shadow-active);
+    }
+
+    .member-card.is-selected {
+      border-color: var(--node-color);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--node-color) 24%, transparent);
+    }
+
+    .member-card.is-dim {
+      opacity: 0.3;
+    }
+
+    .member-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 6px 8px;
+      background: var(--node-soft);
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .member-name {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .member-body {
+      padding: 7px 8px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .member-role {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.38;
+    }
+
+    .member-constraint {
+      font-size: 10.5px;
+      color: var(--ch-danger);
+      background: var(--ch-danger-soft);
+      padding: 2px 6px;
+      border-radius: 4px;
+      line-height: 1.35;
+    }
+
+    .member-extra {
+      display: none;
+      margin-top: 4px;
+      padding-top: 5px;
+      border-top: 1px dashed var(--border-base);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .member-card.is-expanded .member-extra {
+      display: block;
+    }
+
+    .member-extra ul {
+      padding-left: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .member-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px 6px;
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    .expand-btn {
+      border: 1px solid var(--border-base);
+      background: var(--bg-card-subtle);
+      color: var(--text-secondary);
+      border-radius: 4px;
+      width: 20px;
+      height: 18px;
+      font-size: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .expand-btn:hover {
+      border-color: var(--border-strong);
+      color: var(--text-primary);
+    }
+
+    /* 右下：核心玩法闭环与战术剧本清单 */
+    .loop-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .loop-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-base);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .loop-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-card);
+    }
+
+    .loop-card.is-selected {
+      border-color: var(--ch-select-ring);
+      background: color-mix(in srgb, var(--ch-zone-soft) 45%, var(--bg-card));
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--ch-select-ring) 25%, transparent);
+    }
+
+    .loop-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .loop-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .loop-phase {
+      font-size: 10.5px;
+      padding: 1px 6px;
+      border-radius: 99px;
+      border: 1px solid var(--border-base);
+      background: var(--bg-pill);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .loop-summary {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      margin-bottom: 5px;
+    }
+
+    .loop-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 10.5px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .loop-steps {
+      display: none;
+      margin-top: 7px;
+      padding-top: 7px;
+      border-top: 1px dashed var(--border-base);
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .loop-card.is-selected .loop-steps {
+      display: flex;
+    }
+
+    .loop-step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 11.5px;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: var(--bg-pill-active);
+      color: var(--text-pill-active);
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    /* 悬浮提示 Tooltip */
+    .floating-tip {
+      position: fixed;
+      z-index: 999;
+      pointer-events: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 8px 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+      font-size: 11.5px;
+      color: var(--text-primary);
+      max-width: 260px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.12s, transform 0.12s;
+    }
+
+    .floating-tip.is-show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .tip-title {
+      font-weight: 700;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tip-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 1.5px 0;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .tip-row-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* 细滚动条 */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+
+    @media (max-width: 1160px) {
+      .app-shell {
+        height: auto;
+        overflow: visible;
+      }
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      .right-column {
+        grid-template-rows: auto auto;
+      }
+      .audit-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- 顶部 KPI 总览与视图控制栏 -->
+    <header class="top-bar">
+      <div class="kpi-group">
+        <span class="kpi-pill"><span class="dot" style="background:var(--ch-zone)"></span><strong>大地图肃清</strong> · 玩法与载具关系图谱 V001</span>
+        <span class="kpi-pill"><strong id="kpiNodeCount" class="tabular">9</strong> 个核心要素</span>
+        <span class="kpi-pill"><span class="dot" style="background:var(--ch-ground)"></span><strong id="kpiGroundCount" class="tabular">2</strong> 地面载具</span>
+        <span class="kpi-pill"><span class="dot" style="background:var(--ch-heli)"></span><strong id="kpiAirCount" class="tabular">3</strong> 空中力量</span>
+        <span class="kpi-pill"><strong id="kpiEdgeCount" class="tabular">17</strong> 条机制链路</span>
+        <span class="kpi-pill"><strong id="kpiLoopCount" class="tabular">5</strong> 套核心战术闭环</span>
+      </div>
+      <div class="top-controls">
+        <div class="win-progress" title="首关获胜条件：三个任务区必须同时处于己方控制，无强制倒计时">
+          <span>首关胜负目标</span>
+          <div class="win-bar"><span></span><span></span><span class="pending"></span></div>
+          <strong class="tabular">同时控 3/3 区</strong>
+        </div>
+        <button class="btn-mini" id="btnShowLabels" type="button" title="在全图模式下显示或隐藏全部连线文字标签">常显连线标签</button>
+        <button class="btn-mini" id="btnTheme" type="button" title="在暖米图纸浅色与全局规范战术深色间切换">切换战术深色</button>
+        <button class="btn-mini" id="btnReset" type="button">重置聚焦</button>
+      </div>
+    </header>
+
+    <!-- 主体双栏工作区 -->
+    <main class="workspace">
+      <!-- 左侧：玩法与载具协作网络拓扑 -->
+      <section class="panel" aria-label="玩法与载具协作网络">
+        <div class="panel-head">
+          <div class="panel-title-wrap">
+            <span class="panel-title">玩法与载具协作网络</span>
+            <span class="panel-badge" id="focusStatusBadge">全图总览 · 点击任意节点或右侧剧本高亮上下游</span>
+          </div>
+          <span class="panel-sub">依据《大地图肃清正式策划书 V002》规则映射</span>
+        </div>
+
+        <div class="graph-meta-bar">
+          <div class="legend-row">
+            <span class="legend-caption">职能堆叠条（定性权重）：</span>
+            <span class="legend-item"><i class="swatch" style="background:var(--dim-recon)"></i>视野侦察</span>
+            <span class="legend-item"><i class="swatch" style="background:var(--dim-lure)"></i>诱饵牵引</span>
+            <span class="legend-item"><i class="swatch" style="background:var(--dim-fire)"></i>火力清群</span>
+            <span class="legend-item"><i class="swatch" style="background:var(--dim-armor)"></i>抗压耐久</span>
+            <span class="legend-item"><i class="swatch" style="background:var(--dim-supply)"></i>后勤补给</span>
+            <span class="legend-item"><i class="swatch" style="background:var(--dim-cap)"></i>占区控制</span>
+          </div>
+          <div class="legend-row">
+            <span class="legend-caption">连线流向语义：</span>
+            <span class="legend-item" style="color:var(--edge-intel)"><i class="line-swatch"></i>视野/情报</span>
+            <span class="legend-item" style="color:var(--edge-lure)"><i class="line-swatch"></i>诱饵/声源</span>
+            <span class="legend-item" style="color:var(--edge-fire)"><i class="line-swatch"></i>火力压制</span>
+            <span class="legend-item" style="color:var(--edge-supply)"><i class="line-swatch"></i>物资/补给</span>
+            <span class="legend-item" style="color:var(--edge-econ)"><i class="line-swatch"></i>占区/点数回流</span>
+            <span class="legend-item" style="color:var(--edge-threat)"><i class="line-swatch dashed"></i>敌对风险/反制</span>
+          </div>
+        </div>
+
+        <div class="graph-stage-wrap" id="graphStageWrap">
+          <div class="graph-stage" id="graphStage">
+            <svg class="edges-svg" id="edgesSvg" aria-hidden="true"></svg>
+            <!-- 4 层战术泳道由脚本注入 -->
+            <div class="swimlane-row cols-1" data-lane="0"><span class="lane-tag">L1 指挥与后勤中枢</span></div>
+            <div class="swimlane-row cols-3" data-lane="1"><span class="lane-tag">L2 空中侦察 · 投饵 · 火力支援</span></div>
+            <div class="swimlane-row cols-3" data-lane="2"><span class="lane-tag">L3 地面作战 · 前线补给 · 声源诱饵</span></div>
+            <div class="swimlane-row cols-2" data-lane="3"><span class="lane-tag">L4 尸群对抗 · 三区占领与经济闭环</span></div>
+          </div>
+        </div>
+
+        <!-- 底部策划自检诊断栏 -->
+        <div class="audit-dock" id="auditDock">
+          <div class="audit-grid">
+            <div>
+              <div class="audit-col-label">当前聚焦对象</div>
+              <div class="audit-col-val" id="auditTarget">全图总览（点击任意载具、连线或右侧剧本进行自检）</div>
+            </div>
+            <div>
+              <div class="audit-col-label">核心约束红线（防超模）</div>
+              <div class="audit-col-val warn" id="auditLimit">补给车不可占区 · 弹药与后方库存有限 · 毁车本局永久损失</div>
+            </div>
+            <div>
+              <div class="audit-col-label">短板兜底与协作闭环</div>
+              <div class="audit-col-val ok" id="auditFallback">每个作战节点均存在上游补给/引导依赖，无“单车通关”孤岛</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 右侧：上编队载具墙 + 下战术闭环剧本 -->
+      <div class="right-column">
+        <!-- 右上：载具与战场要素矩阵 -->
+        <section class="panel" aria-label="载具与战场要素矩阵">
+          <div class="panel-head">
+            <div class="panel-title-wrap">
+              <span class="panel-title">载具与战场要素</span>
+              <span class="panel-badge tabular" id="memberCountBadge">8 个要素</span>
+            </div>
+            <span class="panel-sub">点击联动左侧拓扑 · 点箭头展开规则</span>
+          </div>
+
+          <div class="toolbar">
+            <input class="search-input" id="memberSearch" type="search" placeholder="搜索载具、机制或约束..." />
+            <div class="filter-pills" id="memberFilters">
+              <button class="filter-pill active" data-cat="all" type="button">全部 9</button>
+              <button class="filter-pill" data-cat="ground" type="button">地面 2</button>
+              <button class="filter-pill" data-cat="air" type="button">空中 3</button>
+              <button class="filter-pill" data-cat="field" type="button">战场要素 4</button>
+            </div>
+            <select class="sort-select" id="memberSort" aria-label="排序方式">
+              <option value="default">按层级排布</option>
+              <option value="degree">按关联度高→低</option>
+              <option value="fire">按火力权重</option>
+              <option value="supply">按后勤权重</option>
+            </select>
+          </div>
+
+          <div class="scroll-body" id="memberBody">
+            <div class="section-label"><span>指挥中枢 1</span><span class="tabular">不可摧毁 · 库存有限</span></div>
+            <div id="leadContainer"></div>
+            <div class="section-label"><span>作战载具与战场要素 <span id="gridSubCount" class="tabular">7</span></span><span>支持双向高亮与展开规则</span></div>
+            <div class="member-grid" id="memberGrid"></div>
+          </div>
+        </section>
+
+        <!-- 右下：核心玩法闭环与战术剧本 -->
+        <section class="panel" aria-label="核心玩法闭环与战术剧本">
+          <div class="panel-head">
+            <div class="panel-title-wrap">
+              <span class="panel-title">核心玩法闭环与战术剧本</span>
+              <span class="panel-badge tabular" id="loopCountBadge">5 套闭环</span>
+            </div>
+            <span class="panel-sub">点击剧本，左侧仅点亮对应协作链</span>
+          </div>
+
+          <div class="toolbar">
+            <input class="search-input" id="loopSearch" type="search" placeholder="搜索剧本步骤或机制..." />
+            <div class="filter-pills" id="loopFilters">
+              <button class="filter-pill active" data-phase="all" type="button">全部 5</button>
+              <button class="filter-pill" data-phase="recon" type="button">侦察诱导 2</button>
+              <button class="filter-pill" data-phase="combat" type="button">火力清群 1</button>
+              <button class="filter-pill" data-phase="logistics" type="button">后勤占区 2</button>
+            </div>
+          </div>
+
+          <div class="scroll-body">
+            <div class="loop-list" id="loopList"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- 悬浮职能明细提示框 -->
+  <div class="floating-tip" id="floatingTip" role="tooltip"></div>
+
+  <!-- 数据与视图解耦：后续新增载具、特感尸种或规则只需维护此处 JSON 结构 -->
+  <script>
+    const DIMENSIONS = [
+      { key: 'recon', label: '视野侦察', colorVar: '--dim-recon' },
+      { key: 'lure', label: '诱饵牵引', colorVar: '--dim-lure' },
+      { key: 'fire', label: '火力清群', colorVar: '--dim-fire' },
+      { key: 'armor', label: '抗压耐久', colorVar: '--dim-armor' },
+      { key: 'supply', label: '后勤补给', colorVar: '--dim-supply' },
+      { key: 'cap', label: '占区控制', colorVar: '--dim-cap' },
+    ];
+
+    const EDGE_TYPES = {
+      intel:  { label: '视野/情报', colorVar: '--edge-intel', dashed: false },
+      lure:   { label: '诱饵/声源', colorVar: '--edge-lure', dashed: false },
+      fire:   { label: '火力压制', colorVar: '--edge-fire', dashed: false },
+      supply: { label: '物资/补给', colorVar: '--edge-supply', dashed: false },
+      econ:   { label: '占区/点数回流', colorVar: '--edge-econ', dashed: false },
+      threat: { label: '敌对风险/反制', colorVar: '--edge-threat', dashed: true },
+    };
+
+    const ICONS = {
+      base: '<svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10l9-6 9 6v10H3V10z"/><path d="M9 20v-6h6v6"/></svg>',
+      heli: '<svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M12 6v4M5 13h11l3 2-2 2H9l-4-2v-2zM3 11v4"/></svg>',
+      plane: '<svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2 7 8 2v2l-8-1-1 6 3 2v2l-4-1-4 1v-2l3-2-1-6-8 1v-2l8-2 2-7z"/></svg>',
+      tank: '<svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="13" width="16" height="5" rx="2.5"/><path d="M8 13l1.5-4h5L16 13M15 10.5h6"/></svg>',
+      supply: '<svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="12" height="10" rx="1.5"/><path d="M15 10h4l2 3v4h-6v-7zM9 9.5v5M6.5 12h5"/></svg>',
+      decoy: '<svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2.5"/><path d="M7.5 7.5a6.5 6.5 0 0 0 0 9M16.5 7.5a6.5 6.5 0 0 1 0 9M4.5 4.5a10.5 10.5 0 0 0 0 15M19.5 4.5a10.5 10.5 0 0 1 0 15"/></svg>',
+      horde: '<svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="2.2"/><circle cx="16" cy="8" r="2.2"/><circle cx="12" cy="13" r="2.4"/><path d="M4.5 18c.8-2.2 2.2-3 3.5-3M19.5 18c-.8-2.2-2.2-3-3.5-3M8.5 20c.8-2.3 2.1-3.2 3.5-3.2s2.7.9 3.5 3.2"/></svg>',
+      zones: '<svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 20V4h10l-2 4 2 4H5"/><circle cx="17" cy="17" r="3"/></svg>',
+    };
+
+    const GRAPH_DATA = {
+      nodes: [
+        {
+          id: 'base',
+          name: '后方基地 / 补给站',
+          shortTag: '后勤中枢',
+          lane: 0,
+          category: 'field',
+          isLead: true,
+          icon: 'base',
+          colorVar: '--ch-logistics',
+          softVar: '--ch-logistics-soft',
+          kpi: '库存有限 · 地面增援入口 · 空中返补',
+          summary: '开局标明位置；统一管理补给物资（补弹+维修）、诱饵补装、空中返航补弹与地面增援入场。',
+          constraint: '站点不可被摧毁，但尸群仍可攻击站内车辆；购入物资须靠运输送往前线，不直接隔空补满。',
+          fallback: '依赖占区首占点数持续补充库存与增援预算，同时需防尸群被声源引回基地袭扰站内车。',
+          dominantText: '补给中枢 70%',
+          weights: { recon: 10, lure: 0, fire: 0, armor: 20, supply: 70, cap: 0 },
+          rules: [
+            '统一一种补给物资用于补弹与维修，后方库存有限。',
+            '地面作战车可回站直接消耗库存补弹、维修。',
+            '地面增援从固定入口进场，召集价含首批弹药；占总部队上限名额。',
+            '只要有可恢复的补给或增援在途，暂时缺弹不直接判负。',
+          ],
+        },
+        {
+          id: 'heli_trans',
+          name: '运输/侦察直升机',
+          shortTag: '30m 投饵/侦察',
+          lane: 1,
+          category: 'air',
+          icon: 'heli',
+          colorVar: '--ch-heli',
+          softVar: '--ch-heli-soft',
+          kpi: '30m 巡航 · 作业自动降高 · 有限携饵',
+          summary: '高速越障揭开迷雾、定位大群动向，并在关键路口设置延时投放声源诱饵，拉扯尸群路线。',
+          constraint: '诱饵携带数量有限，耗尽须返后方消耗补给物资补装；投放作业时需切换低空作业高度。',
+          fallback: '缺乏正面清群火力与占区能力 → 为武装直升机/A-10C/坦克提供视野与聚怪前置条件。',
+          dominantText: '侦察+投饵 80%',
+          weights: { recon: 42, lure: 38, fire: 5, armor: 5, supply: 10, cap: 0 },
+          rules: [
+            '自动管理 30m 巡航高度，执行投放等任务自动切换作业高度。',
+            '揭开战争迷雾，失联敌群仅保留带时间戳的最后发现位置。',
+            '首版不模拟燃油，但携饵与弹药有限，均需返站补装。',
+          ],
+        },
+        {
+          id: 'heli_atk',
+          name: '武装直升机 (AH-64D)',
+          shortTag: '30m 机动火力',
+          lane: 1,
+          category: 'air',
+          icon: 'heli',
+          colorVar: '--ch-heli',
+          softVar: '--ch-heli-soft',
+          kpi: '30m 悬停支援 · 手选弹种 · 返航补弹',
+          summary: '跨地形机动响应，为地面纵队与占区提供伴随火力掩护，精准点杀逼近补给线的尸群。',
+          constraint: '弹药有限且需返航补弹；各武器独立装填、须玩家手动选弹种与武器开关，不可直接占区。',
+          fallback: '持续火力续航受限 → 依赖视野引导精准倾泻弹药，并与地面坦克错峰清群节省库存。',
+          dominantText: '火力+机动 68%',
+          weights: { recon: 22, lure: 5, fire: 58, armor: 15, supply: 0, cap: 0 },
+          rules: [
+            '允许已核实装配条件的不同武器同时开火，各自装填，可单独禁用。',
+            '无友伤且友军不拦截弹丸，适合近距掩护被围地面部队。',
+            '低空悬停或作业触发地表下洗效果，巡航时减弱。',
+          ],
+        },
+        {
+          id: 'plane_atk',
+          name: '固定翼攻击机 (A-10C)',
+          shortTag: '100m 重型清群',
+          lane: 1,
+          category: 'air',
+          icon: 'plane',
+          colorVar: '--ch-plane',
+          softVar: '--ch-plane-soft',
+          kpi: '100m 盘旋 · 攻击单下令 · 大范围面杀伤',
+          summary: '高空待命盘旋，在诱饵把大型尸群聚拢至开阔地后，执行单次扫射或轰炸快速削减大规模尸群。',
+          constraint: '持续飞行不可悬停、不占区；普通移动只到点盘旋，攻击任务须单独下达，空弹返航补弹。',
+          fallback: '缺乏滞空盯防与精准收残能力 → 高度依赖侦察视野与诱饵聚怪放大单次出击性价比。',
+          dominantText: '爆发清群 76%',
+          weights: { recon: 14, lure: 0, fire: 76, armor: 10, supply: 0, cap: 0 },
+          rules: [
+            '普通移动在目标附近 100m 高空盘旋，不自动执行面打击。',
+            '爆炸伤害按爆点中心向边缘衰减，允许隔墙造成范围伤害。',
+            '适合集中清除大型预置尸群，避免把高价值弹药浪费在零散小群。',
+          ],
+        },
+        {
+          id: 'decoy',
+          name: '延时声源诱饵',
+          shortTag: '战术道具',
+          lane: 2,
+          category: 'field',
+          icon: 'decoy',
+          colorVar: '--ch-plane',
+          softVar: '--ch-plane-soft',
+          kpi: '设延时投放 · 限时生效 · 不可关/收',
+          summary: '核心“以少胜多”杠杆：利用强声源将分散或堵路尸群引至预设杀伤区，或从占领点旁调虎离山。',
+          constraint: '投放前设延时、落地计时启动；可被尸群摧毁，启动后无法关闭或回收。',
+          fallback: '本身无杀伤与视野 → 必须配合直升机精准投放及空地火力在生效窗口内完成收割。',
+          dominantText: '声源牵引 85%',
+          weights: { recon: 5, lure: 85, fire: 0, armor: 10, supply: 0, cap: 0 },
+          rules: [
+            '声源吸引力显著高于常规发动机声，可改写尸群追击路线。',
+            '尸群失去声源后会在最后声源点附近搜索一段时间，再返回原区。',
+            '消耗品属性：需经后方基地消耗补给物资给直升机补装。',
+          ],
+        },
+        {
+          id: 'tank',
+          name: '主战坦克 (M1A2)',
+          shortTag: '地面主力/占区',
+          lane: 2,
+          category: 'ground',
+          icon: 'tank',
+          colorVar: '--ch-ground',
+          softVar: '--ch-ground-soft',
+          kpi: '可占领 · 地面警戒 · 重履带碾压(待定)',
+          summary: '正面战线支柱：执行区域肃清收尾、吸收近身压力、护航补给车，并作为合格作战车驻守完成占区。',
+          constraint: '有限弹药，开火与引擎会持续吸引尸群；被尸群近身会持续损血，被毁则本局永久损失。',
+          fallback: '长途补弹与维修依赖 M548A3 前线停稳补给（或长途回站），面对大群需空地诱饵分流。',
+          dominantText: '清群+占区 65%',
+          weights: { recon: 12, lure: 8, fire: 40, armor: 22, supply: 0, cap: 18 },
+          rules: [
+            '地面警戒默认开启，仅用已选武器/弹种攻击可见目标，手动目标优先。',
+            '建筑与墙体会拦截弹丸，需结合站位避开视线与射界遮挡。',
+            '重型履带允许碾压（具体代价与限制待另行确认），禁止视为无伤割草。',
+          ],
+        },
+        {
+          id: 'supply',
+          name: '弹药补给车 (M548A3)',
+          shortTag: '前线后勤',
+          lane: 2,
+          category: 'ground',
+          icon: 'supply',
+          colorVar: '--ch-logistics',
+          softVar: '--ch-logistics-soft',
+          kpi: '装载前运 · 双方停稳停火 · 按量交付',
+          summary: '把后方有限库存转化为前线续航能力，避免主战坦克频繁往返基地导致占领进度中断。',
+          constraint: '严格不可占领任务区；补给时双方必须停稳且受补单位停止开火，无武装极其脆弱。',
+          fallback: '零火力、低自保 → 必须由坦克清场警戒或诱饵引开尸群，选在安全间隙停靠交付。',
+          dominantText: '前线补给 82%',
+          weights: { recon: 8, lure: 0, fire: 0, armor: 10, supply: 82, cap: 0 },
+          rules: [
+            '装载后方物资运往前线，按实际交付的弹药/维修量扣除物资。',
+            '补给动作要求双车静止且受补车停火，制造战术节奏取舍。',
+            '同样受耐久与毁车永久损失约束，且补给车不能替代作战车占区。',
+          ],
+        },
+        {
+          id: 'horde',
+          name: '《断箭》预置尸群',
+          shortTag: '敌方核心机制',
+          lane: 3,
+          category: 'field',
+          icon: 'horde',
+          colorVar: '--ch-danger',
+          softVar: '--ch-danger-soft',
+          kpi: '有限预置不无限刷 · 声源/视野驱动 · 绕障追击',
+          summary: '开局分散小群配少量大群；按近处地面部队优先、次选强声源的规则行动，跨区行动不改变原属区域。',
+          constraint: '沿可通行路线绕行，不穿墙不攀爬不拆房；迷雾内仅传模糊群声，不暴露精确点位。',
+          fallback: '通过“吸引-追击-搜索-返区”行为树迫使玩家管理开火噪音、路线清空与占区防打断。',
+          dominantText: '压迫反制 100%',
+          weights: { recon: 0, lure: 25, fire: 50, armor: 25, supply: 0, cap: 0 },
+          rules: [
+            '无目标时在原属区域小范围游荡；失联目标后在最后声源搜寻再返区。',
+            '近身持续损耗载具耐久，可摧毁已启动的诱饵并打断占领。',
+            '进入任务区会中断占领或令已控区失守，逼迫玩家兼顾全局防线。',
+          ],
+        },
+        {
+          id: 'zones',
+          name: '三大任务区（占领点）',
+          shortTag: '胜负与经济',
+          lane: 3,
+          category: 'field',
+          icon: 'zones',
+          colorVar: '--ch-zone',
+          softVar: '--ch-zone-soft',
+          kpi: '自由选序 · 清空原属+外来 · 首占发点数',
+          summary: '战场节奏与经济引擎：每区须彻底消灭原属尸群与区内外来尸群，再由地面作战车驻守完成占领。',
+          constraint: '补给车不能占领；尸群闯入会中断占领或失守；失守后重占不再重复发放首占点数奖励。',
+          fallback: '连接战斗与后勤经济：首占一次性点数回流后方站，用于补购物资或增援替代战损载具。',
+          dominantText: '占区经济 85%',
+          weights: { recon: 0, lure: 0, fire: 0, armor: 0, supply: 15, cap: 85 },
+          rules: [
+            '三个任务区自由决定推进顺序，无强制倒计时，支持稳扎稳打。',
+            '任务提示只显示各区原属尸群剩余数，区外击杀同样计入该区肃清。',
+            '获胜条件：三个任务区必须同时处于己方控制。',
+          ],
+        },
+      ],
+
+      edges: [
+        // L1 -> L2/L3 后勤与增援流
+        { id: 'e_base_trans', from: 'base', to: 'heli_trans', type: 'supply', label: '耗物资补装诱饵', desc: '运输直升机携饵耗尽后返航后方站，消耗统一补给物资重新装载诱饵。' },
+        { id: 'e_base_hatk', from: 'base', to: 'heli_atk', type: 'supply', label: '空中返航补弹', desc: '武装直升机弹药打空后返航补弹（首版不模拟燃油）。' },
+        { id: 'e_base_plane', from: 'base', to: 'plane_atk', type: 'supply', label: '固定翼返航补弹', desc: 'A-10C 完成扫射/轰炸出击消耗弹药后返航补弹整备。' },
+        { id: 'e_base_supply', from: 'base', to: 'supply', type: 'supply', label: '装载有限物资', desc: '补给车从后方有限库存装载弹药与维修物资，负责运往前线。' },
+        { id: 'e_base_tank', from: 'base', to: 'tank', type: 'supply', label: '地面增援 / 回站直补', desc: '后方固定入口召集增援（带首批弹药），受损缺弹坦克也可回站直补。' },
+
+        // L2 空中 -> L3 诱饵与地面协同
+        { id: 'e_trans_decoy', from: 'heli_trans', to: 'decoy', type: 'lure', label: '设延时低空投放', desc: '运输直升机自动切低空作业高度，设好延时后投放声源诱饵。' },
+        { id: 'e_trans_plane', from: 'heli_trans', to: 'plane_atk', type: 'intel', label: '迷雾侦察标定大群', desc: '揭开战争迷雾、标出大型尸群聚集点，指导固定翼单下令精准打击。' },
+        { id: 'e_trans_tank', from: 'heli_trans', to: 'tank', type: 'intel', label: '前出探路规避伏击', desc: '提前探明道路尸群与迷雾敌情，避免地面纵队盲冲陷入包围。' },
+
+        // L2/L3 火力与声源 -> L4 尸群
+        { id: 'e_decoy_horde', from: 'decoy', to: 'horde', type: 'lure', label: '强声源聚怪/调离', desc: '诱饵落地计时启动后发出强声源，吸引附近游荡尸群聚集或远离占领区。' },
+        { id: 'e_hatk_horde', from: 'heli_atk', to: 'horde', type: 'fire', label: '机动伴随点杀', desc: '30m 机动切入，使用手选武器与弹种掩护地面部队并清理逼近尸群。' },
+        { id: 'e_plane_horde', from: 'plane_atk', to: 'horde', type: 'fire', label: '面杀伤肃清大群', desc: '针对诱饵聚拢或开阔地大群下达独立攻击指令，高爆范围衰减清群。' },
+        { id: 'e_tank_horde', from: 'tank', to: 'horde', type: 'fire', label: '警戒清群与收尾', desc: '主战坦克开启地面警戒清剿可见尸群，承担区内外残余肃清。' },
+
+        // L3 横向协同：补给车 <-> 坦克
+        { id: 'e_supply_tank', from: 'supply', to: 'tank', type: 'supply', label: '前线停稳停火补给', desc: '双车停稳且受补坦克停止开火，按实际交付量补弹维修，维系前线持续作战。' },
+
+        // L3/L4 占区与敌对反制
+        { id: 'e_tank_zones', from: 'tank', to: 'zones', type: 'econ', label: '肃清后驻守占领', desc: '区属与外来尸群清空后，可移动地面作战载具进入占领点驻守完成控制。' },
+        { id: 'e_horde_tank', from: 'horde', to: 'tank', type: 'threat', label: '开火引怪/近身磨血', desc: '开火与引擎噪音吸引尸群；近身持续损耗耐久，被毁则永久损失。' },
+        { id: 'e_horde_zones', from: 'horde', to: 'zones', type: 'threat', label: '闯入中断/导致失守', desc: '任意尸群进入任务区即会中断占领读条，或令已控制区域失守。' },
+
+        // L4 -> L1 闭环经济回流（走右侧外缘通道优雅回流）
+        { id: 'e_zones_base', from: 'zones', to: 'base', type: 'econ', label: '首占点数回流增援/购物资', desc: '每区首次肃清占领奖励一次性点数，回流后方基地购买补给物资或召集替代部队。' },
+      ],
+
+      loops: [
+        {
+          id: 'loop_recon',
+          title: '剧本 01 · 迷雾侦察与群声探路',
+          phase: 'recon',
+          phaseLabel: '侦察诱导',
+          summary: '开局只标明三大任务区与后方站，依靠直升机越障探路与群声方位，确定优先肃清路线。',
+          nodes: ['heli_trans', 'tank', 'horde', 'zones'],
+          edges: ['e_trans_tank', 'e_trans_plane', 'e_horde_zones'],
+          auditTarget: '剧本 01：迷雾探索与信息不对称节奏',
+          auditLimit: '失联尸群仅留带时间戳最后位置，迷雾群声只报大致方位不报精确数量',
+          auditFallback: '先由 30m 侦察直升机揭图，再调度地面坦克进场，避免孤车盲探被大群包围',
+          steps: [
+            '读取任务区剩余原属尸群计数，结合迷雾模糊群声锁定大概率聚集方向。',
+            '派遣运输/侦察直升机 30m 巡航越障扫图，点亮道路与建筑遮挡后的尸群分布。',
+            '把侦察结果传递给地面主战坦克与高空攻击机，决定先打哪一个任务区。',
+          ],
+        },
+        {
+          id: 'loop_lure',
+          title: '剧本 02 · 延时诱饵聚怪与高空收割',
+          phase: 'recon',
+          phaseLabel: '侦察诱导',
+          summary: '用少量高价值空军弹药撬动大规模尸群：直升机设延时投饵聚怪，A-10C 趁聚集窗口一次清场。',
+          nodes: ['base', 'heli_trans', 'decoy', 'horde', 'plane_atk'],
+          edges: ['e_base_trans', 'e_trans_decoy', 'e_decoy_horde', 'e_trans_plane', 'e_plane_horde', 'e_base_plane'],
+          auditTarget: '剧本 02：“以少胜多”空地诱导杀伤链',
+          auditLimit: '诱饵限时且启动后不可关闭/回收、可被尸群摧毁；固定翼攻击须单下令且弹药有限',
+          auditFallback: '诱饵与空军出击形成乘数效应；任务后各自返后方基地消耗物资补装/补弹',
+          steps: [
+            '运输直升机飞抵开阔杀伤区上方，设定延时并自动降高投放声源诱饵。',
+            '诱饵落地计时启动，强声源把附近分散尸群吸引聚拢（或把守点尸群调离）。',
+            '在 100m 盘旋待命的 A-10C 收到独立攻击指令，趁大群聚拢一轮高爆面杀伤重创尸群。',
+            '耗尽诱饵与弹药的空中单位返航后方站补装整备，为下一区做准备。',
+          ],
+        },
+        {
+          id: 'loop_combat',
+          title: '剧本 03 · 空地协同清剿与防近身拉扯',
+          phase: 'combat',
+          phaseLabel: '火力清群',
+          summary: '坦克正面警戒清剿收尾，武装直升机机动补火护翼，严格控制开火噪音与近身耐久损耗。',
+          nodes: ['tank', 'heli_atk', 'horde', 'decoy'],
+          edges: ['e_tank_horde', 'e_hatk_horde', 'e_horde_tank', 'e_decoy_horde'],
+          auditTarget: '剧本 03：正面清剿与风险管控闭环',
+          auditLimit: '建筑墙体拦截弹丸；开火与引擎噪音引怪；载具被近身磨毁后本局永久损失',
+          auditFallback: '友军无友伤且不拦弹，武装直升机可贴身解围，必要时投饵强行分流仇恨',
+          steps: [
+            '主战坦克利用开阔射界展开，开启地面警戒并手动选定合适武器与弹种交战。',
+            '武装直升机 30m 伴随机动，对绕过建筑侧翼逼近的尸群进行点杀压制。',
+            '若尸群逼近造成持续近身损血，坦克拉扯退距并由空中火力/诱饵分流，严防永久战损。',
+          ],
+        },
+        {
+          id: 'loop_supply',
+          title: '剧本 04 · 前线停稳补给与安全窗口取舍',
+          phase: 'logistics',
+          phaseLabel: '后勤占区',
+          summary: '后方库存有限且不隔空补满，补给车承担运输动脉；前线补弹必须抢出“停稳停火”的战术空窗。',
+          nodes: ['base', 'supply', 'tank', 'heli_atk'],
+          edges: ['e_base_supply', 'e_supply_tank', 'e_base_tank', 'e_hatk_horde'],
+          auditTarget: '剧本 04：前线后勤风险与节奏博弈',
+          auditLimit: '补给时双车必须停稳且受补坦克停止开火；补给车零武装不可占区',
+          auditFallback: '由武装直升机或另一辆坦克警戒掩护补给窗，极端缺弹时也可直接回后方站直补',
+          steps: [
+            'M548A3 补给车在后方站装载有限补给物资，沿已侦察安全路线驶向前线集结地。',
+            '主战坦克脱离接战并停稳停火，补给车靠拢停稳，按实际消耗量交付弹药与耐久维修。',
+            '交付完成后补给车迅速后撤防挨打，或返回基地装运下一批物资。',
+          ],
+        },
+        {
+          id: 'loop_capture',
+          title: '剧本 05 · 三区清剿占领与点数增援闭环',
+          phase: 'logistics',
+          phaseLabel: '后勤占区',
+          summary: '清光区属与外来尸群后由作战车占领换取首占点数，点数回流后方采购物资/增援，滚雪球拿下全部三区。',
+          nodes: ['tank', 'zones', 'horde', 'base', 'supply'],
+          edges: ['e_tank_horde', 'e_tank_zones', 'e_horde_zones', 'e_zones_base', 'e_base_tank', 'e_base_supply'],
+          auditTarget: '剧本 05：战略胜负与经济正循环',
+          auditLimit: '须清原属+外来全部尸群；补给车不可占区；失守重占不重复发点数',
+          auditFallback: '首次占区一次性点数精准反哺后方库存与部队增援，最终达成“同时控制 3/3 任务区”获胜',
+          steps: [
+            '确认该区原属尸群（含区外击杀）及区内外来尸群全部清空。',
+            '调派可移动地面作战车（如 M1A2，非补给车）进点驻守，严防周边尸群闯入打断。',
+            '首次占领成功后获得一次性点数，自动回流后方基地用于购买补给物资或召集新部队。',
+            '稳住已控防线并滚雪球推进其余任务区，直至三个任务区同时处于己方控制即获胜。',
+          ],
+        },
+      ],
+    };
+
+    /* ================= 应用状态 ================= */
+    const state = {
+      selectedNodeId: null,
+      selectedLoopId: null,
+      hoveredEdgeId: null,
+      showAllLabels: false,
+      memberCat: 'all',
+      memberQuery: '',
+      memberSort: 'default',
+      loopPhase: 'all',
+      loopQuery: '',
+      expandedCards: new Set(),
+    };
+
+    const nodeMap = new Map(GRAPH_DATA.nodes.map(n => [n.id, n]));
+    const edgeMap = new Map(GRAPH_DATA.edges.map(e => [e.id, e]));
+    const loopMap = new Map(GRAPH_DATA.loops.map(l => [l.id, l]));
+
+    /* 计算每个节点的出入度（供“查孤岛”与排序使用） */
+    const degreeStats = new Map();
+    for (const n of GRAPH_DATA.nodes) {
+      degreeStats.set(n.id, { inCount: 0, outCount: 0, total: 0 });
+    }
+    for (const e of GRAPH_DATA.edges) {
+      degreeStats.get(e.from).outCount++;
+      degreeStats.get(e.from).total++;
+      degreeStats.get(e.to).inCount++;
+      degreeStats.get(e.to).total++;
+    }
+
+    document.getElementById('kpiNodeCount').textContent = String(GRAPH_DATA.nodes.length);
+    document.getElementById('kpiGroundCount').textContent = String(GRAPH_DATA.nodes.filter(n => n.category === 'ground').length);
+    document.getElementById('kpiAirCount').textContent = String(GRAPH_DATA.nodes.filter(n => n.category === 'air').length);
+    document.getElementById('kpiEdgeCount').textContent = String(GRAPH_DATA.edges.length);
+    document.getElementById('kpiLoopCount').textContent = String(GRAPH_DATA.loops.length);
+
+    /* ================= 工具函数 ================= */
+    function cssVar(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    function buildStackBarHtml(node) {
+      const segs = DIMENSIONS.filter(d => (node.weights[d.key] || 0) > 0).map(d => {
+        const val = node.weights[d.key];
+        return `<span class="stack-seg" style="width:${val}%;background:var(${d.colorVar})" data-dim="${d.label}" data-val="${val}"></span>`;
+      }).join('');
+      return `<div class="stack-bar" data-tip-node="${node.id}">${segs}</div>`;
+    }
+
+    /* ================= 1. 渲染左侧 4 层泳道节点 ================= */
+    function renderGraphNodes() {
+      const lanes = document.querySelectorAll('.swimlane-row');
+      lanes.forEach(laneEl => {
+        const tag = laneEl.querySelector('.lane-tag');
+        laneEl.innerHTML = '';
+        if (tag) laneEl.appendChild(tag);
+      });
+
+      for (const n of GRAPH_DATA.nodes) {
+        const laneEl = document.querySelector(`.swimlane-row[data-lane="${n.lane}"]`);
+        if (!laneEl) continue;
+        const deg = degreeStats.get(n.id);
+        const card = document.createElement('article');
+        card.className = 'node-card';
+        card.dataset.nodeId = n.id;
+        card.style.setProperty('--node-color', `var(${n.colorVar})`);
+        card.style.setProperty('--node-soft', `var(${n.softVar})`);
+
+        card.innerHTML = `
+          <div class="node-top">
+            <div class="node-title-wrap">
+              <span class="node-dot"></span>
+              ${ICONS[n.icon] || ''}
+              <span class="node-title" title="${n.name}">${n.name}</span>
+            </div>
+            <span class="node-tag">${n.shortTag}</span>
+          </div>
+          <div class="node-kpi">${n.kpi}</div>
+          ${buildStackBarHtml(n)}
+          <div class="node-foot">
+            <span class="tabular">入 ${deg.inCount} · 出 ${deg.outCount}</span>
+            <span class="node-dominant tabular">${n.dominantText}</span>
+          </div>
+        `;
+
+        card.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          selectNode(n.id);
+        });
+        laneEl.appendChild(card);
+      }
+
+      bindStackBarTooltips();
+    }
+
+    /* ================= 2. 动态绘制平滑彩色 SVG 连线 ================= */
+    function drawEdges() {
+      const stage = document.getElementById('graphStage');
+      const svg = document.getElementById('edgesSvg');
+      const stageRect = stage.getBoundingClientRect();
+      const width = stage.scrollWidth;
+      const height = stage.scrollHeight;
+
+      svg.setAttribute('width', String(width));
+      svg.setAttribute('height', String(height));
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+      // 缓存各节点相对于 graphStage 的真实几何框
+      const boxes = new Map();
+      stage.querySelectorAll('.node-card').forEach(el => {
+        const r = el.getBoundingClientRect();
+        boxes.set(el.dataset.nodeId, {
+          left: r.left - stageRect.left,
+          right: r.right - stageRect.left,
+          top: r.top - stageRect.top,
+          bottom: r.bottom - stageRect.top,
+          cx: (r.left + r.right) / 2 - stageRect.left,
+          cy: (r.top + r.bottom) / 2 - stageRect.top,
+          w: r.width,
+          h: r.height,
+        });
+      });
+
+      // 统计每个节点的各侧端口槽位，均匀分散彩线起点/终点（避免聚成一团）
+      const portSlots = new Map();
+      const registerPort = (nodeId, side, edgeId, sortKey) => {
+        const key = `${nodeId}:${side}`;
+        if (!portSlots.has(key)) portSlots.set(key, []);
+        portSlots.get(key).push({ edgeId, sortKey });
+      };
+
+      const edgeMeta = GRAPH_DATA.edges.map(e => {
+        const a = nodeMap.get(e.from);
+        const b = nodeMap.get(e.to);
+        const ba = boxes.get(e.from);
+        const bb = boxes.get(e.to);
+        let kind = 'down';
+        let fromSide = 'bottom';
+        let toSide = 'top';
+
+        if (a.lane === b.lane) {
+          kind = 'same';
+          if (ba.cx < bb.cx) { fromSide = 'right'; toSide = 'left'; }
+          else { fromSide = 'left'; toSide = 'right'; }
+        } else if (a.lane > b.lane) {
+          kind = 'up';
+          // 特殊处理：L4 -> L1 经济大回流走最右侧通道；其他短向上线走侧边/顶底
+          if (e.from === 'zones' && e.to === 'base') {
+            kind = 'loopback';
+            fromSide = 'right';
+            toSide = 'right';
+          } else {
+            fromSide = 'top';
+            toSide = 'bottom';
+          }
+        }
+
+        registerPort(e.from, fromSide, e.id, bb ? bb.cx : 0);
+        registerPort(e.to, toSide, e.id, ba ? ba.cx : 0);
+        return { edge: e, kind, fromSide, toSide };
+      });
+
+      // 按目标横坐标排序，极大减少连线交叉
+      for (const arr of portSlots.values()) {
+        arr.sort((x, y) => x.sortKey - y.sortKey);
+      }
+
+      const getAnchor = (nodeId, side, edgeId) => {
+        const box = boxes.get(nodeId);
+        const arr = portSlots.get(`${nodeId}:${side}`) || [{ edgeId }];
+        const idx = arr.findIndex(item => item.edgeId === edgeId);
+        const count = arr.length;
+        const frac = count === 1 ? 0.5 : 0.18 + (0.64 * idx) / (count - 1);
+
+        if (side === 'bottom') return { x: box.left + box.w * frac, y: box.bottom + 1 };
+        if (side === 'top') return { x: box.left + box.w * frac, y: box.top - 1 };
+        if (side === 'right') return { x: box.right + 1, y: box.top + box.h * (count === 1 ? 0.5 : 0.28 + 0.44 * idx / (count - 1)) };
+        return { x: box.left - 1, y: box.top + box.h * (count === 1 ? 0.5 : 0.28 + 0.44 * idx / (count - 1)) };
+      };
+
+      // 构建箭头 marker 定义
+      let defs = '<defs>';
+      for (const [typeKey, cfg] of Object.entries(EDGE_TYPES)) {
+        const col = cssVar(cfg.colorVar);
+        defs += `
+          <marker id="arrow-${typeKey}" viewBox="0 0 10 10" refX="8.2" refY="5" markerWidth="5.8" markerHeight="5.8" orient="auto-start-reverse">
+            <path d="M 1 1.6 L 8.8 5 L 1 8.4 z" fill="${col}" />
+          </marker>
+        `;
+      }
+      defs += '</defs>';
+
+      let pathsHtml = '';
+      let labelsHtml = '';
+
+      for (const item of edgeMeta) {
+        const { edge, kind, fromSide, toSide } = item;
+        const cfg = EDGE_TYPES[edge.type];
+        const col = cssVar(cfg.colorVar);
+        const p1 = getAnchor(edge.from, fromSide, edge.id);
+        const p2 = getAnchor(edge.to, toSide, edge.id);
+
+        let d = '';
+        let lx = (p1.x + p2.x) / 2;
+        let ly = (p1.y + p2.y) / 2;
+
+        if (kind === 'down') {
+          const dy = Math.max(28, (p2.y - p1.y) * 0.46);
+          const c1x = p1.x;
+          const c1y = p1.y + dy;
+          const c2x = p2.x;
+          const c2y = p2.y - dy;
+          d = `M ${p1.x} ${p1.y} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
+          // 三次贝塞尔 t=0.5 精准中点
+          lx = 0.125 * p1.x + 0.375 * c1x + 0.375 * c2x + 0.125 * p2.x;
+          ly = 0.125 * p1.y + 0.375 * c1y + 0.375 * c2y + 0.125 * p2.y;
+        } else if (kind === 'same') {
+          const arcLift = edge.from === 'supply' ? -22 : 20;
+          const mx = (p1.x + p2.x) / 2;
+          const my = (p1.y + p2.y) / 2 + arcLift;
+          d = `M ${p1.x} ${p1.y} Q ${mx} ${my}, ${p2.x} ${p2.y}`;
+          lx = mx;
+          ly = (p1.y + 2 * my + p2.y) / 4;
+        } else if (kind === 'loopback') {
+          // 经济闭环大回流线：沿画布右侧边缘绕行回顶层后方基地
+          const railX = width + 24;
+          d = `M ${p1.x} ${p1.y} C ${railX} ${p1.y}, ${railX} ${p2.y}, ${p2.x} ${p2.y}`;
+          lx = railX - 38;
+          ly = (p1.y + p2.y) / 2;
+        } else {
+          // 反向风险线（例如 horde -> tank）：微偏左侧拱形避开正向下行线
+          const bendX = (p1.x + p2.x) / 2 - 26;
+          const c1y = p1.y - 34;
+          const c2y = p2.y + 34;
+          d = `M ${p1.x} ${p1.y} C ${bendX} ${c1y}, ${bendX} ${c2y}, ${p2.x} ${p2.y}`;
+          lx = 0.125 * p1.x + 0.75 * bendX + 0.125 * p2.x;
+          ly = (p1.y + p2.y) / 2;
+        }
+
+        const dashClass = cfg.dashed ? 'is-dashed' : '';
+        pathsHtml += `
+          <path class="edge-path ${dashClass}" data-edge-id="${edge.id}" d="${d}" stroke="${col}" marker-end="url(#arrow-${edge.type})">
+            <title>${edge.label}：${edge.desc}</title>
+          </path>
+        `;
+
+        const textW = Math.max(58, edge.label.length * 10.6 + 12);
+        labelsHtml += `
+          <g class="edge-label-group" data-edge-label="${edge.id}" transform="translate(${lx}, ${ly})">
+            <rect class="edge-label-bg" x="${-textW / 2}" y="-10" width="${textW}" height="20" stroke="${col}"></rect>
+            <text class="edge-label-text">${edge.label}</text>
+          </g>
+        `;
+      }
+
+      svg.innerHTML = defs + pathsHtml + labelsHtml;
+
+      // 绑定连线悬停与点击诊断
+      svg.querySelectorAll('.edge-path').forEach(pathEl => {
+        const eid = pathEl.dataset.edgeId;
+        pathEl.addEventListener('mouseenter', () => {
+          state.hoveredEdgeId = eid;
+          applyHighlightState();
+        });
+        pathEl.addEventListener('mouseleave', () => {
+          state.hoveredEdgeId = null;
+          applyHighlightState();
+        });
+        pathEl.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const edge = edgeMap.get(eid);
+          if (!edge) return;
+          updateAuditDock(
+            `机制连线：${nodeMap.get(edge.from).name} → ${nodeMap.get(edge.to).name}`,
+            `联系类型：${EDGE_TYPES[edge.type].label}（${edge.label}）`,
+            edge.desc
+          );
+        });
+      });
+
+      applyHighlightState();
+    }
+
+    /* ================= 3. 渲染右侧载具与要素卡片墙 ================= */
+    function renderMembers() {
+      const leadBox = document.getElementById('leadContainer');
+      const gridBox = document.getElementById('memberGrid');
+      const q = state.memberQuery.trim().toLowerCase();
+
+      const matchFilter = (n) => {
+        if (state.memberCat !== 'all' && n.category !== state.memberCat) return false;
+        if (!q) return true;
+        return (
+          n.name.toLowerCase().includes(q) ||
+          n.summary.toLowerCase().includes(q) ||
+          n.constraint.toLowerCase().includes(q) ||
+          n.shortTag.toLowerCase().includes(q)
+        );
+      };
+
+      const lead = GRAPH_DATA.nodes.find(n => n.isLead);
+      leadBox.innerHTML = '';
+      if (lead && matchFilter(lead)) {
+        const deg = degreeStats.get(lead.id);
+        const el = document.createElement('div');
+        el.className = 'lead-card';
+        el.dataset.memberId = lead.id;
+        el.innerHTML = `
+          <div class="lead-head">
+            <span class="lead-title">${ICONS[lead.icon]} ${lead.name}</span>
+            <div class="chip-group">
+              <span class="micro-chip">中枢</span>
+              <span class="micro-chip tabular">连接 ${deg.total}</span>
+            </div>
+          </div>
+          <div class="lead-desc">${lead.summary}</div>
+        `;
+        el.addEventListener('click', () => selectNode(lead.id));
+        leadBox.appendChild(el);
+      }
+
+      let others = GRAPH_DATA.nodes.filter(n => !n.isLead && matchFilter(n));
+      if (state.memberSort === 'degree') {
+        others.sort((a, b) => degreeStats.get(b.id).total - degreeStats.get(a.id).total);
+      } else if (state.memberSort === 'fire') {
+        others.sort((a, b) => (b.weights.fire || 0) - (a.weights.fire || 0));
+      } else if (state.memberSort === 'supply') {
+        others.sort((a, b) => (b.weights.supply || 0) - (a.weights.supply || 0));
+      }
+
+      document.getElementById('gridSubCount').textContent = String(others.length);
+      document.getElementById('memberCountBadge').textContent = `${others.length + (lead && matchFilter(lead) ? 1 : 0)} 个要素`;
+
+      gridBox.innerHTML = '';
+      for (const n of others) {
+        const deg = degreeStats.get(n.id);
+        const expanded = state.expandedCards.has(n.id);
+        const card = document.createElement('div');
+        card.className = `member-card ${expanded ? 'is-expanded' : ''}`;
+        card.dataset.memberId = n.id;
+        card.style.setProperty('--node-color', `var(${n.colorVar})`);
+        card.style.setProperty('--node-soft', `var(${n.softVar})`);
+
+        card.innerHTML = `
+          <div class="member-head">
+            <span class="member-name">${ICONS[n.icon]} <span>${n.name}</span></span>
+            <span class="node-tag">${n.shortTag}</span>
+          </div>
+          <div class="member-body">
+            <div class="member-role">${n.summary}</div>
+            <div class="member-constraint">硬约束：${n.constraint}</div>
+            <div class="member-extra">
+              <ul>${n.rules.map(r => `<li>${r}</li>`).join('')}</ul>
+            </div>
+          </div>
+          <div class="member-foot">
+            <span class="tabular">上游 ${deg.inCount} · 下游 ${deg.outCount}</span>
+            <button class="expand-btn" type="button" title="展开/收起策划书详细规则">${expanded ? '▴' : '▾'}</button>
+          </div>
+        `;
+
+        card.addEventListener('click', (ev) => {
+          if (ev.target.closest('.expand-btn')) {
+            ev.stopPropagation();
+            if (state.expandedCards.has(n.id)) state.expandedCards.delete(n.id);
+            else state.expandedCards.add(n.id);
+            card.classList.toggle('is-expanded');
+            ev.target.closest('.expand-btn').textContent = state.expandedCards.has(n.id) ? '▴' : '▾';
+            return;
+          }
+          selectNode(n.id);
+        });
+
+        gridBox.appendChild(card);
+      }
+
+      applyHighlightState();
+    }
+
+    /* ================= 4. 渲染右下战术闭环剧本清单 ================= */
+    function renderLoops() {
+      const listEl = document.getElementById('loopList');
+      const q = state.loopQuery.trim().toLowerCase();
+
+      const filtered = GRAPH_DATA.loops.filter(l => {
+        if (state.loopPhase !== 'all' && l.phase !== state.loopPhase) return false;
+        if (!q) return true;
+        return (
+          l.title.toLowerCase().includes(q) ||
+          l.summary.toLowerCase().includes(q) ||
+          l.steps.some(s => s.toLowerCase().includes(q))
+        );
+      });
+
+      document.getElementById('loopCountBadge').textContent = `${filtered.length} 套闭环`;
+      listEl.innerHTML = '';
+
+      for (const l of filtered) {
+        const card = document.createElement('article');
+        card.className = 'loop-card';
+        card.dataset.loopId = l.id;
+        card.innerHTML = `
+          <div class="loop-top">
+            <span class="loop-title">${l.title}</span>
+            <span class="loop-phase">${l.phaseLabel}</span>
+          </div>
+          <div class="loop-summary">${l.summary}</div>
+          <div class="loop-meta">
+            <span>涉及：${l.nodes.map(id => nodeMap.get(id).name.split(' ')[0]).join(' · ')}</span>
+            <span class="tabular">${l.edges.length} 条联动</span>
+          </div>
+          <div class="loop-steps">
+            ${l.steps.map((s, i) => `<div class="loop-step-item"><span class="step-num tabular">${i + 1}</span><span>${s}</span></div>`).join('')}
+          </div>
+        `;
+        card.addEventListener('click', () => selectLoop(l.id));
+        listEl.appendChild(card);
+      }
+
+      applyHighlightState();
+    }
+
+    /* ================= 5. 双向高亮联动核心逻辑 ================= */
+    function selectNode(nodeId) {
+      if (state.selectedNodeId === nodeId && !state.selectedLoopId) {
+        resetSelection();
+        return;
+      }
+      state.selectedLoopId = null;
+      state.selectedNodeId = nodeId;
+      applyHighlightState();
+    }
+
+    function selectLoop(loopId) {
+      if (state.selectedLoopId === loopId) {
+        resetSelection();
+        return;
+      }
+      state.selectedNodeId = null;
+      state.selectedLoopId = loopId;
+      applyHighlightState();
+    }
+
+    function resetSelection() {
+      state.selectedNodeId = null;
+      state.selectedLoopId = null;
+      state.hoveredEdgeId = null;
+      applyHighlightState();
+    }
+
+    function updateAuditDock(target, limit, fallback) {
+      document.getElementById('auditTarget').textContent = target;
+      document.getElementById('auditLimit').textContent = limit;
+      document.getElementById('auditFallback').textContent = fallback;
+    }
+
+    function applyHighlightState() {
+      const activeNodes = new Set();
+      const activeEdges = new Set();
+      let hasFocus = false;
+      const badge = document.getElementById('focusStatusBadge');
+
+      if (state.selectedLoopId) {
+        const loop = loopMap.get(state.selectedLoopId);
+        if (loop) {
+          hasFocus = true;
+          loop.nodes.forEach(id => activeNodes.add(id));
+          loop.edges.forEach(id => activeEdges.add(id));
+          badge.textContent = `剧本聚焦：${loop.title}`;
+          updateAuditDock(loop.auditTarget, loop.auditLimit, loop.auditFallback);
+        }
+      } else if (state.selectedNodeId) {
+        const node = nodeMap.get(state.selectedNodeId);
+        if (node) {
+          hasFocus = true;
+          activeNodes.add(node.id);
+          for (const e of GRAPH_DATA.edges) {
+            if (e.from === node.id || e.to === node.id) {
+              activeEdges.add(e.id);
+              activeNodes.add(e.from);
+              activeNodes.add(e.to);
+            }
+          }
+          const deg = degreeStats.get(node.id);
+          badge.textContent = `节点聚焦：${node.name}（上游 ${deg.inCount} / 下游 ${deg.outCount}）`;
+          updateAuditDock(
+            `${node.name}（${node.shortTag}）— ${node.summary}`,
+            node.constraint,
+            node.fallback
+          );
+        }
+      } else {
+        badge.textContent = '全图总览 · 点击任意节点或右侧剧本高亮上下游';
+        updateAuditDock(
+          '全图总览（点击任意载具、连线或右侧剧本进行自检）',
+          '补给车不可占区 · 弹药与后方库存有限 · 毁车本局永久损失',
+          '全部 9 个要素均接入闭环（最小度 ≥ 2），未发现孤岛载具或无制约超模单位'
+        );
+      }
+
+      // 更新左侧节点样式
+      document.querySelectorAll('.node-card').forEach(el => {
+        const id = el.dataset.nodeId;
+        el.classList.remove('is-selected', 'is-related', 'is-dim');
+        if (!hasFocus) return;
+        if (id === state.selectedNodeId || (state.selectedLoopId && activeNodes.has(id))) {
+          el.classList.add('is-selected');
+        } else if (activeNodes.has(id)) {
+          el.classList.add('is-related');
+        } else {
+          el.classList.add('is-dim');
+        }
+      });
+
+      // 更新连线与标签
+      document.querySelectorAll('.edge-path').forEach(el => {
+        const eid = el.dataset.edgeId;
+        const isHovered = state.hoveredEdgeId === eid;
+        const isAct = activeEdges.has(eid);
+        el.classList.remove('is-active', 'is-dim', 'is-flow');
+        if (isHovered) {
+          el.classList.add('is-active');
+        } else if (hasFocus) {
+          if (isAct) {
+            el.classList.add('is-active');
+            if (state.selectedLoopId) el.classList.add('is-flow');
+          } else {
+            el.classList.add('is-dim');
+          }
+        }
+      });
+
+      document.querySelectorAll('.edge-label-group').forEach(el => {
+        const eid = el.dataset.edgeLabel;
+        const show = state.showAllLabels || state.hoveredEdgeId === eid || (hasFocus && activeEdges.has(eid));
+        el.classList.toggle('is-visible', show);
+      });
+
+      // 更新右上成员卡联动
+      document.querySelectorAll('[data-member-id]').forEach(el => {
+        const id = el.dataset.memberId;
+        el.classList.remove('is-selected', 'is-dim');
+        if (!hasFocus) return;
+        if (id === state.selectedNodeId || (state.selectedLoopId && activeNodes.has(id))) {
+          el.classList.add('is-selected');
+        } else if (!activeNodes.has(id)) {
+          el.classList.add('is-dim');
+        }
+      });
+
+      // 更新右下剧本卡联动
+      document.querySelectorAll('.loop-card').forEach(el => {
+        const lid = el.dataset.loopId;
+        el.classList.toggle('is-selected', lid === state.selectedLoopId);
+      });
+    }
+
+    /* ================= 6. 堆叠条悬浮明细提示 ================= */
+    function bindStackBarTooltips() {
+      const tip = document.getElementById('floatingTip');
+      document.querySelectorAll('.stack-bar').forEach(bar => {
+        const node = nodeMap.get(bar.dataset.tipNode);
+        if (!node) return;
+        bar.addEventListener('mouseenter', (ev) => {
+          const rows = DIMENSIONS.filter(d => (node.weights[d.key] || 0) > 0)
+            .sort((a, b) => node.weights[b.key] - node.weights[a.key])
+            .map(d => `
+              <div class="tip-row">
+                <span class="tip-row-left"><i class="swatch" style="background:var(${d.colorVar})"></i>${d.label}</span>
+                <strong class="tabular">${node.weights[d.key]}%</strong>
+              </div>
+            `).join('');
+          tip.innerHTML = `<div class="tip-title"><span>${node.name}</span><span style="font-weight:400;color:var(--text-muted)">定性权重</span></div>${rows}`;
+          tip.classList.add('is-show');
+          positionTip(ev);
+        });
+        bar.addEventListener('mousemove', positionTip);
+        bar.addEventListener('mouseleave', () => tip.classList.remove('is-show'));
+      });
+    }
+
+    function positionTip(ev) {
+      const tip = document.getElementById('floatingTip');
+      const pad = 14;
+      let x = ev.clientX + pad;
+      let y = ev.clientY + pad;
+      if (x + 240 > window.innerWidth) x = ev.clientX - 240;
+      if (y + 180 > window.innerHeight) y = ev.clientY - 170;
+      tip.style.left = `${x}px`;
+      tip.style.top = `${y}px`;
+    }
+
+    /* ================= 7. 事件绑定与初始化 ================= */
+    document.getElementById('btnReset').addEventListener('click', resetSelection);
+    document.getElementById('graphStageWrap').addEventListener('click', resetSelection);
+
+    document.getElementById('btnShowLabels').addEventListener('click', (ev) => {
+      state.showAllLabels = !state.showAllLabels;
+      ev.currentTarget.classList.toggle('active', state.showAllLabels);
+      applyHighlightState();
+    });
+
+    document.getElementById('btnTheme').addEventListener('click', (ev) => {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'tactical';
+      html.setAttribute('data-theme', isDark ? 'paper' : 'tactical');
+      ev.currentTarget.textContent = isDark ? '切换战术深色' : '切换暖米图纸';
+      ev.currentTarget.classList.toggle('active', !isDark);
+      // 主题切换后重绘 SVG 箭头和连线色
+      requestAnimationFrame(drawEdges);
+    });
+
+    document.getElementById('memberSearch').addEventListener('input', (ev) => {
+      state.memberQuery = ev.target.value;
+      renderMembers();
+    });
+
+    document.getElementById('memberSort').addEventListener('change', (ev) => {
+      state.memberSort = ev.target.value;
+      renderMembers();
+    });
+
+    document.getElementById('memberFilters').addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.filter-pill');
+      if (!btn) return;
+      state.memberCat = btn.dataset.cat;
+      document.querySelectorAll('#memberFilters .filter-pill').forEach(b => b.classList.toggle('active', b === btn));
+      renderMembers();
+    });
+
+    document.getElementById('loopSearch').addEventListener('input', (ev) => {
+      state.loopQuery = ev.target.value;
+      renderLoops();
+    });
+
+    document.getElementById('loopFilters').addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.filter-pill');
+      if (!btn) return;
+      state.loopPhase = btn.dataset.phase;
+      document.querySelectorAll('#loopFilters .filter-pill').forEach(b => b.classList.toggle('active', b === btn));
+      renderLoops();
+    });
+
+    window.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape') resetSelection();
+    });
+
+    const resizeObserver = new ResizeObserver(() => requestAnimationFrame(drawEdges));
+
+    function init() {
+      renderGraphNodes();
+      renderMembers();
+      renderLoops();
+      requestAnimationFrame(() => {
+        drawEdges();
+        resizeObserver.observe(document.getElementById('graphStage'));
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

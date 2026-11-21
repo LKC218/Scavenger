@@ -1,0 +1,20 @@
+/** 推进真实规则验证飞行、普通弹道、城市与压力预设。 */
+import assert from 'node:assert/strict';
+import {Simulation,segmentBox,wrap} from '../src/载具靶场/模拟.mjs';
+import {FLIGHT} from '../src/载具靶场/飞行.mjs';
+const results=[];
+const advance=(s,seconds)=>{for(let i=0;i<seconds*60;i++)s.step(1/60);};
+function check(name,run){run();results.push(name);}
+function flight(){const s=new Simulation({city:true,total:10});s.units=s.units.filter(u=>u.kind==='plane');const u=s.units[0];u.x=0;u.z=450;u.yaw=0;s.targets=[{id:'test',name:'测试靶',x:0,z:180,y:2.1,w:5,d:5,h:4.2,hp:720,maxHp:720}];return[s,u];}
+check('数量档位与安全高度、唯一ID',()=>{for(const n of [10,30,50,100,200,500]){const s=new Simulation({city:true,total:n});assert.equal(s.units.length,n);assert.equal(new Set(s.units.map(u=>u.id)).size,n);assert(s.units.filter(u=>u.kind!=='tank').every(u=>u.y>Math.max(...s.map.obstacles.map(o=>o.h))));}});
+check('盘旋保持前进且最大转率受限',()=>{const[s,u]=flight();const a={x:u.x,z:u.z},yaw=u.yaw;s.step(1/60);assert(Math.hypot(u.x-a.x,u.z-a.z)>.8);assert(Math.abs(wrap(u.yaw-yaw))<=FLIGHT.turnRate/60+1e-9);advance(s,90);assert(Math.abs(u.x)<780&&Math.abs(u.z)<780);});
+check('航点抵达后盘旋、不悬停',()=>{const[s,u]=flight();s.command([u.id],{type:'move',point:{x:0,z:200}});advance(s,8);assert.equal(u.job,null);const p={x:u.x,z:u.z};advance(s,1);assert(Math.hypot(u.x-p.x,u.z-p.z)>45);});
+check('点目标单次扫射、命中、脱离后不自动重复',()=>{const[s,u]=flight();s.command([u.id],{type:'attack',target:'test'});advance(s,70);assert(s.shots>0,'未发射 '+JSON.stringify(u));assert(s.hits>0);assert.equal(u.job,null);const shots=s.shots;advance(s,30);assert.equal(s.shots,shots);});
+check('拖线普通炸弹单次释放并按重力落地命中',()=>{const[s,u]=flight();s.command([u.id],{type:'bomb',start:{x:0,z:300},end:{x:0,z:60},point:{x:0,z:180}});let bomb=null;for(let i=0;i<70*60;i++){s.step(1/60);bomb??=s.projectiles.find(p=>p.weapon==='bomb');}assert.equal(s.shots,1,'炸弹未按单次释放');assert(bomb?.velocity&&!bomb.guided);assert(s.hits>0,'炸弹未落入靶区');assert.equal(u.job,null);});
+check('取消保留已发弹丸，飞机转盘旋且继续前进',()=>{const[s,u]=flight();s.command([u.id],{type:'bomb',point:{x:0,z:180}});for(let i=0;i<65*60&&!s.projectiles.length;i++)s.step(1/60);assert(s.projectiles.length);s.cancel([u.id]);const p={x:u.x,z:u.z};advance(s,7);assert.equal(u.job,null);assert(Math.hypot(u.x-p.x,u.z-p.z)>40);assert(s.hits>0);assert.equal(s.shots,1);assert(!('hp' in u));});
+check('八个航线方向均能进场投弹，离机后不追踪',()=>{for(let i=0;i<8;i++){const[s,u]=flight(),a=i*Math.PI/4,dx=Math.sin(a),dz=Math.cos(a);u.yaw=a;s.command([u.id],{type:'bomb',start:{x:-dx*120,z:180-dz*120},end:{x:dx*120,z:180+dz*120},point:{x:0,z:180}});advance(s,75);assert.equal(s.shots,1);assert(s.hits>0);assert.equal(u.job,null);}});
+check('Shift队列在单次脱离结束后执行',()=>{const[s,u]=flight();s.command([u.id],{type:'attack',target:'test'});s.command([u.id],{type:'move',point:{x:300,z:200}},true);assert.equal(u.queue.length,1);advance(s,70);assert.equal(u.queue.length,0);assert.equal(u.job,null);assert.deepEqual(u.flight.home,{x:300,z:200});});
+check('暂停冻结固定翼与炸弹，重置清除任务',()=>{const[s,u]=flight();s.command([u.id],{type:'bomb',point:{x:0,z:180}});advance(s,2);s.paused=true;const before=JSON.stringify([s.time,u,s.projectiles]);advance(s,5);assert.equal(JSON.stringify([s.time,u,s.projectiles]),before);s.reset();assert.equal(s.projectiles.length,0);assert(s.units.every(u=>!u.job&&!u.queue.length));});
+check('城市路径分段不穿建筑',()=>{const s=new Simulation({city:true,total:30}),a={x:-210,z:60},b={x:150,z:-350},path=s.nav.path(a,b);assert(path.length>1);let p={...a,y:1};for(const n of path){const q={...n,y:1};assert(!s.map.obstacles.some(o=>segmentBox(p,q,o,2.5)!==null));p=q;}});
+check('恢复靶负载前后持续发射且声音事件有唯一编号',()=>{const s=new Simulation({city:true,total:100});s.configureLoad('combat');advance(s,20);const shots=s.shots;advance(s,20);assert(s.shots>shots+40);assert(s.hits>50);const impacts=s.events.filter(e=>e.type==='impact');assert(impacts.every(e=>Number.isInteger(e.serial)));assert.equal(new Set(impacts.map(e=>e.serial)).size,impacts.length);});
+console.log(JSON.stringify({passed:results.length,checks:results},null,2));

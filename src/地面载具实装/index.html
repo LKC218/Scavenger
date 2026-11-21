@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>地面载具检验场 · V001</title>
+<link rel="icon" href="data:,"><link rel="stylesheet" href="/界面.css">
+<script type="importmap">{"imports":{"three":"/vendor/build/three.module.js","three/addons/":"/vendor/examples/jsm/"}}</script>
+</head>
+<body>
+<header><div class="brand-mark" aria-hidden="true">＋</div><div><p class="eyebrow">地面阶段 / 共通能力</p><h1>地面载具检验场 <small>V001</small></h1></div><div class="resources"><span>部署点数<strong id="points">—</strong></span><span>后方物资<strong id="stock">—</strong></span><span>在场 / 上限<strong id="force">0 / 16</strong></span></div><button id="reset">重开检验</button></header>
+<main>
+<aside class="roster"><div class="section-head"><span>01 / 型号登记</span><b id="catalog-count">读取中</b></div><label class="search-label" for="search">搜索地面型号</label><input id="search" type="search" placeholder="M1A2、M548、Patriot…"><select id="filter" aria-label="登记筛选"><option value="all">全部登记</option><option value="ready">允许部署</option><option value="partial">参考与待修</option></select><div id="catalog" role="listbox" aria-label="地面型号"></div><div class="deploy-panel"><h2 id="model-name">选择型号</h2><p id="model-state">登记状态与实际玩法分别核验。</p><button id="deploy" class="primary" disabled>部署选定型号</button><p class="micro">从后方站附近部署，每款保留独立型号身份。</p></div></aside>
+<section class="field" aria-label="三维检验场"><div id="viewport"></div><div class="field-top"><span class="field-tag">地面共通检验 · 独立试验场</span><button id="focus">聚焦选中</button></div><div class="legend"><span><i class="dot friendly"></i>己方载具</span><span><i class="dot supply"></i>后方补给站</span><span><i class="dot target"></i>耐久靶</span></div><div class="field-bottom"><strong id="selection-title">等待部署</strong><span>左键选择载具或靶标 · 右键地面移动 · 滚轮缩放 · 中键平移</span></div><div id="notice" role="status" aria-live="polite">正在读取地面资源…</div></section>
+<aside class="inspector"><div class="section-head"><span>02 / 当前单位</span><b id="selected-kind">—</b></div><h2 id="unit-name">尚未选择单位</h2><p id="unit-state">可先部署M1A2与M548A3，检验补弹和维修。</p><dl class="readouts"><div><dt>耐久</dt><dd id="hp">—</dd></div><div><dt>弹药</dt><dd id="ammo">—</dd></div><div><dt>车载物资</dt><dd id="cargo">—</dd></div></dl><div class="action-group"><label for="target">指定耐久靶</label><select id="target"></select><button id="attack">攻击选定靶标</button><p class="micro">本轮仅M1A2开放已核实主炮；其余武器逐款接入。</p></div><div class="action-group"><label for="supply-target">补给对象</label><select id="supply-target"></select><button id="supply">开始近距补给</button><button id="reload">回站装载物资</button><button id="buy-stock">购买20物资 / 20点</button><p class="micro">补给车与对象停稳、距离不超过12米；移动会中断。购货只增加后方库存。</p></div><details class="test-tools"><summary>检验操作</summary><button id="damage">模拟受击 −25耐久</button><p class="micro">此按钮用于核验受损与维修，不代表尸群攻击已经接入。</p></details><div class="section-head compact"><span>03 / 已部署单位</span></div><div id="units"></div><p class="boundary">当前检验场未接入Airbase尸群关卡。基础接入、武器接入与人工验收分别记录；无燃油模拟。</p></aside>
+</main><script type="module" src="/入口.mjs"></script>
+</body></html>

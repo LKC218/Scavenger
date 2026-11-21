@@ -1,0 +1,295 @@
+/* 全局世界内贴地 UI 与五层空间秩序（原生 DPR 高清叠加） */
+
+/* 五层秩序：地面与路线(z1) → 贴地双环SVG(z2) → 地面载具(z3) → 全贴地去框名牌(z4) → 空中虚线/幽灵/高空盘旋/空中实体(z5) */
+.tactical-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+}
+
+.tactical-ground-canvas,
+.tactical-ring-svg,
+.tactical-vehicle-canvas,
+.tactical-ui-layer,
+.tactical-air-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tactical-ground-canvas {
+  z-index: 1;
+  display: block;
+}
+
+.tactical-ring-svg {
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.tactical-vehicle-canvas {
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+}
+
+.tactical-ui-layer {
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.tactical-air-canvas {
+  z-index: 5;
+  display: block;
+  pointer-events: none;
+}
+
+/* 仅底层 3D/模拟画布开启像素化对比，场内双环/标绘/名牌始终保持原生 DPR 矢量锐利 */
+.tactical-stage.is-pixel-3d .tactical-ground-canvas,
+.tactical-stage.is-pixel-3d .tactical-vehicle-canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.tactical-drag-box {
+  position: absolute;
+  z-index: 30;
+  border: 1px solid var(--ui-state-select);
+  background: var(--ui-state-select-fill);
+  pointer-events: none;
+}
+
+/* 贴地双同心环（地面载具与直升机） */
+.chassis-ring-group {
+  transition: opacity var(--ui-dur-fast) var(--ui-ease-out);
+}
+
+.chassis-ring-outer,
+.chassis-ring-inner {
+  fill: none;
+  transition: stroke var(--ui-dur-fast), stroke-width var(--ui-dur-fast), opacity var(--ui-dur-fast);
+}
+
+@keyframes ui-ring-pulse {
+  0%,
+  100% {
+    opacity: 0.96;
+  }
+  50% {
+    opacity: 0.68;
+  }
+}
+
+.chassis-ring-group.is-selected .chassis-ring-outer {
+  animation: ui-ring-pulse 2.2s ease-in-out infinite;
+}
+
+/* 车底正下方全贴地去框透视名牌（锚定固定不跳槽） */
+.ground-mark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 6px;
+  border-radius: var(--ui-radius-xs);
+  border: 1px solid transparent;
+  background: transparent;
+  white-space: nowrap;
+  font-family: var(--ui-font-sans);
+  font-size: var(--ui-fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--ui-text-primary);
+  text-shadow:
+    0 1px 0 var(--ui-stroke-halo),
+    0 -1px 0 var(--ui-stroke-halo),
+    1px 0 0 var(--ui-stroke-halo),
+    -1px 0 0 var(--ui-stroke-halo),
+    0 2px 6px rgba(0, 0, 0, 0.56);
+  transition: opacity var(--ui-dur-fast) var(--ui-ease-out),
+    color var(--ui-dur-fast) var(--ui-ease-out),
+    background var(--ui-dur-fast) var(--ui-ease-out),
+    border-color var(--ui-dur-fast) var(--ui-ease-out);
+}
+
+.ground-mark svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  stroke: none;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 1px 1px var(--ui-stroke-halo));
+}
+
+.ground-mark.kind-tank,
+.ground-mark.kind-mbt,
+.ground-mark.kind-ifv,
+.ground-mark.kind-recon,
+.ground-mark.kind-arty,
+.ground-mark.kind-aa,
+.ground-mark.kind-atgm,
+.ground-mark.kind-supply {
+  color: var(--ui-ch-ground-inner);
+}
+
+.ground-mark.kind-heli,
+.ground-mark.kind-attackHeli,
+.ground-mark.kind-transHeli {
+  color: var(--ui-ch-heli-inner);
+}
+
+.ground-mark.kind-plane,
+.ground-mark.kind-cas,
+.ground-mark.kind-fighter,
+.ground-mark.kind-uav {
+  color: var(--ui-ch-plane-inner);
+}
+
+.ground-mark.is-selected {
+  color: var(--ui-state-select);
+}
+
+.ground-mark.is-hovered {
+  color: #ffffff;
+}
+
+.ground-mark .mark-sub {
+  font-size: var(--ui-fs-2xs);
+  font-weight: 600;
+  opacity: 0.92;
+  margin-left: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ground-mark.is-mid {
+  font-size: var(--ui-fs-xs);
+  padding: 1px 4px;
+  opacity: 0.94;
+}
+
+.ground-mark.is-mid svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* 三级碰撞原地降级：紧凑剪影点与低透退让（绝不改变车底锚点坐标） */
+.ground-mark.is-compact {
+  padding: 2px 4px;
+  min-width: 22px;
+  min-height: 20px;
+  justify-content: center;
+  border-color: var(--ui-line-base);
+  background: var(--ui-bg-pod);
+  text-shadow: none;
+}
+
+.ground-mark.is-compact.kind-tank,
+.ground-mark.is-compact.kind-mbt,
+.ground-mark.is-compact.kind-ifv,
+.ground-mark.is-compact.kind-recon,
+.ground-mark.is-compact.kind-arty,
+.ground-mark.is-compact.kind-aa,
+.ground-mark.is-compact.kind-atgm,
+.ground-mark.is-compact.kind-supply {
+  border-color: var(--ui-ch-ground);
+  color: var(--ui-ch-ground);
+}
+
+.ground-mark.is-compact.kind-heli,
+.ground-mark.is-compact.kind-attackHeli,
+.ground-mark.is-compact.kind-transHeli {
+  border-color: var(--ui-ch-heli);
+  color: var(--ui-ch-heli);
+}
+
+.ground-mark.is-compact.kind-plane,
+.ground-mark.is-compact.kind-cas,
+.ground-mark.is-compact.kind-fighter,
+.ground-mark.is-compact.kind-uav {
+  border-color: var(--ui-ch-plane);
+  color: var(--ui-ch-plane);
+}
+
+.ground-mark.is-compact .mark-name,
+.ground-mark.is-compact .mark-sub {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.ground-mark.is-dimmed {
+  opacity: 0.26 !important;
+}
+
+.ground-mark.is-top {
+  z-index: 20 !important;
+}
+
+.ground-mark.is-layer-muted,
+.far-dot.is-layer-muted,
+.chassis-ring-group.is-layer-muted {
+  opacity: 0.22 !important;
+  pointer-events: none !important;
+}
+
+/* 远景战略圆点 */
+.far-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--ui-bg-pod);
+  border: 2px solid var(--ui-ch-ground);
+  color: var(--ui-ch-ground-inner);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--ui-dur-fast) var(--ui-ease-out), border-color var(--ui-dur-fast);
+}
+
+.far-dot.kind-heli {
+  border-color: var(--ui-ch-heli);
+  color: var(--ui-ch-heli-inner);
+}
+
+.far-dot.kind-plane {
+  border-color: var(--ui-ch-plane);
+  color: var(--ui-ch-plane-inner);
+}
+
+.far-dot svg {
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
+  stroke: none;
+}
+
+.far-dot.is-active {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+}
+
+.far-dot.is-dimmed {
+  opacity: 0.26 !important;
+}
+
+.far-dot.is-top {
+  z-index: 20 !important;
+}

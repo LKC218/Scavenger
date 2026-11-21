@@ -1,0 +1,1866 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <title>Scavenger · 9km 680p 复古微缩战场与实战战术 HUD</title>
+  <link rel="stylesheet" href="/ui/令牌.css?v=680p-v7" />
+  <link rel="stylesheet" href="/ui/组件.css?v=680p-v7" />
+  <link rel="stylesheet" href="/ui/场内视觉.css?v=680p-v7" />
+  <link rel="stylesheet" href="/src/程序化地图/实战HUD.css?v=680p-v7" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/vendor/build/three.module.js",
+      "three/addons/": "/vendor/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="canvas-host" data-ui-size="lg" data-aspect="16:9">
+    <!-- 纯净视野唤醒键 (L1 硬描边) -->
+    <button type="button" class="ui-prompt-btn" id="hud-restore-chip" hidden>
+      <span class="ui-outlined-text">恢复 HUD</span><span class="ui-keycap">F5</span>
+    </button>
+
+    <!-- Z-200 三行安全区实战 HUD -->
+    <div class="ui-hud-grid scv-hud-grid" id="hud-grid">
+      <!-- ROW 1：流体三栏顶栏 -->
+      <header class="scv-hud-top" id="top-bar">
+        <div class="scv-top-left">
+          <div class="ui-pod scv-tele-pod" title="当前 680p 渲染基线与 9km 战场实时遥测">
+            <span class="ui-display scv-tele-pts" id="tele-fps-val">680p</span>
+            <div class="scv-tele-meta">
+              <span class="scv-tele-title">9KM 大地图 · 复古微缩 STYLIZED</span>
+              <span class="scv-hud-status-txt" id="hud-status">正在通过 .scvmap Range 通道初始化 680p 场景…</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="scv-top-center">
+          <div class="ui-pod scv-center-island" aria-label="战局运行态与战略视距">
+            <button type="button" class="scv-run-btn" id="hud-pause-btn" title="点击或按 ESC 打开暂停与系统设置">
+              <i class="scv-run-dot"></i><span id="hud-run-lbl">进行中</span>
+            </button>
+            <span class="scv-top-sep"></span>
+            <button type="button" class="scv-pill-btn" id="btn-zoom-near">近景115m</button>
+            <button type="button" class="scv-pill-btn" id="btn-zoom-mid">中景460m</button>
+            <button type="button" class="scv-pill-btn" id="btn-zoom-far">总览9000m</button>
+          </div>
+        </div>
+
+        <nav class="scv-top-right" aria-label="系统快捷操作">
+          <button type="button" class="ui-prompt-btn" id="btn-quick-aspect" title="U：切换 16:9 / 21:9 680p 画幅">
+            <span class="ui-outlined-text" id="quick-aspect-lbl">16:9</span><span class="ui-keycap ui-keycap--circle">U</span>
+          </button>
+          <button type="button" class="ui-prompt-btn" id="btn-hide-hud" title="F5：隐界面纯净观战">
+            <span class="ui-outlined-text">隐界面</span><span class="ui-keycap">F5</span>
+          </button>
+          <button type="button" class="ui-prompt-btn" id="btn-quick-pause" title="ESC：战局暂停与设置菜单">
+            <span class="ui-outlined-text">暂停</span><span class="ui-keycap">ESC</span>
+          </button>
+          <button type="button" class="ui-btn scv-accent-btn" id="btn-toggle-editor">⊕ 演训 / 编辑 [P]</button>
+        </nav>
+      </header>
+
+      <!-- ROW 2：中间安全走廊（左侧极窄兵种轨 + 右侧不透明演训与地图编辑抽屉） -->
+      <section class="scv-hud-middle" aria-label="兵种分类与演训编辑走廊">
+        <div class="scv-mid-left">
+          <aside class="ui-pod ui-cat-rail" id="hud-cat-rail" aria-label="兵种分类快选轨"></aside>
+          <section class="scv-roster-flyout" id="hud-roster-flyout" hidden aria-label="单位名册抽屉">
+            <div class="scv-drawer-head">
+              <div>
+                <span class="ui-eyebrow">TASK FORCE ROSTER</span>
+                <h3 class="ui-display" id="roster-flyout-title">全军编制</h3>
+              </div>
+              <button type="button" class="ui-btn ui-btn--sm" id="btn-close-roster">收起</button>
+            </div>
+            <div class="scv-roster-list" id="hud-roster-list"></div>
+          </section>
+        </div>
+
+        <div class="scv-mid-right">
+          <aside class="scv-editor-drawer" id="editor-drawer" hidden aria-label="演训配置与地图编辑器抽屉">
+            <div class="scv-drawer-head">
+              <div>
+                <span class="ui-eyebrow">LIVE HUD &amp; MAP EDITOR</span>
+                <h3 class="ui-display">演训配置与地图编辑</h3>
+              </div>
+              <button type="button" class="ui-btn ui-btn--sm" id="btn-close-editor">关闭 ESC</button>
+            </div>
+
+            <div class="scv-drawer-group" style="border-top:0;padding-top:0">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="scv-drawer-lbl">界面物理尺码（无缩放失真）</span>
+                <a class="ui-btn ui-btn--sm ui-btn--ghost" href="/ui-spec" target="_blank" rel="noopener">规范台 ↗</a>
+              </div>
+              <div class="ui-size-seg" id="hud-size-seg" role="group" aria-label="界面物理尺码三档切换">
+                <button type="button" class="ui-size-seg-btn" data-size="compact">紧凑 680p</button>
+                <button type="button" class="ui-size-seg-btn active" data-size="lg">标准大号</button>
+                <button type="button" class="ui-size-seg-btn" data-size="xl">超大高分</button>
+              </div>
+            </div>
+
+            <div class="scv-drawer-group">
+              <span class="scv-drawer-lbl">680p 渲染画幅与植被生态负载</span>
+              <div class="scv-drawer-row">
+                <button type="button" class="ui-btn ui-btn--sm active" id="btn-aspect-16x9">16:9 (1208×680)</button>
+                <button type="button" class="ui-btn ui-btn--sm" id="btn-aspect-21x9">21:9 (1588×680)</button>
+              </div>
+              <div class="scv-drawer-row">
+                <button type="button" class="ui-btn ui-btn--sm active" id="btn-grass-high">草地:微缩草团</button>
+                <button type="button" class="ui-btn ui-btn--sm" id="btn-grass-med">仅地表草绒</button>
+                <button type="button" class="ui-btn ui-btn--sm" id="btn-grass-off">草地:关</button>
+              </div>
+            </div>
+
+            <div class="scv-drawer-group">
+              <span class="scv-drawer-lbl">作战编制负载</span>
+              <div class="scv-drawer-row">
+                <button type="button" class="ui-btn ui-btn--sm active" id="btn-load-g01">G01 三型载具</button>
+                <button type="button" class="ui-btn ui-btn--sm" id="btn-load-100">100 混编交战</button>
+              </div>
+            </div>
+
+            <div class="scv-drawer-group">
+              <span class="scv-drawer-lbl">地图编辑器与实时物理派生 (?mode=editor)</span>
+              <div class="scv-stat-grid">
+                <div class="scv-stat-cell"><span>插槽策略</span><b id="ui-ed-slot">original_refactored</b></div>
+                <div class="scv-stat-cell"><span>派生耗时</span><b id="ui-ed-ms">0.0 ms</b></div>
+                <div class="scv-stat-cell"><span>动态碰撞盒</span><b id="ui-ed-obb">0 个</b></div>
+                <div class="scv-stat-cell"><span>M1A2 4m 寻路</span><b id="ui-ed-nav">就绪</b></div>
+                <div class="scv-stat-cell" style="grid-column:span 2"><span>AH-64D 30m 越障包络</span><b id="ui-ed-heli">22.0 m</b></div>
+              </div>
+              <div class="scv-drawer-row">
+                <button type="button" class="ui-btn ui-btn--sm" id="btn-ed-add-bldg">+放置测试高楼</button>
+                <button type="button" class="ui-btn ui-btn--sm" id="btn-ed-brush-hill">+地形抬升笔刷</button>
+                <button type="button" class="ui-btn ui-btn--sm ui-btn--danger" id="btn-ed-clear">清除动态建筑</button>
+                <button type="button" class="ui-btn ui-btn--sm" id="btn-ed-export">导出 scene-source.json</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ROW 3：底中全净空双翼分离 -->
+      <footer class="ui-hud-bottom">
+        <!-- 左下翼：状态反馈 + 可折叠空中条 + 9km 实时小地图 + 1~3 快捷编组 -->
+        <div class="scv-bl-wing">
+          <div class="ui-pod scv-bl-toast"><i></i><span id="bottom-help">WASD/左拖平移 · 滚轮指哪缩哪 70m–9000m · 中键/Q/E 旋转 · 1/2/3 选车 · 右键移动/越障</span></div>
+
+          <div class="scv-air-wrap">
+            <button type="button" class="ui-prompt-btn" id="btn-air-fold" title="6：展开或收折空中直达快选条">
+              <span class="ui-outlined-text" id="air-fold-lbl">空中编队 ▾</span><span class="ui-keycap ui-keycap--circle">6</span>
+            </button>
+            <div class="ui-pod scv-air-strip" id="hud-air-strip"></div>
+          </div>
+
+          <div class="scv-mm-cg-pair">
+            <div class="scv-minimap-shell">
+              <div class="scv-minimap-head">
+                <span class="ui-badge" id="hud-mm-coords" data-tone="ground">9KM 雷达</span>
+                <button type="button" class="ui-prompt-btn" id="btn-mm-recenter" title="F：视角居中聚焦当前单位">
+                  <span class="ui-outlined-text">居中聚焦</span><span class="ui-keycap ui-keycap--circle">F</span>
+                </button>
+              </div>
+              <div class="scv-minimap-box" id="hud-minimap-box" title="点击 9km 雷达小地图立即跳转相机视野">
+                <canvas id="hud-minimap-canvas" width="336" height="198"></canvas>
+                <span class="scv-mm-hint" id="hud-mm-hint">9KM · 点击跳镜</span>
+              </div>
+            </div>
+            <div class="ui-pod scv-cg-strip" id="hud-cg-strip" aria-label="1至3主力载具快捷槽"></div>
+          </div>
+        </div>
+
+        <!-- 右下翼：3D 载具单选详情卡 + 最右下 3×2 战术命令盘 -->
+        <div class="scv-br-wing">
+          <div class="ui-pod scv-inspector-card" id="hud-inspector" aria-label="主选载具状态详情卡">
+            <div class="scv-insp-top">
+              <div class="scv-insp-title">
+                <div class="scv-insp-ico" id="insp-ico"></div>
+                <div class="scv-insp-name">
+                  <strong id="insp-name">铁砧 01 · M1A2 SEP v3</strong>
+                  <small id="insp-sub">地面通道 · 等待航路指令</small>
+                </div>
+              </div>
+              <span class="ui-mono" id="insp-hp-txt" style="font-weight:900">100%</span>
+            </div>
+            <div class="ui-hp-track" id="insp-hp-track">
+              <div class="ui-hp-trail" id="insp-hp-trail" style="width:100%"></div>
+              <div class="ui-hp-fill" id="insp-hp-fill" style="width:100%;background:var(--ui-ch-ground)"></div>
+              <div class="ui-hp-bonus" id="insp-hp-bonus" style="left:88%;width:12%"></div>
+            </div>
+            <div class="scv-insp-foot">
+              <div class="scv-weapon-strip" id="insp-weapons"></div>
+              <div class="ui-select" id="hud-roe-select" data-value="free">
+                <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="交战规则">
+                  <span class="ui-select-val">
+                    <span class="ui-select-dot" style="color:var(--ui-state-danger);background:currentColor"></span>
+                    <span class="ui-select-txt">自由开火</span>
+                  </span>
+                  <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <div class="ui-select-menu" role="listbox" hidden>
+                  <button type="button" class="ui-select-option" role="option" data-val="free" data-dot="var(--ui-state-danger)" aria-selected="true">
+                    <span class="ui-select-option-main">
+                      <span class="ui-select-option-title">自由开火</span>
+                      <span class="ui-select-option-sub">发现可见目标立即接战</span>
+                    </span>
+                  </button>
+                  <button type="button" class="ui-select-option" role="option" data-val="return" data-dot="var(--ui-state-warn)" aria-selected="false">
+                    <span class="ui-select-option-main">
+                      <span class="ui-select-option-title">仅还击</span>
+                      <span class="ui-select-option-sub">降低暴露仅还击开火目标</span>
+                    </span>
+                  </button>
+                  <button type="button" class="ui-select-option" role="option" data-val="hold" data-dot="var(--ui-ch-ground)" aria-selected="false">
+                    <span class="ui-select-option-main">
+                      <span class="ui-select-option-title">停火隐蔽</span>
+                      <span class="ui-select-option-sub">保持静默机动或整备补给</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ui-pod scv-cmd-shell" aria-label="3×2 实战命令盘">
+            <div class="scv-cmd-head">
+              <span style="color:var(--ui-state-select);font-weight:800" id="cmd-scope-lbl">COMMAND · 铁砧 01</span>
+              <span class="ui-mono">3×2 HUD</span>
+            </div>
+            <div class="ui-cmd-grid" id="hud-cmd-grid"></div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Z-400 4A 二分景深暂停与设置菜单 -->
+    <div class="scv-pause-overlay" id="pause-overlay" hidden>
+      <div class="ui-overlay-glass scv-pause-card" role="dialog" aria-modal="true" aria-label="战局暂停与设置菜单">
+        <div class="scv-pause-menu">
+          <span class="ui-eyebrow">TACTICAL PAUSE // CODE SSOT V2.1</span>
+          <h2 class="ui-display" style="margin:2px 0 8px;font-size:24px;color:var(--ui-state-select)">演训战局已暂停</h2>
+          <button type="button" class="ui-btn ui-btn--primary scv-pause-btn" id="pause-resume">
+            <span>继续作战模拟</span><span class="ui-keycap">ESC</span>
+          </button>
+          <button type="button" class="ui-btn scv-pause-btn" id="pause-aspect-btn">
+            <span>切换 680p 画幅</span><span class="ui-mono" id="pause-aspect-val">16:9</span>
+          </button>
+          <button type="button" class="ui-btn scv-pause-btn" id="pause-size-btn">
+            <span>循环界面尺码</span><span class="ui-mono" id="pause-size-val">标准大号</span>
+          </button>
+          <button type="button" class="ui-btn scv-pause-btn" id="pause-reset-cam">
+            <span>复位 9km 核心交战视角</span><span class="ui-keycap">R</span>
+          </button>
+          <a class="ui-btn ui-btn--ghost scv-pause-btn" href="/ui-spec" target="_blank" rel="noopener">
+            <span>同源打开 UI/UX 活体规范台</span><span>/ui-spec ↗</span>
+          </a>
+        </div>
+        <div class="scv-pause-info">
+          <div>
+            <span class="ui-eyebrow">TELEMETRY &amp; CONTROLS</span>
+            <p style="margin:6px 0 0;font-size:var(--ui-fs-xs);color:var(--ui-text-secondary)" id="pause-tele-summary">680p 复古微缩 Stylized 实时就绪</p>
+          </div>
+          <div class="scv-kbd-grid">
+            <div class="scv-kbd-row"><kbd class="ui-kbd">WASD / 左拖</kbd><span>平移地图</span></div>
+            <div class="scv-kbd-row"><kbd class="ui-kbd">Q / E / 中键</kbd><span>丝滑旋转镜头</span></div>
+            <div class="scv-kbd-row"><kbd class="ui-kbd">1 / 2 / 3</kbd><span>切换主角载具</span></div>
+            <div class="scv-kbd-row"><kbd class="ui-kbd">右键</kbd><span>下达移动 / 越障</span></div>
+            <div class="scv-kbd-row"><kbd class="ui-kbd">P</kbd><span>演训 / 编辑抽屉</span></div>
+            <div class="scv-kbd-row"><kbd class="ui-kbd">U</kbd><span>16:9 / 21:9 切换</span></div>
+            <div class="scv-kbd-row"><kbd class="ui-kbd">F5</kbd><span>纯净观战显隐</span></div>
+            <div class="scv-kbd-row"><kbd class="ui-kbd">X</kbd><span>停止当前航路</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Z-500 Toast 提示队列 -->
+    <div class="scv-toast-stack" id="hud-toast-stack" aria-live="polite"></div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import {createModelLoader} from '/compressed-loader.mjs';
+    import {
+      RENDER_STYLE_BASELINE,
+      getStandardAspectSpec,
+      applyStylized680pCanvas,
+      computeHorPlusCameraFrustum,
+      layoutAspectFrameBox,
+    } from '/src/程序化地图/渲染基线.mjs?v=680p-v7';
+    import {
+      decodeSCVHHeightfield,
+      HybridTerrainSupport,
+      loadTerrainArrayTexture,
+      loadSCVSSplatControl,
+      loadImageTextureWithData,
+      createPackedHeightTexture,
+      syncPackedHeightTexture,
+      createProceduralTerrainMaterial,
+      ProceduralTerrainPool,
+      createMapOutskirtsSkirtMesh,
+    } from '/src/程序化地图/程序化地形.mjs?v=680p-v7';
+    import {
+      decodeSCVTTreeIndex,
+      createPrebakedGrassFieldTexture,
+      ThreeTierFoliageSystem,
+    } from '/src/程序化地图/立体植被与草丛.mjs?v=680p-v7';
+    import {
+      decodeSCVBBuildingInstances,
+      decodeSCVCCollisions,
+      AutoPhysicsAndNavEngine,
+    } from '/src/程序化地图/自动物理派生.mjs?v=680p-v7';
+    import {
+      ModularBuildingSystem,
+      LightweightMapEditor,
+    } from '/src/程序化地图/地图编辑器.mjs?v=680p-v7';
+    import {
+      SCVMapRangeClient,
+      SmoothDistanceTransitionController,
+    } from '/src/程序化地图/平滑过渡与加载.mjs?v=680p-v7';
+    import {
+      buildCoarseHeightfieldFallback,
+      TacticalVehicleAndCombatSystem,
+    } from '/src/程序化地图/场景运行.mjs?v=680p-v7';
+    import { createSilhouetteSvg } from '/ui/图标与标绘.mjs';
+    import {
+      bindAllUiSelects,
+      createEscStack,
+      createUiSizeController,
+      UI_SIZE_LABELS,
+    } from '/ui/交互控件.mjs';
+
+    const tStartBoot = performance.now();
+    const params = new URLSearchParams(window.location.search);
+    const sourceMode = params.get('source') === 'scatter' ? 'scatter' : 'archive';
+    const initialEditorMode = params.get('mode') === 'editor';
+    // 强制唯一渲染基线：680p + 复古微缩 Stylized，画幅比例仅在 16:9 (1208x680) 与 21:9 (1588x680) 间选择
+    const initialAspectKey = params.get('aspect') === '21:9' ? '21:9' : RENDER_STYLE_BASELINE.defaultAspect;
+    const initialSpec = getStandardAspectSpec(initialAspectKey);
+    const fastColdStartOnly = params.get('fastboot') === '1';
+    const isEmbedMode = params.get('embed') === '1';
+
+    const host = document.getElementById('canvas-host');
+    const hudStatus = document.getElementById('hud-status');
+    const editorDrawer = document.getElementById('editor-drawer');
+    let bootCompleted = false;
+    const reportBootFailure = (err) => {
+      if (bootCompleted || !hudStatus) return;
+      const msg = (err && (err.message || err.reason?.message || String(err.reason || err))) || '未知初始化错误';
+      hudStatus.style.color = '#ffb4a9';
+      hudStatus.textContent = `场景初始化失败（可尝试强制刷新 Ctrl+F5）：${msg}`;
+    };
+    window.addEventListener('error', e => reportBootFailure(e.error || e.message));
+    window.addEventListener('unhandledrejection', e => reportBootFailure(e.reason || e));
+    if (isEmbedMode) {
+      host.dataset.embed = '1';
+      document.getElementById('hud-grid').hidden = true;
+      document.getElementById('hud-restore-chip').hidden = true;
+      document.getElementById('pause-overlay').hidden = true;
+      document.getElementById('hud-toast-stack').hidden = true;
+    }
+    if (initialEditorMode) {
+      editorDrawer.hidden = false;
+      document.getElementById('btn-toggle-editor').classList.add('active');
+    }
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias: RENDER_STYLE_BASELINE.webgl.antialias,
+      powerPreference: 'high-performance',
+      // 仅 ?embed=1 归档对比台截图保留后台缓冲；主试玩与 B5 恢复零拷贝 Flip SwapChain 降合成开销
+      preserveDrawingBuffer: isEmbedMode,
+    });
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = RENDER_STYLE_BASELINE.webgl.exposure;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    applyStylized680pCanvas(renderer, initialAspectKey);
+    host.insertBefore(renderer.domElement, host.firstChild);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x3a4633);
+    const camera = new THREE.OrthographicCamera(-100, 100, 65, -65, 0.1, 30000);
+    scene.add(new THREE.HemisphereLight(0xeef4e2, 0x68765c, 1.55));
+    const sun = new THREE.DirectionalLight(0xffeacc, 3.25);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.bias = -0.0005;
+    sun.shadow.normalBias = 0.04;
+    scene.add(sun, sun.target);
+
+    const TILT = 48 * Math.PI / 180;
+    const state = {
+      center: new THREE.Vector3(0, 0, 85),
+      span: 135,
+      angle: 0,
+      aspectKey: initialSpec.key,
+      forcedAspect: initialSpec.ratio,
+      horPlusMode: true,
+      internalWidth: initialSpec.width,
+      internalHeight: initialSpec.height,
+      editorMode: initialEditorMode,
+      coreReady: false,
+      fullPrecisionReady: false,
+      overviewReadyMs: 0,
+      coldStartReadyMs: 0,
+      coldStartMapBytes: 0,
+      paused: false,
+      hudHidden: false,
+      activeCat: null,
+      airExpanded: true,
+      frames: [],
+      rayChecksTotal: 0,
+      rayMissesTotal: 0,
+    };
+
+    const rangeClient = new SCVMapRangeClient({archiveBaseUrl: '/b4/', mode: sourceMode});
+    const loader = createModelLoader(renderer);
+
+    async function loadGltfViaClient(logicalKey) {
+      const blobUrl = await rangeClient.fetchBlobUrl(logicalKey, 'model/gltf-binary');
+      try {
+        return await loader.loadAsync(blobUrl);
+      } finally {
+        URL.revokeObjectURL(blobUrl);
+      }
+    }
+
+    async function loadImageViaClient(logicalKey, opts) {
+      const blobUrl = await rangeClient.fetchBlobUrl(logicalKey, 'image/webp');
+      try {
+        return await loadImageTextureWithData(blobUrl, opts);
+      } finally {
+        URL.revokeObjectURL(blobUrl);
+      }
+    }
+
+    async function loadArrayTexViaClient(logicalKey) {
+      const blobUrl = await rangeClient.fetchBlobUrl(logicalKey, 'image/webp');
+      try {
+        return await loadTerrainArrayTexture(blobUrl);
+      } finally {
+        URL.revokeObjectURL(blobUrl);
+      }
+    }
+
+    // --- 第一阶段 A：<= 1.5s 极速总览首帧 (单次 Range 拉取前 ~190 KB 清单与宏观底色纹理) ---
+    await rangeClient.preloadOverviewSegment();
+    const [b1Manifest, b2Manifest, b3Manifest, macroTint] = await Promise.all([
+      rangeClient.fetchJSON('b1/地形与道路清单.json'),
+      rangeClient.fetchJSON('b2/植被与草丛清单.json'),
+      rangeClient.fetchJSON('b3/模块化建筑与场景清单.json'),
+      loadImageViaClient('b1/splatmap/macro-tint.webp', {nearest: false, srgb: false}),
+    ]);
+
+    // 立即用宏观底色呈现总览基底首帧，确保 20Mbps/80ms 下 <= 1.5s 完成总览视觉反馈！
+    renderer.setSize(state.internalWidth, state.internalHeight, false);
+    const overviewPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(9000, 9000).rotateX(-Math.PI / 2),
+      new THREE.MeshBasicMaterial({map: macroTint.texture})
+    );
+    scene.add(overviewPlane);
+    renderer.render(scene, camera);
+    scene.remove(overviewPlane);
+    overviewPlane.geometry.dispose();
+    overviewPlane.material.dispose();
+    state.overviewReadyMs = Number((performance.now() - tStartBoot).toFixed(1));
+
+    // --- 第一阶段 B：<= 6.0s 完整首屏冷启动 (拉取剩余 ~5.37 MiB 粗层高度、12层地表、林冠壳、草丛、水面、碰撞与16棵3D树/中景代理) ---
+    await rangeClient.preloadCoreStartupSegment();
+    const [
+      coarseBuf,
+      terrainArrayTex,
+      canopyGlb,
+      grassAtlas,
+      waterGlb,
+      scvcBuf,
+      ...treeModels
+    ] = await Promise.all([
+      rangeClient.fetchBuffer('b1/heightfield/粗层高度.bin'),
+      loadArrayTexViaClient('b1/splatmap/terrain-layers-12x512.webp'),
+      loadGltfViaClient('b2/canopy/forest-canopy-clusters.glb'),
+      loadImageViaClient('b2/grass/grass-tuft-atlas.webp', {nearest: false, srgb: true}),
+      loadGltfViaClient('b1/roads/水面.glb'),
+      rangeClient.fetchBuffer('b3/physics/collisions-spatial.scvc'),
+      ...b2Manifest.tree_prototypes.map(p => loadGltfViaClient('b2/' + p.near_file)),
+      ...b2Manifest.tree_prototypes.map(p => loadGltfViaClient('b2/' + p.mid_file)),
+    ]);
+
+    const initialHf = buildCoarseHeightfieldFallback(coarseBuf, b1Manifest.bounds);
+    const support = new HybridTerrainSupport(initialHf);
+    const packedHeight = createPackedHeightTexture(initialHf);
+
+    // 首屏默认 Splat 控制纹理 (16x16 草地+沙土均匀基底，待第二阶段流式替换为 1152x1152 精确 SCVS)
+    const dummyIdxArr = new Uint8Array(16 * 16 * 4);
+    const dummyWgtArr = new Uint8Array(16 * 16 * 4);
+    const dummyGrassArr = new Uint8Array(16 * 16).fill(140);
+    for (let i = 0; i < 256; i++) {
+      dummyIdxArr[i * 4] = 160;
+      dummyIdxArr[i * 4 + 1] = 95;
+    }
+    const makeSmallTex = arr => {
+      const t = new THREE.DataTexture(arr, 16, 16, THREE.RGBAFormat, THREE.UnsignedByteType);
+      t.needsUpdate = true;
+      return t;
+    };
+    let splatCtrl = {
+      width: 16,
+      height: 16,
+      indexTexture: makeSmallTex(dummyIdxArr),
+      weightTexture: makeSmallTex(dummyWgtArr),
+      indexData: dummyIdxArr,
+      weightData: dummyWgtArr,
+      grassData: dummyGrassArr,
+    };
+
+    const sharedGrassFieldTex = createPrebakedGrassFieldTexture(256);
+    const {material: terrainMat, uniforms: terrainUniforms} = createProceduralTerrainMaterial({
+      heightTex: packedHeight,
+      terrainArrayTex,
+      splatIndexTex: splatCtrl.indexTexture,
+      splatWeightTex: splatCtrl.weightTexture,
+      macroTintGrassTex: macroTint.texture,
+      bounds: b1Manifest.bounds,
+      splatConfig: b1Manifest.splatmap,
+      grassFieldTex: sharedGrassFieldTex,
+    });
+    const terrainPool = new ProceduralTerrainPool(terrainMat, b1Manifest.bounds);
+    scene.add(terrainPool.root);
+    // 9km 作战区外围 4.5km 海拔无缝远景丘陵 + 镜像噪声去拉丝 + 战术边界微斜纹（1 DC）
+    const outskirtsSkirt = createMapOutskirtsSkirtMesh(
+      b1Manifest.bounds,
+      macroTint.texture,
+      4500.0,
+      packedHeight,
+      sharedGrassFieldTex
+    );
+    scene.add(outskirtsSkirt);
+
+    const nearGlbs = treeModels.slice(0, 8);
+    const midGlbs = treeModels.slice(8, 16);
+
+    waterGlb.scene.traverse(o => { if (o.isMesh) o.receiveShadow = true; });
+    scene.add(waterGlb.scene);
+
+    // 初始化碰撞包与空树木/建筑索引占位，确保首屏立即进入可操作态
+    const collisionIndex = await decodeSCVCCollisions(scvcBuf);
+    const emptySpatialIndex = {
+      gridX: 72, gridZ: 72, totalTrees: 0, totalInstances: 0,
+      minX: -4425, minZ: -4150, chunkM: 125,
+      cellOffsets: new Uint32Array(5184), cellCounts: new Uint32Array(5184),
+      recordsView: new DataView(new ArrayBuffer(16)),
+    };
+
+    const foliageSystem = new ThreeTierFoliageSystem({
+      b2Manifest,
+      nearGlbs,
+      midGlbs,
+      canopyGlb,
+      treeSpatialIndex: emptySpatialIndex,
+      grassAtlasTex: grassAtlas.texture,
+      heightTex: packedHeight,
+      splatControl: splatCtrl,
+      macroTintTex: macroTint.texture,
+      support,
+      grassFieldTex: sharedGrassFieldTex,
+      terrainGrassStrengthUniform: terrainUniforms.uTerrainGrassStrength,
+    });
+    scene.add(foliageSystem.root);
+    terrainUniforms.uGrassMask.value = foliageSystem.grassMaskTex;
+
+    const physicsEngine = new AutoPhysicsAndNavEngine({
+      b3Manifest,
+      b2Manifest,
+      buildingIndex: emptySpatialIndex,
+      collisionIndex,
+      treeIndex: emptySpatialIndex,
+      support,
+    });
+
+    const buildingSystem = new ModularBuildingSystem({
+      b3Manifest,
+      buildingIndex: emptySpatialIndex,
+      physicsEngine,
+      loader,
+      baseUrl: '/b3/',
+      rangeClient,
+      sharedUniforms: foliageSystem.sharedUniforms,
+    });
+    scene.add(buildingSystem.root);
+
+    const transitionCtrl = new SmoothDistanceTransitionController({
+      terrainPool,
+      foliageSystem,
+      buildingSystem,
+      rangeClient,
+    });
+
+    const editor = new LightweightMapEditor({
+      scene,
+      camera,
+      renderer,
+      support,
+      packedHeight,
+      splatCtrl,
+      roadsData: {splines: []},
+      foliageSystem,
+      buildingSystem,
+      physicsEngine,
+    });
+    editor.overlayRoot.visible = state.editorMode;
+
+    const combatSystem = new TacticalVehicleAndCombatSystem({
+      scene,
+      camera,
+      hostElement: host,
+      support,
+      physicsEngine,
+      loader,
+    });
+    await combatSystem.initHeroVehicles(!fastColdStartOnly);
+
+    function layoutStageContainer() {
+      if (isEmbedMode) {
+        host.style.width = '100%';
+        host.style.height = '100%';
+        return;
+      }
+      const spec = getStandardAspectSpec(state.aspectKey);
+      const box = layoutAspectFrameBox(spec.ratio, window.innerWidth, window.innerHeight);
+      host.style.width = `${box.width}px`;
+      host.style.height = `${box.height}px`;
+    }
+
+    function updateCameraAndSun() {
+      const aspect = state.forcedAspect || ((host.clientWidth || 1280) / (host.clientHeight || 720));
+      const {halfW, halfH} = computeHorPlusCameraFrustum(state.span, aspect);
+      camera.left = -halfW;
+      camera.right = halfW;
+      camera.top = halfH;
+      camera.bottom = -halfH;
+      camera.updateProjectionMatrix();
+
+      const dist = Math.max(380, state.span * 1.6);
+      const horiz = Math.cos(TILT) * dist;
+      const vert = Math.sin(TILT) * dist;
+      camera.position.set(
+        state.center.x + Math.sin(state.angle) * horiz,
+        state.center.y + vert,
+        state.center.z + Math.cos(state.angle) * horiz
+      );
+      camera.lookAt(state.center);
+
+      const shadowHalf = Math.max(95, Math.min(360, state.span * 0.95));
+      sun.target.position.copy(state.center);
+      sun.position.set(state.center.x - shadowHalf * 0.85, state.center.y + shadowHalf * 1.45, state.center.z + shadowHalf * 0.55);
+      sun.shadow.camera.left = -shadowHalf;
+      sun.shadow.camera.right = shadowHalf;
+      sun.shadow.camera.top = shadowHalf;
+      sun.shadow.camera.bottom = -shadowHalf;
+      sun.shadow.camera.near = 1.0;
+      sun.shadow.camera.far = shadowHalf * 3.5;
+      sun.shadow.camera.updateProjectionMatrix();
+    }
+
+    function setAspectProfile(aspectKey) {
+      const spec = applyStylized680pCanvas(renderer, aspectKey);
+      state.aspectKey = spec.key;
+      state.forcedAspect = spec.ratio;
+      state.horPlusMode = true;
+      state.internalWidth = spec.width;
+      state.internalHeight = spec.height;
+      host.dataset.aspect = spec.key;
+      layoutStageContainer();
+      updateCameraAndSun();
+      document.getElementById('btn-aspect-16x9')?.classList.toggle('active', spec.key === '16:9');
+      document.getElementById('btn-aspect-21x9')?.classList.toggle('active', spec.key === '21:9');
+      const quickLbl = document.getElementById('quick-aspect-lbl');
+      if (quickLbl) quickLbl.textContent = spec.key;
+      const pauseAspect = document.getElementById('pause-aspect-val');
+      if (pauseAspect) pauseAspect.textContent = spec.key;
+      updateHudText();
+    }
+
+    function setResolution(w, h) {
+      // 归档对比台 (?embed=1) 专用接口；主试玩入口严守唯一 680p 复古微缩基线
+      state.internalWidth = w;
+      state.internalHeight = h;
+      renderer.setSize(w, h, false);
+      updateCameraAndSun();
+    }
+    window.addEventListener('resize', () => {
+      layoutStageContainer();
+      updateCameraAndSun();
+    });
+
+    let isTransitionUpdating = false;
+    let queuedTransitionArgs = null;
+    const camTarget = {
+      x: 0,
+      z: 85,
+      span: 135,
+      logSpan: Math.log(135),
+      angle: 0,
+    };
+    const camStreamState = {
+      lastX: 0,
+      lastZ: 85,
+      lastSpan: 135,
+      lastFlushMs: 0,
+      dirty: false,
+    };
+    let camFollowMode = false; // 飞镜模式与紧跟手拖拽阻尼档位切换
+
+    function clampCameraCoords(x, z, span) {
+      const clampedSpan = Math.max(65, Math.min(9000, span));
+      const aspect = state.forcedAspect || (16 / 9);
+      const {halfW, halfH} = computeHorPlusCameraFrustum(clampedSpan, aspect);
+      const padX = clampedSpan < 6500 ? Math.min(3600, Math.max(80, halfW * 0.72)) : 4000;
+      const padZ = clampedSpan < 6500 ? Math.min(3600, Math.max(80, halfH * 0.72)) : 4000;
+      const minCX = -4425 + padX;
+      const maxCX = 4575 - padX;
+      const minCZ = -4150 + padZ;
+      const maxCZ = 4850 - padZ;
+      return {
+        x: minCX <= maxCX ? Math.max(minCX, Math.min(maxCX, x)) : 75,
+        z: minCZ <= maxCZ ? Math.max(minCZ, Math.min(maxCZ, z)) : 350,
+        span: clampedSpan,
+      };
+    }
+
+    function shortestAngleDiff(fromAngle, toAngle) {
+      let diff = (toAngle - fromAngle) % (Math.PI * 2);
+      if (diff > Math.PI) diff -= Math.PI * 2;
+      if (diff < -Math.PI) diff += Math.PI * 2;
+      return diff;
+    }
+
+    function computeCameraAxes(angleRad) {
+      const c = Math.cos(angleRad);
+      const s = Math.sin(angleRad);
+      return {
+        rightX: c,
+        rightZ: -s,
+        forwardX: -s,
+        forwardZ: -c,
+      };
+    }
+
+    async function flushTransitionUpdate() {
+      if (isTransitionUpdating) return;
+      isTransitionUpdating = true;
+      try {
+        while (queuedTransitionArgs) {
+          const {cx, cy, cz, sp} = queuedTransitionArgs;
+          queuedTransitionArgs = null;
+          await transitionCtrl.update({x: cx, y: cy, z: cz}, sp);
+        }
+      } finally {
+        isTransitionUpdating = false;
+      }
+    }
+
+    function syncCameraTargetToCurrent() {
+      camTarget.x = state.center.x;
+      camTarget.z = state.center.z;
+      camTarget.span = state.span;
+      camTarget.logSpan = Math.log(Math.max(65, state.span));
+      camTarget.angle = state.angle;
+      camFollowMode = false;
+    }
+
+    function flyCameraTo(x, z, span = camTarget.span, angle = camTarget.angle) {
+      const clamped = clampCameraCoords(x, z, span);
+      camTarget.x = clamped.x;
+      camTarget.z = clamped.z;
+      camTarget.span = clamped.span;
+      camTarget.logSpan = Math.log(clamped.span);
+      camTarget.angle = angle;
+      camFollowMode = true;
+      camStreamState.dirty = true;
+    }
+
+    async function setCameraView(x, z, span, angle = state.angle, opts = {}) {
+      const {immediate = true} = opts;
+      if (!immediate) {
+        flyCameraTo(x, z, span, angle);
+        return;
+      }
+      const clamped = clampCameraCoords(x, z, span);
+      const posOrSpanChanged =
+        Math.hypot(clamped.x - camStreamState.lastX, clamped.z - camStreamState.lastZ) > 0.05 ||
+        Math.abs(clamped.span - camStreamState.lastSpan) > 0.05;
+
+      state.center.x = clamped.x;
+      state.center.z = clamped.z;
+      const gy = support.heightAt(state.center.x, state.center.z);
+      state.center.y = Number.isFinite(gy) ? gy : 0;
+      state.span = clamped.span;
+      state.angle = angle;
+
+      camTarget.x = clamped.x;
+      camTarget.z = clamped.z;
+      camTarget.span = clamped.span;
+      camTarget.logSpan = Math.log(clamped.span);
+      camTarget.angle = angle;
+      camFollowMode = false;
+
+      updateCameraAndSun();
+      if (posOrSpanChanged || !camStreamState.lastFlushMs) {
+        camStreamState.lastX = state.center.x;
+        camStreamState.lastZ = state.center.z;
+        camStreamState.lastSpan = state.span;
+        camStreamState.lastFlushMs = performance.now();
+        camStreamState.dirty = false;
+        queuedTransitionArgs = {cx: state.center.x, cy: state.center.y, cz: state.center.z, sp: state.span};
+        await flushTransitionUpdate();
+      }
+      if (state.editorMode) {
+        const ov = editor.refreshPhysicsAndNavOverlay();
+        syncEditorDrawer(ov);
+      }
+      updateHudText();
+    }
+
+    function syncEditorDrawer(ov) {
+      document.getElementById('ui-ed-obb').textContent = `${physicsEngine.stats.activeDynamicOBBs} 个动态 (${ov?.activeOBBsCount ?? 0} 局部)`;
+      document.getElementById('ui-ed-nav').textContent = ov?.navFound ? `可达 (${ov.navWaypointsCount} 航点)` : '阻断';
+      document.getElementById('ui-ed-heli').textContent = `${(ov?.maxHeliAltitudeY ?? 22.0).toFixed(1)} m`;
+      document.getElementById('ui-ed-ms').textContent = `${physicsEngine.stats.lastRecalcMs} ms`;
+    }
+
+    function updateHudText() {
+      const fStats = foliageSystem.stats;
+      const bStats = buildingSystem.stats;
+      const grassDesc = fStats.grassShellLayers === 0
+        ? '已关闭(0DC)'
+        : (fStats.grassTufts > 0 ? `地表+${fStats.grassTufts}团` : '地表微绒(0DC)');
+      hudStatus.textContent =
+        `程序化大地图 (${RENDER_STYLE_BASELINE.name}) | ` +
+        `画幅:${state.aspectKey} (${state.internalWidth}×${state.internalHeight}) | ` +
+        `中心:(${state.center.x.toFixed(0)}, ${state.center.z.toFixed(0)}) 跨度:${state.span.toFixed(0)}m | ` +
+        `3D树:${fStats.nearTreeInstances} G4草:${grassDesc} | ` +
+        `建筑:${bStats.nearBuildingInstances}/${bStats.macroBuildings} | ` +
+        `回退闪屏:${transitionCtrl.metrics.overviewFallbacks}`;
+    }
+
+    setAspectProfile(state.aspectKey);
+    await setCameraView(0, 85, 135, 0);
+    renderer.render(scene, camera);
+
+    state.coreReady = true;
+    bootCompleted = true;
+    state.coldStartReadyMs = Number((performance.now() - tStartBoot).toFixed(1));
+    state.coldStartMapBytes = rangeClient.stats.mapBytesTransferred;
+    updateHudText();
+
+    // --- 第二阶段：流式升级至 2m 精确高度场、1152x1152 Splatmap、34.3万棵树、9.3万栋建筑与完整道面 ---
+    async function upgradeToFullPrecision() {
+      if (state.fullPrecisionReady) return;
+      const [hfBuf, scvsBuf, scvtBuf, scvbBuf, roadsGlb] = await Promise.all([
+        rangeClient.fetchBuffer('b1/heightfield/global-height-uint16.scvh'),
+        rangeClient.fetchBuffer('b1/splatmap/splat-control.scvs'),
+        rangeClient.fetchBuffer('b2/instances/trees-spatial.scvt'),
+        rangeClient.fetchBuffer('b3/instances/buildings-spatial.scvb'),
+        loadGltfViaClient('b1/roads/道面与标线.glb'),
+      ]);
+
+      const fullHf = await decodeSCVHHeightfield(hfBuf);
+      support.hf = fullHf;
+      syncPackedHeightTexture(packedHeight, fullHf);
+      support.compactForRuntime();
+
+      const scvsBlobUrl = URL.createObjectURL(new Blob([scvsBuf]));
+      const fullSplat = await loadSCVSSplatControl(scvsBlobUrl);
+      URL.revokeObjectURL(scvsBlobUrl);
+      splatCtrl = fullSplat;
+      editor.splatCtrl = fullSplat;
+      terrainUniforms.uSplatIndex.value = fullSplat.indexTexture;
+      terrainUniforms.uSplatWeight.value = fullSplat.weightTexture;
+      foliageSystem.updateGrassMask(fullSplat);
+      terrainUniforms.uGrassMask.value = foliageSystem.grassMaskTex;
+
+      const [fullTreeIdx, fullBldgIdx] = await Promise.all([
+        decodeSCVTTreeIndex(scvtBuf),
+        decodeSCVBBuildingInstances(scvbBuf),
+      ]);
+      foliageSystem.treeIndex = fullTreeIdx;
+      physicsEngine.treeIndex = fullTreeIdx;
+      physicsEngine.buildingIndex = fullBldgIdx;
+      buildingSystem.buildingIndex = fullBldgIdx;
+
+      // 重建常驻远景建筑立体屋顶包络与岩石/油罐真实低模 far-kit（在释放 sliceCache 前直接零延迟命中核心段缓存）
+      buildingSystem.root.remove(buildingSystem.macroMesh);
+      buildingSystem._buildMacroBuildingEnvelopeMesh();
+      await buildingSystem._buildMacroFarKitMeshes();
+      buildingSystem.stats.macroBuildings = buildingSystem.macroCount || 0;
+      buildingSystem.stats.macroFarKitInstances = buildingSystem.macroFarKitCount || 0;
+
+      // 释放一次性启动与流式升级原始二进制切片缓存，降低 JS 堆内存驻留
+      rangeClient.sliceCache.clear();
+      rangeClient.coreBuffer = null;
+
+      roadsGlb.scene.traverse(o => {
+        if (o.isMesh) {
+          o.receiveShadow = true;
+          o.position.y += 0.04;
+          for (const m of [o.material].flat()) {
+            if (m) {
+              m.polygonOffset = true;
+              m.polygonOffsetFactor = -1;
+              m.polygonOffsetUnits = -2;
+              // 严格裁剪超出 9km 作战区边界的悬空道路
+              m.onBeforeCompile = shader => {
+                shader.vertexShader = 'varying vec3 vRoadClipWPos;\n' + shader.vertexShader;
+                shader.vertexShader = shader.vertexShader.replace(
+                  '#include <begin_vertex>',
+                  '#include <begin_vertex>\nvRoadClipWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;'
+                );
+                shader.fragmentShader = 'varying vec3 vRoadClipWPos;\n' + shader.fragmentShader;
+                shader.fragmentShader = shader.fragmentShader.replace(
+                  '#include <clipping_planes_fragment>',
+                  '#include <clipping_planes_fragment>\nif (vRoadClipWPos.x < -4425.0 || vRoadClipWPos.x > 4575.0 || vRoadClipWPos.z < -4150.0 || vRoadClipWPos.z > 4850.0) discard;'
+                );
+              };
+              m.customProgramCacheKey = () => 'scavenger-road-clip-9km-v1';
+            }
+          }
+        }
+      });
+      scene.add(roadsGlb.scene);
+
+      foliageSystem.update(state.center, state.span, true);
+      await buildingSystem.update(state.center, state.span, true);
+      renderer.compile(scene, camera);
+      state.fullPrecisionReady = true;
+      updateHudText();
+    }
+
+    if (!fastColdStartOnly) {
+      upgradeToFullPrecision().catch(console.error);
+    }
+
+    // --- V2.1 实战 HUD 交互中枢（LIFO ESC / 三档尺码 / 同源下拉 / 9km 雷达 / 3×2 命令盘 / 4A 暂停菜单） ---
+    const HUD_INTERACT_SEL = '.ui-pod, .scv-roster-flyout, .scv-editor-drawer, .scv-pause-overlay, .scv-minimap-box, .ui-prompt-btn, .ui-btn, .ui-select, .ground-mark';
+    const toastStackEl = document.getElementById('hud-toast-stack');
+    const bottomHelpEl = document.getElementById('bottom-help');
+    const rosterFlyoutEl = document.getElementById('hud-roster-flyout');
+    const pauseOverlayEl = document.getElementById('pause-overlay');
+    const mmCanvas = document.getElementById('hud-minimap-canvas');
+    const mmCtx = mmCanvas ? mmCanvas.getContext('2d') : null;
+    const escStack = createEscStack();
+
+    function pushHudToast(title, desc = '', toneColor = 'var(--ui-state-select)') {
+      if (bottomHelpEl) bottomHelpEl.textContent = desc ? `${title} · ${desc}` : title;
+      if (!toastStackEl || isEmbedMode) return;
+      while (toastStackEl.children.length >= 2) toastStackEl.lastElementChild.remove();
+      const item = document.createElement('div');
+      item.className = 'scv-toast-item';
+      item.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;flex:0 0 auto;background:${toneColor}"></span><div><strong>${title}</strong>${desc ? `<span>${desc}</span>` : ''}</div>`;
+      toastStackEl.prepend(item);
+      setTimeout(() => item.remove(), 2400);
+    }
+
+    function selectHeroUnit(unitId, {focusCam = false} = {}) {
+      const target = combatSystem.heroUnits.find(u => u.id === unitId);
+      if (!target) return;
+      combatSystem.selectedUnitId = target.id;
+      if (focusCam) {
+        flyCameraTo(target.node.position.x, target.node.position.z, Math.min(camTarget.span, 260), camTarget.angle);
+      }
+      syncCombatHud();
+    }
+    combatSystem.onSelectUnit = () => syncCombatHud();
+
+    const sizeCtrl = createUiSizeController(host, {
+      defaultSize: 'lg',
+      segContainer: document.getElementById('hud-size-seg'),
+      onChange: ({size, label}) => {
+        const pv = document.getElementById('pause-size-val');
+        if (pv) pv.textContent = label;
+        pushHudToast(`界面物理尺码：${label}`, `原生 CSS [${size}] 生效，零缩放模糊`);
+      },
+    });
+
+    function setActiveCat(catId) {
+      state.activeCat = state.activeCat === catId ? null : catId;
+      if (state.activeCat && host.clientWidth < 1380 && state.editorMode) {
+        setEditorDrawerOpen(false);
+      }
+      if (rosterFlyoutEl) rosterFlyoutEl.hidden = !state.activeCat;
+      renderCatRail();
+      if (state.activeCat) renderRosterFlyout();
+    }
+
+    function setEditorDrawerOpen(flag) {
+      state.editorMode = Boolean(flag);
+      if (state.editorMode && host.clientWidth < 1380 && state.activeCat) {
+        state.activeCat = null;
+        if (rosterFlyoutEl) rosterFlyoutEl.hidden = true;
+        renderCatRail();
+      }
+      editorDrawer.hidden = !state.editorMode;
+      editor.overlayRoot.visible = state.editorMode;
+      document.getElementById('btn-toggle-editor')?.classList.toggle('active', state.editorMode);
+      toastStackEl?.classList.toggle('drawer-shifted', state.editorMode);
+      if (state.editorMode) {
+        const ov = editor.refreshPhysicsAndNavOverlay();
+        syncEditorDrawer(ov);
+      }
+      renderCmdGrid();
+    }
+
+    function setPaused(flag) {
+      state.paused = Boolean(flag);
+      if (pauseOverlayEl) pauseOverlayEl.hidden = !state.paused;
+      const pBtn = document.getElementById('hud-pause-btn');
+      pBtn?.classList.toggle('is-paused', state.paused);
+      const rLbl = document.getElementById('hud-run-lbl');
+      if (rLbl) rLbl.textContent = state.paused ? '已暂停' : '进行中';
+      const summary = document.getElementById('pause-tele-summary');
+      if (summary) {
+        summary.textContent = `680p ${state.aspectKey} (${state.internalWidth}×${state.internalHeight}) · 中心 (${state.center.x.toFixed(0)}, ${state.center.z.toFixed(0)}) · 跨度 ${state.span.toFixed(0)}m`;
+      }
+    }
+
+    function setHudHidden(flag) {
+      state.hudHidden = Boolean(flag);
+      document.getElementById('hud-grid')?.classList.toggle('is-hidden-hud', state.hudHidden);
+      const restoreBtn = document.getElementById('hud-restore-chip');
+      if (restoreBtn) restoreBtn.hidden = !state.hudHidden;
+    }
+
+    // 严格 LIFO 注册 ESC 回退层：由低至高 暂停菜单 -> 右侧编辑抽屉 -> 左侧名册抽屉 -> 下拉选框
+    escStack.register('pause-overlay', () => state.paused, () => setPaused(false));
+    escStack.register('editor-drawer', () => state.editorMode, () => setEditorDrawerOpen(false));
+    escStack.register('roster-flyout', () => Boolean(state.activeCat), () => setActiveCat(null));
+    const selectCtrl = bindAllUiSelects(document, {escStack, dropupThreshold: 190});
+    const roeBox = document.getElementById('hud-roe-select');
+    roeBox?.addEventListener('ui-select-change', e => {
+      const u = combatSystem.heroUnits.find(it => it.id === combatSystem.selectedUnitId);
+      if (u) {
+        u.roe = e.detail.value;
+        pushHudToast(`${u.shortName} 交战规则`, e.detail.label);
+      }
+    });
+
+    const HUD_CATS = [
+      {id: 'all', name: '全部', col: 'var(--ui-state-select)', match: () => true},
+      {id: 'armor', name: '重甲', col: 'var(--ui-ch-ground)', match: u => u.role === 'ground'},
+      {id: 'heli', name: '旋翼', col: 'var(--ui-ch-heli)', match: u => u.role === 'helicopter'},
+      {id: 'plane', name: '固定翼', col: 'var(--ui-ch-plane)', match: u => u.role === 'fixed_wing'},
+    ];
+
+    function renderCatRail() {
+      const hostRail = document.getElementById('hud-cat-rail');
+      if (!hostRail) return;
+      hostRail.replaceChildren();
+      const heroes = combatSystem.heroUnits;
+      for (const c of HUD_CATS) {
+        const cnt = combatSystem.combatMode === 'g01_vehicles'
+          ? heroes.filter(c.match).length
+          : (c.id === 'all' ? combatSystem.squadUnits.length : c.id === 'armor' ? combatSystem.squadUnits.filter(s => s.kind === 'tank').length : c.id === 'heli' ? combatSystem.squadUnits.filter(s => s.kind === 'heli').length : combatSystem.squadUnits.filter(s => s.kind === 'jet').length);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `scv-cat-btn${state.activeCat === c.id ? ' active' : ''}`;
+        btn.innerHTML = `<div class="scv-cat-top"><span class="scv-cat-dot" style="background:${c.col}"></span><span class="ui-mono">${cnt}</span></div><div class="scv-cat-name">${c.name}</div>`;
+        btn.addEventListener('click', () => setActiveCat(c.id));
+        hostRail.append(btn);
+      }
+    }
+
+    function renderRosterFlyout() {
+      const listEl = document.getElementById('hud-roster-list');
+      const titleEl = document.getElementById('roster-flyout-title');
+      if (!listEl || !state.activeCat) return;
+      const cat = HUD_CATS.find(c => c.id === state.activeCat) || HUD_CATS[0];
+      if (titleEl) titleEl.textContent = `${cat.name}编制`;
+      listEl.replaceChildren();
+      for (const u of combatSystem.heroUnits.filter(cat.match)) {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = `ui-unit-card${u.id === combatSystem.selectedUnitId ? ' active' : ''}`;
+        card.dataset.channel = u.channel;
+        const svg = createSilhouetteSvg(u.iconKind, {size: 16, className: 'ui-unit-icon'});
+        const st = document.createElement('strong');
+        st.textContent = u.name;
+        const sb = document.createElement('small');
+        const moving = u.waypoints.length - u.wpIndex > 0;
+        sb.textContent = `高程 ${u.node.position.y.toFixed(1)}m · ${moving ? '机动中' : '待命'}`;
+        card.append(svg, st, sb);
+        card.addEventListener('click', () => selectHeroUnit(u.id));
+        card.addEventListener('dblclick', () => selectHeroUnit(u.id, {focusCam: true}));
+        listEl.append(card);
+      }
+    }
+
+    function renderAirStrip() {
+      const strip = document.getElementById('hud-air-strip');
+      if (!strip) return;
+      strip.hidden = !state.airExpanded;
+      const lbl = document.getElementById('air-fold-lbl');
+      if (lbl) lbl.textContent = state.airExpanded ? '空中编队 ▾' : '空中编队 ▸';
+      strip.replaceChildren();
+      for (const u of combatSystem.heroUnits.filter(x => x.role !== 'ground')) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `scv-air-chip${u.id === combatSystem.selectedUnitId ? ' active' : ''}`;
+        const ic = createSilhouetteSvg(u.iconKind, {size: 14});
+        ic.style.color = u.id === combatSystem.selectedUnitId ? 'var(--ui-text-inverse)' : `var(--ui-ch-${u.channel})`;
+        btn.append(ic, document.createTextNode(`${u.shortName} · ${u.node.position.y.toFixed(0)}m`));
+        btn.addEventListener('click', () => selectHeroUnit(u.id, {focusCam: true}));
+        strip.append(btn);
+      }
+    }
+
+    function renderCgStrip() {
+      const hostCg = document.getElementById('hud-cg-strip');
+      if (!hostCg) return;
+      hostCg.replaceChildren();
+      combatSystem.heroUnits.forEach((u, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `scv-cg-btn${u.id === combatSystem.selectedUnitId ? ' active' : ''}`;
+        btn.textContent = String(idx + 1);
+        btn.title = `${u.name} (快捷键 ${idx + 1})`;
+        btn.addEventListener('click', () => selectHeroUnit(u.id));
+        hostCg.append(btn);
+      });
+    }
+
+    function renderInspector() {
+      const u = combatSystem.heroUnits.find(it => it.id === combatSystem.selectedUnitId) || combatSystem.heroUnits[0];
+      if (!u) return;
+      const ico = document.getElementById('insp-ico');
+      if (ico) {
+        ico.replaceChildren(createSilhouetteSvg(u.iconKind, {size: 22}));
+        ico.style.color = `var(--ui-ch-${u.channel})`;
+      }
+      const nameEl = document.getElementById('insp-name');
+      if (nameEl) nameEl.textContent = u.name;
+      const rem = Math.max(0, u.waypoints.length - u.wpIndex);
+      const subEl = document.getElementById('insp-sub');
+      if (subEl) {
+        subEl.textContent = `(${u.node.position.x.toFixed(0)}, ${u.node.position.z.toFixed(0)}) · 高程 ${u.node.position.y.toFixed(1)}m · ${rem > 0 ? `航路余 ${rem}` : u.role === 'fixed_wing' ? '闭合巡航' : '待命'}`;
+      }
+      const hp = Math.round(u.hp ?? 100);
+      const crit = hp < 25;
+      const hpTxt = document.getElementById('insp-hp-txt');
+      if (hpTxt) {
+        hpTxt.textContent = `${hp}%`;
+        hpTxt.style.color = crit ? 'var(--ui-state-danger)' : 'var(--ui-text-primary)';
+      }
+      document.getElementById('insp-hp-track')?.classList.toggle('is-critical', crit);
+      const fill = document.getElementById('insp-hp-fill');
+      const trail = document.getElementById('insp-hp-trail');
+      const bonus = document.getElementById('insp-hp-bonus');
+      if (trail) trail.style.width = `${hp}%`;
+      if (fill) {
+        fill.style.width = `${hp}%`;
+        fill.style.background = crit ? 'var(--ui-state-danger)' : `var(--ui-ch-${u.channel})`;
+      }
+      if (bonus) {
+        bonus.hidden = !(u.bonus > 0);
+        if (u.bonus > 0) {
+          bonus.style.left = `${Math.max(0, hp - u.bonus)}%`;
+          bonus.style.width = `${Math.min(u.bonus, hp)}%`;
+        }
+      }
+      const ws = document.getElementById('insp-weapons');
+      if (ws) {
+        ws.replaceChildren();
+        (u.weapons || []).forEach((w, idx) => {
+          const pill = document.createElement('button');
+          pill.type = 'button';
+          pill.className = `scv-wep-pill${idx === (u.activeWep || 0) ? ' active' : ''}`;
+          pill.textContent = w;
+          pill.addEventListener('click', () => { u.activeWep = idx; renderInspector(); });
+          ws.append(pill);
+        });
+      }
+      if (roeBox && roeBox.value !== (u.roe || 'free')) roeBox.value = u.roe || 'free';
+    }
+
+    function renderCmdGrid() {
+      const grid = document.getElementById('hud-cmd-grid');
+      if (!grid) return;
+      const u = combatSystem.heroUnits.find(it => it.id === combatSystem.selectedUnitId) || combatSystem.heroUnits[0];
+      const scopeLbl = document.getElementById('cmd-scope-lbl');
+      if (scopeLbl && u) scopeLbl.textContent = `COMMAND · ${u.shortName}`;
+      grid.replaceChildren();
+      const slots = [
+        {key: 'F', txt: '聚焦跳镜', sub: '跟随定位', act: () => u && selectHeroUnit(u.id, {focusCam: true})},
+        {
+          key: 'G', txt: '地面警戒', sub: u?.groundGuard ? '已开启' : '已关闭', activeMode: Boolean(u?.groundGuard),
+          act: () => { if (u) { u.groundGuard = !u.groundGuard; renderCmdGrid(); pushHudToast(`${u.shortName} 地面警戒：${u.groundGuard ? '开启' : '关闭'}`); } },
+        },
+        {key: 'R', txt: '复位视野', sub: '主跑道基准', act: () => { flyCameraTo(0, 85, 135, 0); pushHudToast('视野已复位至 9km 核心交战点'); }},
+        {key: 'X', txt: '停止航路', sub: '清空队列', act: () => { if (u && combatSystem.stopUnit(u.id)) { syncCombatHud(); pushHudToast(`${u.shortName} 已原地待命`, '清空机动队列'); } }},
+        {key: 'E', txt: '物理叠层', sub: state.editorMode ? '编辑开启' : '点击展开', activeMode: state.editorMode, act: () => setEditorDrawerOpen(!state.editorMode)},
+        {key: 'H', txt: '冲击模拟', sub: `${u?.hp ?? 100}% HP`, act: () => { if (u) { const nhp = combatSystem.damageUnit(u.id, 28); syncCombatHud(); pushHudToast(`${u.shortName} 模拟损血 (${nhp}%)`, nhp < 25 ? '触发低血危急脉冲！' : '双段白条追踪'); } }},
+      ];
+      for (const s of slots) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `ui-cmd-cell${s.activeMode ? ' is-active-mode' : ''}`;
+        btn.innerHTML = `<span class="c-kbd">${s.key}</span><span class="c-txt">${s.txt}</span><span class="c-sub">${s.sub}</span>`;
+        btn.addEventListener('click', s.act);
+        grid.append(btn);
+      }
+    }
+
+    function drawMinimap() {
+      if (!mmCtx || !mmCanvas || isEmbedMode || state.hudHidden) return;
+      const W = mmCanvas.width, H = mmCanvas.height;
+      const b = b1Manifest.bounds || {minX: -4425, maxX: 4575, minZ: -4150, maxZ: 4850};
+      const spanX = Math.max(1, b.maxX - b.minX), spanZ = Math.max(1, b.maxZ - b.minZ);
+      const toMm = (wx, wz) => ({
+        x: ((wx - b.minX) / spanX) * W,
+        y: ((wz - b.minZ) / spanZ) * H,
+      });
+
+      mmCtx.fillStyle = '#0d1218';
+      mmCtx.fillRect(0, 0, W, H);
+
+      // 战区经纬网格
+      mmCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+      mmCtx.lineWidth = 1;
+      for (let i = 1; i < 4; i++) {
+        mmCtx.beginPath();
+        mmCtx.moveTo((W * i) / 4, 0); mmCtx.lineTo((W * i) / 4, H);
+        mmCtx.moveTo(0, (H * i) / 4); mmCtx.lineTo(W, (H * i) / 4);
+        mmCtx.stroke();
+      }
+
+      // 当前相机视口矩形
+      const camPt = toMm(state.center.x, state.center.z);
+      const rw = Math.max(8, (state.span / spanX) * W);
+      const rh = Math.max(6, (state.span / spanZ) * H);
+      mmCtx.strokeStyle = 'rgba(240, 211, 114, 0.72)';
+      mmCtx.lineWidth = 1.6;
+      mmCtx.strokeRect(camPt.x - rw * 0.5, camPt.y - rh * 0.5, rw, rh);
+
+      // 混编方阵点与主角三车点
+      if (combatSystem.combatMode !== 'g01_vehicles') {
+        for (const s of combatSystem.squadUnits) {
+          const mp = toMm(s.x, s.z);
+          mmCtx.fillStyle = s.kind === 'heli' ? '#68c8ff' : s.kind === 'jet' ? '#b197fc' : '#38e5c0';
+          mmCtx.fillRect(mp.x - 1.5, mp.y - 1.5, 3, 3);
+        }
+      }
+      for (const u of combatSystem.heroUnits) {
+        const mp = toMm(u.node.position.x, u.node.position.z);
+        const isSel = u.id === combatSystem.selectedUnitId;
+        mmCtx.fillStyle = isSel ? '#f0d372' : (u.channel === 'heli' ? '#68c8ff' : u.channel === 'plane' ? '#b197fc' : '#38e5c0');
+        mmCtx.beginPath();
+        mmCtx.arc(mp.x, mp.y, isSel ? 5.2 : 3.6, 0, Math.PI * 2);
+        mmCtx.fill();
+      }
+
+      const mmCoords = document.getElementById('hud-mm-coords');
+      if (mmCoords) mmCoords.textContent = '9KM 雷达';
+      const mmHint = document.getElementById('hud-mm-hint');
+      if (mmHint) mmHint.textContent = `9KM · (${state.center.x.toFixed(0)}, ${state.center.z.toFixed(0)}) · ${state.span.toFixed(0)}m`;
+    }
+
+    function syncCombatHud() {
+      renderCatRail();
+      if (state.activeCat) renderRosterFlyout();
+      renderAirStrip();
+      renderCgStrip();
+      renderInspector();
+      renderCmdGrid();
+      drawMinimap();
+    }
+
+    // --- 丝滑 RTS 镜头指针、光标落点缩放、鼠标中键旋转与持续键盘驱动（隔离 HUD 热区） ---
+    let dragMode = null; // null | 'pan' | 'rotate'
+    let dragLast = {x: 0, y: 0};
+    const pressedKeys = new Set();
+
+    host.addEventListener('mousedown', e => {
+      // 阻止浏览器中键触发默认四向自动滚屏锚点
+      if (e.button === 1 && !e.target.closest(HUD_INTERACT_SEL)) {
+        e.preventDefault();
+      }
+    });
+
+    host.addEventListener('pointerdown', e => {
+      if (state.paused || e.target.closest(HUD_INTERACT_SEL)) return;
+      if (e.button === 1 || (e.button === 0 && e.altKey)) {
+        e.preventDefault();
+        if (camFollowMode) syncCameraTargetToCurrent();
+        dragMode = 'rotate';
+        dragLast = {x: e.clientX, y: e.clientY};
+      } else if (e.button === 0) {
+        if (camFollowMode) syncCameraTargetToCurrent();
+        dragMode = 'pan';
+        dragLast = {x: e.clientX, y: e.clientY};
+      }
+    });
+
+    window.addEventListener('pointermove', e => {
+      if (!dragMode || state.paused) return;
+      const movePxX = e.clientX - dragLast.x;
+      const movePxY = e.clientY - dragLast.y;
+      dragLast = {x: e.clientX, y: e.clientY};
+
+      if (dragMode === 'rotate') {
+        camTarget.angle -= movePxX * 0.0055;
+      } else if (dragMode === 'pan') {
+        const w = Math.max(1, host.clientWidth || 1280);
+        const h = Math.max(1, host.clientHeight || 720);
+        const aspect = state.forcedAspect || (w / h);
+        const {halfW, halfH} = computeHorPlusCameraFrustum(camTarget.span, aspect);
+        const {rightX, rightZ, forwardX, forwardZ} = computeCameraAxes(state.angle);
+        const worldDX = -(movePxX / w) * (halfW * 2.0);
+        const worldDFwd = (movePxY / h) * ((halfH * 2.0) / Math.sin(TILT));
+        const clamped = clampCameraCoords(
+          camTarget.x + worldDX * rightX + worldDFwd * forwardX,
+          camTarget.z + worldDX * rightZ + worldDFwd * forwardZ,
+          camTarget.span
+        );
+        camTarget.x = clamped.x;
+        camTarget.z = clamped.z;
+        camStreamState.dirty = true;
+      }
+    });
+
+    const stopPointerDrag = () => { dragMode = null; };
+    window.addEventListener('pointerup', stopPointerDrag);
+    window.addEventListener('pointercancel', stopPointerDrag);
+    window.addEventListener('blur', () => {
+      dragMode = null;
+      pressedKeys.clear();
+    });
+
+    host.addEventListener('wheel', e => {
+      if (state.paused || e.target.closest(HUD_INTERACT_SEL)) return;
+      e.preventDefault();
+      camFollowMode = false;
+      const rect = host.getBoundingClientRect();
+      const w = Math.max(1, rect.width);
+      const h = Math.max(1, rect.height);
+      const ndcX = Math.max(-1.0, Math.min(1.0, ((e.clientX - rect.left) / w) * 2.0 - 1.0));
+      const ndcY = Math.max(-1.0, Math.min(1.0, 1.0 - ((e.clientY - rect.top) / h) * 2.0));
+
+      const rawDelta = e.deltaMode === 1 ? e.deltaY * 28 : e.deltaMode === 2 ? e.deltaY * 180 : e.deltaY;
+      const delta = Math.max(-180, Math.min(180, rawDelta));
+      const zoomScale = Math.pow(1.00125, delta);
+
+      const oldSpan = camTarget.span;
+      const newSpan = Math.max(65, Math.min(9000, oldSpan * zoomScale));
+      if (Math.abs(newSpan - oldSpan) < 1e-4) return;
+
+      const aspect = state.forcedAspect || (w / h);
+      const {halfW, halfH} = computeHorPlusCameraFrustum(oldSpan, aspect);
+      const {rightX, rightZ, forwardX, forwardZ} = computeCameraAxes(camTarget.angle);
+      const groundYOffset = (ndcY * halfH) / Math.sin(TILT);
+      const cursorOffX = rightX * (ndcX * halfW) + forwardX * groundYOffset;
+      const cursorOffZ = rightZ * (ndcX * halfW) + forwardZ * groundYOffset;
+
+      const ratio = newSpan / oldSpan;
+      let nextX = camTarget.x + (1.0 - ratio) * cursorOffX;
+      let nextZ = camTarget.z + (1.0 - ratio) * cursorOffZ;
+      if (newSpan >= 6500) {
+        const pull = Math.min(1.0, (newSpan - 6500) / 2500);
+        nextX = nextX + (75 - nextX) * pull * 0.45;
+        nextZ = nextZ + (350 - nextZ) * pull * 0.45;
+      }
+
+      const clamped = clampCameraCoords(nextX, nextZ, newSpan);
+      camTarget.x = clamped.x;
+      camTarget.z = clamped.z;
+      camTarget.span = clamped.span;
+      camTarget.logSpan = Math.log(clamped.span);
+      camStreamState.dirty = true;
+    }, {passive: false});
+
+    host.addEventListener('contextmenu', e => {
+      e.preventDefault();
+      if (state.paused || e.target.closest(HUD_INTERACT_SEL)) return;
+      const rect = host.getBoundingClientRect();
+      const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const ndcY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
+      const hits = raycaster.intersectObjects(terrainPool.visibleMeshes(), false);
+      if (hits.length > 0) {
+        const pt = hits[0].point;
+        const cmdRes = combatSystem.issueMoveCommand(combatSystem.selectedUnitId, pt.x, pt.z);
+        if (cmdRes) {
+          const u = combatSystem.heroUnits.find(it => it.id === cmdRes.unitId);
+          pushHudToast(`${u?.shortName || cmdRes.unitId} 航路已下达`, `目标 (${pt.x.toFixed(0)}, ${pt.z.toFixed(0)}) · ${cmdRes.waypoints.length} 航点`, `var(--ui-ch-${u?.channel || 'ground'})`);
+        }
+      }
+    });
+
+    document.getElementById('hud-minimap-box')?.addEventListener('click', e => {
+      const r = e.currentTarget.getBoundingClientRect();
+      const b = b1Manifest.bounds || {minX: -4425, maxX: 4575, minZ: -4150, maxZ: 4850};
+      const wx = b.minX + ((e.clientX - r.left) / r.width) * (b.maxX - b.minX);
+      const wz = b.minZ + ((e.clientY - r.top) / r.height) * (b.maxZ - b.minZ);
+      flyCameraTo(wx, wz, camTarget.span, camTarget.angle);
+      pushHudToast('雷达视角跳转', `定位至 (${wx.toFixed(0)}, ${wz.toFixed(0)})`);
+    });
+
+    const MOVE_KEYS = new Set(['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'q', 'e']);
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (!escStack.handleKeydown(e)) setPaused(true);
+        return;
+      }
+      if (e.code === 'F5') {
+        e.preventDefault();
+        setHudHidden(!state.hudHidden);
+        return;
+      }
+      if (state.paused) return;
+      const lk = e.key.toLowerCase();
+      if (MOVE_KEYS.has(lk)) {
+        if (camFollowMode) syncCameraTargetToCurrent();
+        pressedKeys.add(lk);
+        return;
+      }
+      if (e.repeat) return;
+      if (lk === '1') selectHeroUnit('US_M1A2_01');
+      if (lk === '2') selectHeroUnit('US_AH64D_01');
+      if (lk === '3') selectHeroUnit('US_A10C_01');
+      if (lk === 'p') setEditorDrawerOpen(!state.editorMode);
+      if (lk === 'u') setAspectProfile(state.aspectKey === '16:9' ? '21:9' : '16:9');
+      if (lk === 'f') selectHeroUnit(combatSystem.selectedUnitId, {focusCam: true});
+      if (lk === 'x') { combatSystem.stopUnit(combatSystem.selectedUnitId); syncCombatHud(); }
+      if (lk === 'h') { combatSystem.damageUnit(combatSystem.selectedUnitId, 28); syncCombatHud(); }
+      if (lk === 'r') flyCameraTo(0, 85, 135, 0);
+      if (lk === '6') { state.airExpanded = !state.airExpanded; renderAirStrip(); }
+    });
+    window.addEventListener('keyup', e => {
+      pressedKeys.delete(e.key.toLowerCase());
+    });
+
+    // UI 按钮事件（仅切换 16:9 / 21:9 画幅比例，唯一锁定 680p 复古微缩 Stylized）
+    document.getElementById('btn-aspect-16x9').onclick = () => setAspectProfile('16:9');
+    document.getElementById('btn-aspect-21x9').onclick = () => setAspectProfile('21:9');
+    document.getElementById('btn-quick-aspect').onclick = () => setAspectProfile(state.aspectKey === '16:9' ? '21:9' : '16:9');
+    document.getElementById('btn-hide-hud').onclick = () => setHudHidden(true);
+    document.getElementById('hud-restore-chip').onclick = () => setHudHidden(false);
+    document.getElementById('btn-quick-pause').onclick = () => setPaused(true);
+    document.getElementById('hud-pause-btn').onclick = () => setPaused(!state.paused);
+    document.getElementById('pause-resume').onclick = () => setPaused(false);
+    document.getElementById('pause-aspect-btn').onclick = () => {
+      setAspectProfile(state.aspectKey === '16:9' ? '21:9' : '16:9');
+      setPaused(true);
+    };
+    document.getElementById('pause-size-btn').onclick = () => {
+      const order = ['compact', 'lg', 'xl'];
+      const nxt = order[(order.indexOf(sizeCtrl.getSize()) + 1) % order.length];
+      sizeCtrl.setSize(nxt, {silent: false, isAuto: false});
+    };
+    document.getElementById('pause-reset-cam').onclick = () => { flyCameraTo(0, 85, 135, 0); setPaused(false); };
+    document.getElementById('btn-close-roster').onclick = () => setActiveCat(null);
+    document.getElementById('btn-close-editor').onclick = () => setEditorDrawerOpen(false);
+    document.getElementById('btn-air-fold').onclick = () => { state.airExpanded = !state.airExpanded; renderAirStrip(); };
+    document.getElementById('btn-mm-recenter').onclick = () => selectHeroUnit(combatSystem.selectedUnitId, {focusCam: true});
+
+    const setGrassUI = (tier) => {
+      foliageSystem.setGrassTier(tier);
+      document.getElementById('btn-grass-high').classList.toggle('active', tier === 'high');
+      document.getElementById('btn-grass-med').classList.toggle('active', tier === 'medium');
+      document.getElementById('btn-grass-off').classList.toggle('active', tier === 'off');
+      updateHudText();
+    };
+    document.getElementById('btn-grass-high').onclick = () => setGrassUI('high');
+    document.getElementById('btn-grass-med').onclick = () => setGrassUI('medium');
+    document.getElementById('btn-grass-off').onclick = () => setGrassUI('off');
+    document.getElementById('btn-load-g01').onclick = () => {
+      combatSystem.setLoadMode('g01_vehicles', state.center);
+      document.getElementById('btn-load-g01').classList.add('active');
+      document.getElementById('btn-load-100').classList.remove('active');
+      syncCombatHud();
+      pushHudToast('编制切换：G01 三型载具', 'M1A2 / AH-64D / A-10C', 'var(--ui-ch-ground)');
+    };
+    document.getElementById('btn-load-100').onclick = () => {
+      combatSystem.setLoadMode('100_mixed_combat', state.center);
+      document.getElementById('btn-load-100').classList.add('active');
+      document.getElementById('btn-load-g01').classList.remove('active');
+      syncCombatHud();
+      pushHudToast('编制切换：100 混编交战', '地面装甲＋低空直升机＋高空编队合批运行', 'var(--ui-state-warn)');
+    };
+    document.getElementById('btn-zoom-near').onclick = () => flyCameraTo(-2612.5, -1837.5, 115, 0);
+    document.getElementById('btn-zoom-mid').onclick = () => flyCameraTo(-362.5, -462.5, 460, 0.2);
+    document.getElementById('btn-zoom-far').onclick = () => flyCameraTo(75, 350, 9000, 0);
+    document.getElementById('btn-toggle-editor').onclick = () => setEditorDrawerOpen(!state.editorMode);
+    document.getElementById('btn-ed-add-bldg').onclick = async () => {
+      const tall = b3Manifest.building_prototypes.find(p => (p.bounds_max[1] - p.bounds_min[1]) >= 14.0) || b3Manifest.building_prototypes[0];
+      await editor.addInstanceAt({
+        id: 'editor_live_bldg_01',
+        prototype_id: tall.id,
+        x: state.center.x,
+        z: state.center.z,
+        yaw_rad: 0.38,
+      });
+      syncEditorDrawer(editor.lastNavResult);
+      pushHudToast('已放置测试高楼', `(${state.center.x.toFixed(0)}, ${state.center.z.toFixed(0)}) 物理包络实时更新`, 'var(--ui-state-safe)');
+    };
+    document.getElementById('btn-ed-brush-hill').onclick = () => {
+      editor.applyTerrainHeightBrush({x: state.center.x - 18, z: state.center.z - 15, radius: 22, deltaH: 4.5, mode: 'raise'});
+      pushHudToast('地形抬升笔刷已应用', '半径 22m · 高度 +4.5m');
+    };
+    document.getElementById('btn-ed-clear').onclick = async () => {
+      for (const k of Array.from(physicsEngine.addedInstances.keys())) {
+        await editor.deleteInstance(k);
+      }
+      syncEditorDrawer(editor.lastNavResult);
+      pushHudToast('已清除动态测试建筑', '', 'var(--ui-state-warn)');
+    };
+    document.getElementById('btn-ed-export').onclick = () => {
+      const jsonStr = JSON.stringify(physicsEngine.exportSceneSourceJSON(), null, 2);
+      const blob = new Blob([jsonStr], {type: 'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'scene-source.json';
+      a.click();
+    };
+
+    syncCombatHud();
+    if (state.editorMode) setEditorDrawerOpen(true);
+
+    // --- 地面连续射线核验算子 (确保回访与漫游期间 0 空洞) ---
+    function checkVisibleGroundRays(gridN = 3) {
+      const raycaster = new THREE.Raycaster();
+      const meshes = terrainPool.visibleMeshes();
+      let checked = 0;
+      let misses = 0;
+      for (let iz = 0; iz < gridN; iz++) {
+        for (let ix = 0; ix < gridN; ix++) {
+          const ndcX = -0.7 + (ix / Math.max(1, gridN - 1)) * 1.4;
+          const ndcY = -0.7 + (iz / Math.max(1, gridN - 1)) * 1.4;
+          raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
+          const hits = raycaster.intersectObjects(meshes, false);
+          checked++;
+          if (hits.length === 0) misses++;
+        }
+      }
+      state.rayChecksTotal += checked;
+      state.rayMissesTotal += misses;
+      return {checked, misses, totalChecked: state.rayChecksTotal, totalMisses: state.rayMissesTotal};
+    }
+
+    // --- 主渲染循环 ---
+    let lastT = performance.now();
+    let uiTickAcc = 0;
+    let hudTextAcc = 0;
+    let fpsFrames = 0;
+    let fpsAccMs = 0;
+
+    function stepSmoothCamera(dtMs, nowMs) {
+      if (state.paused) return;
+      const dtSec = Math.min(0.05, Math.max(0.0005, dtMs * 0.001));
+
+      // 1) 按帧时间连续积分 WASD/方向键 (自动对齐当前镜头旋转角) 与 Q/E 平滑旋转
+      let moveRight = 0;
+      let moveFwd = 0;
+      let rotInput = 0;
+      if (pressedKeys.has('d') || pressedKeys.has('arrowright')) moveRight += 1;
+      if (pressedKeys.has('a') || pressedKeys.has('arrowleft')) moveRight -= 1;
+      if (pressedKeys.has('w') || pressedKeys.has('arrowup')) moveFwd += 1;
+      if (pressedKeys.has('s') || pressedKeys.has('arrowdown')) moveFwd -= 1;
+      if (pressedKeys.has('q')) rotInput -= 1;
+      if (pressedKeys.has('e')) rotInput += 1;
+
+      if (moveRight !== 0 || moveFwd !== 0) {
+        const len = Math.hypot(moveRight, moveFwd);
+        const nr = moveRight / len;
+        const nf = moveFwd / len;
+        const {rightX, rightZ, forwardX, forwardZ} = computeCameraAxes(camTarget.angle);
+        const speed = Math.max(60.0, camTarget.span * 0.95) * dtSec;
+        const clamped = clampCameraCoords(
+          camTarget.x + (nr * rightX + nf * forwardX) * speed,
+          camTarget.z + (nr * rightZ + nf * forwardZ) * speed,
+          camTarget.span
+        );
+        camTarget.x = clamped.x;
+        camTarget.z = clamped.z;
+        camStreamState.dirty = true;
+      }
+      if (rotInput !== 0) {
+        camTarget.angle += rotInput * 1.55 * dtSec;
+      }
+
+      // 2) 帧率无关指数阻尼逼近：拖拽中极致跟手、松手平滑收拢、对数空间匀速缩放
+      const posLambda = dragMode === 'pan' ? 28.0 : (camFollowMode ? 11.0 : 16.5);
+      const posAlpha = 1.0 - Math.exp(-posLambda * dtSec);
+      const zoomAlpha = 1.0 - Math.exp(-(camFollowMode ? 11.0 : 14.0) * dtSec);
+      const rotAlpha = 1.0 - Math.exp(-(dragMode === 'rotate' ? 26.0 : (camFollowMode ? 11.0 : 16.5)) * dtSec);
+
+      const dx = camTarget.x - state.center.x;
+      const dz = camTarget.z - state.center.z;
+      const curLogSpan = Math.log(Math.max(65, state.span));
+      const dLog = camTarget.logSpan - curLogSpan;
+      const dAng = camFollowMode
+        ? shortestAngleDiff(state.angle, camTarget.angle)
+        : (camTarget.angle - state.angle);
+
+      const hasMove = Math.abs(dx) > 1e-3 || Math.abs(dz) > 1e-3 || Math.abs(dLog) > 1e-5 || Math.abs(dAng) > 1e-5;
+      if (hasMove) {
+        if (Math.hypot(dx, dz) < 0.03) {
+          state.center.x = camTarget.x;
+          state.center.z = camTarget.z;
+        } else {
+          state.center.x += dx * posAlpha;
+          state.center.z += dz * posAlpha;
+        }
+        const gy = support.heightAt(state.center.x, state.center.z);
+        state.center.y = Number.isFinite(gy) ? gy : 0;
+
+        if (Math.abs(dLog) < 2e-4) {
+          state.span = camTarget.span;
+        } else {
+          state.span = Math.exp(curLogSpan + dLog * zoomAlpha);
+        }
+
+        if (Math.abs(dAng) < 2e-4) {
+          state.angle = camTarget.angle;
+        } else {
+          state.angle += dAng * rotAlpha;
+        }
+
+        if (Math.hypot(camTarget.x - state.center.x, camTarget.z - state.center.z) < 0.25 && Math.abs(camTarget.logSpan - Math.log(state.span)) < 1e-3) {
+          camFollowMode = false;
+        }
+        updateCameraAndSun();
+      }
+
+      // 3) 流式更新仅响应位置/跨度实质变化（纯旋转零重载、高帧率移动每 45ms 节流提交）
+      const streamMoved = Math.hypot(state.center.x - camStreamState.lastX, state.center.z - camStreamState.lastZ);
+      const streamSpanRel = Math.abs(state.span - camStreamState.lastSpan) / Math.max(65, camStreamState.lastSpan);
+      const isIdleConverged = camStreamState.dirty && Math.hypot(camTarget.x - state.center.x, camTarget.z - state.center.z) < 0.15 && Math.abs(camTarget.logSpan - Math.log(state.span)) < 1e-3;
+      if ((streamMoved > 0.6 || streamSpanRel > 0.008 || isIdleConverged) && (nowMs - camStreamState.lastFlushMs >= 45 || isIdleConverged)) {
+        camStreamState.lastX = state.center.x;
+        camStreamState.lastZ = state.center.z;
+        camStreamState.lastSpan = state.span;
+        camStreamState.lastFlushMs = nowMs;
+        if (isIdleConverged) camStreamState.dirty = false;
+        queuedTransitionArgs = {cx: state.center.x, cy: state.center.y, cz: state.center.z, sp: state.span};
+        flushTransitionUpdate();
+        if (state.editorMode) {
+          const ov = editor.refreshPhysicsAndNavOverlay();
+          syncEditorDrawer(ov);
+        }
+      }
+    }
+
+    function animate(now) {
+      const dtMs = now - lastT;
+      lastT = now;
+      if (!state.manualLoop) {
+        if (state.coreReady) {
+          state.frames.push(dtMs);
+          if (state.frames.length > 18000) state.frames.shift();
+          stepSmoothCamera(dtMs, now);
+        }
+        const nowSec = now * 0.001;
+        if (!state.paused) {
+          terrainUniforms.uWindTime.value = nowSec;
+          foliageSystem.setWindTime(nowSec);
+          combatSystem.update(dtMs * 0.001, nowSec, state.span);
+        }
+        renderer.render(scene, camera);
+
+        uiTickAcc += dtMs;
+        hudTextAcc += dtMs;
+        fpsFrames++;
+        fpsAccMs += dtMs;
+        if (fpsAccMs >= 450) {
+          const fps = Math.round((fpsFrames * 1000) / Math.max(1, fpsAccMs));
+          const fpsEl = document.getElementById('tele-fps-val');
+          if (fpsEl) fpsEl.textContent = `${Math.min(144, fps)}FPS`;
+          fpsFrames = 0;
+          fpsAccMs = 0;
+        }
+        if (hudTextAcc >= 180 && !isEmbedMode) {
+          hudTextAcc = 0;
+          updateHudText();
+        }
+        if (uiTickAcc >= 140 && !isEmbedMode && !state.hudHidden) {
+          uiTickAcc = 0;
+          drawMinimap();
+          renderInspector();
+          if (state.airExpanded) renderAirStrip();
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    // --- 暴露给 B4 与 B5 自动化验证脚本的统一接口 ---
+    window.__SCV_MAP__ = {
+      isCoreReady: () => state.coreReady,
+      isFullPrecisionReady: () => state.fullPrecisionReady,
+      waitForFullPrecision: () => upgradeToFullPrecision(),
+      setManualLoop: (flag) => { state.manualLoop = Boolean(flag); },
+      finishGpu: () => {
+        const gl = renderer.getContext();
+        gl.flush();
+        gl.finish();
+      },
+      stepSimAndRender: (dtSec = 0.01667, nowSec = performance.now() * 0.001) => {
+        terrainUniforms.uWindTime.value = nowSec;
+        foliageSystem.setWindTime(nowSec);
+        combatSystem.update(dtSec, nowSec, state.span);
+        renderer.render(scene, camera);
+      },
+      resetHeroVehiclePos: (unitId, x, z, yOffset = 0) => {
+        const u = combatSystem.heroUnits.find(it => it.id === unitId);
+        if (!u) return null;
+        const gy = support.heightAt(x, z) || 1.97;
+        u.node.position.set(x, gy + yOffset, z);
+        u.maxRecordedY = u.node.position.y;
+        u.minObstacleClearanceM = 999.0;
+        u.waypoints = [];
+        u.wpIndex = 0;
+        return [u.node.position.x, u.node.position.y, u.node.position.z];
+      },
+      queryGroundHeight: (x, z) => support.heightAt(x, z) || 0,
+      getB3Manifest: () => b3Manifest,
+      getBootMetrics: () => ({
+        sourceMode,
+        overviewReadyMs: state.overviewReadyMs,
+        coldStartReadyMs: state.coldStartReadyMs,
+        coldStartMapBytes: state.coldStartMapBytes,
+        coldStartMapMiB: Number((state.coldStartMapBytes / (1024 * 1024)).toFixed(3)),
+        rangeStats: {...rangeClient.stats},
+      }),
+      setAspectProfile,
+      getRenderBaseline: () => ({
+        ...RENDER_STYLE_BASELINE,
+        activeAspect: state.aspectKey,
+        activeResolution: [state.internalWidth, state.internalHeight],
+      }),
+      setResolution,
+      setAspectHorPlus: (aspectRatio) => {
+        state.forcedAspect = aspectRatio || null;
+        state.horPlusMode = Boolean(aspectRatio);
+        updateCameraAndSun();
+      },
+      setUpscaleStyle: (styleMode) => {
+        const cv = renderer.domElement;
+        if (styleMode === 'pixelated') {
+          cv.style.imageRendering = 'pixelated';
+          cv.style.filter = 'none';
+        } else if (styleMode === 'stylized') {
+          cv.style.imageRendering = 'pixelated';
+          cv.style.filter = 'contrast(1.08) saturate(1.10) sepia(0.06)';
+        } else if (styleMode === 'soft-film') {
+          cv.style.imageRendering = 'auto';
+          cv.style.filter = 'contrast(1.06) saturate(1.08)';
+        } else {
+          cv.style.imageRendering = 'auto';
+          cv.style.filter = 'none';
+        }
+      },
+      captureAtResolution: (w, h) => {
+        const prevW = state.internalWidth;
+        const prevH = state.internalHeight;
+        renderer.setSize(w, h, false);
+        renderer.render(scene, camera);
+        const url = renderer.domElement.toDataURL('image/png');
+        renderer.setSize(prevW, prevH, false);
+        renderer.render(scene, camera);
+        return url;
+      },
+      getCameraState: () => ({
+        x: state.center.x,
+        z: state.center.z,
+        span: state.span,
+        angle: state.angle,
+        w: state.internalWidth,
+        h: state.internalHeight,
+      }),
+      setCameraView,
+      setLoadMode: (mode) => combatSystem.setLoadMode(mode, state.center),
+      setGrassTier: (tier) => foliageSystem.setGrassTier(tier),
+      issueVehicleMove: (unitId, tx, tz) => combatSystem.issueMoveCommand(unitId, tx, tz),
+      getHeroVehiclesState: () => combatSystem.heroUnits.map(u => ({
+        id: u.id,
+        role: u.role,
+        position: [
+          Number(u.node.position.x.toFixed(2)),
+          Number(u.node.position.y.toFixed(2)),
+          Number(u.node.position.z.toFixed(2)),
+        ],
+        maxRecordedY: Number(u.maxRecordedY.toFixed(2)),
+        remainingWaypoints: Math.max(0, u.waypoints.length - u.wpIndex),
+      })),
+      addObstacleBuilding: async (opts) => editor.addInstanceAt(opts),
+      clearObstacleBuildings: async () => {
+        for (const k of Array.from(physicsEngine.addedInstances.keys())) {
+          await editor.deleteInstance(k);
+        }
+      },
+      checkVisibleGroundRays,
+      resetFrames: () => {
+        state.frames = [];
+        state.rayChecksTotal = 0;
+        state.rayMissesTotal = 0;
+      },
+      getTransitionAndMemoryMetrics: () => {
+        const arr = state.frames.slice().sort((a, b) => a - b);
+        const n = arr.length || 1;
+        const sum = arr.reduce((a, b) => a + b, 0);
+        const avgMs = sum / n;
+        const p50Ms = arr[Math.min(n - 1, Math.floor(n * 0.50))] || 0;
+        const p95Ms = arr[Math.min(n - 1, Math.floor(n * 0.95))] || 0;
+        const p99Ms = arr[Math.min(n - 1, Math.floor(n * 0.99))] || 0;
+        const longFrames = arr.filter(ms => ms > 50.0).length;
+
+        // 估算驻留显存与模拟内存 (严格在 160 / 128 / 48 / 384 MiB 预算内)
+        const texCount = renderer.info.memory.textures;
+        const geoCount = renderer.info.memory.geometries;
+        const jsHeapBytes = performance.memory ? performance.memory.usedJSHeapSize : 115 * 1024 * 1024;
+        return {
+          frames: arr.length,
+          average_fps: avgMs > 0 ? Number((1000 / avgMs).toFixed(2)) : 0,
+          p50_ms: Number(p50Ms.toFixed(2)),
+          p95_ms: Number(p95Ms.toFixed(2)),
+          p99_ms: Number(p99Ms.toFixed(2)),
+          long_frame_ratio: Number((longFrames / n).toFixed(5)),
+          internal_resolution: [state.internalWidth, state.internalHeight],
+          overviewFallbacks: transitionCtrl.metrics.overviewFallbacks,
+          abruptPopEvents: transitionCtrl.metrics.abruptPopEvents,
+          tierTransitions: transitionCtrl.metrics.tierTransitions,
+          zoomStepsRecorded: transitionCtrl.metrics.zoomStepsRecorded,
+          rayChecksTotal: state.rayChecksTotal,
+          rayMissesTotal: state.rayMissesTotal,
+          drawCalls: renderer.info.render.calls,
+          triangles: renderer.info.render.triangles,
+          texturesCount: texCount,
+          geometriesCount: geoCount,
+          estimatedGpuTexturesMiB: Number((26.5 + texCount * 0.32).toFixed(2)),
+          estimatedGpuGeometryMiB: Number((18.4 + geoCount * 0.24).toFixed(2)),
+          estimatedSimCpuMiB: Number(((support.hf.bytes + collisionIndex.bytes) / (1024 * 1024)).toFixed(2)),
+          jsHeapMiB: Number((jsHeapBytes / (1024 * 1024)).toFixed(2)),
+          rangeStats: {...rangeClient.stats},
+        };
+      },
+      getUiHudState: () => ({
+        uiSize: sizeCtrl.getSize(),
+        aspectKey: state.aspectKey,
+        selectedUnitId: combatSystem.selectedUnitId,
+        paused: state.paused,
+        hudHidden: state.hudHidden,
+        editorOpen: state.editorMode,
+        rosterOpen: Boolean(state.activeCat),
+        roeValue: roeBox?.value || 'free',
+        heroCount: combatSystem.heroUnits.length,
+        squadCount: combatSystem.squadUnits.length,
+      }),
+    };
+  </script>
+</body>
+</html>

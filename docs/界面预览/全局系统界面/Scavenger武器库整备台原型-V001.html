@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scavenger 武器库整备与载具选编台原型 · V001（阶段 4B）</title>
+<style>
+/* ==========================================================================
+   Scavenger 阶段 4B · 武器库整备与载具选编台（严格消费 V2.0 设计令牌）
+   基因锁定：A3 烟炭双金融合 × B2 战术微描边精工 × C4 外柔内锐 (12px / 5px)
+   渲染基线：680p 复古微缩 Stylized（16:9 1208×680 / 21:9 1588×680），UI 原生高清
+   表单红线：100% 定制战术下拉 .ui-select / .ui-check，零原生 <select>
+   ========================================================================== */
+:root {
+  --ui-bg-canvas: #0d0e13;
+  --ui-bg-pod: rgba(19, 20, 28, 0.92);
+  --ui-bg-pod-elevated: #14151e;
+  --ui-bg-overlay-glass: linear-gradient(150deg, rgba(24, 25, 36, 0.90) 0%, rgba(16, 17, 25, 0.94) 56%, rgba(30, 25, 19, 0.92) 100%);
+  --ui-bg-slot: rgba(35, 37, 48, 0.88);
+  --ui-line-subtle: rgba(255, 255, 255, 0.09);
+  --ui-line-base: rgba(255, 255, 255, 0.19);
+  --ui-line-strong: rgba(255, 255, 255, 0.34);
+
+  --ui-text-primary: #f5f6f9;
+  --ui-text-secondary: #b6bac5;
+  --ui-text-muted: #838896;
+  --ui-text-inverse: #0d0e13;
+
+  --ui-ch-ground: #38e5c0;
+  --ui-ch-heli: #68c8ff;
+  --ui-ch-plane: #b197fc;
+  --ui-state-select: #f0d372;
+  --ui-state-select-fill: rgba(240, 211, 114, 0.16);
+  --ui-state-warn: #ffb800;
+  --ui-state-danger: #ff5266;
+  --ui-state-toxic: #a8f22c;
+  --ui-state-safe: #3cd69f;
+
+  --ui-accent-grad: linear-gradient(135deg, #f6de86 0%, #e5b73e 100%);
+  --ui-select-sweep: linear-gradient(90deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.92) 60%, rgba(255,255,255,0.16) 94%, rgba(255,255,255,0) 100%);
+  --ui-rim-top: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  --ui-shadow-pod: 0 14px 36px rgba(0, 0, 0, 0.56);
+
+  --ui-r-surface: 12px;
+  --ui-r-control: 5px;
+  --ui-r-sm: 4px;
+  --ui-r-pill: 9999px;
+
+  --ui-dur-micro: 100ms;
+  --ui-dur-standard: 200ms;
+  --ui-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --ui-font-display: "Bahnschrift", "DIN Alternate", "Microsoft YaHei UI", sans-serif;
+  --ui-font-sans: "Microsoft YaHei UI", "PingFang SC", "Segoe UI", sans-serif;
+  --ui-font-mono: "JetBrains Mono", "Cascadia Mono", "Consolas", monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  background: #06070a; color: var(--ui-text-primary);
+  font-family: var(--ui-font-sans); font-size: 13px; line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: var(--ui-font-mono); font-variant-numeric: tabular-nums; }
+.display-font { font-family: var(--ui-font-display); letter-spacing: 0.03em; }
+button, input { font-family: inherit; }
+[hidden] { display: none !important; }
+
+/* ====== 外壳视口（支持全屏 / 16:9 / 21:9 680p 模拟） ====== */
+.viewport-host {
+  width: 100vw; height: 100vh; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 40%, #151722 0%, #050609 80%);
+}
+.armory-shell {
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+  background: var(--ui-bg-canvas);
+  display: flex; flex-direction: column;
+  transition: width 260ms var(--ui-ease-out), height 260ms var(--ui-ease-out);
+}
+.armory-shell[data-aspect="16:9"] {
+  width: min(1208px, calc(100vw - 32px)); height: min(680px, calc(100vh - 32px));
+  border-radius: 10px; border: 1px solid rgba(240, 211, 114, 0.34);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.82);
+}
+.armory-shell[data-aspect="21:9"] {
+  width: min(1588px, calc(100vw - 24px)); height: min(680px, calc(100vh - 32px));
+  border-radius: 10px; border: 1px solid rgba(56, 229, 192, 0.36);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.82);
+}
+
+/* 底层 680p 复古微缩机库背景画布 */
+.bg-hangar-canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+  image-rendering: pixelated;
+  filter: contrast(1.08) saturate(1.10) sepia(0.06) blur(6px);
+  transform: scale(1.03);
+}
+.bg-vignette {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(ellipse at 54% 46%, rgba(13,14,19,0.22) 0%, rgba(10,11,16,0.74) 70%, rgba(7,8,12,0.92) 100%);
+}
+
+/* ====== 顶栏指挥条 ====== */
+.armory-topbar {
+  position: relative; z-index: 20; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 20px;
+  background: rgba(13, 14, 19, 0.84);
+  border-bottom: 1px solid var(--ui-line-subtle);
+  backdrop-filter: blur(18px);
+}
+.brand-cluster { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand-badge {
+  width: 30px; height: 30px; border-radius: var(--ui-r-sm); flex: 0 0 auto;
+  background: var(--ui-accent-grad); color: var(--ui-text-inverse);
+  font-family: var(--ui-font-display); font-size: 15px; font-weight: 900;
+  display: grid; place-items: center;
+}
+.brand-title { display: flex; flex-direction: column; }
+.brand-title strong { font-size: 14px; letter-spacing: 0.04em; line-height: 1.2; }
+.brand-title span { font-size: 10.5px; color: var(--ui-text-muted); }
+
+/* 斜切大类 Tab */
+.skew-tabs { display: flex; align-items: center; gap: 6px; }
+.skew-tab {
+  border: 1px solid var(--ui-line-subtle); background: rgba(255, 255, 255, 0.045);
+  color: var(--ui-text-secondary); padding: 6px 14px; border-radius: 4px;
+  transform: skewX(-13deg); cursor: pointer; font-size: 12px; font-weight: 700;
+  transition: background var(--ui-dur-micro), color var(--ui-dur-micro), border-color var(--ui-dur-micro);
+}
+.skew-tab > span { display: inline-flex; align-items: center; gap: 6px; transform: skewX(13deg); white-space: nowrap; }
+.skew-tab:hover:not(.active) { background: rgba(255,255,255,0.09); color: var(--ui-text-primary); }
+.skew-tab.active { background: #ffffff; color: var(--ui-text-inverse); border-color: #ffffff; }
+.tab-cnt { font-family: var(--ui-font-mono); font-size: 10.5px; opacity: 0.72; }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.budget-pill {
+  display: flex; align-items: center; gap: 10px; padding: 5px 11px;
+  border-radius: var(--ui-r-control); background: rgba(19, 20, 28, 0.92);
+  border: 1px solid var(--ui-line-base);
+}
+.budget-pill.is-over { border-color: var(--ui-state-danger); background: rgba(255, 82, 102, 0.14); }
+.budget-bar { width: 88px; height: 6px; border-radius: 99px; background: rgba(255,255,255,0.10); overflow: hidden; }
+.budget-bar > i { display: block; height: 100%; background: var(--ui-state-select); transition: width 220ms var(--ui-ease-out), background 160ms; }
+.budget-pill.is-over .budget-bar > i { background: var(--ui-state-danger); }
+
+/* 按钮体系（B2 微描边 + L3 香槟金主 CTA + L1 无底框外描边） */
+.ui-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 34px; padding: 0 13px; border-radius: var(--ui-r-control);
+  border: 1px solid var(--ui-line-base); background: var(--ui-bg-slot); color: var(--ui-text-primary);
+  font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  box-shadow: var(--ui-rim-top);
+  transition: border-color var(--ui-dur-micro), color var(--ui-dur-micro), background var(--ui-dur-micro), transform var(--ui-dur-micro);
+}
+.ui-btn:hover:not(:disabled) { border-color: var(--ui-state-select); color: var(--ui-state-select); background: rgba(255,255,255,0.08); }
+.ui-btn:active:not(:disabled) { transform: scale(0.98); }
+.ui-btn:disabled { opacity: 0.36; cursor: not-allowed; }
+.ui-btn--sm { height: 28px; padding: 0 10px; font-size: 11.5px; border-radius: var(--ui-r-sm); }
+.ui-btn--lg { height: 42px; padding: 0 18px; font-size: 13px; }
+.ui-btn--ghost { background: transparent; border-color: var(--ui-line-subtle); color: var(--ui-text-secondary); box-shadow: none; }
+.ui-btn--ghost:hover:not(:disabled) { border-color: var(--ui-line-strong); color: var(--ui-text-primary); }
+.ui-btn--primary {
+  background: var(--ui-accent-grad); color: var(--ui-text-inverse); border-color: transparent;
+  box-shadow: 0 6px 20px rgba(240, 211, 114, 0.28), inset 0 1px 0 rgba(255,255,255,0.52);
+}
+.ui-btn--primary:hover:not(:disabled) { filter: brightness(1.07); color: var(--ui-text-inverse); border-color: transparent; }
+.ui-btn--danger { background: rgba(255,82,102,0.16); border-color: rgba(255,82,102,0.44); color: var(--ui-state-danger); }
+.ui-btn--danger:hover:not(:disabled) { background: var(--ui-state-danger); color: #ffffff; border-color: transparent; }
+
+.ui-keycap {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 22px; height: 20px; padding: 0 6px; border-radius: var(--ui-r-pill);
+  background: #ffffff; color: #090a0f; border: 2px solid #090a0f;
+  font-family: var(--ui-font-mono); font-size: 10px; font-weight: 900; line-height: 1;
+  -webkit-text-stroke: 0 !important; text-shadow: none !important;
+}
+.ui-keycap--dark { background: rgba(13,14,19,0.92); color: #f5f6f9; border-color: rgba(255,255,255,0.28); }
+.ui-prompt-btn {
+  display: inline-flex; align-items: center; gap: 7px; padding: 3px 4px;
+  border: none; background: transparent; cursor: pointer;
+}
+.ui-outlined-text {
+  color: #ffffff; font-size: 12.5px; font-weight: 800;
+  paint-order: stroke fill; -webkit-text-stroke: 3.4px #090a0f;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+}
+
+/* ====== 定制战术下拉 .ui-select（100% 取代原生 <select>） ====== */
+.ui-select { position: relative; min-width: 146px; }
+.ui-select-trigger {
+  width: 100%; height: 32px; padding: 0 9px 0 10px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: rgba(11, 12, 18, 0.88); border: 1px solid var(--ui-line-base);
+  border-radius: var(--ui-r-control); color: var(--ui-text-primary);
+  font-size: 12px; font-weight: 600; cursor: pointer; text-align: left;
+  transition: border-color var(--ui-dur-micro), box-shadow var(--ui-dur-micro), background var(--ui-dur-micro);
+}
+.ui-select-trigger:hover { border-color: rgba(240, 211, 114, 0.52); background: rgba(22, 24, 34, 0.94); }
+.ui-select.is-open .ui-select-trigger,
+.ui-select-trigger:focus-visible {
+  outline: none; border-color: var(--ui-state-select);
+  box-shadow: 0 0 0 3px var(--ui-state-select-fill); background: rgba(22, 24, 34, 0.98);
+}
+.ui-select-val { display: inline-flex; align-items: center; gap: 7px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ui-select-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 6px currentColor; }
+.ui-select-chev { width: 13px; height: 13px; flex: 0 0 auto; color: var(--ui-text-muted); transition: transform var(--ui-dur-standard), color var(--ui-dur-micro); }
+.ui-select.is-open .ui-select-chev { transform: rotate(180deg); color: var(--ui-state-select); }
+.ui-select-menu {
+  position: absolute; top: calc(100% + 5px); right: 0; min-width: 100%; width: max-content; max-width: 260px;
+  z-index: 90; padding: 4px; border-radius: 8px;
+  background: var(--ui-bg-pod-elevated); border: 1px solid rgba(240, 211, 114, 0.34);
+  box-shadow: var(--ui-rim-top), 0 16px 36px rgba(0, 0, 0, 0.78);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.ui-select.is-dropup .ui-select-menu {
+  top: auto; bottom: calc(100% + 5px); left: 0; right: auto;
+}
+.ui-select-option {
+  position: relative; width: 100%; padding: 7px 9px 7px 11px;
+  border: 1px solid transparent; border-radius: var(--ui-r-control);
+  background: transparent; color: var(--ui-text-secondary); font-size: 12px; text-align: left;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer;
+  transition: background var(--ui-dur-micro), color var(--ui-dur-micro);
+}
+.ui-select-option:hover, .ui-select-option.is-focused { background: rgba(255,255,255,0.07); color: var(--ui-text-primary); }
+.ui-select-option[aria-selected="true"] {
+  background: rgba(240, 211, 114, 0.12); border-color: rgba(240, 211, 114, 0.34);
+  color: var(--ui-state-select); font-weight: 700;
+}
+.ui-select-option[aria-selected="true"]::before {
+  content: ""; position: absolute; left: 3px; top: 5px; bottom: 5px; width: 3px;
+  border-radius: 2px; background: var(--ui-state-select);
+}
+.ui-select-option-main { display: flex; flex-direction: column; gap: 1px; }
+.ui-select-option-title { display: inline-flex; align-items: center; gap: 7px; }
+.ui-select-option-sub { font-size: 10px; color: var(--ui-text-muted); font-weight: 400; }
+.ui-select-check { width: 13px; height: 13px; flex: 0 0 auto; color: var(--ui-state-select); opacity: 0; }
+.ui-select-option[aria-selected="true"] .ui-select-check { opacity: 1; }
+
+/* 定制精工复选框 */
+.ui-check {
+  appearance: none; -webkit-appearance: none; margin: 0; flex: 0 0 auto;
+  width: 15px; height: 15px; border-radius: 4px; cursor: pointer; position: relative;
+  background: rgba(11, 12, 18, 0.88); border: 1.5px solid rgba(255, 255, 255, 0.30);
+}
+.ui-check:hover { border-color: rgba(240, 211, 114, 0.72); }
+.ui-check:checked { background: var(--ui-state-select); border-color: var(--ui-state-select); }
+.ui-check:checked::after {
+  content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px;
+  border: solid #0d0e13; border-width: 0 2px 2px 0; transform: rotate(42deg);
+}
+
+/* ====== 主体三栏布局 ====== */
+.armory-main {
+  position: relative; z-index: 10; flex: 1; min-height: 0;
+  display: grid; grid-template-columns: minmax(320px, 360px) minmax(0, 1fr) minmax(300px, 336px);
+  gap: 14px; padding: 14px 20px 10px;
+}
+.panel-card {
+  background: var(--ui-bg-overlay-glass); border: 1px solid var(--ui-line-base);
+  border-radius: var(--ui-r-surface); box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+  backdrop-filter: blur(20px);
+  display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+}
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 12px 14px 10px; border-bottom: 1px solid var(--ui-line-subtle); flex: 0 0 auto;
+}
+.panel-head h2 { margin: 0; font-size: 13.5px; font-weight: 800; letter-spacing: 0.03em; }
+.panel-eyebrow { font-family: var(--ui-font-mono); font-size: 10px; color: var(--ui-text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* 左栏：武器库检索与 12 兵种列表 */
+.catalog-tools {
+  padding: 10px 12px 8px; display: flex; flex-direction: column; gap: 8px;
+  border-bottom: 1px solid var(--ui-line-subtle); flex: 0 0 auto;
+}
+.tool-row { display: flex; gap: 7px; align-items: center; }
+.search-input {
+  flex: 1; min-width: 0; height: 32px; padding: 0 10px;
+  background: rgba(11, 12, 18, 0.88); border: 1px solid var(--ui-line-base);
+  border-radius: var(--ui-r-control); color: var(--ui-text-primary); font-size: 12px;
+}
+.search-input:focus { outline: none; border-color: var(--ui-state-select); box-shadow: 0 0 0 3px var(--ui-state-select-fill); }
+.class-chips {
+  display: flex; gap: 5px; overflow-x: auto; padding-bottom: 1px;
+  scrollbar-width: none;
+}
+.class-chips::-webkit-scrollbar { display: none; }
+.class-chip {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px;
+  height: 25px; padding: 0 8px; border-radius: var(--ui-r-sm);
+  background: rgba(255, 255, 255, 0.045); border: 1px solid var(--ui-line-subtle);
+  color: var(--ui-text-secondary); font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.class-chip:hover { border-color: var(--ui-line-strong); color: var(--ui-text-primary); }
+.class-chip.active { background: var(--ui-state-select-fill); border-color: var(--ui-state-select); color: var(--ui-state-select); }
+
+.catalog-list {
+  flex: 1; min-height: 0; overflow-y: auto; padding: 6px 8px; margin: 0; list-style: none;
+  display: flex; flex-direction: column; gap: 4px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.16) transparent;
+}
+.veh-row {
+  position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 10px; border-radius: var(--ui-r-control);
+  border: 1px solid transparent; border-left: 3px solid var(--row-ch, var(--ui-ch-ground));
+  background: rgba(19, 20, 28, 0.62); cursor: pointer;
+  transition: background var(--ui-dur-micro), border-color var(--ui-dur-micro);
+}
+.veh-row:hover:not(.active):not(.is-locked) { background: rgba(255,255,255,0.06); border-color: var(--ui-line-subtle); border-left-color: var(--row-ch); }
+.veh-row.active {
+  background: var(--ui-select-sweep); color: var(--ui-text-inverse);
+  border-color: transparent; border-left-color: var(--row-ch);
+}
+.veh-row.is-locked {
+  opacity: 0.54; cursor: not-allowed;
+  background: repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0 6px, transparent 6px 12px), rgba(14,15,22,0.85);
+}
+.veh-row-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.veh-row-ico { width: 22px; height: 22px; flex: 0 0 auto; display: grid; place-items: center; color: var(--row-ch); }
+.veh-row.active .veh-row-ico { color: var(--ui-text-inverse); }
+.veh-row-txt { display: flex; flex-direction: column; min-width: 0; }
+.veh-row-name { font-size: 12.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.veh-row-sub { font-size: 10.5px; color: var(--ui-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.veh-row.active .veh-row-sub { color: rgba(13, 14, 19, 0.72); font-weight: 600; }
+.veh-row-right { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+.veh-cost-pill {
+  padding: 2px 7px; border-radius: 4px; font-family: var(--ui-font-mono); font-size: 11px; font-weight: 800;
+  background: rgba(13, 14, 19, 0.88); color: var(--ui-state-select); border: 1px solid rgba(255,255,255,0.12);
+}
+.veh-qty-pill {
+  padding: 2px 6px; border-radius: 4px; font-family: var(--ui-font-mono); font-size: 10.5px; font-weight: 900;
+  background: var(--ui-ch-ground); color: var(--ui-text-inverse);
+}
+
+/* 中栏：3D 微缩检视舱 + 挂载改装 + 五维属性条 */
+.inspect-body {
+  flex: 1; min-height: 0; overflow-y: auto; padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 9px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.16) transparent;
+}
+.hangar-stage {
+  position: relative; height: clamp(140px, 19vh, 174px); flex: 0 0 auto; border-radius: var(--ui-r-control);
+  background: radial-gradient(ellipse at 50% 62%, rgba(240, 211, 114, 0.12) 0%, rgba(16, 18, 28, 0.94) 68%);
+  border: 1px solid var(--ui-line-base); overflow: hidden;
+  display: grid; place-items: center;
+}
+.armory-shell[data-aspect="16:9"] .hangar-stage,
+.armory-shell[data-aspect="21:9"] .hangar-stage { height: 122px; }
+.armory-shell[data-aspect="16:9"] .hangar-center-vis svg,
+.armory-shell[data-aspect="21:9"] .hangar-center-vis svg { width: 72px; height: 72px; }
+.hangar-grid {
+  position: absolute; inset: 0; opacity: 0.34;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.hangar-top-bar {
+  position: absolute; top: 10px; left: 12px; right: 12px; z-index: 2;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+}
+.hangar-id-badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 4px;
+  background: rgba(13, 14, 19, 0.82); border: 1px solid var(--ui-line-base);
+  font-family: var(--ui-font-mono); font-size: 10.5px; color: var(--ui-text-secondary);
+}
+.hangar-role-pill {
+  padding: 3px 9px; border-radius: var(--ui-r-pill); font-size: 11px; font-weight: 800;
+  background: rgba(13, 14, 19, 0.84); border: 1px solid currentColor;
+}
+.hangar-center-vis {
+  position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.hangar-ring {
+  position: absolute; bottom: -14px; width: 176px; height: 42px; border-radius: 50%;
+  border: 2px solid var(--inspect-ch, var(--ui-ch-ground));
+  box-shadow: 0 0 24px var(--inspect-ch, var(--ui-ch-ground)), inset 0 0 18px rgba(255,255,255,0.08);
+  opacity: 0.72;
+}
+.hangar-bottom-bar {
+  position: absolute; bottom: 8px; left: 12px; right: 12px; z-index: 2;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 11px; color: var(--ui-text-secondary);
+}
+.hangar-bottom-bar > :first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hangar-bottom-bar > :last-child { flex: 0 0 auto; white-space: nowrap; }
+
+.inspect-head-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.inspect-head-row h3 { margin: 0; font-size: 22px; line-height: 1.15; }
+.inspect-desc { margin: 4px 0 0; font-size: 12px; color: var(--ui-text-secondary); }
+
+.loadout-section { display: flex; flex-direction: column; gap: 7px; }
+.sub-label {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; font-weight: 700; color: var(--ui-text-muted); letter-spacing: 0.04em;
+}
+.loadout-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.loadout-card {
+  padding: 7px 9px; border-radius: var(--ui-r-control);
+  background: rgba(19, 20, 28, 0.84); border: 1px solid var(--ui-line-subtle);
+  text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
+  transition: border-color var(--ui-dur-micro), background var(--ui-dur-micro);
+}
+.loadout-card:hover { border-color: var(--ui-line-strong); }
+.loadout-card.active { background: var(--ui-state-select-fill); border-color: var(--ui-state-select); }
+.loadout-card strong { font-size: 11.5px; color: var(--ui-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loadout-card.active strong { color: var(--ui-state-select); }
+.loadout-card span { font-size: 10.5px; color: var(--ui-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 五维能力对比条 */
+.stats-box {
+  padding: 9px 11px; border-radius: var(--ui-r-control);
+  background: rgba(13, 14, 19, 0.72); border: 1px solid var(--ui-line-subtle);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.stat-row { display: grid; grid-template-columns: 78px minmax(0, 1fr) 52px; align-items: center; gap: 10px; font-size: 11.5px; }
+.stat-track { position: relative; height: 7px; border-radius: 99px; background: rgba(255,255,255,0.09); overflow: hidden; }
+.stat-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; transition: width 220ms var(--ui-ease-out); }
+.stat-delta-pos { position: absolute; top: 0; bottom: 0; background: var(--ui-state-safe); }
+.stat-delta-neg { position: absolute; top: 0; bottom: 0; background: var(--ui-state-danger); }
+
+.inspect-foot {
+  padding: 10px 14px; border-top: 1px solid var(--ui-line-subtle); flex: 0 0 auto;
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  background: rgba(13, 14, 19, 0.56);
+}
+
+/* 右栏：出击特遣编队（6 槽位 + 覆盖诊断 + 唯一主 CTA） */
+.squad-slots {
+  flex: 1; min-height: 0; overflow-y: auto; padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 7px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.16) transparent;
+}
+.slot-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 10px; border-radius: var(--ui-r-control);
+  background: var(--ui-bg-pod); border: 1px solid var(--ui-line-base);
+  border-left: 3px solid var(--slot-ch, var(--ui-ch-ground));
+}
+.slot-card.is-empty {
+  border-style: dashed; border-left-style: dashed; border-color: var(--ui-line-subtle);
+  background: rgba(13, 14, 19, 0.36); color: var(--ui-text-muted);
+  justify-content: center; min-height: 52px; font-size: 11.5px;
+}
+.slot-info { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.slot-info-txt { display: flex; flex-direction: column; min-width: 0; }
+.slot-info-txt strong { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slot-info-txt span { font-size: 10.5px; color: var(--ui-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slot-stepper { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.mini-sq-btn {
+  width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--ui-line-base);
+  background: rgba(255,255,255,0.06); color: var(--ui-text-primary); cursor: pointer;
+  display: grid; place-items: center; font-size: 13px; font-weight: 700; padding: 0;
+}
+.mini-sq-btn:hover { border-color: var(--ui-state-select); color: var(--ui-state-select); }
+.mini-sq-btn.is-del:hover { border-color: var(--ui-state-danger); color: var(--ui-state-danger); }
+
+.diag-box {
+  margin: 0 12px 10px; padding: 9px 10px; border-radius: var(--ui-r-control);
+  background: rgba(13, 14, 19, 0.78); border: 1px solid var(--ui-line-subtle);
+  display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto;
+}
+.diag-pills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+.diag-pill {
+  display: flex; align-items: center; gap: 6px; padding: 4px 7px; border-radius: 4px;
+  font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--ui-line-subtle); color: var(--ui-text-muted);
+}
+.diag-pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.diag-pill.is-ok { color: var(--ui-state-safe); border-color: rgba(60,214,159,0.34); background: rgba(60,214,159,0.08); }
+.diag-pill.is-warn { color: var(--ui-state-warn); border-color: rgba(255,184,0,0.34); background: rgba(255,184,0,0.08); }
+
+.squad-foot {
+  padding: 10px 12px 12px; border-top: 1px solid var(--ui-line-subtle);
+  display: flex; flex-direction: column; gap: 8px; flex: 0 0 auto;
+  background: rgba(13, 14, 19, 0.64);
+}
+.squad-foot-actions { display: flex; gap: 8px; }
+.squad-foot-actions .ui-btn--primary { flex: 1; }
+
+/* 底部 L1 键位引导条 */
+.armory-footer {
+  position: relative; z-index: 20; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 20px 10px;
+}
+
+/* Z-400 高危模态确认 & 部署转场 & Z-500 Toast */
+.modal-backdrop {
+  position: absolute; inset: 0; z-index: 400;
+  background: rgba(5, 6, 10, 0.74); backdrop-filter: blur(14px);
+  display: grid; place-items: center; padding: 20px;
+}
+.modal-box {
+  width: min(440px, 92vw); padding: 20px 22px; border-radius: var(--ui-r-surface);
+  background: var(--ui-bg-overlay-glass); border: 1px solid var(--ui-line-base);
+  box-shadow: var(--ui-rim-top), 0 24px 64px rgba(0,0,0,0.75);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.deploy-bar { height: 8px; border-radius: 99px; background: rgba(255,255,255,0.10); overflow: hidden; }
+.deploy-bar > i { display: block; height: 100%; width: 0%; background: var(--ui-accent-grad); transition: width 0.9s var(--ui-ease-out); }
+
+.toast-stack {
+  position: absolute; top: 60px; right: 20px; z-index: 500;
+  display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+}
+.toast-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 13px; border-radius: var(--ui-r-control);
+  background: rgba(16, 17, 25, 0.96); border: 1px solid var(--ui-line-base);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.62); font-size: 12px; max-width: 340px;
+}
+.toast-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+.toast-item strong { display: block; font-size: 12px; }
+.toast-item span { display: block; font-size: 11px; color: var(--ui-text-secondary); }
+</style>
+</head>
+<body>
+<div class="viewport-host">
+  <div class="armory-shell" id="armory-shell" data-aspect="full">
+    <canvas class="bg-hangar-canvas" id="bg-hangar" aria-hidden="true"></canvas>
+    <div class="bg-vignette" aria-hidden="true"></div>
+
+    <!-- 顶栏指挥条 -->
+    <header class="armory-topbar">
+      <div class="brand-cluster">
+        <div class="brand-badge">SC</div>
+        <div class="brand-title">
+          <strong class="display-font">ARMORY · 武器库整备与载具选编台</strong>
+          <span class="mono">OP-01 太阳带空军基地 · 在库 129 款美军载具（12 大兵种精锐代表）</span>
+        </div>
+      </div>
+
+      <nav class="skew-tabs" id="domain-tabs" aria-label="兵种域切换">
+        <button type="button" class="skew-tab active" data-domain="all"><span>全部兵种 <b class="tab-cnt">24</b></span></button>
+        <button type="button" class="skew-tab" data-domain="ground"><span>地面 7 类 <b class="tab-cnt">14</b></span></button>
+        <button type="button" class="skew-tab" data-domain="air"><span>空中 5 类 <b class="tab-cnt">10</b></span></button>
+      </nav>
+
+      <div class="topbar-right">
+        <div class="budget-pill" id="budget-pill">
+          <span style="font-size:11px;color:var(--ui-text-secondary)">部署预算</span>
+          <div class="budget-bar"><i id="budget-fill" style="width:60%"></i></div>
+          <strong class="mono" id="budget-txt" style="font-size:12px;color:var(--ui-state-select)">0 / 1200 PTS</strong>
+        </div>
+        <button type="button" class="ui-btn ui-btn--sm" id="btn-aspect">画幅：全屏</button>
+      </div>
+    </header>
+
+    <!-- 三栏主体 -->
+    <main class="armory-main">
+      <!-- 左栏：12 大兵种筛选与载具清单 -->
+      <section class="panel-card" aria-label="武器库目录">
+        <div class="panel-head">
+          <h2>在库载具清单</h2>
+          <span class="panel-eyebrow" id="catalog-count">24 / 24 UNITS</span>
+        </div>
+        <div class="catalog-tools">
+          <div class="tool-row">
+            <input type="search" id="search-input" class="search-input" placeholder="检索型号 / ID / 兵种">
+            <!-- 全新定制战术下拉：排序与过滤 -->
+            <div class="ui-select" id="sort-select" data-value="rec">
+              <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="排序方式">
+                <span class="ui-select-val">
+                  <span class="ui-select-dot" style="color:var(--ui-state-select);background:currentColor"></span>
+                  <span class="ui-select-txt">综合推荐</span>
+                </span>
+                <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+              </button>
+              <div class="ui-select-menu" role="listbox" hidden>
+                <button type="button" class="ui-select-option" role="option" data-val="rec" data-dot="var(--ui-state-select)" aria-selected="true">
+                  <span class="ui-select-option-main"><span class="ui-select-option-title"><span class="ui-select-dot" style="color:var(--ui-state-select);background:currentColor"></span>综合推荐</span><span class="ui-select-option-sub">按 12 大兵种标准作战序列</span></span>
+                  <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                </button>
+                <button type="button" class="ui-select-option" role="option" data-val="cost-asc" data-dot="var(--ui-state-safe)" aria-selected="false">
+                  <span class="ui-select-option-main"><span class="ui-select-option-title"><span class="ui-select-dot" style="color:var(--ui-state-safe);background:currentColor"></span>部署点数 · 低到高</span><span class="ui-select-option-sub">适合开局紧凑预算编组</span></span>
+                  <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                </button>
+                <button type="button" class="ui-select-option" role="option" data-val="horde-desc" data-dot="var(--ui-state-danger)" aria-selected="false">
+                  <span class="ui-select-option-main"><span class="ui-select-option-title"><span class="ui-select-dot" style="color:var(--ui-state-danger);background:currentColor"></span>清潮火力 · 高到低</span><span class="ui-select-option-sub">优先面杀伤与高射速压制</span></span>
+                  <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="class-chips" id="class-chips"></div>
+          <label style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--ui-text-secondary);cursor:pointer;align-self:flex-start">
+            <input type="checkbox" class="ui-check" id="chk-only-unlocked"> 仅显示当前战区已解锁载具
+          </label>
+        </div>
+        <ul class="catalog-list" id="catalog-list"></ul>
+      </section>
+
+      <!-- 中栏：680p 检视舱 + 交战规则下拉 + 挂载改装 + 五维属性 -->
+      <section class="panel-card" aria-label="载具检视与配装">
+        <div class="panel-head">
+          <h2>战术检视与武器配装</h2>
+          <span class="panel-eyebrow" id="inspect-class-tag">MBT · GROUND CHANNEL</span>
+        </div>
+
+        <div class="inspect-body">
+          <div class="hangar-stage" id="hangar-stage">
+            <div class="hangar-grid"></div>
+            <div class="hangar-top-bar">
+              <span class="hangar-id-badge" id="inspect-model-id">model:US_M1A2C</span>
+              <span class="hangar-role-pill" id="inspect-role-pill" style="color:var(--ui-ch-ground)">地面重装核心</span>
+            </div>
+            <div class="hangar-center-vis" id="hangar-center-vis"></div>
+            <div class="hangar-bottom-bar">
+              <span id="inspect-tactic-tip">战术特性：正面复合装甲可硬抗尸潮突击，须配补给车维持穿甲/榴弹供给。</span>
+              <span class="mono" style="color:var(--ui-state-select)">680P HANGAR</span>
+            </div>
+          </div>
+
+          <div class="inspect-head-row">
+            <div>
+              <h3 class="display-font" id="inspect-name">M1A2 SEP v3 Abrams</h3>
+              <p class="inspect-desc" id="inspect-desc"></p>
+            </div>
+            <div style="text-align:right;flex:0 0 auto">
+              <div class="mono" id="inspect-cost-big" style="font-size:22px;font-weight:900;color:var(--ui-state-select)">260 PTS</div>
+              <span style="font-size:10.5px;color:var(--ui-text-muted)">含当前挂载方案</span>
+            </div>
+          </div>
+
+          <!-- 武器配装改装槽 -->
+          <div class="loadout-section">
+            <div class="sub-label">
+              <span>武器挂载与任务模块（点击实时改变点数与属性）</span>
+              <span class="mono" id="inspect-loadout-note">标配任务包</span>
+            </div>
+            <div class="loadout-grid" id="loadout-grid"></div>
+          </div>
+
+          <!-- 默认交战规则（定制战术下拉） + 对比开关 -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:11.5px;color:var(--ui-text-secondary)">初始交战规则：</span>
+              <div class="ui-select" id="roe-select" data-value="free" style="min-width:176px">
+                <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="初始交战规则">
+                  <span class="ui-select-val">
+                    <span class="ui-select-dot" style="color:var(--ui-state-danger);background:currentColor"></span>
+                    <span class="ui-select-txt">自由开火 · 优先高危</span>
+                  </span>
+                  <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <div class="ui-select-menu" role="listbox" hidden>
+                  <button type="button" class="ui-select-option" role="option" data-val="free" data-dot="var(--ui-state-danger)" aria-selected="true">
+                    <span class="ui-select-option-main"><span class="ui-select-option-title"><span class="ui-select-dot" style="color:var(--ui-state-danger);background:currentColor"></span>自由开火 · 优先高危</span><span class="ui-select-option-sub">接敌即压制高威胁尸群</span></span>
+                    <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                  </button>
+                  <button type="button" class="ui-select-option" role="option" data-val="return" data-dot="var(--ui-state-warn)" aria-selected="false">
+                    <span class="ui-select-option-main"><span class="ui-select-option-title"><span class="ui-select-dot" style="color:var(--ui-state-warn);background:currentColor"></span>仅还击 · 保持隐蔽</span><span class="ui-select-option-sub">减少枪声吸引周边尸潮</span></span>
+                    <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                  </button>
+                  <button type="button" class="ui-select-option" role="option" data-val="hold" data-dot="var(--ui-ch-ground)" aria-selected="false">
+                    <span class="ui-select-option-main"><span class="ui-select-option-title"><span class="ui-select-dot" style="color:var(--ui-ch-ground);background:currentColor"></span>停火待命 · 静默补给</span><span class="ui-select-option-sub">适用补给车与绕后穿插</span></span>
+                    <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <span class="mono" id="inspect-ammo-note" style="font-size:11px;color:var(--ui-text-muted)">主武器：120mm 滑膛炮 + 7.62mm 并列机枪</span>
+          </div>
+
+          <!-- 五维性能指标 -->
+          <div class="stats-box" id="stats-box"></div>
+        </div>
+
+        <div class="inspect-foot">
+          <span style="font-size:11.5px;color:var(--ui-text-secondary)" id="inspect-foot-hint">按 Enter 或点击右侧按钮编入特遣队</span>
+          <button type="button" class="ui-btn" id="btn-add-squad">＋ 加入出击编队</button>
+        </div>
+      </section>
+
+      <!-- 右栏：6 槽出击特遣编队与完备性诊断 -->
+      <aside class="panel-card" aria-label="特遣出击编队">
+        <div class="panel-head">
+          <h2>特遣出击编队</h2>
+          <span class="panel-eyebrow" id="squad-slots-cnt">4 / 6 SLOTS</span>
+        </div>
+
+        <div class="squad-slots" id="squad-slots"></div>
+
+        <div class="diag-box">
+          <div class="sub-label">
+            <span>战区协同完备性诊断</span>
+            <span class="mono" id="diag-score" style="color:var(--ui-state-safe)">4/4 完备</span>
+          </div>
+          <div class="diag-pills" id="diag-pills"></div>
+        </div>
+
+        <div class="squad-foot">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-size:11.5px;color:var(--ui-text-secondary)">当前特遣队总计</span>
+            <strong class="mono" id="squad-total-pts" style="font-size:16px;color:var(--ui-state-select)">0 / 1200 PTS</strong>
+          </div>
+          <div class="squad-foot-actions">
+            <button type="button" class="ui-btn ui-btn--ghost" id="btn-reset-squad">重置编成</button>
+            <button type="button" class="ui-btn ui-btn--primary ui-btn--lg" id="btn-deploy">锁定并部署 <span class="ui-keycap">ENTER</span></button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- 底部 L1 无底框硬黑外描边引导 -->
+    <footer class="armory-footer">
+      <span class="mono" style="font-size:11px;color:var(--ui-text-muted)">SCAVENGER ARMORY V001 · 12 VEHICLE CLASSES · ZERO NATIVE SELECT</span>
+      <div style="display:flex;align-items:center;gap:14px">
+        <button type="button" class="ui-prompt-btn" id="foot-add"><span class="ui-outlined-text">加入编队</span><span class="ui-keycap">A</span></button>
+        <button type="button" class="ui-prompt-btn" id="foot-deploy"><span class="ui-outlined-text">锁定部署</span><span class="ui-keycap">ENTER</span></button>
+        <button type="button" class="ui-prompt-btn" id="foot-back"><span class="ui-outlined-text">返回战区</span><span class="ui-keycap">ESC</span></button>
+      </div>
+    </footer>
+
+    <!-- Z-400 高危模态确认弹窗 -->
+    <div class="modal-backdrop" id="confirm-modal" hidden>
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="cm-title">
+        <span class="mono" style="font-size:11px;color:var(--ui-state-danger)">CONFIRMATION REQUIRED // Z-400</span>
+        <h3 class="display-font" id="cm-title" style="margin:0;font-size:22px">重置为推荐初始编成？</h3>
+        <p id="cm-desc" style="margin:0;font-size:12.5px;color:var(--ui-text-secondary)">当前自定义的载具槽位与武器挂载方案将被替换为 OP-01 推荐编成。</p>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px">
+          <button type="button" class="ui-btn ui-btn--ghost" id="cm-cancel">取消 <span class="ui-keycap ui-keycap--dark">ESC</span></button>
+          <button type="button" class="ui-btn ui-btn--danger" id="cm-ok">确认重置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 部署转场遮罩 -->
+    <div class="modal-backdrop" id="deploy-modal" hidden>
+      <div class="modal-box" role="status" style="width:min(460px,92vw)">
+        <span class="mono" style="font-size:11px;color:var(--ui-state-select)">LOCKING TASK FORCE // 680P STYLIZED</span>
+        <h3 class="display-font" style="margin:0;font-size:22px">特遣编队正在投入太阳带空军基地</h3>
+        <div class="deploy-bar"><i id="deploy-progress"></i></div>
+        <div id="deploy-summary" style="font-size:12px;color:var(--ui-text-secondary)"></div>
+      </div>
+    </div>
+
+    <!-- Z-500 Toast 队列（上限 2 条） -->
+    <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const BUDGET_MAX = 1200;
+  const MAX_SLOTS = 6;
+
+  /* ====== 同源 V2.0 武器库 12 大兵种矢量剪影（fill-rule="evenodd"） ====== */
+  const SILHOUETTES = {
+    mbt: 'M2.2 14.4 L4.2 11.8 L8.0 11.8 L9.4 8.6 L14.8 8.6 L16.0 10.1 L18.2 10.1 L18.2 9.6 L20.0 9.6 L20.0 10.1 L23.0 10.1 L23.0 11.4 L15.8 11.4 L15.4 12.1 L19.8 12.1 L21.6 14.3 L19.8 17.5 L3.8 17.5 Z M5.6 14.4h2.1v1.7H5.6Z M9.2 14.4h2.1v1.7H9.2Z M12.8 14.4h2.1v1.7H12.8Z M16.4 14.4h2.1v1.7H16.4Z',
+    ifv: 'M2.4 14.2 L4.0 10.8 L8.2 10.8 L9.4 8.4 L14.0 8.4 L15.0 9.5 L20.8 9.0 L21.0 10.1 L15.2 10.7 L15.8 11.4 L19.8 11.4 L21.4 14.2 L19.8 17.2 L4.0 17.2 Z M6.2 14.6 a1.4 1.4 0 1 0 0.01 0 Z M10.2 14.6 a1.4 1.4 0 1 0 0.01 0 Z M14.2 14.6 a1.4 1.4 0 1 0 0.01 0 Z M18.0 14.6 a1.4 1.4 0 1 0 0.01 0 Z',
+    recon: 'M2.6 14.4 L4.2 11.2 L7.8 11.0 L9.8 8.6 L14.8 8.6 L17.0 10.8 L21.2 11.6 L21.4 15.0 L19.6 16.4 H4.4 Z M10.8 9.8 H14.4 L15.6 11.2 H10.8 Z M13.2 4.8 H14.4 V8.8 H13.2 Z M14.8 5.2 L19.2 4.4 V5.6 L14.8 6.4 Z M7.0 15.2 a1.9 1.9 0 1 0 0.01 0 Z M17.0 15.2 a1.9 1.9 0 1 0 0.01 0 Z',
+    arty: 'M2.2 15.2 L3.4 12.2 L6.4 12.2 L6.8 9.2 L12.2 9.2 L19.8 3.6 L20.9 5.0 L13.8 10.4 L14.4 12.2 L19.6 12.2 L21.2 14.6 L19.4 17.8 L3.6 17.8 Z M1.8 17.8 L4.0 15.6 L5.0 16.5 L3.2 18.6 Z M6.0 14.8h2.2v1.6H6.0Z M10.6 14.8h2.2v1.6H10.6Z M15.2 14.8h2.2v1.6H15.2Z',
+    aa: 'M2.4 15.0 L4.0 12.2 H19.6 L21.4 14.8 L19.6 17.8 H4.0 Z M8.0 12.2 V8.6 H12.4 V12.2 Z M10.2 5.4 A2.6 2.6 0 0 1 13.8 8.2 H8.2 Z M13.0 10.6 L18.8 5.4 L19.8 6.5 L14.2 11.6 Z M14.6 11.4 L20.6 6.8 L21.4 7.9 L15.6 12.4 Z M6.4 14.8 a1.4 1.4 0 1 0 0.01 0 Z M12.0 14.8 a1.4 1.4 0 1 0 0.01 0 Z M17.6 14.8 a1.4 1.4 0 1 0 0.01 0 Z',
+    atgm: 'M2.6 14.6 L4.2 11.6 H19.4 L21.2 14.4 L19.6 17.2 H4.2 Z M9.6 11.6 V7.6 H11.4 V11.6 Z M7.8 5.2 L16.2 6.8 L15.6 9.6 L7.2 8.0 Z M16.4 6.6 L21.6 7.8 L21.2 9.0 L16.0 7.8 Z M7.0 14.8 a1.6 1.6 0 1 0 0.01 0 Z M17.0 14.8 a1.6 1.6 0 1 0 0.01 0 Z',
+    supply: 'M2.4 6.6 L15.2 6.6 L15.2 11.4 L16.2 11.4 L16.2 8.2 L19.4 8.2 L21.6 11.6 L21.6 15.8 L19.6 17.8 L3.6 17.8 L2.4 15.6 Z M17.2 9.4 h1.8 l1.2 2.2 h-3.0 Z M7.8 8.3 H9.8 V10.1 H11.6 V12.1 H9.8 V13.9 H7.8 V12.1 H6.0 V10.1 H7.8 Z M5.4 15.2 a1.4 1.4 0 1 0 0.01 0 Z M11.4 15.2 a1.4 1.4 0 1 0 0.01 0 Z M17.4 15.2 a1.4 1.4 0 1 0 0.01 0 Z',
+    attack_heli: 'M3.0 6.0 H21.6 V7.4 H13.6 V9.4 H12.0 V7.4 H3.0 Z M2.0 10.6 L3.6 9.4 L4.4 11.8 L9.8 11.8 L11.4 9.4 L15.6 9.4 L18.2 11.2 L21.8 12.6 L22.2 13.8 L18.4 14.8 L15.0 15.4 L14.0 16.6 H9.6 L8.8 14.6 L4.2 13.6 L3.0 15.0 L2.0 14.0 Z M12.2 10.4 H15.2 L16.8 11.8 H12.2 Z M9.6 17.4 H15.8 V18.4 H9.6 Z',
+    trans_heli: 'M1.8 6.4 H10.8 V7.6 H7.0 V9.8 H5.6 V7.6 H1.8 Z M13.2 6.4 H22.2 V7.6 H18.4 V9.8 H17.0 V7.6 H13.2 Z M3.2 11.2 L5.4 9.8 H18.6 L21.4 11.8 L21.6 14.8 L18.8 16.4 H5.2 L2.6 14.6 Z M16.4 11.2 H19.2 L20.2 12.6 H16.4 Z M7.0 12.0 H9.6 V13.6 H7.0 Z M11.0 12.0 H13.6 V13.6 H11.0 Z',
+    cas: 'M12.0 1.8 L13.4 5.2 L13.6 9.4 L22.2 10.0 V13.0 L13.6 12.8 L13.4 15.4 L14.6 15.8 V17.8 H13.2 L13.0 19.0 L17.0 19.6 V21.8 L12.6 21.0 L12.0 22.2 L11.4 21.0 L7.0 21.8 V19.6 L11.0 19.0 L10.8 17.8 H9.4 V15.8 L10.6 15.4 L10.4 12.8 L1.8 13.0 V10.0 L10.4 9.4 L10.6 5.2 Z M11.4 5.2 H12.6 V8.4 H11.4 Z',
+    fighter: 'M12.0 1.4 L13.5 6.4 L14.2 9.4 L22.0 15.2 L21.2 17.0 L14.4 14.6 L14.2 18.0 L18.2 20.6 L17.6 22.2 L13.2 20.4 L12.0 22.4 L10.8 20.4 L6.4 22.2 L5.8 20.6 L9.8 18.0 L9.6 14.6 L2.8 17.0 L2.0 15.2 L9.8 9.4 L10.5 6.4 Z M11.4 6.6 H12.6 V9.4 H11.4 Z',
+    uav: 'M12.0 2.0 C13.2 2.0 13.8 3.2 13.5 5.4 L13.1 10.6 L23.0 11.4 V12.8 L13.0 12.6 L12.8 18.0 L16.2 20.8 L15.4 22.0 L12.0 19.8 L8.6 22.0 L7.8 20.8 L11.2 18.0 L11.0 12.6 L1.0 12.8 V11.4 L10.9 10.6 L10.5 5.4 C10.2 3.2 10.8 2.0 12.0 2.0 Z',
+  };
+
+  const CLASS_META = {
+    mbt: { name: '主战坦克', domain: 'ground', ch: 'var(--ui-ch-ground)', tag: 'MBT' },
+    ifv: { name: '步战装甲', domain: 'ground', ch: 'var(--ui-ch-ground)', tag: 'IFV' },
+    recon: { name: '侦察突击', domain: 'ground', ch: 'var(--ui-ch-ground)', tag: 'RECON' },
+    arty: { name: '火炮火箭', domain: 'ground', ch: 'var(--ui-ch-ground)', tag: 'ARTY' },
+    aa: { name: '野战防空', domain: 'ground', ch: 'var(--ui-ch-ground)', tag: 'AA' },
+    atgm: { name: '反坦导弹', domain: 'ground', ch: 'var(--ui-ch-ground)', tag: 'ATGM' },
+    supply: { name: '后勤补给', domain: 'ground', ch: 'var(--ui-state-safe)', tag: 'LOGI' },
+    attack_heli: { name: '武装直升机', domain: 'air', ch: 'var(--ui-ch-heli)', tag: 'HELI-ATK' },
+    trans_heli: { name: '运输/诱饵', domain: 'air', ch: 'var(--ui-ch-heli)', tag: 'HELI-TRN' },
+    cas: { name: '对地攻击机', domain: 'air', ch: 'var(--ui-ch-plane)', tag: 'CAS' },
+    fighter: { name: '战机轰炸', domain: 'air', ch: 'var(--ui-ch-plane)', tag: 'STRIKE' },
+    uav: { name: '察打无人机', domain: 'air', ch: 'var(--ui-ch-plane)', tag: 'UAV' },
+  };
+
+  function makeSilhouette(cls, size = 18) {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', String(size));
+    svg.setAttribute('height', String(size));
+    svg.setAttribute('aria-hidden', 'true');
+    const p = document.createElementNS(SVG_NS, 'path');
+    p.setAttribute('d', SILHOUETTES[cls] || SILHOUETTES.mbt);
+    p.setAttribute('fill', 'currentColor');
+    p.setAttribute('fill-rule', 'evenodd');
+    svg.append(p);
+    return svg;
+  }
+
+  /* ====== 24 款真实在库美军武器库代表载具（覆盖全部 12 类） ====== */
+  const VEHICLES = [
+    { id: 'model:US_M1A2C', name: 'M1A2 SEP v3 Abrams', cls: 'mbt', role: '地面重装核心', cost: 260, tags: ['frontline', 'aoe'], weapon: '120mm 滑膛炮（M1028 霰弹）+ M2 重机枪', desc: '全防线最高正面防护与压制力，M1028 钨珠霰弹可一发清空扇形冲锋尸潮。', tip: '正面硬抗主跑道尸潮，需配合后勤补给车维持高爆弹药。', stats: [86, 96, 62, 68, 76], loadouts: [
+      { name: '反尸潮霰弹包', sub: '默认 · M1028 扇形清场', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: 'TUSK 城市反应甲', sub: '+30 PTS · 装甲/近防强化', dCost: 30, dStats: [4, 12, -4, 0, 4] },
+      { name: '遥控 12.7mm 机枪塔', sub: '+20 PTS · 持续射速提升', dCost: 20, dStats: [9, 0, 0, 4, 8] },
+    ]},
+    { id: 'model:US_M10', name: 'M10 Booker 轻坦', cls: 'mbt', role: '高速机动火力', cost: 195, tags: ['frontline'], weapon: '105mm 线膛炮 + 7.62mm 并列机枪', desc: '比主战坦克更轻快，适合机场南北停机坪之间的快速支援与侧翼包抄。', tip: '善用高机动拉扯阵型，避免被尸群四面合围。', stats: [74, 72, 82, 74, 78], loadouts: [
+      { name: '标准高爆弹组', sub: '默认 · 均衡清场', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '轻量化机动包', sub: '+15 PTS · 加速转场', dCost: 15, dStats: [0, -4, 10, 6, 0] },
+      { name: '增容弹药架', sub: '+20 PTS · 续航延长', dCost: 20, dStats: [4, 0, -2, 0, 14] },
+    ]},
+    { id: 'model:US_M2A3', name: 'M2A3 Bradley 步战', cls: 'ifv', role: '连射机炮防线', cost: 165, tags: ['frontline', 'aoe'], weapon: '25mm 链炮（HEI-T）+ TOW-2B', desc: '高射速 25mm 爆破燃烧弹对中近距离密集尸群杀伤效率极高，性价比优异。', tip: '停在主战坦克侧后方形成持续交叉弹幕。', stats: [80, 68, 74, 78, 84], loadouts: [
+      { name: '25mm HEI 链炮', sub: '默认 · 高频面压制', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: 'BUSK 附加装甲', sub: '+25 PTS · 提高近战容错', dCost: 25, dStats: [0, 14, -5, 0, 0] },
+      { name: '双联破障火箭', sub: '+20 PTS · 强化瞬时清场', dCost: 20, dStats: [10, 0, 0, 0, -4] },
+    ]},
+    { id: 'model:US_STRYKER_ICV', name: 'Stryker ICV 轮式步战', cls: 'ifv', role: '公路快反压制', cost: 130, tags: ['frontline'], weapon: '30mm 无人炮塔 / Mk19 榴弹发射器', desc: '八轮驱动公路极速，开局抢占 A 区西停机坪并构筑前沿火力线的首选。', tip: '装备 Mk19 40mm 自动榴弹时对成群尸潮效果极佳。', stats: [72, 54, 90, 76, 80], loadouts: [
+      { name: 'Mk19 40mm 榴弹', sub: '默认 · 抛物线面杀伤', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '30mm 龙骑兵炮塔', sub: '+25 PTS · 远距直射', dCost: 25, dStats: [10, 4, -2, 6, -4] },
+      { name: '格栅轻防护', sub: '+10 PTS · 耐久小幅提升', dCost: 10, dStats: [0, 8, -2, 0, 0] },
+    ]},
+    { id: 'model:US_M3A3', name: 'M3A3 CFV 骑兵侦察', cls: 'recon', role: '前沿视野节点', cost: 145, tags: ['recon'], weapon: '25mm 链炮 + 独立热成像桅杆', desc: '高倍率热成像有效刺穿机场夜间迷雾，提前 400 米预警尸潮奔袭方向。', tip: '切记开启「仅还击」保视野，勿盲目冲入尸群。', stats: [66, 62, 78, 96, 72], loadouts: [
+      { name: '热成像全景侦察', sub: '默认 · 视野最大化', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '电子诱饵广播', sub: '+15 PTS · 主动牵引尸群', dCost: 15, dStats: [0, 0, 0, 4, 8] },
+      { name: '静音履带改装', sub: '+20 PTS · 降低暴露半径', dCost: 20, dStats: [0, 0, 6, 4, 0] },
+    ]},
+    { id: 'model:US_HMMWV_LRAS3', name: 'Humvee LRAS3 侦察车', cls: 'recon', role: '极速低价尖兵', cost: 85, tags: ['recon'], weapon: 'LRAS3 远距光电头 + M240B', desc: '廉价高速轻型轮式车，专职跑道外围探图与炮兵校射引导。', tip: '极脆，发现尸群立即拉车后撤。', stats: [34, 24, 96, 94, 52], loadouts: [
+      { name: 'LRAS3 光电吊舱', sub: '默认 · 极远校射', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: 'M134 加特林机枪', sub: '+20 PTS · 自卫清扫', dCost: 20, dStats: [24, 0, -2, -4, 10] },
+      { name: '烟雾脱身筒', sub: '+10 PTS · 紧急断触', dCost: 10, dStats: [0, 10, 4, 0, 0] },
+    ]},
+    { id: 'model:US_HIMARS', name: 'M142 HIMARS 火箭炮', cls: 'arty', role: '远程面杀伤清场', cost: 240, tags: ['aoe'], weapon: '6 联装 227mm M30A1 钢珠集束', desc: '一轮齐射即可覆盖整条机库尸群集结点，大地图肃清的战略级面杀伤王牌。', tip: '弹药消耗极大，部署时务必在后方紧邻补给车。', stats: [98, 28, 76, 52, 46], loadouts: [
+      { name: 'M30A1 钨珠面杀伤', sub: '默认 · 清潮首选', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '白磷阻断弹头', sub: '+30 PTS · 持续燃烧封路', dCost: 30, dStats: [6, 0, 0, 0, 4] },
+      { name: '快装弹舱套件', sub: '+25 PTS · 缩短补给耗时', dCost: 25, dStats: [0, 0, 0, 0, 18] },
+    ]},
+    { id: 'model:US_M109a7', name: 'M109A7 Paladin 自走炮', cls: 'arty', role: '持续重炮压制', cost: 210, tags: ['aoe'], weapon: '155mm M284 榴弹炮（空爆引信）', desc: '备弹量高于火箭炮，可对交战区实施稳定持续的 155mm 高爆轰击。', tip: '配合侦察单位视野点名尸潮聚集口。', stats: [90, 52, 56, 48, 72], loadouts: [
+      { name: '155mm 近炸空爆', sub: '默认 · 范围广', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '烟雾隔离弹组', sub: '+15 PTS · 掩护撤退', dCost: 15, dStats: [-4, 0, 0, 8, 10] },
+      { name: '自动装弹强化', sub: '+25 PTS · 射速+18%', dCost: 25, dStats: [10, 0, 0, 0, -4] },
+    ]},
+    { id: 'model:US_STRYKER_SHORAD', name: 'Stryker M-SHORAD', cls: 'aa', role: '全向快炮防空', cost: 170, tags: ['aoe'], weapon: '30mm 机关炮 + 毒刺四联', desc: '兼顾低空拦截与平射高速清潮，全向雷达同步提供周边预警。', tip: '30mm 机关炮平射可有效拦截突防快跑型变异体。', stats: [76, 58, 86, 86, 74], loadouts: [
+      { name: '平射高爆弹链', sub: '默认 · 地空两用', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '雷达增程模式', sub: '+15 PTS · 视野扩大', dCost: 15, dStats: [0, 0, 0, 12, 0] },
+      { name: '双联地狱火挂载', sub: '+25 PTS · 点杀重型目标', dCost: 25, dStats: [10, 0, -2, 0, -4] },
+    ]},
+    { id: 'model:US_M163_PIVADS', name: 'M163 PIVADS 火神炮', cls: 'aa', role: '超高射速弹幕', cost: 135, tags: ['aoe'], weapon: '20mm M61A1 六管火神机炮', desc: '每分钟 3000 发恐怖射速，将狭窄机库通道彻底化作金属风暴死区。', tip: '持续开火极快耗空弹箱，切记配置补给线。', stats: [88, 44, 68, 66, 50], loadouts: [
+      { name: '高爆曳光弹鼓', sub: '默认 · 极限弹幕', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '双倍供弹链箱', sub: '+20 PTS · 续航大幅改善', dCost: 20, dStats: [0, 0, -4, 0, 22] },
+      { name: '近距扫射稳像', sub: '+15 PTS · 移动散布降低', dCost: 15, dStats: [8, 0, 4, 0, 0] },
+    ]},
+    { id: 'model:US_STRYKER_ATGM', name: 'Stryker ATGM 导弹车', cls: 'atgm', role: '远距点杀重型', cost: 155, tags: ['frontline'], weapon: '双联 TOW-2B 温压/破甲导弹', desc: '专职在 800 米外精准拔除巨型变异体与关键路障障碍。', tip: '温压弹头兼具可观溅射范围。', stats: [78, 52, 86, 78, 62], loadouts: [
+      { name: 'TOW 温压爆破弹', sub: '默认 · 反重型兼溅射', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '快速双发装填', sub: '+20 PTS · 爆发强化', dCost: 20, dStats: [10, 0, 0, 0, 6] },
+      { name: '光学热像瞄具', sub: '+15 PTS · 视野延伸', dCost: 15, dStats: [0, 0, 0, 12, 0] },
+    ]},
+    { id: 'model:US_HMMWV_TOW', name: 'Humvee TOW-2', cls: 'atgm', role: '轻型反重型支援', cost: 105, tags: ['frontline'], weapon: '车载 TOW-2 发射架', desc: '超低预算即可补齐远程攻坚火力，机动灵活。', tip: '发射后立即转移阵地避免仇恨牵引。', stats: [64, 24, 94, 74, 54], loadouts: [
+      { name: '标准 TOW 弹箱', sub: '默认 · 经济攻坚', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '附加步枪防盾', sub: '+10 PTS · 轻护升级', dCost: 10, dStats: [0, 10, -2, 0, 0] },
+      { name: '备用弹药挂架', sub: '+15 PTS · 备弹+50%', dCost: 15, dStats: [0, 0, -2, 0, 18] },
+    ]},
+    { id: 'model:US_M548A3', name: 'M548A3 履带补给车', cls: 'supply', role: '核心弹药与洗消', cost: 90, tags: ['supply'], weapon: '无武装 · 3000 单位弹药/维修/洗消舱', desc: '唯一能前运弹药并抢修受损重甲的履带后勤车；遵循停稳停火补给原则。', tip: '每支重火编队必带 1 辆，切记设「停火待命」避开交火线。', stats: [12, 42, 68, 58, 100], loadouts: [
+      { name: '标准弹药维修舱', sub: '默认 · 均衡补给', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '生化洗消喷淋包', sub: '+20 PTS · 驱散酸雾腐蚀', dCost: 20, dStats: [0, 12, 0, 0, 4] },
+      { name: '重装扩容弹仓', sub: '+15 PTS · 总储量+40%', dCost: 15, dStats: [0, 0, -4, 0, 10] },
+    ]},
+    { id: 'model:US_HEMTT', name: 'HEMTT 重型补给卡车', cls: 'supply', role: '战略大容量后勤', cost: 120, tags: ['supply'], weapon: '无武装 · 6000 单位超大补给库', desc: '专为 HIMARS 与多辆坦克群提供海量持续弹药周转，停驻补给站效率翻倍。', tip: '公路极速，越野略慢，适合部署在主跑道中段。', stats: [10, 38, 82, 54, 100], loadouts: [
+      { name: '6000 战略弹药箱', sub: '默认 · 持久战首选', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '装甲驾驶室', sub: '+20 PTS · 生存强化', dCost: 20, dStats: [0, 16, -4, 0, 0] },
+      { name: '双通道快充泵', sub: '+15 PTS · 同时补给 3 车', dCost: 15, dStats: [0, 0, 0, 6, 8] },
+    ]},
+    { id: 'model:US_AH64D', name: 'AH-64D Apache 阿帕奇', cls: 'attack_heli', role: '30m 低空清场王牌', cost: 250, tags: ['aoe', 'recon'], weapon: 'M230 30mm 链炮 + 38 枚 70mm 火箭弹', desc: '全防线最强 30 米低空悬停压制平台，长弓毫米波雷达穿透夜幕精准点杀尸群。', tip: '弹药打空后及时拉回补给点，勿在沦陷区悬停发呆。', stats: [94, 56, 88, 92, 74], loadouts: [
+      { name: 'M230 + 38x 火箭', sub: '默认 · 全能低空清潮', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '长弓全雷达挂载', sub: '+30 PTS · 极限索敌', dCost: 30, dStats: [4, 0, -2, 10, 0] },
+      { name: '温压海尔法组', sub: '+35 PTS · 攻坚秒杀', dCost: 35, dStats: [10, 0, -4, 0, -6] },
+    ]},
+    { id: 'model:US_AH-1Z Viper', name: 'AH-1Z Viper 蝰蛇', cls: 'attack_heli', role: '高速突击旋翼', cost: 220, tags: ['aoe'], weapon: '20mm 三管转管炮 + 19 联火箭巢', desc: '巡航速度更快、转场反应灵敏，擅长紧急救火支援被突破的防线缺口。', tip: '配合地面步战车实施高低协同压制。', stats: [86, 50, 94, 84, 70], loadouts: [
+      { name: '20mm 速射火箭包', sub: '默认 · 快速救火', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '副油箱增程组', sub: '+15 PTS · 滞空更久', dCost: 15, dStats: [0, 0, 4, 4, 12] },
+      { name: '重型火箭全挂', sub: '+25 PTS · 爆发拉满', dCost: 25, dStats: [12, 0, -4, 0, 4] },
+    ]},
+    { id: 'model:US_UH60M', name: 'UH-60M Blackhawk 黑鹰', cls: 'trans_heli', role: '声源诱饵与机降', cost: 140, tags: ['recon'], weapon: '双侧 M134 加特林 + 延时声源诱饵舱', desc: '可向指定空地投放延时声源诱饵，主动调动东北机库尸潮集中至炮火伏击区。', tip: '诱饵落地 4 秒起效，提前规划 HIMARS 或 A-10 轰炸窗口！', stats: [48, 54, 90, 82, 82], loadouts: [
+      { name: '4 枚延时声源诱饵', sub: '默认 · 调动尸潮核心', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '双门加特林压制', sub: '+25 PTS · 低空扫射', dCost: 25, dStats: [22, 0, -2, 0, 8] },
+      { name: '空投紧急弹药箱', sub: '+20 PTS · 应急补给', dCost: 20, dStats: [0, 0, -4, 0, 18] },
+    ]},
+    { id: 'model:US_Ch47', name: 'CH-47 Chinook 支奴干', cls: 'trans_heli', role: '重型空运与大诱饵', cost: 165, tags: ['supply'], weapon: '重型空运物资舱 + 强功率广播诱饵', desc: '可无视地面障碍向孤立防线直投海量补给物资，支持大型声波引群。', tip: '机体积大，投放后迅速拉升退出。', stats: [32, 62, 84, 72, 96], loadouts: [
+      { name: '重型空投物资舱', sub: '默认 · 跨障补给', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '大功率声波诱饵', sub: '+15 PTS · 覆盖半场', dCost: 15, dStats: [0, 0, 0, 14, 0] },
+      { name: '复合防弹底板', sub: '+20 PTS · 抗损强化', dCost: 20, dStats: [0, 16, -4, 0, 0] },
+    ]},
+    { id: 'model:US_A10', name: 'A-10C Thunderbolt II', cls: 'cas', role: '100m 舔地毁灭者', cost: 280, tags: ['aoe'], weapon: 'GAU-8/A 30mm 七管复仇者 + 集束炸弹', desc: '标志性 30mm 重炮扫射走廊，一次 100m 盘旋俯冲即可打穿整条跑道尸潮。', tip: '右键规划扫射轴线，注意避开友军过近溅射。', stats: [100, 74, 88, 76, 68], loadouts: [
+      { name: 'GAU-8 + Mk82 航弹', sub: '默认 · 经典舔地清潮', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: 'CBU 集束铺毯组', sub: '+40 PTS · 超大面积清场', dCost: 40, dStats: [6, 0, -4, 0, 6] },
+      { name: '九头蛇火箭全挂', sub: '+25 PTS · 多轮盘旋扫射', dCost: 25, dStats: [4, 0, 0, 0, 14] },
+    ]},
+    { id: 'model:US_AC130_Base', name: 'AC-130 空中炮艇', cls: 'cas', role: '持续高空压制圈', cost: 340, tags: ['aoe', 'recon'], weapon: '105mm 榴弹炮 + 40mm 博福斯 + 25mm 机炮', desc: '在 100m 高空绕圈倾泻三口径持续弹雨，战局决胜期的绝对天空统治力。', tip: '点数高昂，需合理取舍地面编队规模。', stats: [100, 66, 72, 94, 88], loadouts: [
+      { name: '三口径标准炮艇', sub: '默认 · 持续全覆盖', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '夜视红外火控升级', sub: '+30 PTS · 精密度拉满', dCost: 30, dStats: [6, 0, 0, 8, 0] },
+      { name: '增容 105mm 弹舱', sub: '+25 PTS · 留空延长', dCost: 25, dStats: [0, 0, -4, 0, 14] },
+    ]},
+    { id: 'model:US_F15E', name: 'F-15E Strike Eagle', cls: 'fighter', role: '超音速定点轰炸', cost: 295, tags: ['aoe'], weapon: '4x GBU-31 温压制导炸弹', desc: '极速入场投掷高当量制导炸弹后瞬时脱离，适合快速瘫痪尸潮刷怪巢穴。', tip: '反应时间全游戏最快，应急止损神器。', stats: [94, 58, 100, 84, 54], loadouts: [
+      { name: '温压精准制导包', sub: '默认 · 高爆瞬杀', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: 'SDB 小直径多点弹', sub: '+30 PTS · 一次打击 4 点', dCost: 30, dStats: [8, 0, 0, 4, 8] },
+      { name: '低空突防电子荚', sub: '+20 PTS · 生存加成', dCost: 20, dStats: [0, 14, 0, 6, 0] },
+    ]},
+    { id: 'model:US_B2', name: 'B-2 Spirit 隐身轰炸机', cls: 'fighter', role: '战略终极清场（锁定）', cost: 480, locked: true, lockReason: '需先完成 OP-01 太阳带空军基地全三区肃清解锁', tags: ['aoe'], weapon: '16x 重型高爆地毯式轰炸舱', desc: '战略级全区毁灭轰炸能力，解锁后可一举抹平市中心红区核心尸海。', tip: '当前处于锁定状态，完成 OP-01 后自动开放编组。', stats: [100, 70, 92, 86, 48], loadouts: [
+      { name: '战略饱和轰炸舱', sub: '未解锁', dCost: 0, dStats: [0,0,0,0,0] },
+    ]},
+    { id: 'model:US_MQ9', name: 'MQ-9 Reaper 察打无人机', cls: 'uav', role: '全图持久滞空侦察', cost: 160, tags: ['recon'], weapon: '光电/红外全景球 + 4x 激光制导导弹', desc: '几乎无限滞空的全图之眼，持续点亮跑道盲区尸群并顺手点杀精英变异体。', tip: '搭配 HIMARS 形成「高空照亮 → 远程洗地」黄金闭环。', stats: [68, 26, 78, 100, 76], loadouts: [
+      { name: '广域光电+4 导弹', sub: '默认 · 侦打一体', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '全侦察激光指引荚', sub: '-20 PTS · 省预算纯视野', dCost: -20, dStats: [-22, 0, 6, 6, 12] },
+      { name: '增挂 8x 轻型弹', sub: '+25 PTS · 强化精确点杀', dCost: 25, dStats: [14, 0, -4, 0, 8] },
+    ]},
+    { id: 'model:US_RQ4B', name: 'RQ-4 Global Hawk 全球鹰', cls: 'uav', role: '战区全图战略视野', cost: 130, tags: ['recon'], weapon: '无武装 · 超高空合成孔径雷达', desc: '无视夜幕与酸雾干扰，为整张大地图提供超大半径战略级动目标雷达扫描。', tip: '零武器但预算亲民，大地图宏观调度首选。', stats: [0, 30, 82, 100, 100], loadouts: [
+      { name: '全频段 SAR 雷达', sub: '默认 · 穿透酸雾夜幕', dCost: 0, dStats: [0,0,0,0,0] },
+      { name: '声学热感双模', sub: '+15 PTS · 标记精英头领', dCost: 15, dStats: [0, 0, 0, 8, 0] },
+      { name: '节能巡航构型', sub: '-15 PTS · 极致省点', dCost: -15, dStats: [0, 0, -4, -4, 0] },
+    ]},
+  ];
+
+  const DEFAULT_SQUAD = [
+    { id: 'model:US_M1A2C', loadoutIdx: 0, qty: 1, roe: 'free' },
+    { id: 'model:US_M548A3', loadoutIdx: 0, qty: 1, roe: 'hold' },
+    { id: 'model:US_UH60M', loadoutIdx: 0, qty: 1, roe: 'return' },
+    { id: 'model:US_A10', loadoutIdx: 0, qty: 1, roe: 'free' },
+  ];
+
+  /* ====== 状态 ====== */
+  let activeDomain = 'all';
+  let activeClass = 'all';
+  let sortMode = 'rec';
+  let searchQuery = '';
+  let onlyUnlocked = false;
+  let selectedId = 'model:US_M1A2C';
+  const loadoutChoice = new Map(VEHICLES.map(v => [v.id, 0]));
+  const roeChoice = new Map(VEHICLES.map(v => [v.id, v.cls === 'supply' ? 'hold' : 'free']));
+  let squad = DEFAULT_SQUAD.map(s => ({ ...s }));
+
+  /* ====== Toast（并发上限 2 条） ====== */
+  const toastStack = document.getElementById('toast-stack');
+  function pushToast(title, desc = '', col = 'var(--ui-state-select)') {
+    while (toastStack.children.length >= 2) toastStack.lastElementChild.remove();
+    const el = document.createElement('div');
+    el.className = 'toast-item';
+    el.innerHTML = `<span class="toast-dot" style="background:${col};box-shadow:0 0 8px ${col}"></span><div><strong style="color:${col}">${title}</strong>${desc ? `<span>${desc}</span>` : ''}</div>`;
+    toastStack.prepend(el);
+    setTimeout(() => el.remove(), 2300);
+  }
+
+  /* ====== 底层动态机库背景画布 ====== */
+  const bgCanvas = document.getElementById('bg-hangar');
+  const bCtx = bgCanvas.getContext('2d');
+  function resizeBg() {
+    const r = document.getElementById('armory-shell').getBoundingClientRect();
+    bgCanvas.width = Math.max(320, Math.round(r.width * 0.65));
+    bgCanvas.height = Math.max(200, Math.round(r.height * 0.65));
+  }
+  window.addEventListener('resize', resizeBg);
+  resizeBg();
+  let tBg = 0;
+  function drawBg() {
+    const w = bgCanvas.width, h = bgCanvas.height;
+    tBg += 0.005;
+    const g = bCtx.createRadialGradient(w * 0.52, h * 0.34, 20, w * 0.50, h * 0.50, Math.max(w, h) * 0.8);
+    g.addColorStop(0, '#362d24');
+    g.addColorStop(0.45, '#191e2e');
+    g.addColorStop(1, '#0b0c12');
+    bCtx.fillStyle = g;
+    bCtx.fillRect(0, 0, w, h);
+    bCtx.strokeStyle = 'rgba(240, 211, 114, 0.08)';
+    bCtx.lineWidth = 1;
+    for (let i = 0; i < 6; i++) {
+      const y = h * (0.18 + i * 0.14) + Math.sin(tBg + i) * 3;
+      bCtx.beginPath(); bCtx.moveTo(0, y); bCtx.lineTo(w, y); bCtx.stroke();
+    }
+    requestAnimationFrame(drawBg);
+  }
+  requestAnimationFrame(drawBg);
+
+  /* ====== 定制战术下拉通用初始化（严格 ESC LIFO） ====== */
+  const selects = [];
+  function closeAllSelects(except = null) {
+    for (const s of selects) if (s.el !== except) s.close();
+  }
+  function bindSelect(id, onChange) {
+    const box = document.getElementById(id);
+    const trig = box.querySelector('.ui-select-trigger');
+    const menu = box.querySelector('.ui-select-menu');
+    const opts = Array.from(box.querySelectorAll('.ui-select-option'));
+    const txtEl = box.querySelector('.ui-select-txt');
+    const dotEl = box.querySelector('.ui-select-trigger .ui-select-dot');
+    let focusIdx = 0;
+    const setFocus = i => {
+      focusIdx = (i + opts.length) % opts.length;
+      opts.forEach((o, idx) => o.classList.toggle('is-focused', idx === focusIdx));
+    };
+    const close = () => {
+      box.classList.remove('is-open'); menu.hidden = true;
+      trig.setAttribute('aria-expanded', 'false');
+      opts.forEach(o => o.classList.remove('is-focused'));
+    };
+    const open = () => {
+      closeAllSelects(box);
+      const tRect = trig.getBoundingClientRect();
+      const scrollHost = box.closest('.inspect-body, .panel-card') || document.documentElement;
+      const hRect = scrollHost.getBoundingClientRect();
+      const spaceBelow = Math.min(window.innerHeight, hRect.bottom) - tRect.bottom;
+      box.classList.toggle('is-dropup', spaceBelow < 185);
+      box.classList.add('is-open'); menu.hidden = false;
+      trig.setAttribute('aria-expanded', 'true');
+      setFocus(Math.max(0, opts.findIndex(o => o.getAttribute('aria-selected') === 'true')));
+    };
+    const setValue = (val, emit = false) => {
+      const target = opts.find(o => o.dataset.val === val) || opts[0];
+      opts.forEach(o => o.setAttribute('aria-selected', String(o === target)));
+      box.dataset.value = target.dataset.val;
+      const title = target.querySelector('.ui-select-option-title')?.textContent?.trim() || '';
+      if (txtEl) txtEl.textContent = title;
+      if (dotEl && target.dataset.dot) dotEl.style.color = target.dataset.dot;
+      if (emit && onChange) onChange(target.dataset.val, title);
+    };
+    trig.addEventListener('click', e => { e.stopPropagation(); menu.hidden ? open() : close(); });
+    opts.forEach((o, idx) => {
+      o.addEventListener('pointerenter', () => setFocus(idx));
+      o.addEventListener('click', e => { e.stopPropagation(); setValue(o.dataset.val, true); close(); trig.focus(); });
+    });
+    box.addEventListener('keydown', e => {
+      if (menu.hidden && (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(); return; }
+      if (menu.hidden) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); setFocus(focusIdx + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setFocus(focusIdx - 1); }
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setValue(opts[focusIdx].dataset.val, true); close(); trig.focus(); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); trig.focus(); }
+    });
+    const api = { el: box, isOpen: () => !menu.hidden, close, setValue };
+    selects.push(api);
+    return api;
+  }
+  document.addEventListener('click', () => closeAllSelects());
+
+  bindSelect('sort-select', val => { sortMode = val; renderCatalog(); });
+  const roeApi = bindSelect('roe-select', (val, label) => {
+    roeChoice.set(selectedId, val);
+    const slot = squad.find(s => s.id === selectedId);
+    if (slot) slot.roe = val;
+    pushToast('初始交战规则已更新', `${getVeh(selectedId).name} → ${label}`, 'var(--ui-state-select)');
+  });
+
+  function getVeh(id) { return VEHICLES.find(v => v.id === id) || VEHICLES[0]; }
+  function getEffectiveCost(v, lIdx = loadoutChoice.get(v.id) || 0) {
+    const ld = v.loadouts[lIdx] || v.loadouts[0];
+    return Math.max(40, v.cost + (ld?.dCost || 0));
+  }
+  function getSquadPoints() {
+    return squad.reduce((sum, s) => sum + getEffectiveCost(getVeh(s.id), s.loadoutIdx) * s.qty, 0);
+  }
+
+  /* ====== 渲染 12 兵种微胶囊 ====== */
+  function renderClassChips() {
+    const host = document.getElementById('class-chips');
+    host.replaceChildren();
+    const keys = Object.keys(CLASS_META).filter(k => activeDomain === 'all' || CLASS_META[k].domain === activeDomain);
+    if (activeClass !== 'all' && !keys.includes(activeClass)) activeClass = 'all';
+
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.className = `class-chip${activeClass === 'all' ? ' active' : ''}`;
+    allBtn.textContent = '全部';
+    allBtn.addEventListener('click', () => { activeClass = 'all'; renderClassChips(); renderCatalog(); });
+    host.append(allBtn);
+
+    for (const k of keys) {
+      const m = CLASS_META[k];
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `class-chip${activeClass === k ? ' active' : ''}`;
+      const ic = makeSilhouette(k, 14); ic.style.color = activeClass === k ? 'var(--ui-state-select)' : m.ch;
+      b.append(ic, document.createTextNode(m.name));
+      b.addEventListener('click', () => { activeClass = k; renderClassChips(); renderCatalog(); });
+      host.append(b);
+    }
+  }
+
+  /* ====== 渲染左栏载具列表 ====== */
+  function getFilteredVehicles() {
+    const q = searchQuery.trim().toLowerCase();
+    let arr = VEHICLES.filter(v => {
+      const m = CLASS_META[v.cls];
+      if (activeDomain !== 'all' && m.domain !== activeDomain) return false;
+      if (activeClass !== 'all' && v.cls !== activeClass) return false;
+      if (onlyUnlocked && v.locked) return false;
+      if (q && !`${v.name} ${v.id} ${v.role} ${m.name}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+    if (sortMode === 'cost-asc') arr = [...arr].sort((a, b) => getEffectiveCost(a) - getEffectiveCost(b));
+    else if (sortMode === 'horde-desc') arr = [...arr].sort((a, b) => b.stats[0] - a.stats[0]);
+    return arr;
+  }
+
+  function renderCatalog() {
+    const list = getFilteredVehicles();
+    document.getElementById('catalog-count').textContent = `${list.length} / ${VEHICLES.length} UNITS`;
+    const ul = document.getElementById('catalog-list');
+    ul.replaceChildren();
+    if (!list.length) {
+      const emp = document.createElement('li');
+      emp.style.cssText = 'padding:28px 14px;text-align:center;color:var(--ui-text-muted);font-size:12px';
+      emp.textContent = '未匹配到符合条件的载具，请放宽检索词或兵种筛选。';
+      ul.append(emp);
+      return;
+    }
+    if (!list.some(v => v.id === selectedId)) selectedId = list[0].id;
+
+    for (const v of list) {
+      const m = CLASS_META[v.cls];
+      const inSquad = squad.find(s => s.id === v.id);
+      const li = document.createElement('li');
+      li.className = `veh-row${v.id === selectedId ? ' active' : ''}${v.locked ? ' is-locked' : ''}`;
+      li.style.setProperty('--row-ch', m.ch);
+      li.dataset.id = v.id;
+
+      const left = document.createElement('div'); left.className = 'veh-row-left';
+      const ico = document.createElement('span'); ico.className = 'veh-row-ico'; ico.append(makeSilhouette(v.cls, 20));
+      const txt = document.createElement('div'); txt.className = 'veh-row-txt';
+      txt.innerHTML = `<span class="veh-row-name">${v.name}</span><span class="veh-row-sub">${m.name} · ${v.role}</span>`;
+      left.append(ico, txt);
+
+      const right = document.createElement('div'); right.className = 'veh-row-right';
+      if (inSquad) {
+        const q = document.createElement('span'); q.className = 'veh-qty-pill'; q.textContent = `×${inSquad.qty}`;
+        right.append(q);
+      }
+      const cp = document.createElement('span'); cp.className = 'veh-cost-pill';
+      cp.textContent = v.locked ? '未解锁' : `${getEffectiveCost(v)} PTS`;
+      if (v.locked) cp.style.color = 'var(--ui-state-danger)';
+      right.append(cp);
+
+      li.append(left, right);
+      li.addEventListener('click', () => {
+        selectedId = v.id;
+        renderCatalog();
+        renderInspect();
+      });
+      li.addEventListener('dblclick', () => addSelectedToSquad());
+      ul.append(li);
+    }
+  }
+
+  /* ====== 渲染中栏检视舱、挂载与五维属性 ====== */
+  const STAT_LABELS = ['清潮火力', '装甲防护', '机动速度', '侦察视野', '持续载弹'];
+  function renderInspect() {
+    const v = getVeh(selectedId);
+    const m = CLASS_META[v.cls];
+    const lIdx = loadoutChoice.get(v.id) || 0;
+    const ld = v.loadouts[lIdx] || v.loadouts[0];
+    const effCost = getEffectiveCost(v, lIdx);
+
+    document.getElementById('inspect-class-tag').textContent = `${m.tag} · ${m.domain === 'ground' ? 'GROUND CHANNEL' : 'AIR CHANNEL'}`;
+    document.getElementById('inspect-model-id').textContent = v.id;
+    const rp = document.getElementById('inspect-role-pill');
+    rp.textContent = v.role; rp.style.color = m.ch;
+    document.getElementById('inspect-tactic-tip').textContent = `战术提示：${v.tip}`;
+    document.getElementById('inspect-name').textContent = v.name;
+    document.getElementById('inspect-desc').textContent = v.desc;
+    document.getElementById('inspect-cost-big').textContent = `${effCost} PTS`;
+    document.getElementById('inspect-loadout-note').textContent = ld.name;
+    document.getElementById('inspect-ammo-note').textContent = `武器配置：${v.weapon}`;
+
+    const stage = document.getElementById('hangar-stage');
+    stage.style.setProperty('--inspect-ch', m.ch);
+    const vis = document.getElementById('hangar-center-vis');
+    vis.replaceChildren();
+    const bigSvg = makeSilhouette(v.cls, 96);
+    bigSvg.style.color = m.ch;
+    bigSvg.style.filter = `drop-shadow(0 8px 18px rgba(0,0,0,0.85))`;
+    const ring = document.createElement('div'); ring.className = 'hangar-ring';
+    vis.append(bigSvg, ring);
+
+    // 挂载卡片
+    const lg = document.getElementById('loadout-grid');
+    lg.replaceChildren();
+    v.loadouts.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `loadout-card${idx === lIdx ? ' active' : ''}`;
+      btn.disabled = Boolean(v.locked);
+      btn.innerHTML = `<strong>${opt.name}</strong><span>${opt.sub}</span>`;
+      btn.addEventListener('click', () => {
+        loadoutChoice.set(v.id, idx);
+        const slot = squad.find(s => s.id === v.id);
+        if (slot) slot.loadoutIdx = idx;
+        renderInspect(); renderCatalog(); renderSquad();
+      });
+      lg.append(btn);
+    });
+
+    // 同步交战规则下拉
+    roeApi.setValue(roeChoice.get(v.id) || 'free', false);
+
+    // 五维属性条（含挂载增益/减益视觉段）
+    const sb = document.getElementById('stats-box');
+    sb.replaceChildren();
+    STAT_LABELS.forEach((lbl, i) => {
+      const base = v.stats[i];
+      const delta = ld.dStats ? (ld.dStats[i] || 0) : 0;
+      const fin = Math.max(0, Math.min(100, base + delta));
+      const row = document.createElement('div'); row.className = 'stat-row';
+      const deltaStr = delta > 0 ? `<span style="color:var(--ui-state-safe)">+${delta}</span>` : delta < 0 ? `<span style="color:var(--ui-state-danger)">${delta}</span>` : '';
+      const barBase = Math.min(base, fin);
+      const posW = delta > 0 ? (fin - base) : 0;
+      const negW = delta < 0 ? (base - fin) : 0;
+      row.innerHTML = `
+        <span style="color:var(--ui-text-secondary)">${lbl}</span>
+        <div class="stat-track">
+          <div class="stat-fill" style="width:${barBase}%;background:${m.ch}"></div>
+          ${posW ? `<div class="stat-delta-pos" style="left:${base}%;width:${posW}%"></div>` : ''}
+          ${negW ? `<div class="stat-delta-neg" style="left:${fin}%;width:${negW}%"></div>` : ''}
+        </div>
+        <span class="mono" style="text-align:right;font-weight:800">${fin} ${deltaStr}</span>`;
+      sb.append(row);
+    });
+
+    const addBtn = document.getElementById('btn-add-squad');
+    const hint = document.getElementById('inspect-foot-hint');
+    if (v.locked) {
+      addBtn.disabled = true; addBtn.textContent = '战区未解锁';
+      hint.textContent = v.lockReason || '完成前置战区后解锁';
+      hint.style.color = 'var(--ui-state-danger)';
+    } else {
+      addBtn.disabled = false; addBtn.textContent = `＋ 编入特遣队（${effCost} PTS）`;
+      hint.textContent = '双击左栏条目或按 A 键快速加入出击编队';
+      hint.style.color = 'var(--ui-text-secondary)';
+    }
+  }
+
+  /* ====== 右栏：6 槽出击编队与协同诊断 ====== */
+  function addSelectedToSquad() {
+    const v = getVeh(selectedId);
+    if (v.locked) { pushToast('该载具尚未解锁', v.lockReason, 'var(--ui-state-danger)'); return; }
+    const lIdx = loadoutChoice.get(v.id) || 0;
+    const cost = getEffectiveCost(v, lIdx);
+    const curPts = getSquadPoints();
+    if (curPts + cost > BUDGET_MAX) {
+      pushToast('超出部署点数预算', `当前剩余 ${BUDGET_MAX - curPts} PTS，需要 ${cost} PTS`, 'var(--ui-state-danger)');
+      return;
+    }
+    const existing = squad.find(s => s.id === v.id);
+    if (existing) {
+      if (existing.qty >= 3) { pushToast('单槽位已达编制上限（×3）', '可腾出点数搭配其他互补兵种', 'var(--ui-state-warn)'); return; }
+      existing.qty += 1;
+      existing.loadoutIdx = lIdx;
+    } else {
+      if (squad.length >= MAX_SLOTS) { pushToast('出击编队 6 槽已满', '请先移除一个槽位后再编入新车型', 'var(--ui-state-warn)'); return; }
+      squad.push({ id: v.id, loadoutIdx: lIdx, qty: 1, roe: roeChoice.get(v.id) || 'free' });
+    }
+    renderSquad(); renderCatalog();
+    pushToast(`已编入特遣队：${v.name}`, `当前预算 ${getSquadPoints()} / ${BUDGET_MAX} PTS`, CLASS_META[v.cls].ch);
+  }
+
+  function renderSquad() {
+    const pts = getSquadPoints();
+    const over = pts > BUDGET_MAX;
+    const pill = document.getElementById('budget-pill');
+    pill.classList.toggle('is-over', over);
+    document.getElementById('budget-fill').style.width = `${Math.min(100, Math.round((pts / BUDGET_MAX) * 100))}%`;
+    document.getElementById('budget-txt').textContent = `${pts} / ${BUDGET_MAX} PTS`;
+    document.getElementById('budget-txt').style.color = over ? 'var(--ui-state-danger)' : 'var(--ui-state-select)';
+    document.getElementById('squad-total-pts').textContent = `${pts} / ${BUDGET_MAX} PTS`;
+    document.getElementById('squad-total-pts').style.color = over ? 'var(--ui-state-danger)' : 'var(--ui-state-select)';
+    document.getElementById('squad-slots-cnt').textContent = `${squad.length} / ${MAX_SLOTS} SLOTS`;
+
+    const host = document.getElementById('squad-slots');
+    host.replaceChildren();
+    squad.forEach((slot, idx) => {
+      const v = getVeh(slot.id);
+      const m = CLASS_META[v.cls];
+      const cost = getEffectiveCost(v, slot.loadoutIdx) * slot.qty;
+      const card = document.createElement('div');
+      card.className = 'slot-card';
+      card.style.setProperty('--slot-ch', m.ch);
+
+      const info = document.createElement('div'); info.className = 'slot-info';
+      const ic = makeSilhouette(v.cls, 18); ic.style.color = m.ch; ic.style.flex = '0 0 auto';
+      const txt = document.createElement('div'); txt.className = 'slot-info-txt';
+      txt.innerHTML = `<strong>${v.name}</strong><span class="mono">${v.loadouts[slot.loadoutIdx]?.name || '标配'} · ${cost} PTS</span>`;
+      info.append(ic, txt);
+      info.style.cursor = 'pointer';
+      info.addEventListener('click', () => { selectedId = v.id; renderCatalog(); renderInspect(); });
+
+      const st = document.createElement('div'); st.className = 'slot-stepper';
+      const bSub = document.createElement('button'); bSub.type = 'button'; bSub.className = 'mini-sq-btn'; bSub.textContent = '−';
+      const cnt = document.createElement('span'); cnt.className = 'mono'; cnt.style.cssText = 'min-width:20px;text-align:center;font-weight:800;font-size:11.5px'; cnt.textContent = `×${slot.qty}`;
+      const bAdd = document.createElement('button'); bAdd.type = 'button'; bAdd.className = 'mini-sq-btn'; bAdd.textContent = '+';
+      const bDel = document.createElement('button'); bDel.type = 'button'; bDel.className = 'mini-sq-btn is-del'; bDel.textContent = '×'; bDel.title = '移除槽位';
+
+      bSub.addEventListener('click', () => { if (slot.qty > 1) slot.qty--; else squad.splice(idx, 1); renderSquad(); renderCatalog(); });
+      bAdd.addEventListener('click', () => {
+        const unitCost = getEffectiveCost(v, slot.loadoutIdx);
+        if (slot.qty >= 3) { pushToast('单槽位已达上限 ×3', '', 'var(--ui-state-warn)'); return; }
+        if (getSquadPoints() + unitCost > BUDGET_MAX) { pushToast('部署点数不足', `需要 ${unitCost} PTS`, 'var(--ui-state-danger)'); return; }
+        slot.qty++; renderSquad(); renderCatalog();
+      });
+      bDel.addEventListener('click', () => { squad.splice(idx, 1); renderSquad(); renderCatalog(); });
+      st.append(bSub, cnt, bAdd, bDel);
+
+      card.append(info, st);
+      host.append(card);
+    });
+
+    for (let i = squad.length; i < MAX_SLOTS; i++) {
+      const emp = document.createElement('div');
+      emp.className = 'slot-card is-empty';
+      emp.textContent = `空编队槽位 0${i + 1} · 可从左栏编入载具`;
+      host.append(emp);
+    }
+
+    // 战区协同完备性诊断
+    const allTags = new Set(squad.flatMap(s => getVeh(s.id).tags));
+    const checks = [
+      ['地面抗线', allTags.has('frontline')],
+      ['面杀伤清潮', allTags.has('aoe')],
+      ['侦察 / 诱饵', allTags.has('recon')],
+      ['后勤弹药补给', allTags.has('supply')],
+    ];
+    const okCount = checks.filter(c => c[1]).length;
+    const scoreEl = document.getElementById('diag-score');
+    scoreEl.textContent = `${okCount}/4 ${okCount === 4 ? '完备' : '待补齐'}`;
+    scoreEl.style.color = okCount === 4 ? 'var(--ui-state-safe)' : 'var(--ui-state-warn)';
+    const dp = document.getElementById('diag-pills');
+    dp.replaceChildren();
+    for (const [name, ok] of checks) {
+      const p = document.createElement('span');
+      p.className = `diag-pill ${ok ? 'is-ok' : 'is-warn'}`;
+      p.innerHTML = `<i></i>${name}${ok ? ' ✓' : ' · 缺失'}`;
+      dp.append(p);
+    }
+
+    document.getElementById('btn-deploy').disabled = over || squad.length === 0;
+  }
+
+  /* ====== 事件绑定 ====== */
+  document.querySelectorAll('#domain-tabs .skew-tab').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#domain-tabs .skew-tab').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    activeDomain = b.dataset.domain;
+    activeClass = 'all';
+    renderClassChips(); renderCatalog(); renderInspect();
+  }));
+  document.getElementById('search-input').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    renderCatalog(); renderInspect();
+  });
+  document.getElementById('chk-only-unlocked').addEventListener('change', e => {
+    onlyUnlocked = e.target.checked;
+    renderCatalog(); renderInspect();
+  });
+  document.getElementById('btn-add-squad').addEventListener('click', addSelectedToSquad);
+  document.getElementById('foot-add').addEventListener('click', addSelectedToSquad);
+
+  // 画幅比例框切换
+  const ASPECTS = ['full', '16:9', '21:9'];
+  let aIdx = 0;
+  document.getElementById('btn-aspect').addEventListener('click', () => {
+    aIdx = (aIdx + 1) % ASPECTS.length;
+    const cur = ASPECTS[aIdx];
+    document.getElementById('armory-shell').dataset.aspect = cur;
+    document.getElementById('btn-aspect').textContent = `画幅：${cur === 'full' ? '全屏' : cur}`;
+    setTimeout(resizeBg, 300);
+    pushToast(`已切换画幅：${cur === 'full' ? '全屏自适应' : cur + ' 680p 框'}`, '原生高清 UI 安全区自动适配', 'var(--ui-ch-ground)');
+  });
+
+  // 高危重置弹窗（Z-400）
+  const confirmModal = document.getElementById('confirm-modal');
+  document.getElementById('btn-reset-squad').addEventListener('click', () => { confirmModal.hidden = false; });
+  document.getElementById('cm-cancel').addEventListener('click', () => { confirmModal.hidden = true; });
+  confirmModal.addEventListener('click', e => { if (e.target === confirmModal) confirmModal.hidden = true; });
+  document.getElementById('cm-ok').addEventListener('click', () => {
+    squad = DEFAULT_SQUAD.map(s => ({ ...s }));
+    confirmModal.hidden = true;
+    renderSquad(); renderCatalog();
+    pushToast('已恢复 OP-01 推荐初始编成', '4 兵种均衡完备（地面 + 后勤 + 诱饵 + 空中）', 'var(--ui-state-safe)');
+  });
+
+  // 锁定并部署转场
+  const deployModal = document.getElementById('deploy-modal');
+  function triggerDeploy() {
+    if (!squad.length || getSquadPoints() > BUDGET_MAX) return;
+    const bar = document.getElementById('deploy-progress');
+    document.getElementById('deploy-summary').textContent = `已锁定 ${squad.reduce((a, s) => a + s.qty, 0)} 辆/架载具（共 ${getSquadPoints()} PTS）：` + squad.map(s => `${getVeh(s.id).name} ×${s.qty}`).join('、');
+    bar.style.width = '0%';
+    deployModal.hidden = false;
+    requestAnimationFrame(() => { bar.style.width = '100%'; });
+    setTimeout(() => {
+      deployModal.hidden = true;
+      pushToast('特遣编队部署指令已就绪', '实机中将携带本编队直接载入太阳带空军基地', 'var(--ui-state-safe)');
+    }, 1150);
+  }
+  document.getElementById('btn-deploy').addEventListener('click', triggerDeploy);
+  document.getElementById('foot-deploy').addEventListener('click', triggerDeploy);
+  document.getElementById('foot-back').addEventListener('click', () => pushToast('返回战区行动选择', '实机中将退回阶段 4A 行动选择界面'));
+
+  // 全局键盘（↑/↓ 选载具、A 加入编队、Enter 部署、严格 LIFO ESC）
+  window.addEventListener('keydown', e => {
+    const inInput = document.activeElement?.tagName === 'INPUT';
+    if (e.key === 'Escape') {
+      const openSel = selects.find(s => s.isOpen());
+      if (openSel) { openSel.close(); return; }
+      if (!confirmModal.hidden) { confirmModal.hidden = true; return; }
+      if (!deployModal.hidden) return;
+      pushToast('按 ESC 返回上一级界面', '严格遵循 LIFO 逐层回退栈');
+      return;
+    }
+    if (!confirmModal.hidden || !deployModal.hidden || inInput) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const list = getFilteredVehicles();
+      if (!list.length) return;
+      const cur = Math.max(0, list.findIndex(v => v.id === selectedId));
+      const next = list[(cur + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length];
+      selectedId = next.id;
+      renderCatalog(); renderInspect();
+      document.querySelector(`.veh-row[data-id="${CSS.escape(selectedId)}"]`)?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'a' || e.key === 'A') {
+      addSelectedToSquad();
+    } else if (e.key === 'Enter') {
+      triggerDeploy();
+    }
+  });
+
+  /* ====== 初始化 ====== */
+  renderClassChips();
+  renderCatalog();
+  renderInspect();
+  renderSquad();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,3131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scavenger 生化黄黑 UI/UX 规范台 · V003（色彩 · 倒角 · 按钮决策基准）</title>
+<style>
+/* ==========================================================================
+   SCAVENGER 生化黄黑 UI/UX 规范台 V003
+   设计分类架构参考 VibeHub：外观与令牌 / 倒角气质 / 按钮与交互态 / 控件 / 导航反馈 / 排版键标 / 正反红线
+   全部离线自包含，零外部 CDN 依赖
+   ========================================================================== */
+:root {
+  /* 字体阶梯 */
+  --font-display: "Bahnschrift Condensed", "DIN Condensed", "Impact", "HarmonyOS Sans SC", "Microsoft YaHei UI", sans-serif;
+  --font-sans: "Bahnschrift", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC", sans-serif;
+  --font-mono: "Cascadia Mono", "Consolas", "JetBrains Mono", "Microsoft YaHei UI", monospace;
+
+  /* 动效缓动 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ====== A1 默认：暗夜暖金曜石（V002 延续基准） ====== */
+  --bg-void: #0e0e16;
+  --bg-canvas: #13131d;
+  --bg-sidebar: rgba(18, 18, 28, 0.94);
+  --bg-topbar: rgba(14, 14, 22, 0.88);
+  --bg-panel-grad: linear-gradient(155deg, rgba(42, 39, 58, 0.86) 0%, rgba(24, 23, 34, 0.92) 56%, rgba(34, 29, 24, 0.88) 100%);
+  --bg-surface: rgba(34, 33, 48, 0.78);
+  --bg-surface-elev: rgba(48, 46, 66, 0.86);
+  --bg-slot: rgba(255, 255, 255, 0.055);
+  --bg-hover: rgba(255, 255, 255, 0.11);
+
+  /* 主强调与焦点 */
+  --accent: #f3d97d;
+  --accent-strong: #ffbb29;
+  --accent-soft: rgba(243, 217, 125, 0.16);
+  --accent-grad: linear-gradient(135deg, #f8e397 0%, #ecc45b 100%);
+  --accent-glow: rgba(243, 217, 125, 0.24);
+
+  /* 文字明度阶梯 */
+  --text-primary: #f5f5f8;
+  --text-secondary: #b6b8c7;
+  --text-muted: #84879a;
+  --text-ink: #101017;
+
+  /* 线条与内高光 */
+  --line-hair: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.22);
+  --glass-rim: inset 0 1px 0 rgba(255, 255, 255, 0.10), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-card: 0 18px 46px rgba(4, 5, 10, 0.52), 0 4px 14px rgba(0, 0, 0, 0.30);
+
+  /* 零撞色 7 维作战语义色 */
+  --st-cyan: #38e5c0;
+  --st-cyan-soft: rgba(56, 229, 192, 0.15);
+  --st-sky: #68c8ff;
+  --st-sky-soft: rgba(104, 200, 255, 0.15);
+  --st-violet: #b197fc;
+  --st-violet-soft: rgba(177, 151, 252, 0.15);
+  --st-crimson: #ff5266;
+  --st-crimson-soft: rgba(255, 82, 102, 0.16);
+  --st-toxic: #a8f22c;
+  --st-toxic-soft: rgba(168, 242, 44, 0.15);
+  --st-emerald: #3cd69f;
+  --st-emerald-soft: rgba(60, 214, 159, 0.15);
+  --st-amber: #ffbb29;
+  --st-amber-soft: rgba(255, 187, 41, 0.16);
+
+  /* 纯白左实→右渐隐扫光条 */
+  --select-sweep: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.92) 48%, rgba(255, 255, 255, 0.16) 92%, rgba(255, 255, 255, 0) 100%);
+
+  /* ====== 倒角令牌（由 JS 与预设动态联动） ====== */
+  --r-surface: 12px;
+  --r-surface-lg: 16px;
+  --r-control: 9px;
+  --r-sm: 6px;
+  --r-pill: 9999px;
+  --chamfer-surface: 0px;
+  --chamfer-control: 0px;
+  --clip-surface: none;
+  --clip-control: none;
+  --btn-primary-radius: 9999px;
+
+  /* ====== 按钮质感令牌（由 B1/B2/B3 切换） ====== */
+  --btn-border-width: 1px;
+  --btn-border-color: rgba(255, 255, 255, 0.08);
+  --btn-hover-border: rgba(255, 255, 255, 0.22);
+  --btn-bg: rgba(50, 48, 68, 0.80);
+  --btn-hover-bg: rgba(255, 255, 255, 0.15);
+  --btn-hover-text: #f5f5f8;
+  --btn-active-scale: 0.98;
+  --btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+
+  /* L1 无底框硬描边粗细 */
+  --outlined-stroke-w: 3.4px;
+}
+
+/* ====== 配色预设 A2：工业生化黑黄 ====== */
+[data-palette="A2"] {
+  --bg-void: #0a0b0d;
+  --bg-canvas: #0f1014;
+  --bg-sidebar: rgba(14, 15, 18, 0.96);
+  --bg-topbar: rgba(11, 12, 15, 0.92);
+  --bg-panel-grad: linear-gradient(160deg, rgba(30, 32, 37, 0.92) 0%, rgba(18, 19, 23, 0.95) 60%, rgba(26, 24, 17, 0.92) 100%);
+  --bg-surface: rgba(26, 28, 33, 0.88);
+  --bg-surface-elev: rgba(38, 40, 47, 0.92);
+  --bg-slot: rgba(255, 255, 255, 0.05);
+  --bg-hover: rgba(255, 255, 255, 0.11);
+
+  --accent: #f5c518;
+  --accent-strong: #ffaa00;
+  --accent-soft: rgba(245, 197, 24, 0.17);
+  --accent-grad: linear-gradient(135deg, #ffd43b 0%, #f0b400 100%);
+  --accent-glow: rgba(245, 197, 24, 0.28);
+
+  --text-primary: #f7f8fa;
+  --text-secondary: #b7bcc6;
+  --text-muted: #828894;
+  --text-ink: #0a0b0d;
+
+  --line-hair: rgba(255, 255, 255, 0.10);
+  --line-strong: rgba(245, 197, 24, 0.36);
+}
+
+/* ====== 配色预设 A3：烟炭双金融合（折中推荐） ====== */
+[data-palette="A3"] {
+  --bg-void: #0d0e13;
+  --bg-canvas: #121318;
+  --bg-sidebar: rgba(17, 18, 24, 0.95);
+  --bg-topbar: rgba(13, 14, 19, 0.90);
+  --bg-panel-grad: linear-gradient(155deg, rgba(36, 37, 46, 0.90) 0%, rgba(21, 22, 28, 0.94) 58%, rgba(33, 29, 22, 0.90) 100%);
+  --bg-surface: rgba(31, 32, 41, 0.84);
+  --bg-surface-elev: rgba(44, 46, 57, 0.90);
+  --bg-slot: rgba(255, 255, 255, 0.055);
+  --bg-hover: rgba(255, 255, 255, 0.11);
+
+  --accent: #f0d372;
+  --accent-strong: #ffb800;
+  --accent-soft: rgba(240, 211, 114, 0.16);
+  --accent-grad: linear-gradient(135deg, #f6de86 0%, #e5b73e 100%);
+  --accent-glow: rgba(240, 211, 114, 0.25);
+
+  --text-primary: #f5f6f9;
+  --text-secondary: #b6bac5;
+  --text-muted: #838896;
+  --text-ink: #0d0e13;
+
+  --line-hair: rgba(255, 255, 255, 0.095);
+  --line-strong: rgba(240, 211, 114, 0.30);
+}
+
+/* ====== 按钮质感预设 B2：战术微描边精工 ====== */
+[data-btn-style="B2"] {
+  --btn-border-width: 1px;
+  --btn-border-color: rgba(255, 255, 255, 0.20);
+  --btn-hover-border: var(--accent);
+  --btn-bg: rgba(26, 28, 38, 0.88);
+  --btn-hover-bg: rgba(255, 255, 255, 0.08);
+  --btn-hover-text: var(--accent);
+  --btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.36);
+}
+
+/* ====== 按钮质感预设 B3：实机高反差反色硬切 ====== */
+[data-btn-style="B3"] {
+  --btn-border-width: 1.5px;
+  --btn-border-color: rgba(255, 255, 255, 0.16);
+  --btn-hover-border: #ffffff;
+  --btn-bg: rgba(16, 17, 23, 0.62);
+  --btn-hover-bg: #ffffff;
+  --btn-hover-text: #0b0c10;
+  --btn-active-scale: 0.97;
+  --btn-shadow: none;
+}
+
+* { box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 900px 520px at 82% -8%, var(--accent-soft), transparent 64%),
+    radial-gradient(ellipse 740px 460px at 14% 24%, rgba(56, 229, 192, 0.055), transparent 60%),
+    var(--bg-void);
+  color: var(--text-primary);
+  transition: background-color 0.25s var(--ease-out);
+}
+button, input, select { font-family: inherit; color: inherit; }
+[hidden] { display: none !important; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.display-font {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+  line-height: 1.02;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   顶部吸顶：规范决策控制台（Live Token Lab）
+   ========================================================================== */
+.top-lab {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: var(--bg-topbar);
+  backdrop-filter: blur(18px) saturate(1.2);
+  border-bottom: 1px solid var(--line-hair);
+}
+.top-lab-inner {
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 10px 22px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 18px;
+}
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  clip-path: var(--clip-control);
+  background: var(--accent-grad);
+  color: var(--text-ink);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  flex: 0 0 auto;
+}
+.brand-title {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.brand-title strong {
+  font-family: var(--font-display);
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+.brand-title span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.lab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+.lab-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.lab-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.seg-bar {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  gap: 2px;
+  background: var(--bg-slot);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-control);
+  clip-path: var(--clip-control);
+}
+.seg-btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 5px 10px;
+  border-radius: calc(var(--r-control) * 0.72);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s var(--ease-out), color 0.14s;
+}
+.seg-btn:hover:not(.active) {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.07);
+}
+.seg-btn.active {
+  background: var(--accent);
+  color: var(--text-ink);
+  box-shadow: 0 2px 10px var(--accent-glow);
+}
+
+/* ==========================================================================
+   主体双栏布局：左侧 VibeHub 式规范分类树 ＋ 右侧交互对照画布
+   ========================================================================== */
+.workspace {
+  max-width: 1520px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 262px minmax(0, 1fr);
+  gap: 26px;
+  padding: 22px 22px 72px;
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: 74px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.nav-panel {
+  background: var(--bg-panel-grad);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-surface);
+  clip-path: var(--clip-surface);
+  box-shadow: var(--shadow-card), var(--glass-rim);
+  padding: 14px 10px;
+}
+.nav-group-head {
+  padding: 6px 12px 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-group-head .badge-core {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.nav-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background 0.14s var(--ease-out), color 0.14s, transform 0.14s;
+}
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+.nav-link.active {
+  background: var(--select-sweep);
+  color: var(--text-ink);
+  font-weight: 800;
+}
+.nav-link .nav-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  opacity: 0.72;
+  margin-right: 6px;
+}
+.nav-link.active .nav-num { opacity: 0.9; }
+.nav-tag {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-muted);
+}
+.nav-link.active .nav-tag {
+  background: rgba(16, 16, 23, 0.14);
+  color: var(--text-ink);
+}
+
+.snapshot-card {
+  background: var(--bg-panel-grad);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-surface);
+  clip-path: var(--clip-surface);
+  box-shadow: var(--glass-rim);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.snapshot-card h4 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.snap-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line-hair);
+}
+.snap-row span { color: var(--text-muted); }
+.snap-row b { color: var(--text-primary); font-family: var(--font-mono); font-size: 11.5px; }
+
+/* ==========================================================================
+   右侧主画布通用容器与标题体系
+   ========================================================================== */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+
+/* 顶部导览卡 */
+.hero-brief {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-panel-grad);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-surface-lg);
+  clip-path: var(--clip-surface);
+  box-shadow: var(--shadow-card), var(--glass-rim);
+  padding: 22px 26px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+.hero-brief::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  bottom: -46px;
+  width: 240px;
+  height: 240px;
+  pointer-events: none;
+  opacity: 0.065;
+  background:
+    radial-gradient(circle at 60% 60%, var(--accent) 0%, transparent 55%),
+    repeating-conic-gradient(from 15deg at 72% 72%, var(--accent) 0deg 14deg, transparent 14deg 36deg);
+  mask-image: radial-gradient(circle at 72% 72%, #000 10%, transparent 72%);
+  -webkit-mask-image: radial-gradient(circle at 72% 72%, #000 10%, transparent 72%);
+}
+.hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 11px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.hero-kicker i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+.hero-brief h1 {
+  margin: 0 0 8px;
+  font-size: 25px;
+  letter-spacing: 0.025em;
+  line-height: 1.18;
+}
+.hero-brief p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 660px;
+}
+.hero-pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.pillar-box {
+  background: var(--bg-slot);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-control);
+  clip-path: var(--clip-control);
+  padding: 12px;
+}
+.pillar-box small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.pillar-box strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+.pillar-box span {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* 章节容器 */
+.spec-section {
+  scroll-margin-top: 84px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line-hair);
+}
+.section-head-left {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.sec-index {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--accent);
+  line-height: 1;
+}
+.section-head h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.sec-en {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.sec-goal {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* 通用规范卡片（表面级令牌载体） */
+.spec-card {
+  position: relative;
+  background: var(--bg-panel-grad);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-surface);
+  clip-path: var(--clip-surface);
+  box-shadow: var(--shadow-card), var(--glass-rim);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-radius 0.22s var(--ease-out), border-color 0.2s;
+}
+.card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.card-head h3 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-head .sub-note {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* 两列 / 三列网格 */
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+
+/* ==========================================================================
+   通用按钮系统（实时受 A/B/C 令牌驱动）
+   ========================================================================== */
+.ui-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 16px;
+  border: var(--btn-border-width) solid var(--btn-border-color);
+  border-radius: var(--r-control);
+  clip-path: var(--clip-control);
+  background: var(--btn-bg);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: var(--btn-shadow);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    transform 0.12s var(--ease-out),
+    background 0.14s var(--ease-out),
+    color 0.14s,
+    border-color 0.14s,
+    box-shadow 0.14s,
+    filter 0.14s;
+}
+.ui-btn:hover:not(:disabled),
+.ui-btn.is-hover-sim {
+  background: var(--btn-hover-bg);
+  color: var(--btn-hover-text);
+  border-color: var(--btn-hover-border);
+}
+.ui-btn:active:not(:disabled),
+.ui-btn.is-active-sim {
+  transform: scale(var(--btn-active-scale));
+  filter: brightness(0.94);
+}
+.ui-btn:focus-visible,
+.ui-btn.is-focus-sim {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.ui-btn.is-selected {
+  background: #ffffff;
+  color: var(--text-ink);
+  border-color: #ffffff;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.22);
+}
+.ui-btn:disabled,
+.ui-btn.is-disabled-sim {
+  opacity: 0.36;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* L3 主行动按钮（受倒角预设联动：柔圆角下可为胶囊，切角/微角下跟随结构） */
+.ui-btn--primary {
+  background: var(--accent-grad);
+  color: var(--text-ink);
+  border-color: transparent;
+  border-radius: var(--btn-primary-radius);
+  padding: 8px 20px;
+  box-shadow: 0 8px 22px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.50);
+}
+.ui-btn--primary:hover:not(:disabled),
+.ui-btn--primary.is-hover-sim {
+  background: var(--accent-grad);
+  color: var(--text-ink);
+  border-color: transparent;
+  filter: brightness(1.07);
+  box-shadow: 0 10px 26px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+.ui-btn--primary.is-selected {
+  background: #ffffff;
+  color: var(--text-ink);
+  box-shadow: 0 0 0 2px var(--accent), 0 8px 22px rgba(255, 255, 255, 0.25);
+}
+
+/* 次要实白焦点按钮 */
+.ui-btn--white {
+  background: #ffffff;
+  color: var(--text-ink);
+  border-color: #ffffff;
+}
+.ui-btn--white:hover:not(:disabled),
+.ui-btn--white.is-hover-sim {
+  background: var(--accent);
+  color: var(--text-ink);
+  border-color: var(--accent);
+}
+
+/* 幽灵按钮 */
+.ui-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--line-strong);
+  box-shadow: none;
+}
+.ui-btn--ghost:hover:not(:disabled),
+.ui-btn--ghost.is-hover-sim {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+/* 语义危险按钮 */
+.ui-btn--danger {
+  background: var(--st-crimson-soft);
+  color: var(--st-crimson);
+  border-color: rgba(255, 82, 102, 0.34);
+  box-shadow: none;
+}
+.ui-btn--danger:hover:not(:disabled),
+.ui-btn--danger.is-hover-sim {
+  background: var(--st-crimson);
+  color: #ffffff;
+  border-color: var(--st-crimson);
+}
+.ui-btn--danger.is-selected {
+  background: var(--st-crimson);
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+/* 语义生化按钮 */
+.ui-btn--toxic {
+  background: var(--st-toxic-soft);
+  color: var(--st-toxic);
+  border-color: rgba(168, 242, 44, 0.34);
+  box-shadow: none;
+}
+.ui-btn--toxic:hover:not(:disabled),
+.ui-btn--toxic.is-hover-sim {
+  background: var(--st-toxic);
+  color: var(--text-ink);
+  border-color: var(--st-toxic);
+}
+.ui-btn--toxic.is-selected {
+  background: var(--st-toxic);
+  color: var(--text-ink);
+  border-color: #ffffff;
+}
+
+/* 语义通道青按钮 */
+.ui-btn--cyan {
+  background: var(--st-cyan-soft);
+  color: var(--st-cyan);
+  border-color: rgba(56, 229, 192, 0.32);
+  box-shadow: none;
+}
+.ui-btn--cyan:hover:not(:disabled),
+.ui-btn--cyan.is-hover-sim {
+  background: var(--st-cyan);
+  color: var(--text-ink);
+  border-color: var(--st-cyan);
+}
+
+.ui-btn--sm {
+  min-height: 30px;
+  padding: 5px 11px;
+  font-size: 12px;
+  border-radius: var(--r-sm);
+}
+
+/* Loading 指示器 */
+.btn-spinner {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  display: inline-block;
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==========================================================================
+   L1 无底框硬黑外描边文字 ＋ 隔离键位徽章
+   ========================================================================== */
+.ui-prompt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.12s var(--ease-out);
+}
+.ui-prompt-btn:hover:not(:disabled),
+.ui-prompt-btn.is-hover-sim {
+  transform: translateY(-1px);
+}
+.ui-prompt-btn:active:not(:disabled),
+.ui-prompt-btn.is-active-sim {
+  transform: scale(0.96);
+}
+.ui-prompt-btn:focus-visible,
+.ui-prompt-btn.is-focus-sim {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.ui-prompt-btn:disabled,
+.ui-prompt-btn.is-disabled-sim {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+.ui-outlined-text {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  paint-order: stroke fill;
+  -webkit-text-stroke: var(--outlined-stroke-w) #090a0f;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.52);
+  transition: color 0.12s;
+}
+.ui-prompt-btn:hover:not(:disabled) .ui-outlined-text,
+.ui-prompt-btn.is-hover-sim .ui-outlined-text,
+.ui-prompt-btn.is-selected .ui-outlined-text {
+  color: var(--accent);
+}
+
+/* 键位徽章（强制隔离 -webkit-text-stroke: 0，防黑字糊团） */
+.keycap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  min-width: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #090a0f;
+  border: 2px solid #090a0f;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.46);
+  transition: transform 0.12s var(--ease-out), background 0.14s, color 0.14s;
+}
+.keycap--circle {
+  width: 23px;
+  height: 23px;
+  padding: 0;
+  border-radius: 50%;
+}
+.keycap--dark {
+  background: rgba(18, 19, 27, 0.90);
+  color: rgba(255, 255, 255, 0.78);
+  border: 1.6px solid rgba(255, 255, 255, 0.34);
+}
+.keycap--accent,
+.ui-prompt-btn.is-selected .keycap {
+  background: var(--accent);
+  color: #090a0f;
+  border-color: #090a0f;
+}
+.ui-prompt-btn:hover:not(:disabled) .keycap,
+.ui-prompt-btn.is-hover-sim .keycap {
+  transform: scale(1.07);
+}
+
+/* 斜切平行四边形 Tab */
+.skew-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.skew-tab {
+  border: 1px solid var(--line-hair);
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text-secondary);
+  padding: 7px 17px;
+  border-radius: min(var(--r-sm), 5px);
+  transform: skewX(-13deg);
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: background 0.14s var(--ease-out), color 0.14s, border-color 0.14s;
+}
+.skew-tab > span { display: inline-block; transform: skewX(13deg); }
+.skew-tab:hover:not(.active) { background: rgba(255, 255, 255, 0.14); color: var(--text-primary); }
+.skew-tab.active {
+  background: #ffffff;
+  color: var(--text-ink);
+  border-color: #ffffff;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.22);
+}
+
+/* 左白→右渐隐扫光列表项 */
+.ui-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.ui-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: min(var(--r-sm), 6px);
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+.ui-row + .ui-row::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 0;
+  height: 1px;
+  background: var(--line-hair);
+}
+.ui-row:hover:not(.active) { background: rgba(255, 255, 255, 0.05); color: var(--text-primary); }
+.ui-row.active {
+  background: var(--select-sweep);
+  color: var(--text-ink);
+  font-weight: 800;
+}
+.ui-row.active::before,
+.ui-row.active + .ui-row::before { opacity: 0; }
+.pip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* 状态圆点胶囊 */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 11px;
+  border-radius: var(--r-pill);
+  background: rgba(20, 21, 30, 0.78);
+  border: 1px solid var(--line-hair);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+.status-pill i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* ==========================================================================
+   模块 01：色彩方案横评、令牌色卡、WCAG 对比度台、多战场底图实景检验
+   ========================================================================== */
+.choice-card {
+  position: relative;
+  text-align: left;
+  background: var(--bg-slot);
+  border: 1.5px solid var(--line-hair);
+  border-radius: var(--r-control);
+  clip-path: var(--clip-control);
+  padding: 14px 15px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  transition: border-color 0.16s, background 0.16s, transform 0.14s var(--ease-out);
+}
+.choice-card:hover { background: rgba(255, 255, 255, 0.075); transform: translateY(-2px); }
+.choice-card.is-picked {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.choice-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.choice-top strong { font-size: 13.5px; color: var(--text-primary); }
+.choice-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+}
+.choice-card.is-picked .choice-badge {
+  background: var(--accent);
+  color: var(--text-ink);
+}
+.choice-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.48; margin: 0; }
+.palette-strip {
+  display: flex;
+  height: 22px;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.palette-strip span { flex: 1; }
+
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(198px, 1fr));
+  gap: 10px;
+}
+.swatch-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 11px;
+  text-align: left;
+  background: var(--bg-slot);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s;
+}
+.swatch-item:hover { background: var(--bg-hover); border-color: var(--line-strong); }
+.swatch-chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  flex: 0 0 auto;
+}
+.swatch-meta { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.swatch-meta strong { font-size: 12px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.swatch-meta code { font-family: var(--font-mono); font-size: 10.5px; color: var(--accent); white-space: nowrap; }
+.swatch-meta span { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* WCAG 对比度表 */
+.wcag-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 10px;
+}
+.wcag-tile {
+  padding: 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wcag-sample { font-size: 14px; font-weight: 800; }
+.wcag-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.wcag-pill {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 10px;
+}
+.wcag-pass { background: rgba(60, 214, 159, 0.22); color: #5ef0bb; }
+.wcag-warn { background: rgba(255, 187, 41, 0.22); color: #ffd166; }
+.wcag-fail { background: rgba(255, 82, 102, 0.24); color: #ff7b8a; }
+
+/* 多战场实景背景测试画布 */
+.backdrop-stage {
+  position: relative;
+  border-radius: var(--r-surface);
+  clip-path: var(--clip-surface);
+  border: 1px solid var(--line-strong);
+  padding: 22px;
+  min-height: 230px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  transition: background 0.25s;
+}
+.backdrop-stage[data-bg="night"] {
+  background:
+    radial-gradient(circle at 78% 24%, rgba(255, 198, 92, 0.30), transparent 36%),
+    radial-gradient(circle at 22% 76%, rgba(56, 229, 192, 0.16), transparent 44%),
+    linear-gradient(135deg, #121522 0%, #1e2334 52%, #13141c 100%);
+}
+.backdrop-stage[data-bg="concrete"] {
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 64px),
+    linear-gradient(145deg, #cfd3d9 0%, #a9afb8 48%, #c5c9ce 100%);
+}
+.backdrop-stage[data-bg="grass"] {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(164, 196, 98, 0.35), transparent 55%),
+    linear-gradient(145deg, #2d4628 0%, #3d5d33 50%, #243820 100%);
+}
+.backdrop-stage[data-bg="bio"] {
+  background:
+    radial-gradient(circle at 28% 35%, rgba(255, 82, 102, 0.48), transparent 52%),
+    radial-gradient(circle at 75% 68%, rgba(168, 242, 44, 0.36), transparent 50%),
+    linear-gradient(145deg, #2a1219 0%, #1c1e16 54%, #1a1218 100%);
+}
+.stage-hud-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.stage-glass-mini {
+  background: var(--bg-panel-grad);
+  backdrop-filter: blur(18px) saturate(1.18);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-surface);
+  clip-path: var(--clip-surface);
+  box-shadow: var(--shadow-card), var(--glass-rim);
+  padding: 13px 16px;
+  min-width: 245px;
+  color: var(--text-primary);
+}
+.stage-glass-mini small { color: var(--accent); font-family: var(--font-mono); font-size: 10.5px; }
+.stage-glass-mini strong { display: block; font-size: 15px; margin: 2px 0 4px; }
+.stage-glass-mini span { font-size: 12px; color: var(--text-secondary); }
+
+/* ==========================================================================
+   模块 02：倒角气质横评、微调实验室与嵌套法则
+   ========================================================================== */
+.corner-demo-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-slot);
+  border: 1.5px solid var(--line-hair);
+  cursor: pointer;
+  transition: transform 0.14s var(--ease-out), border-color 0.16s, background 0.16s;
+}
+.corner-demo-card:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.075); }
+.corner-demo-card.is-picked {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.corner-preview-shell {
+  padding: 12px;
+  background: rgba(16, 17, 25, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.corner-mini-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 11px;
+  font-size: 11px;
+  font-weight: 800;
+  background: var(--accent);
+  color: var(--text-ink);
+}
+.corner-mini-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.tuner-box {
+  display: grid;
+  grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+.tuner-controls {
+  background: var(--bg-slot);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-control);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.range-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.range-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.range-head span { color: var(--text-secondary); }
+.range-head b { font-family: var(--font-mono); color: var(--accent); }
+.tuner-range {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.tuner-stage {
+  background: rgba(12, 13, 19, 0.65);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-control);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+}
+/* 45° 切角双层描边工程示范容器 */
+.chamfer-rim-wrap {
+  position: relative;
+  padding: 1.5px;
+  background: linear-gradient(135deg, var(--accent) 0%, rgba(255, 255, 255, 0.24) 48%, rgba(255, 255, 255, 0.10) 100%);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+.chamfer-rim-inner {
+  background: #171822;
+  padding: 14px 16px;
+  clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   模块 03：按钮结构解剖（Anatomy）＋ 全状态矩阵（Variants × 6 States）
+   ========================================================================== */
+.anatomy-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+.anatomy-canvas {
+  background: rgba(11, 12, 18, 0.72);
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-control);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.anatomy-sample-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+.anatomy-pin-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.pin-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--accent);
+  color: var(--text-ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 900;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: transform 0.14s var(--ease-spring), box-shadow 0.14s;
+}
+.pin-num:hover, .pin-num.active {
+  transform: scale(1.16);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.anatomy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.anatomy-note {
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--bg-slot);
+  border: 1px solid var(--line-hair);
+  cursor: pointer;
+  transition: border-color 0.14s, background 0.14s;
+}
+.anatomy-note.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.anatomy-note strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.anatomy-note p { margin: 0; font-size: 11.5px; color: var(--text-secondary); }
+
+/* 状态矩阵表 */
+.matrix-wrap { overflow-x: auto; }
+.state-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 820px;
+}
+.state-table th,
+.state-table td {
+  padding: 12px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--line-hair);
+  vertical-align: middle;
+}
+.state-table th {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.025);
+}
+.state-table th:first-child,
+.state-table td:first-child {
+  text-align: left;
+  padding-left: 12px;
+  width: 165px;
+}
+.row-role strong { display: block; font-size: 12.5px; color: var(--text-primary); }
+.row-role span { font-size: 11px; color: var(--text-muted); }
+
+/* ==========================================================================
+   模块 04：微交互控件（Slider / Stepper / Switch / Input / Segmented）
+   ========================================================================== */
+.ui-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  background: rgba(14, 14, 22, 0.55);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.16s, border-color 0.16s;
+}
+.ui-switch::after {
+  content: "";
+  position: absolute;
+  top: 2.5px;
+  left: 2.5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.18s var(--ease-out), background 0.16s;
+}
+.ui-switch[aria-checked="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.ui-switch[aria-checked="true"]::after {
+  transform: translateX(20px);
+  background: var(--text-ink);
+}
+
+.ui-slider {
+  position: relative;
+  width: 164px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+.ui-slider-track {
+  position: relative;
+  width: 100%;
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: rgba(14, 15, 22, 0.88);
+  box-shadow: 0 0 0 1.5px #07070b, inset 0 1px 2px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+}
+.ui-slider-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+.ui-slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 17px;
+  border-radius: 3px;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  box-shadow: 0 0 0 1.8px #07070b, 0 2px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.ui-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+}
+.ui-stepper-btn {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line-hair);
+  border-radius: var(--r-pill);
+  background: var(--bg-slot);
+  color: var(--text-primary);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.ui-stepper-btn:hover { background: var(--bg-hover); border-color: var(--accent); color: var(--accent); }
+
+.ui-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  background: rgba(12, 13, 19, 0.72);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-control);
+  clip-path: var(--clip-control);
+  color: var(--text-primary);
+  font-size: 13px;
+  transition: border-color 0.14s, box-shadow 0.14s;
+}
+.ui-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.ui-input.is-error {
+  border-color: var(--st-crimson);
+  box-shadow: 0 0 0 3px var(--st-crimson-soft);
+}
+
+/* ==========================================================================
+   模块 07：正反红线与防 AI 味儿（Do / Don't）
+   ========================================================================== */
+.dodont-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.dodont-box {
+  border-radius: var(--r-control);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dodont-box--bad {
+  background: rgba(255, 82, 102, 0.06);
+  border: 1px solid rgba(255, 82, 102, 0.28);
+}
+.dodont-box--good {
+  background: rgba(60, 214, 159, 0.06);
+  border: 1px solid rgba(60, 214, 159, 0.28);
+}
+.dodont-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.dodont-box--bad .dodont-tag { color: var(--st-crimson); }
+.dodont-box--good .dodont-tag { color: var(--st-emerald); }
+.dodont-demo {
+  padding: 14px;
+  border-radius: 8px;
+  background: rgba(12, 13, 18, 0.80);
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dodont-box p { margin: 0; font-size: 12px; color: var(--text-secondary); }
+
+/* 反例演示专用丑样式 */
+.bad-stroke-text {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  -webkit-text-stroke: 3.4px #090a0f;
+}
+.bad-keycap-inherit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #090a0f;
+  border: 2px solid #090a0f;
+  font-weight: 900;
+  font-size: 11px;
+  -webkit-text-stroke: 3.4px #090a0f;
+}
+
+/* ==========================================================================
+   弹窗与 Toast 反馈层
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(6, 7, 11, 0.72);
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.modal-box {
+  width: min(640px, 100%);
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--bg-panel-grad);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-surface-lg);
+  clip-path: var(--clip-surface);
+  box-shadow: var(--shadow-card), var(--glass-rim);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.modal-code {
+  margin: 0;
+  padding: 14px;
+  border-radius: var(--r-sm);
+  background: rgba(8, 9, 14, 0.88);
+  border: 1px solid var(--line-hair);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #dbe1f0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.toast-stack {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 140;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast-item {
+  pointer-events: auto;
+  min-width: 260px;
+  max-width: 360px;
+  padding: 11px 14px;
+  border-radius: var(--r-control);
+  clip-path: var(--clip-control);
+  background: var(--bg-panel-grad);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: toast-in 0.22s var(--ease-out);
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex: 0 0 auto;
+}
+.toast-item strong { display: block; font-size: 12.5px; }
+.toast-item span { display: block; font-size: 11.5px; color: var(--text-secondary); }
+
+@media (max-width: 1120px) {
+  .workspace { grid-template-columns: 1fr; }
+  .sidebar { position: static; }
+  .hero-brief, .anatomy-stage, .tuner-box { grid-template-columns: 1fr; }
+  .grid-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .grid-2, .grid-3, .dodont-row, .hero-pillars { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body data-palette="A1" data-btn-style="B1" data-corner="C1">
+
+<!-- ========================================================================
+     顶部吸顶：实时规范决策控制台（Live Token Lab）
+     ======================================================================== -->
+<header class="top-lab" aria-label="实时规范决策控制台">
+  <div class="top-lab-inner">
+    <div class="brand-group">
+      <div class="brand-mark" aria-hidden="true">SC</div>
+      <div class="brand-title">
+        <strong>SCAVENGER · 生化黄黑 UI/UX 规范台</strong>
+        <span>V003 · 色彩搭配 × 倒角处理 × 按钮表现拍板基准</span>
+      </div>
+    </div>
+
+    <div class="lab-controls">
+      <div class="lab-group">
+        <span class="lab-label">配色</span>
+        <div class="seg-bar" id="top-palette-seg" role="radiogroup" aria-label="配色方案">
+          <button type="button" class="seg-btn active" data-palette-btn="A1">A1 暗夜暖金</button>
+          <button type="button" class="seg-btn" data-palette-btn="A2">A2 工业黑黄</button>
+          <button type="button" class="seg-btn" data-palette-btn="A3">A3 烟炭双金</button>
+        </div>
+      </div>
+
+      <div class="lab-group">
+        <span class="lab-label">按钮</span>
+        <div class="seg-bar" id="top-btn-seg" role="radiogroup" aria-label="按钮质感">
+          <button type="button" class="seg-btn active" data-btn-style-btn="B1">B1 轻玻璃</button>
+          <button type="button" class="seg-btn" data-btn-style-btn="B2">B2 微描边</button>
+          <button type="button" class="seg-btn" data-btn-style-btn="B3">B3 高反差</button>
+        </div>
+      </div>
+
+      <div class="lab-group">
+        <span class="lab-label">倒角</span>
+        <div class="seg-bar" id="top-corner-seg" role="radiogroup" aria-label="倒角气质">
+          <button type="button" class="seg-btn active" data-corner-btn="C1">C1 柔圆角</button>
+          <button type="button" class="seg-btn" data-corner-btn="C2">C2 紧凑微角</button>
+          <button type="button" class="seg-btn" data-corner-btn="C3">C3 45°切角</button>
+          <button type="button" class="seg-btn" data-corner-btn="C4">C4 外柔内锐</button>
+          <button type="button" class="seg-btn" data-corner-btn="C5">C5 直角0px</button>
+        </div>
+      </div>
+
+      <button type="button" class="ui-btn ui-btn--primary ui-btn--sm" id="btn-export-tokens">导出拍板令牌</button>
+    </div>
+  </div>
+</header>
+
+<!-- ========================================================================
+     双栏工作区：左侧 VibeHub 规范目录 ＋ 右侧 7 大规范模块
+     ======================================================================== -->
+<div class="workspace">
+  <aside class="sidebar" aria-label="规范分类目录">
+    <nav class="nav-panel">
+      <div class="nav-group-head">
+        <span>本轮核心拍板</span>
+        <span class="badge-core">优先确认</span>
+      </div>
+      <ul class="nav-list">
+        <li><a class="nav-link active" href="#sec-color"><span><span class="nav-num">01</span>外观与色彩令牌</span><span class="nav-tag">Color</span></a></li>
+        <li><a class="nav-link" href="#sec-corner"><span><span class="nav-num">02</span>倒角与几何气质</span><span class="nav-tag">Corner</span></a></li>
+        <li><a class="nav-link" href="#sec-button"><span><span class="nav-num">03</span>按钮与交互状态</span><span class="nav-tag">Button</span></a></li>
+      </ul>
+
+      <div class="nav-group-head">
+        <span>后续搭建分类骨架</span>
+        <span class="mono" style="font-size:10px">VibeHub 架构</span>
+      </div>
+      <ul class="nav-list">
+        <li><a class="nav-link" href="#sec-controls"><span><span class="nav-num">04</span>微交互控件</span><span class="nav-tag">Form</span></a></li>
+        <li><a class="nav-link" href="#sec-containers"><span><span class="nav-num">05</span>导航与反馈容器</span><span class="nav-tag">Overlay</span></a></li>
+        <li><a class="nav-link" href="#sec-type"><span><span class="nav-num">06</span>排版与键位徽章</span><span class="nav-tag">Type</span></a></li>
+        <li><a class="nav-link" href="#sec-dodont"><span><span class="nav-num">07</span>正反红线与防AI味</span><span class="nav-tag">Rules</span></a></li>
+      </ul>
+    </nav>
+
+    <div class="snapshot-card" aria-live="polite">
+      <h4><span>当前激活组合</span><span class="mono" id="snap-code">A1 · B1 · C1</span></h4>
+      <div class="snap-row"><span>配色体系</span><b id="snap-palette">暗夜暖金曜石</b></div>
+      <div class="snap-row"><span>按钮表现</span><b id="snap-btn">电影轻玻璃</b></div>
+      <div class="snap-row"><span>倒角处理</span><b id="snap-corner">柔圆角 12/9px</b></div>
+      <div class="snap-row"><span>主文字对比度</span><b id="snap-wcag" style="color:var(--st-emerald)">-- : 1</b></div>
+      <div class="snap-row"><span>无底框外描边</span><b id="snap-stroke">3.4px</b></div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <!-- 顶部说明卡 -->
+    <section class="hero-brief">
+      <div>
+        <div class="hero-kicker"><i></i>DESIGN SYSTEM TAXONOMY · 参考 VIBEHUB 规范化分层</div>
+        <h1 class="display-font">先把底色、倒角与按钮手感定死，再搭整套界面</h1>
+        <p>延续 V002 的暗场映画骨架与生化黄黑基因，本页剔除战术演训业务布局，集中解决<strong>① 整体颜色搭配</strong>、<strong>② 倒角处理</strong>、<strong>③ 按钮表现</strong>三项核心决策，并按 VibeHub 的「设计令牌 → 几何气质 → 组成解剖 → 状态矩阵 → 正反红线」建立后续全站复用的规范分类骨架。</p>
+      </div>
+      <div class="hero-pillars">
+        <div class="pillar-box">
+          <small>DECISION 01</small>
+          <strong>整体配色</strong>
+          <span>3 套暗场黄黑候选 ＋ 实时 WCAG 对比度 ＋ 4 种战场底图实景检验</span>
+        </div>
+        <div class="pillar-box">
+          <small>DECISION 02</small>
+          <strong>倒角处理</strong>
+          <span>5 档圆角/45°切角同屏横评 ＋ Surface/Control 分级像素微调</span>
+        </div>
+        <div class="pillar-box">
+          <small>DECISION 03</small>
+          <strong>按钮表现</strong>
+          <span>L1 硬描边 / L2 结构 / L3 主行动 ＋ 3 种质感 × 6 态完整矩阵</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         01 · 外观与色彩令牌（Color & Surface Tokens）
+         ==================================================================== -->
+    <section class="spec-section" id="sec-color">
+      <div class="section-head">
+        <div class="section-head-left">
+          <span class="sec-index">01</span>
+          <div>
+            <h2>外观与色彩令牌 <span class="sec-en">Appearance &amp; Color Tokens</span></h2>
+            <div class="sec-goal">点击下方 3 套方案卡实时全局换肤；点击任意色卡可复制色值；在真实战场底图上检验可读性</div>
+          </div>
+        </div>
+        <span class="status-pill"><i></i>单源 TOKEN 联动</span>
+      </div>
+
+      <!-- 1.1 三套色彩方案对比 -->
+      <div class="spec-card">
+        <div class="card-head">
+          <h3>1.1 整体颜色搭配候选（点击整卡切换全页预览）</h3>
+          <span class="sub-note">从“暖暗映画调”到“硬核生化黄黑”的三档光谱</span>
+        </div>
+        <div class="grid-3" id="palette-choice-grid">
+          <button type="button" class="choice-card is-picked" data-palette-btn="A1">
+            <div class="choice-top">
+              <strong>A1 · 暗夜暖金曜石（V002 基准）</strong>
+              <span class="choice-badge">V002 原味</span>
+            </div>
+            <div class="palette-strip">
+              <span style="background:#0e0e16"></span>
+              <span style="background:#262436"></span>
+              <span style="background:#f3d97d"></span>
+              <span style="background:#ffffff"></span>
+              <span style="background:#38e5c0"></span>
+              <span style="background:#ff5266"></span>
+            </div>
+            <p class="choice-desc">微紫曜石暗底配香槟奶油金与纯白扫光焦点。暗夜映画质感，久看柔和不刺眼，生化黄偏克制高级。</p>
+          </button>
+
+          <button type="button" class="choice-card" data-palette-btn="A2">
+            <div class="choice-top">
+              <strong>A2 · 工业生化黑黄（硬核高反差）</strong>
+              <span class="choice-badge">强黄黑识别</span>
+            </div>
+            <div class="palette-strip">
+              <span style="background:#0a0b0d"></span>
+              <span style="background:#1e2025"></span>
+              <span style="background:#f5c518"></span>
+              <span style="background:#ffffff"></span>
+              <span style="background:#a8f22c"></span>
+              <span style="background:#ff5266"></span>
+            </div>
+            <p class="choice-desc">彻底去除冷紫调，改用中性工业石墨炭黑配高饱和警戒黄（#F5C518）。生化封锁、防线警报主题感最强最直接。</p>
+          </button>
+
+          <button type="button" class="choice-card" data-palette-btn="A3">
+            <div class="choice-top">
+              <strong>A3 · 烟炭双金融合（折中平衡）</strong>
+              <span class="choice-badge">推荐平衡</span>
+            </div>
+            <div class="palette-strip">
+              <span style="background:#0d0e13"></span>
+              <span style="background:#24252e"></span>
+              <span style="background:#f0d372"></span>
+              <span style="background:#ffb800"></span>
+              <span style="background:#ffffff"></span>
+              <span style="background:#38e5c0"></span>
+            </div>
+            <p class="choice-desc">中性偏冷烟炭暗面，日常高亮用耐看的香槟金，关键警报与主 CTA 节点用工业琥珀黄提纯，兼顾暗场高级感与生化黄黑辨识。</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- 1.2 语义令牌色卡 -->
+      <div class="spec-card">
+        <div class="card-head">
+          <h3>1.2 当前激活语义色板（点击色卡复制色值）</h3>
+          <span class="sub-note">禁止在业务页面硬编码散乱色值，统一引用下方语义令牌</span>
+        </div>
+        <div class="swatch-grid" id="swatch-grid"></div>
+      </div>
+
+      <!-- 1.3 WCAG 对比度自动计算 + VibeHub 风格三态对比 -->
+      <div class="grid-2">
+        <div class="spec-card">
+          <div class="card-head">
+            <h3>1.3 实时 WCAG 对比度核验</h3>
+            <span class="sub-note">正文 ≥ 4.5:1（AA），大字/图标/边框 ≥ 3.0:1</span>
+          </div>
+          <div class="wcag-grid" id="wcag-grid"></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="card-head">
+            <h3>1.4 战场底图实景穿透检验</h3>
+            <div class="seg-bar" id="bg-stage-seg">
+              <button type="button" class="seg-btn active" data-bg-btn="night">月夜跑道</button>
+              <button type="button" class="seg-btn" data-bg-btn="concrete">日光水泥</button>
+              <button type="button" class="seg-btn" data-bg-btn="grass">深绿草地</button>
+              <button type="button" class="seg-btn" data-bg-btn="bio">生化红雾</button>
+            </div>
+          </div>
+          <div class="backdrop-stage" id="backdrop-stage" data-bg="night">
+            <div class="stage-hud-row">
+              <div class="stage-glass-mini">
+                <small>SECTOR 04 · AIRBASE</small>
+                <strong>主跑道南侧防线</strong>
+                <span>检视毛玻璃面板在明/暗/高饱和底图上的通透与字形清晰度</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+                <span class="status-pill"><i></i>BIOHAZARD ALERT</span>
+                <button type="button" class="ui-btn ui-btn--primary">确认部署</button>
+              </div>
+            </div>
+            <div class="stage-hud-row">
+              <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+                <button type="button" class="ui-prompt-btn" data-demo-toast="L1 快捷指令触发：视角已居中">
+                  <span class="ui-outlined-text">重新居中</span>
+                  <span class="keycap keycap--circle">C</span>
+                </button>
+                <button type="button" class="ui-prompt-btn is-selected" data-demo-toast="L1 激活态：隐藏 HUD 已开启">
+                  <span class="ui-outlined-text">隐藏 HUD</span>
+                  <span class="keycap">F5</span>
+                </button>
+              </div>
+              <button type="button" class="ui-btn ui-btn--sm">L2 战术微卡钮</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         02 · 倒角与几何气质（Corner Feel & Geometry）
+         ==================================================================== -->
+    <section class="spec-section" id="sec-corner">
+      <div class="section-head">
+        <div class="section-head-left">
+          <span class="sec-index">02</span>
+          <div>
+            <h2>倒角与几何气质 <span class="sec-en">Corner Feel · Radius vs Chamfer</span></h2>
+            <div class="sec-goal">参考 VibeHub「圆角 × 圆角的气质」：收敛为 Surface（容器）与 Control（控件）两级倒角令牌</div>
+          </div>
+        </div>
+        <span class="status-pill"><i></i>支持滑块精调像素</span>
+      </div>
+
+      <!-- 2.1 五档倒角流派同屏横评 -->
+      <div class="spec-card">
+        <div class="card-head">
+          <h3>2.1 五种倒角流派同屏对比（点击任意方案切换全页倒角）</h3>
+          <span class="sub-note">同内容、同配色下，仅改变几何倒角带来的气质差异</span>
+        </div>
+        <div class="grid-5" id="corner-choice-grid">
+          <div class="corner-demo-card is-picked" data-corner-btn="C1" role="button" tabindex="0">
+            <div class="choice-top">
+              <strong>C1 柔圆角</strong>
+              <span class="choice-badge">V002</span>
+            </div>
+            <div class="corner-preview-shell" style="border-radius:12px">
+              <div style="font-size:11px;color:var(--text-secondary)">容器 12px · 钮 9px</div>
+              <div style="display:flex;gap:6px">
+                <span class="corner-mini-btn" style="border-radius:999px">主胶囊</span>
+                <span class="corner-mini-ghost" style="border-radius:9px">次操作</span>
+              </div>
+            </div>
+            <p class="choice-desc">现代柔润映画感，边缘丝滑，搭配毛玻璃最具高级呼吸感。</p>
+          </div>
+
+          <div class="corner-demo-card" data-corner-btn="C2" role="button" tabindex="0">
+            <div class="choice-top">
+              <strong>C2 紧凑微角</strong>
+              <span class="choice-badge">精工</span>
+            </div>
+            <div class="corner-preview-shell" style="border-radius:7px">
+              <div style="font-size:11px;color:var(--text-secondary)">容器 7px · 钮 4px</div>
+              <div style="display:flex;gap:6px">
+                <span class="corner-mini-btn" style="border-radius:4px">主按钮</span>
+                <span class="corner-mini-ghost" style="border-radius:4px">次操作</span>
+              </div>
+            </div>
+            <p class="choice-desc">收敛圆角半径，去掉过柔的消费 App 感，更显军工仪表严谨。</p>
+          </div>
+
+          <div class="corner-demo-card" data-corner-btn="C3" role="button" tabindex="0">
+            <div class="choice-top">
+              <strong>C3 45° 切角</strong>
+              <span class="choice-badge">战术</span>
+            </div>
+            <div class="corner-preview-shell" style="border-radius:0;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)">
+              <div style="font-size:11px;color:var(--text-secondary)">对角切 10px / 6px</div>
+              <div style="display:flex;gap:6px">
+                <span class="corner-mini-btn" style="border-radius:0;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)">主切角</span>
+                <span class="corner-mini-ghost" style="border-radius:0;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)">次切角</span>
+              </div>
+            </div>
+            <p class="choice-desc">经典军事/生化战术终端斜切倒角，硬核锋利，与斜切 Tab 天然呼应。</p>
+          </div>
+
+          <div class="corner-demo-card" data-corner-btn="C4" role="button" tabindex="0">
+            <div class="choice-top">
+              <strong>C4 外柔内锐</strong>
+              <span class="choice-badge">分层</span>
+            </div>
+            <div class="corner-preview-shell" style="border-radius:12px">
+              <div style="font-size:11px;color:var(--text-secondary)">容器 12px · 钮 4px</div>
+              <div style="display:flex;gap:6px">
+                <span class="corner-mini-btn" style="border-radius:4px">锐主钮</span>
+                <span class="corner-mini-ghost" style="border-radius:4px">锐次钮</span>
+              </div>
+            </div>
+            <p class="choice-desc">大面板保持柔圆角高级感，内部交互按钮收紧至 4px 保持利落操控感。</p>
+          </div>
+
+          <div class="corner-demo-card" data-corner-btn="C5" role="button" tabindex="0">
+            <div class="choice-top">
+              <strong>C5 纯直角 0px</strong>
+              <span class="choice-badge">粗野</span>
+            </div>
+            <div class="corner-preview-shell" style="border-radius:0">
+              <div style="font-size:11px;color:var(--text-secondary)">全员 0px 零圆角</div>
+              <div style="display:flex;gap:6px">
+                <span class="corner-mini-btn" style="border-radius:0">直角钮</span>
+                <span class="corner-mini-ghost" style="border-radius:0">次操作</span>
+              </div>
+            </div>
+            <p class="choice-desc">极致硬朗的复古军表/工业图纸气质，容错低，对边框精度与留白要求极高。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.2 倒角微调实验室 + 45° 切角描边工程示范 -->
+      <div class="spec-card">
+        <div class="card-head">
+          <h3>2.2 倒角像素微调器与嵌套法则（实时作用于全页）</h3>
+          <span class="sub-note">微调 Surface 与 Control 像素值，现场锁定最顺眼的几何比例</span>
+        </div>
+        <div class="tuner-box">
+          <div class="tuner-controls">
+            <div class="range-row">
+              <div class="range-head"><span>容器倒角（--r-surface）</span><b id="val-r-surface">12px</b></div>
+              <input type="range" class="tuner-range" id="range-r-surface" min="0" max="20" step="1" value="12">
+            </div>
+            <div class="range-row">
+              <div class="range-head"><span>按钮/控件倒角（--r-control）</span><b id="val-r-control">9px</b></div>
+              <input type="range" class="tuner-range" id="range-r-control" min="0" max="16" step="1" value="9">
+            </div>
+            <div class="range-row">
+              <div class="range-head"><span>切角尺寸（仅 C3 切角模式）</span><b id="val-chamfer">10px</b></div>
+              <input type="range" class="tuner-range" id="range-chamfer" min="4" max="18" step="1" value="10">
+            </div>
+            <div class="range-row" style="padding-top:6px;border-top:1px solid var(--line-hair)">
+              <div class="range-head"><span>主按钮胶囊开关（Pill Override）</span><b id="val-pill-mode">开启</b></div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11.5px;color:var(--text-muted)">关闭后主 CTA 跟随 --r-control</span>
+                <button type="button" class="ui-switch" id="sw-pill-primary" role="switch" aria-checked="true" aria-label="主按钮全圆角胶囊"></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tuner-stage">
+            <div>
+              <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:10px">
+                <strong style="color:var(--text-primary)">同心嵌套校验：</strong>外容器内边距 `12px`，内按钮严格采用 `--r-control`（公式：`内圆角 ≤ 外圆角`，避免内角比外角更圆的视觉外胀）。
+              </div>
+              <div style="padding:12px;background:var(--bg-surface);border:1px solid var(--line-strong);border-radius:var(--r-surface);clip-path:var(--clip-surface);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:36px;height:36px;border-radius:var(--r-control);clip-path:var(--clip-control);background:var(--accent-soft);color:var(--accent);display:grid;place-items:center" id="tuner-icon-host"></div>
+                  <div>
+                    <strong style="display:block;font-size:13.5px">前线指令浮窗示例</strong>
+                    <span style="font-size:11.5px;color:var(--text-secondary)">同步观测外框、内图标框、输入框与按钮的倒角呼应</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <button type="button" class="ui-btn ui-btn--ghost">取消</button>
+                  <button type="button" class="ui-btn ui-btn--primary">锁定方案</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 45° 切角防断边双层描边方案说明 -->
+            <div class="chamfer-rim-wrap">
+              <div class="chamfer-rim-inner">
+                <div>
+                  <strong style="font-size:12.5px;color:var(--accent)">工程备忘 · 若最终拍板「C3 45° 切角」的描边写法</strong>
+                  <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px">纯 CSS `clip-path` 会切掉外层 `border` 的斜边；正式实现须采用「外层渐变底板 + 内层缩进 1.5px 同比例 `clip-path`」双层壳，确保 45° 斜边也有完整连续的高光描边（如此条示范）。</div>
+                </div>
+                <span class="status-pill" style="flex:0 0 auto"><i></i>双层切角描边</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         03 · 按钮表现与交互状态（Buttons & Pointer States）
+         ==================================================================== -->
+    <section class="spec-section" id="sec-button">
+      <div class="section-head">
+        <div class="section-head-left">
+          <span class="sec-index">03</span>
+          <div>
+            <h2>按钮表现与交互状态 <span class="sec-en">Buttons · Anatomy · 6 Pointer States</span></h2>
+            <div class="sec-goal">对齐 VibeHub「按钮」与「鼠标状态」：明确 L1 无底框硬描边 / L2 结构操作 / L3 主行动的三档分层与手感</div>
+          </div>
+        </div>
+        <span class="status-pill"><i></i>全态可点击实测</span>
+      </div>
+
+      <!-- 3.1 三种按钮质感横评 -->
+      <div class="spec-card">
+        <div class="card-head">
+          <h3>3.1 L2 常规按钮质感候选（点击整卡切换全页按钮风格）</h3>
+          <span class="sub-note">决定界面中占比最高的常规按钮在静默与悬停时的视觉重量</span>
+        </div>
+        <div class="grid-3" id="btn-choice-grid">
+          <button type="button" class="choice-card is-picked" data-btn-style-btn="B1">
+            <div class="choice-top">
+              <strong>B1 · 电影轻玻璃（V002 柔和）</strong>
+              <span class="choice-badge">柔和无框</span>
+            </div>
+            <p class="choice-desc">去掉硬边线条，仅用 1px 顶部玻璃内高光与半透暗面承托；悬停平滑提亮、按下轻压 `scale(0.98)`。</p>
+          </button>
+
+          <button type="button" class="choice-card" data-btn-style-btn="B2">
+            <div class="choice-top">
+              <strong>B2 · 战术微描边精工（Crisp Rim）</strong>
+              <span class="choice-badge">推荐清晰</span>
+            </div>
+            <p class="choice-desc">保留清晰 `1px` 细描边，悬停时边框与文字同步点亮为主金/主黄，高密度面板中按钮边界最明确。</p>
+          </button>
+
+          <button type="button" class="choice-card" data-btn-style-btn="B3">
+            <div class="choice-top">
+              <strong>B3 · 实机高反差反色硬切</strong>
+              <span class="choice-badge">极速辨识</span>
+            </div>
+            <p class="choice-desc">静默态极度收敛隐退，悬停瞬间整块反白黑字硬切（实机菜单高反差反馈），操作指向最干脆。</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3.2 组成结构解剖（Anatomy）＋ 外描边粗细实验室 -->
+      <div class="spec-card">
+        <div class="card-head">
+          <h3>3.2 核心按钮家族组成解剖（Anatomy · 点击编号高亮说明）</h3>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="sub-note">无底框外描边粗细</span>
+            <input type="range" class="tuner-range" id="range-stroke" min="2.0" max="4.6" step="0.2" value="3.4" style="width:110px">
+            <b class="mono" id="val-stroke" style="font-size:12px;color:var(--accent)">3.4px</b>
+          </div>
+        </div>
+        <div class="anatomy-stage">
+          <div class="anatomy-canvas">
+            <!-- L1 无底框硬描边 -->
+            <div>
+              <div style="font-size:11px;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:8px">L1 · 无底框硬描边快捷钮（悬浮于 3D 场景边缘，零黑底遮挡）</div>
+              <div class="anatomy-sample-row">
+                <div class="anatomy-pin-wrap">
+                  <button type="button" class="pin-num active" data-anat="1">1</button>
+                  <button type="button" class="ui-prompt-btn" id="anat-l1-btn">
+                    <span class="ui-outlined-text">重新居中</span>
+                    <span class="keycap keycap--circle">C</span>
+                  </button>
+                  <button type="button" class="pin-num" data-anat="2">2</button>
+                </div>
+                <button type="button" class="ui-prompt-btn is-selected">
+                  <span class="ui-outlined-text">战术轮盘</span>
+                  <span class="keycap">TAB</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- L2 + L3 -->
+            <div>
+              <div style="font-size:11px;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:8px">L2 结构操作钮 &amp; L3 主行动 CTA（面板/弹窗内清晰动作分层）</div>
+              <div class="anatomy-sample-row">
+                <div class="anatomy-pin-wrap">
+                  <button type="button" class="pin-num" data-anat="3">3</button>
+                  <button type="button" class="ui-btn ui-btn--primary" id="anat-cta-btn">确认编入序列 <span class="keycap">ENTER</span></button>
+                </div>
+                <div class="anatomy-pin-wrap">
+                  <button type="button" class="pin-num" data-anat="4">4</button>
+                  <button type="button" class="ui-btn" id="btn-loading-test">点击实测加载防连点</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 斜切 Tab + 纯白扫光行 -->
+            <div>
+              <div style="font-size:11px;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:8px">T1 斜切平行四边形 Tab &amp; R1 纯白左实→右渐隐扫光焦点项</div>
+              <div class="anatomy-sample-row" style="justify-content:space-between">
+                <div class="anatomy-pin-wrap">
+                  <button type="button" class="pin-num" data-anat="5">5</button>
+                  <div class="skew-tabs" id="demo-skew-tabs">
+                    <button type="button" class="skew-tab active"><span>地面装甲</span></button>
+                    <button type="button" class="skew-tab"><span>空中支援</span></button>
+                    <button type="button" class="skew-tab"><span>生化洗消</span></button>
+                  </div>
+                </div>
+              </div>
+              <ul class="ui-list" style="margin-top:10px;max-width:440px" id="demo-sweep-list">
+                <li class="ui-row active"><span>整备铁砧 01 并封锁主跑道</span><span class="pip-dot"></span></li>
+                <li class="ui-row"><span>呼叫 A-10C 扫射东北沦陷机库</span><span class="mono" style="font-size:11px;opacity:.7">1.42 km</span></li>
+                <li class="ui-row"><span>护卫西侧防空补给走廊</span><span class="mono" style="font-size:11px;opacity:.7">0.32 km</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="anatomy-list" id="anatomy-list">
+            <div class="anatomy-note active" data-anat="1">
+              <strong><span class="pin-num">1</span> 外扩硬黑描边纯白字（paint-order: stroke fill）</strong>
+              <p>先绘 3.4px 外扩实心黑边，再填纯白字形，杜绝默认居中描边啃瘦白字；在亮水泥、草地与暗夜背景均清晰不丢边。</p>
+            </div>
+            <div class="anatomy-note" data-anat="2">
+              <strong><span class="pin-num">2</span> 描边隔离键位徽章（单字正圆 / 多字胶囊）</strong>
+              <p>内部强制声明 `-webkit-text-stroke: 0; text-shadow: none`，单字采用正圆黑框白底键帽，多字自动延展为 2px 黑框胶囊；激活切为主黄底。</p>
+            </div>
+            <div class="anatomy-note" data-anat="3">
+              <strong><span class="pin-num">3</span> L3 主行动 CTA（每屏限唯一主焦点）</strong>
+              <p>采用主金/主黄实心填充配深墨黑字（对比度 &gt; 10:1），仅用于最高优先级确认动作，严禁满屏堆砌多个黄色按钮。</p>
+            </div>
+            <div class="anatomy-note" data-anat="4">
+              <strong><span class="pin-num">4</span> 动词文案 ＋ 即时加载防连点状态</strong>
+              <p>按钮文案以清晰动词开头（确认、部署、取消）；提交中自动切为旋转指示器并锁定点击，避免重复触发。</p>
+            </div>
+            <div class="anatomy-note" data-anat="5">
+              <strong><span class="pin-num">5</span> 斜切平行四边形 Tab ＋ 纯白渐隐扫光行</strong>
+              <p>容器 `skewX(-13deg)` 配内文反向 `skewX(13deg)` 保持字体端正；列表选中采用左白右渐隐扫光＋44px 呼吸行高，彻底淘汰左侧硬黄竖条。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.3 完整交互状态矩阵（Variants × 6 Pointer States） -->
+      <div class="spec-card">
+        <div class="card-head">
+          <h3>3.3 按钮变体 × 6 态完整矩阵（Default / Hover / Active / Focus / Selected / Disabled）</h3>
+          <span class="sub-note">静默态可真实移入/点击/Tab 聚焦体验；右侧列锁定展示各瞬态视觉表现</span>
+        </div>
+        <div class="matrix-wrap">
+          <table class="state-table">
+            <thead>
+              <tr>
+                <th>变体层级</th>
+                <th>Default（可实操）</th>
+                <th>Hover 悬停态</th>
+                <th>Active 按下态</th>
+                <th>Focus 聚焦态</th>
+                <th>Selected 选中态</th>
+                <th>Disabled / Loading</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="row-role"><strong>L3 · Primary 主行动</strong><span>唯一主确认动作</span></td>
+                <td><button type="button" class="ui-btn ui-btn--primary" data-demo-toast="点击了主行动按钮">确认部署</button></td>
+                <td><button type="button" class="ui-btn ui-btn--primary is-hover-sim">确认部署</button></td>
+                <td><button type="button" class="ui-btn ui-btn--primary is-active-sim">确认部署</button></td>
+                <td><button type="button" class="ui-btn ui-btn--primary is-focus-sim">确认部署</button></td>
+                <td><button type="button" class="ui-btn ui-btn--primary is-selected">已确认</button></td>
+                <td><button type="button" class="ui-btn ui-btn--primary" disabled><span class="btn-spinner"></span> 部署中</button></td>
+              </tr>
+              <tr>
+                <td class="row-role"><strong>L2 · Secondary 常规</strong><span>面板结构操作钮</span></td>
+                <td><button type="button" class="ui-btn" data-demo-toast="点击了常规结构按钮">切换编队</button></td>
+                <td><button type="button" class="ui-btn is-hover-sim">切换编队</button></td>
+                <td><button type="button" class="ui-btn is-active-sim">切换编队</button></td>
+                <td><button type="button" class="ui-btn is-focus-sim">切换编队</button></td>
+                <td><button type="button" class="ui-btn is-selected">当前编队</button></td>
+                <td><button type="button" class="ui-btn" disabled>不可用</button></td>
+              </tr>
+              <tr>
+                <td class="row-role"><strong>L2 · Ghost 幽灵辅助</strong><span>取消/次要退让</span></td>
+                <td><button type="button" class="ui-btn ui-btn--ghost" data-demo-toast="点击了幽灵辅助按钮">取消返回</button></td>
+                <td><button type="button" class="ui-btn ui-btn--ghost is-hover-sim">取消返回</button></td>
+                <td><button type="button" class="ui-btn ui-btn--ghost is-active-sim">取消返回</button></td>
+                <td><button type="button" class="ui-btn ui-btn--ghost is-focus-sim">取消返回</button></td>
+                <td><button type="button" class="ui-btn ui-btn--ghost is-selected">已锁定</button></td>
+                <td><button type="button" class="ui-btn ui-btn--ghost" disabled>暂未开放</button></td>
+              </tr>
+              <tr>
+                <td class="row-role"><strong>语义 · Danger 高危</strong><span>清空/中止/红区</span></td>
+                <td><button type="button" class="ui-btn ui-btn--danger" data-demo-toast="触发危险操作演示" data-toast-tone="crimson">清空航路</button></td>
+                <td><button type="button" class="ui-btn ui-btn--danger is-hover-sim">清空航路</button></td>
+                <td><button type="button" class="ui-btn ui-btn--danger is-active-sim">清空航路</button></td>
+                <td><button type="button" class="ui-btn ui-btn--danger is-focus-sim">清空航路</button></td>
+                <td><button type="button" class="ui-btn ui-btn--danger is-selected">已中止</button></td>
+                <td><button type="button" class="ui-btn ui-btn--danger" disabled>冷却中</button></td>
+              </tr>
+              <tr>
+                <td class="row-role"><strong>语义 · Toxic 生化</strong><span>洗消/辐射专控</span></td>
+                <td><button type="button" class="ui-btn ui-btn--toxic" data-demo-toast="触发洗消操作演示" data-toast-tone="toxic">生化洗消</button></td>
+                <td><button type="button" class="ui-btn ui-btn--toxic is-hover-sim">生化洗消</button></td>
+                <td><button type="button" class="ui-btn ui-btn--toxic is-active-sim">生化洗消</button></td>
+                <td><button type="button" class="ui-btn ui-btn--toxic is-focus-sim">生化洗消</button></td>
+                <td><button type="button" class="ui-btn ui-btn--toxic is-selected">洗消中</button></td>
+                <td><button type="button" class="ui-btn ui-btn--toxic" disabled>弹药空</button></td>
+              </tr>
+              <tr>
+                <td class="row-role"><strong>L1 · 无底框硬描边</strong><span>3D 边缘微操</span></td>
+                <td><button type="button" class="ui-prompt-btn" data-demo-toast="L1 快捷指令已触发"><span class="ui-outlined-text">聚焦</span><span class="keycap keycap--circle">F</span></button></td>
+                <td><button type="button" class="ui-prompt-btn is-hover-sim"><span class="ui-outlined-text">聚焦</span><span class="keycap keycap--circle">F</span></button></td>
+                <td><button type="button" class="ui-prompt-btn is-active-sim"><span class="ui-outlined-text">聚焦</span><span class="keycap keycap--circle">F</span></button></td>
+                <td><button type="button" class="ui-prompt-btn is-focus-sim"><span class="ui-outlined-text">聚焦</span><span class="keycap keycap--circle">F</span></button></td>
+                <td><button type="button" class="ui-prompt-btn is-selected"><span class="ui-outlined-text">已聚焦</span><span class="keycap keycap--circle">F</span></button></td>
+                <td><button type="button" class="ui-prompt-btn is-disabled-sim" disabled><span class="ui-outlined-text">锁定</span><span class="keycap keycap--dark">G</span></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         04 · 微交互控件（联动验证区 · 对标 VibeHub 表单分类）
+         ==================================================================== -->
+    <section class="spec-section" id="sec-controls">
+      <div class="section-head">
+        <div class="section-head-left">
+          <span class="sec-index">04</span>
+          <div>
+            <h2>微交互控件 <span class="sec-en">Controls &amp; Form Primitives</span></h2>
+            <div class="sec-goal">实时继承上方拍板的配色与倒角，验证整套语言延展到表单控件的一致性</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="spec-card">
+          <div class="card-head">
+            <h3>核心微交互控件（垂直白棒 Slider / Stepper / Switch）</h3>
+            <span class="sub-note">可直接拖曳、点击测试</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+              <span>主音量 / 暗角深度（垂直白棒滑块）</span>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="ui-slider" id="demo-ui-slider" data-val="68">
+                  <div class="ui-slider-track"><div class="ui-slider-fill" style="width:68%"></div></div>
+                  <div class="ui-slider-thumb" style="left:68%"></div>
+                </div>
+                <span class="mono" id="demo-ui-slider-val" style="min-width:36px;text-align:right;color:var(--accent)">68%</span>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:10px;border-top:1px solid var(--line-hair)">
+              <span>画质与导航档位（无框 Stepper）</span>
+              <div class="ui-stepper" id="demo-stepper">
+                <span id="demo-step-label" style="min-width:92px;text-align:right">高 · 3 / 3</span>
+                <button type="button" class="ui-stepper-btn" data-dir="-1" aria-label="上一档">‹</button>
+                <button type="button" class="ui-stepper-btn" data-dir="1" aria-label="下一档">›</button>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:10px;border-top:1px solid var(--line-hair)">
+              <span>动态隐退 HUD（全圆角 Switch）</span>
+              <button type="button" class="ui-switch" id="demo-switch" role="switch" aria-checked="true" aria-label="动态隐退开关"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="spec-card">
+          <div class="card-head">
+            <h3>输入框与分段控件（辨析：按钮 ≠ 分段控件）</h3>
+            <span class="sub-note">按钮执行动作，分段控件切换同级视图</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div>
+              <label for="demo-input-ok" style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:5px">编队呼号输入（常规与聚焦态）</label>
+              <input id="demo-input-ok" class="ui-input" type="text" value="铁砧 01 · 重甲先锋" placeholder="输入呼号">
+            </div>
+            <div>
+              <label for="demo-input-err" style="display:block;font-size:12px;color:var(--st-crimson);margin-bottom:5px">错误校验态（超长或非法字符）</label>
+              <input id="demo-input-err" class="ui-input is-error" type="text" value="INVALID###CALLSIGN" aria-invalid="true">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:4px">
+              <span style="font-size:12px;color:var(--text-secondary)">分段视图切换器</span>
+              <div class="seg-bar" id="demo-seg-ctrl">
+                <button type="button" class="seg-btn active">全部</button>
+                <button type="button" class="seg-btn">地面</button>
+                <button type="button" class="seg-btn">旋翼</button>
+                <button type="button" class="seg-btn">固定翼</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         05 · 导航与反馈容器（联动验证区 · 不展开演训业务布局）
+         ==================================================================== -->
+    <section class="spec-section" id="sec-containers">
+      <div class="section-head">
+        <div class="section-head-left">
+          <span class="sec-index">05</span>
+          <div>
+            <h2>导航与反馈容器 <span class="sec-en">Navigation · Cards · Overlays</span></h2>
+            <div class="sec-goal">校验浮卡、徽标、Toast 横幅与模态弹窗在不同配色/倒角方案下的整体视觉协调</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="spec-card">
+          <div class="card-head">
+            <h3>非阻塞 Toast 通知队列（4 语义通道）</h3>
+            <span class="sub-note">点击按钮预览右下角进出场动效</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <button type="button" class="ui-btn ui-btn--primary ui-btn--sm" data-demo-toast="东北跑道检测到高密度尸群聚集" data-toast-tone="accent">主警戒金</button>
+            <button type="button" class="ui-btn ui-btn--cyan ui-btn--sm" data-demo-toast="铁砧 01 与游隼 02 航路已同步" data-toast-tone="cyan">航路青</button>
+            <button type="button" class="ui-btn ui-btn--danger ui-btn--sm" data-demo-toast="3 号机库不可通行，已安全停稳" data-toast-tone="crimson">高危红</button>
+            <button type="button" class="ui-btn ui-btn--toxic ui-btn--sm" data-demo-toast="南侧酸蚀毒雾浓度上升，建议高空规避" data-toast-tone="toxic">毒雾绿</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:8px;border-top:1px solid var(--line-hair)">
+            <span class="status-pill"><i></i>PENDING CLEARANCE</span>
+            <span class="status-pill" style="color:var(--st-emerald)"><i></i>AIRSPACE READY</span>
+            <span class="status-pill" style="color:var(--st-crimson)"><i></i>BREACH LEVEL 4</span>
+          </div>
+        </div>
+
+        <div class="spec-card">
+          <div class="card-head">
+            <h3>模态确认弹窗（Modal Dialog）</h3>
+            <span class="sub-note">暗景深遮罩 ＋ 单一主 CTA ＋ ESC 退出</span>
+          </div>
+          <p style="margin:0;font-size:12.5px;color:var(--text-secondary)">检验倒角、配色、毛玻璃层级和“幽灵取消 vs 实心主确认”按钮在模态层中的对比关系。</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px">
+            <button type="button" class="ui-btn ui-btn--primary" id="btn-open-demo-modal">打开标准确认弹窗</button>
+            <button type="button" class="ui-btn ui-btn--danger" id="btn-open-danger-modal">打开高危封锁弹窗</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         06 · 排版与键位徽章（Typography & Keycaps）
+         ==================================================================== -->
+    <section class="spec-section" id="sec-type">
+      <div class="section-head">
+        <div class="section-head-left">
+          <span class="sec-index">06</span>
+          <div>
+            <h2>排版、剪影与键位徽章 <span class="sec-en">Typography · Silhouettes · Keycaps</span></h2>
+            <div class="sec-goal">锁定字阶、等宽数字（tabular-nums）、同源军事负空间剪影与键帽隔离规则</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="spec-card">
+          <div class="card-head">
+            <h3>字体与字号阶梯</h3>
+            <span class="sub-note">高耸窄体标题 × 清晰无衬线正文 × 零抖动等宽数标</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line-hair);padding-bottom:8px">
+              <span class="display-font" style="font-size:26px;color:var(--accent)">BIOHAZARD BREACH</span>
+              <span class="mono" style="font-size:11px;color:var(--text-muted)">Display · 26px · Condensed</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line-hair);padding-bottom:8px">
+              <span style="font-size:16px;font-weight:800">前线装甲编队态势摘要</span>
+              <span class="mono" style="font-size:11px;color:var(--text-muted)">Heading · 16px · 800</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line-hair);padding-bottom:8px">
+              <span style="font-size:13.5px;color:var(--text-secondary)">正文说明文字遵循 1.5 行高，确保在暗场面板内连续阅读不压抑。</span>
+              <span class="mono" style="font-size:11px;color:var(--text-muted)">Body · 13.5px</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span class="mono" style="font-size:16px;font-weight:700;color:var(--st-cyan)">60.0 FPS · 14.2 ms · 401 m</span>
+              <span class="mono" style="font-size:11px;color:var(--text-muted)">Mono · tabular-nums</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="spec-card">
+          <div class="card-head">
+            <h3>键位徽章全家福 ＋ 同源负空间剪影（EVENODD）</h3>
+            <span class="sub-note">与全局规范共享同一套矢量路径</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+            <span class="keycap keycap--circle">F</span>
+            <span class="keycap keycap--circle">C</span>
+            <span class="keycap keycap--circle">E</span>
+            <span class="keycap keycap--circle">1</span>
+            <span class="keycap">TAB</span>
+            <span class="keycap">SHIFT</span>
+            <span class="keycap">ESC</span>
+            <span class="keycap">右键</span>
+            <span class="keycap keycap--accent">F5 激活</span>
+            <span class="keycap keycap--dark">G 禁用</span>
+          </div>
+          <div id="silhouette-strip" style="display:flex;flex-wrap:wrap;gap:10px;padding-top:10px;border-top:1px solid var(--line-hair)"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         07 · 正反红线与“防 AI 味儿”守则（致敬 VibeHub /anti-ai-flavor）
+         ==================================================================== -->
+    <section class="spec-section" id="sec-dodont">
+      <div class="section-head">
+        <div class="section-head-left">
+          <span class="sec-index">07</span>
+          <div>
+            <h2>正反红线与防“AI 味儿”守则 <span class="sec-en">Do / Don't · Anti-Patterns</span></h2>
+            <div class="sec-goal">借鉴 VibeHub「防止 AI 味儿」模块：提前锁死后续搭建整套界面时的视觉雷区</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-card">
+        <div class="dodont-row">
+          <div class="dodont-box dodont-box--bad">
+            <span class="dodont-tag">✗ 禁止：居中描边啃字 ＋ 键标继承黑描边糊团</span>
+            <div class="dodont-demo">
+              <span class="bad-stroke-text">重新居中</span>
+              <span class="bad-keycap-inherit">C</span>
+            </div>
+            <p>缺少 `paint-order: stroke fill` 会把白字笔画向内啃细；键帽未重置 `-webkit-text-stroke: 0` 会让黑字瞬间糊成黑块。</p>
+          </div>
+          <div class="dodont-box dodont-box--good">
+            <span class="dodont-tag">✓ 规范：外扩黑描边 ＋ 键标描边隔离</span>
+            <div class="dodont-demo">
+              <button type="button" class="ui-prompt-btn"><span class="ui-outlined-text">重新居中</span><span class="keycap keycap--circle">C</span></button>
+            </div>
+            <p>严格先画外扩实心黑边再填纯白字形，键帽内显式隔离重置描边，任意亮暗 3D 场景下都锐利如刀。</p>
+          </div>
+        </div>
+
+        <div class="dodont-row">
+          <div class="dodont-box dodont-box--bad">
+            <span class="dodont-tag">✗ 禁止：框里再套框 ＋ 无语义混用多种圆角</span>
+            <div class="dodont-demo">
+              <div style="border:2px solid #ffbb29;padding:8px;border-radius:2px;background:#000">
+                <div style="border:1px solid #666;padding:6px;border-radius:16px">
+                  <span style="display:inline-block;padding:4px 10px;border:1px solid #ffbb29;border-radius:7px;font-size:11px;color:#ffbb29">套娃按钮</span>
+                </div>
+              </div>
+            </div>
+            <p>粗黄外框套圆角内框再套散乱圆角按钮，造成典型“廉价模板感”和视觉噪音。</p>
+          </div>
+          <div class="dodont-box dodont-box--good">
+            <span class="dodont-tag">✓ 规范：单层轻界表面 ＋ 两级倒角令牌</span>
+            <div class="dodont-demo">
+              <div style="padding:10px 14px;background:var(--bg-surface);border:1px solid var(--line-hair);border-radius:var(--r-surface);clip-path:var(--clip-surface);display:flex;align-items:center;gap:10px">
+                <span style="font-size:12px;color:var(--text-secondary)">单层面板</span>
+                <button type="button" class="ui-btn ui-btn--sm">清晰操作</button>
+              </div>
+            </div>
+            <p>所有容器严格归入 `--r-surface`，所有交互控件严格归入 `--r-control`，用明度层级而非多层粗框区分结构。</p>
+          </div>
+        </div>
+
+        <div class="dodont-row">
+          <div class="dodont-box dodont-box--bad">
+            <span class="dodont-tag">✗ 禁止：满屏荧光黄 CTA 互抢焦点 ＋ 低对比死灰字</span>
+            <div class="dodont-demo">
+              <span style="padding:6px 12px;background:#ffdf00;color:#000;font-weight:800;border-radius:4px;font-size:12px">取消</span>
+              <span style="padding:6px 12px;background:#ffdf00;color:#000;font-weight:800;border-radius:4px;font-size:12px">详情</span>
+              <span style="padding:6px 12px;background:#ffdf00;color:#000;font-weight:800;border-radius:4px;font-size:12px">确认</span>
+              <span style="font-size:12px;color:#3d404b">暗灰辅助说明 1.9:1</span>
+            </div>
+            <p>所有按钮同等高饱和黄会导致焦点失效；深底配过暗灰字在战斗扫视中完全不可读。</p>
+          </div>
+          <div class="dodont-box dodont-box--good">
+            <span class="dodont-tag">✓ 规范：单屏唯一 L3 主 CTA ＋ 达标对比度</span>
+            <div class="dodont-demo">
+              <button type="button" class="ui-btn ui-btn--ghost ui-btn--sm">取消</button>
+              <button type="button" class="ui-btn ui-btn--sm">详情</button>
+              <button type="button" class="ui-btn ui-btn--primary ui-btn--sm">确认部署</button>
+            </div>
+            <p>主次分层一眼明确：幽灵退让 → 常规承托 → 单一主行动 CTA 聚焦；次文字对比度始终守住 4.5:1 以上。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 导出拍板令牌 / 演示弹窗 -->
+<div class="modal-backdrop" id="modal-backdrop" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <span class="status-pill" id="modal-pill"><i></i>TOKEN SNAPSHOT</span>
+        <h3 class="display-font" id="modal-title" style="margin:8px 0 0;font-size:22px">当前拍板设计令牌</h3>
+      </div>
+      <button type="button" class="ui-btn ui-btn--ghost ui-btn--sm" id="modal-close-x">关闭 <span class="keycap keycap--dark">ESC</span></button>
+    </div>
+    <p id="modal-desc" style="margin:0;font-size:12.5px;color:var(--text-secondary)">可将下方已锁定的配色、按钮表现与倒角令牌直接复制到后续规范文档或共享 CSS 源中。</p>
+    <pre class="modal-code" id="modal-code"></pre>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px" id="modal-actions">
+      <button type="button" class="ui-btn ui-btn--ghost" id="modal-cancel">取消</button>
+      <button type="button" class="ui-btn ui-btn--primary" id="modal-primary">一键复制 CSS 令牌</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 队列 -->
+<div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const SILHOUETTES = {
+    tank: { name: '主战坦克', ch: '地面通道', col: 'var(--st-cyan)', d: 'M3 13 L5 11.5 L8 11.5 L9.5 8.5 L14.5 8.5 L15.8 10.2 L18.5 10.2 L18.5 9.8 L20.2 9.8 L20.2 10.2 L23 10.2 L23 11.4 L15.8 11.4 L15.5 12.2 L19.5 12.2 L21 14 L19.2 17.2 L4 17.2 L2.2 14.5 Z M6 14.5h2.2v1.4H6Z M10.4 14.5h2.2v1.4H10.4Z M14.8 14.5h2.2v1.4H14.8Z' },
+    supply: { name: '补给洗消车', ch: '地面后勤', col: 'var(--st-emerald)', d: 'M3 6.5 L15.8 6.5 L15.8 11 L16.6 11 L16.6 8 L19.5 8 L21.4 11.5 L21.4 15.5 L19.6 17.8 L3.6 17.8 L2.2 15.5 L2.2 13 L3 13 Z M17.4 9.2h1.7l1.1 2.3H17.4Z M8.4 8.2H10.4V10H12.2V12H10.4V13.8H8.4V12H6.6V10H8.4Z M5 15.2h2.5v1.3H5Z M11 15.2h2.5v1.3H11Z M16.2 15.2h2.2v1.3H16.2Z' },
+    heli: { name: '武装直升机', ch: '30m 旋翼', col: 'var(--st-sky)', d: 'M3 6.2H21V7.6H13V9.6H11V7.6H3Z M2 10.2L4.2 10.2L5.2 12.2L10.2 12.2L11.5 9.6L15.6 9.6L17.8 11.5L20.5 12.5L21.8 13.8L20.2 14.8L16.2 15L14.5 16.5H10L9.2 15L4.5 13.8L3.2 15L2 14.2Z M12.2 10.6H14.8L16.4 12.1H12.2Z' },
+    plane: { name: '固定翼攻击机', ch: '100m 打击', col: 'var(--st-violet)', d: 'M12 1.8L13.5 5.2L13.6 9.5L22.2 10.2V13.2L13.5 13L13.4 15.2L14.4 15.6V17.8H13.1L13 19L16.8 19.6V21.6L12.7 21L12 22.2L11.3 21L7.2 21.6V19.6L11 19L10.9 17.8H9.6V15.6L10.6 15.2L10.5 13L1.8 13.2V10.2L10.4 9.5L10.5 5.2Z M11.4 5.4h1.2v3H11.4Z' },
+    biohazard: { name: '生化危情', ch: '主题警戒', col: 'var(--accent)', d: 'M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 3.2a5.2 5.2 0 0 1 4.4 7.9a3.4 3.4 0 0 0-3.3-1.4a3.2 3.2 0 0 0-2.2 0a3.4 3.4 0 0 0-3.3 1.4A5.2 5.2 0 0 1 12 3.2Z M4.5 16.2a5.2 5.2 0 0 1 4.4-7.8a3.4 3.4 0 0 0 .4 3.6a3.4 3.4 0 0 0 1.2 1.9a3.4 3.4 0 0 0 2.9 2.2A5.2 5.2 0 0 1 4.5 16.2Z M19.5 16.2a5.2 5.2 0 0 1-8.9-.1a3.4 3.4 0 0 0 2.9-2.2a3.4 3.4 0 0 0 1.2-1.9a3.4 3.4 0 0 0 .4-3.6A5.2 5.2 0 0 1 19.5 16.2Z' },
+    radiation: { name: '毒雾酸蚀', ch: '剧毒区域', col: 'var(--st-toxic)', d: 'M12 12m-1.8 0a1.8 1.8 0 1 0 3.6 0a1.8 1.8 0 1 0-3.6 0 M12 3a9 9 0 0 0-7.8 4.5l4.4 2.5a4 4 0 0 1 6.8 0l4.4-2.5A9 9 0 0 0 12 3Z M4.2 16.5A9 9 0 0 0 12 21v-5a4 4 0 0 1-3.4-2Z M19.8 16.5l-4.4-2.5A4 4 0 0 1 12 16v5a9 9 0 0 0 7.8-4.5Z' },
+  };
+
+  function makeSvg(path, size = 20) {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', size);
+    svg.setAttribute('height', size);
+    svg.setAttribute('aria-hidden', 'true');
+    const p = document.createElementNS(SVG_NS, 'path');
+    p.setAttribute('d', path);
+    p.setAttribute('fill', 'currentColor');
+    p.setAttribute('fill-rule', 'evenodd');
+    svg.append(p);
+    return svg;
+  }
+
+  /* ====== 预设元数据 ====== */
+  const PALETTES = {
+    A1: {
+      name: '暗夜暖金曜石',
+      voidHex: '#0e0e16', panelHex: '#201f2d', surfaceHex: '#282738',
+      accentHex: '#f3d97d', accentStrongHex: '#ffbb29',
+      textPrimary: '#f5f5f8', textSecondary: '#b6b8c7', textMuted: '#84879a', inkHex: '#101017',
+    },
+    A2: {
+      name: '工业生化黑黄',
+      voidHex: '#0a0b0d', panelHex: '#17181d', surfaceHex: '#212329',
+      accentHex: '#f5c518', accentStrongHex: '#ffaa00',
+      textPrimary: '#f7f8fa', textSecondary: '#b7bcc6', textMuted: '#828894', inkHex: '#0a0b0d',
+    },
+    A3: {
+      name: '烟炭双金融合',
+      voidHex: '#0d0e13', panelHex: '#1b1c24', surfaceHex: '#242530',
+      accentHex: '#f0d372', accentStrongHex: '#ffb800',
+      textPrimary: '#f5f6f9', textSecondary: '#b6bac5', textMuted: '#838896', inkHex: '#0d0e13',
+    },
+  };
+
+  const BTN_STYLES = {
+    B1: { name: '电影轻玻璃', desc: '无硬外框 · 顶部玻璃内高光 · 轻压反馈' },
+    B2: { name: '微描边精工', desc: '1px 清晰边框 · 悬停亮金边与亮字' },
+    B3: { name: '实机高反差', desc: '静默隐退 · 悬停纯白黑字反色硬切' },
+  };
+
+  const CORNERS = {
+    C1: { name: '柔圆角', surface: 12, control: 9, chamfer: 0, pillPrimary: true },
+    C2: { name: '紧凑微角', surface: 7, control: 4, chamfer: 0, pillPrimary: false },
+    C3: { name: '45° 军事切角', surface: 0, control: 0, chamfer: 10, pillPrimary: false },
+    C4: { name: '外柔内锐', surface: 12, control: 4, chamfer: 0, pillPrimary: false },
+    C5: { name: '纯直角 0px', surface: 0, control: 0, chamfer: 0, pillPrimary: false },
+  };
+
+  const state = {
+    palette: 'A1',
+    btnStyle: 'B1',
+    corner: 'C1',
+    rSurface: 12,
+    rControl: 9,
+    chamfer: 10,
+    pillPrimary: true,
+    strokeW: 3.4,
+  };
+
+  /* ====== Toast 队列 ====== */
+  const toastStack = document.getElementById('toast-stack');
+  const TONE_COLOR = {
+    accent: 'var(--accent)',
+    cyan: 'var(--st-cyan)',
+    crimson: 'var(--st-crimson)',
+    toxic: 'var(--st-toxic)',
+  };
+  function pushToast(title, desc = '', tone = 'accent') {
+    const col = TONE_COLOR[tone] || TONE_COLOR.accent;
+    while (toastStack.children.length >= 2) {
+      toastStack.lastElementChild.remove();
+    }
+    const item = document.createElement('div');
+    item.className = 'toast-item';
+    item.innerHTML = `<span class="toast-dot" style="background:${col};box-shadow:0 0 10px ${col}"></span><div><strong style="color:${col}">${title}</strong>${desc ? `<span>${desc}</span>` : ''}</div>`;
+    toastStack.prepend(item);
+    setTimeout(() => item.remove(), 2600);
+  }
+
+  /* ====== WCAG 2.1 实时对比度计算 ====== */
+  function hexToRgb(hex) {
+    const clean = hex.replace('#', '');
+    const n = parseInt(clean, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function relLum(hex) {
+    const [r, g, b] = hexToRgb(hex).map(v => {
+      const s = v / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+  function contrastRatio(hex1, hex2) {
+    const l1 = relLum(hex1);
+    const l2 = relLum(hex2);
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  }
+  function wcagGrade(ratio) {
+    if (ratio >= 7) return { label: 'AAA 极佳', cls: 'wcag-pass' };
+    if (ratio >= 4.5) return { label: 'AA 达标', cls: 'wcag-pass' };
+    if (ratio >= 3) return { label: 'AA 大字', cls: 'wcag-warn' };
+    return { label: '未达标', cls: 'wcag-fail' };
+  }
+
+  /* ====== 渲染色板色卡与 WCAG 核验 ====== */
+  function renderPaletteVisuals() {
+    const p = PALETTES[state.palette];
+    const swatches = [
+      { label: '深空底板', token: '--bg-void', hex: p.voidHex, role: '底层视口背景' },
+      { label: '主面板基底', token: '--bg-panel', hex: p.panelHex, role: '毛玻璃/实底主容器' },
+      { label: '悬浮卡片面', token: '--bg-surface', hex: p.surfaceHex, role: '二级控件承托面' },
+      { label: '品牌主金/黄', token: '--accent', hex: p.accentHex, role: '主 CTA 与核心焦点' },
+      { label: '强警示琥珀', token: '--accent-strong', hex: p.accentStrongHex, role: '高危/高亮锚点' },
+      { label: '主文字纯白', token: '--text-primary', hex: p.textPrimary, role: '标题、呼号、读数' },
+      { label: '次文字雾灰', token: '--text-secondary', hex: p.textSecondary, role: '说明与常规列表' },
+      { label: '反色墨黑字', token: '--text-ink', hex: p.inkHex, role: '金底/白底反色文字' },
+      { label: '地面通道青', token: '--st-cyan', hex: '#38e5c0', role: '地面单位与航路' },
+      { label: '旋翼通道天蓝', token: '--st-sky', hex: '#68c8ff', role: '30m 武装直升机' },
+      { label: '固定翼通道紫', token: '--st-violet', hex: '#b197fc', role: '100m 攻击机轨' },
+      { label: '危险红区猩红', token: '--st-crimson', hex: '#ff5266', role: '尸潮/禁止/高危钮' },
+      { label: '生化毒雾酸绿', token: '--st-toxic', hex: '#a8f22c', role: '辐射酸蚀/洗消' },
+      { label: '安全后勤翡翠', token: '--st-emerald', hex: '#3cd69f', role: '补给/就绪/通过' },
+    ];
+
+    const grid = document.getElementById('swatch-grid');
+    grid.replaceChildren();
+    for (const s of swatches) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'swatch-item';
+      btn.innerHTML = `<span class="swatch-chip" style="background:${s.hex}"></span><span class="swatch-meta"><strong>${s.label}</strong><code>${s.hex}</code><span>${s.token} · ${s.role}</span></span>`;
+      btn.addEventListener('click', () => {
+        copyText(`${s.token}: ${s.hex};`, `已复制 ${s.label} (${s.hex})`);
+      });
+      grid.append(btn);
+    }
+
+    const pairs = [
+      { title: '面板主文字', fg: p.textPrimary, bg: p.panelHex },
+      { title: '面板次文字', fg: p.textSecondary, bg: p.panelHex },
+      { title: '主 CTA 金底黑字', fg: p.inkHex, bg: p.accentHex },
+      { title: '扫光白底黑字', fg: p.inkHex, bg: '#ffffff' },
+      { title: '面板主金字', fg: p.accentHex, bg: p.panelHex },
+      { title: '静默辅助注脚', fg: p.textMuted, bg: p.panelHex },
+    ];
+    const wcagHost = document.getElementById('wcag-grid');
+    wcagHost.replaceChildren();
+    let mainRatio = 0;
+    pairs.forEach((pair, idx) => {
+      const ratio = contrastRatio(pair.fg, pair.bg);
+      if (idx === 0) mainRatio = ratio;
+      const g = wcagGrade(ratio);
+      const tile = document.createElement('div');
+      tile.className = 'wcag-tile';
+      tile.style.background = pair.bg;
+      tile.style.color = pair.fg;
+      tile.innerHTML = `
+        <div class="wcag-sample">${pair.title}</div>
+        <div class="wcag-foot">
+          <span>${ratio.toFixed(2)} : 1</span>
+          <span class="wcag-pill ${g.cls}">${g.label}</span>
+        </div>
+      `;
+      wcagHost.append(tile);
+    });
+    document.getElementById('snap-wcag').textContent = `${mainRatio.toFixed(2)} : 1 (AAA)`;
+  }
+
+  /* ====== 应用全局状态到 DOM & CSS 变量 ====== */
+  function applyAllTokens() {
+    const root = document.documentElement;
+    document.body.dataset.palette = state.palette;
+    document.body.dataset.btnStyle = state.btnStyle;
+    document.body.dataset.corner = state.corner;
+
+    const isChamfer = state.corner === 'C3';
+    const rs = isChamfer ? 0 : state.rSurface;
+    const rc = isChamfer ? 0 : state.rControl;
+    const rsm = isChamfer ? 0 : Math.max(0, Math.round(rc * 0.68));
+    const chS = isChamfer ? state.chamfer : 0;
+    const chC = isChamfer ? Math.max(4, Math.round(state.chamfer * 0.65)) : 0;
+
+    root.style.setProperty('--r-surface', `${rs}px`);
+    root.style.setProperty('--r-surface-lg', `${isChamfer ? 0 : Math.min(20, rs + 4)}px`);
+    root.style.setProperty('--r-control', `${rc}px`);
+    root.style.setProperty('--r-sm', `${rsm}px`);
+    root.style.setProperty('--btn-primary-radius', (!isChamfer && state.pillPrimary) ? '9999px' : `${rc}px`);
+    root.style.setProperty('--clip-surface', isChamfer ? `polygon(${chS}px 0, 100% 0, 100% calc(100% - ${chS}px), calc(100% - ${chS}px) 100%, 0 100%, 0 ${chS}px)` : 'none');
+    root.style.setProperty('--clip-control', isChamfer ? `polygon(${chC}px 0, 100% 0, 100% calc(100% - ${chC}px), calc(100% - ${chC}px) 100%, 0 100%, 0 ${chC}px)` : 'none');
+    root.style.setProperty('--outlined-stroke-w', `${state.strokeW.toFixed(1)}px`);
+
+    // 同步顶部与页面内选择状态
+    document.querySelectorAll('[data-palette-btn]').forEach(el => {
+      const hit = el.dataset.paletteBtn === state.palette;
+      el.classList.toggle('active', hit);
+      el.classList.toggle('is-picked', hit);
+    });
+    document.querySelectorAll('[data-btn-style-btn]').forEach(el => {
+      const hit = el.dataset.btnStyleBtn === state.btnStyle;
+      el.classList.toggle('active', hit);
+      el.classList.toggle('is-picked', hit);
+    });
+    document.querySelectorAll('[data-corner-btn]').forEach(el => {
+      const hit = el.dataset.cornerBtn === state.corner;
+      el.classList.toggle('active', hit);
+      el.classList.toggle('is-picked', hit);
+    });
+
+    // 同步滑块与显示值
+    document.getElementById('range-r-surface').value = String(state.rSurface);
+    document.getElementById('range-r-control').value = String(state.rControl);
+    document.getElementById('range-chamfer').value = String(state.chamfer);
+    document.getElementById('val-r-surface').textContent = isChamfer ? '0px (切角中)' : `${state.rSurface}px`;
+    document.getElementById('val-r-control').textContent = isChamfer ? '0px (切角中)' : `${state.rControl}px`;
+    document.getElementById('val-chamfer').textContent = isChamfer ? `${state.chamfer}px / ${chC}px` : '关闭';
+    document.getElementById('sw-pill-primary').setAttribute('aria-checked', String(state.pillPrimary && !isChamfer));
+    document.getElementById('val-pill-mode').textContent = (!isChamfer && state.pillPrimary) ? '全圆角胶囊' : '跟随控件倒角';
+    document.getElementById('val-stroke').textContent = `${state.strokeW.toFixed(1)}px`;
+
+    // 同步左侧快照卡
+    document.getElementById('snap-code').textContent = `${state.palette} · ${state.btnStyle} · ${state.corner}`;
+    document.getElementById('snap-palette').textContent = PALETTES[state.palette].name;
+    document.getElementById('snap-btn').textContent = BTN_STYLES[state.btnStyle].name;
+    document.getElementById('snap-corner').textContent = isChamfer
+      ? `45°切角 ${chS}/${chC}px`
+      : `${CORNERS[state.corner].name} ${rs}/${rc}px`;
+    document.getElementById('snap-stroke').textContent = `${state.strokeW.toFixed(1)}px`;
+
+    renderPaletteVisuals();
+  }
+
+  /* ====== 绑定顶部与卡片切换事件 ====== */
+  document.querySelectorAll('[data-palette-btn]').forEach(el => {
+    el.addEventListener('click', () => {
+      state.palette = el.dataset.paletteBtn;
+      applyAllTokens();
+      pushToast(`配色已切换：${state.palette} ${PALETTES[state.palette].name}`, '全页色板、WCAG 对比度与按钮高亮已同步刷新。');
+    });
+  });
+
+  document.querySelectorAll('[data-btn-style-btn]').forEach(el => {
+    el.addEventListener('click', () => {
+      state.btnStyle = el.dataset.btnStyleBtn;
+      applyAllTokens();
+      pushToast(`按钮质感已切换：${state.btnStyle} ${BTN_STYLES[state.btnStyle].name}`, BTN_STYLES[state.btnStyle].desc);
+    });
+  });
+
+  function selectCornerPreset(code) {
+    const cfg = CORNERS[code];
+    state.corner = code;
+    state.rSurface = cfg.surface;
+    state.rControl = cfg.control;
+    if (cfg.chamfer > 0) state.chamfer = cfg.chamfer;
+    state.pillPrimary = cfg.pillPrimary;
+    applyAllTokens();
+    pushToast(`倒角流派已切换：${code} ${cfg.name}`, '所有容器、按钮、弹窗与输入框已联动更新。');
+  }
+  document.querySelectorAll('[data-corner-btn]').forEach(el => {
+    el.addEventListener('click', () => selectCornerPreset(el.dataset.cornerBtn));
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectCornerPreset(el.dataset.cornerBtn); }
+    });
+  });
+
+  /* ====== 实时滑块微调 ====== */
+  document.getElementById('range-r-surface').addEventListener('input', e => {
+    if (state.corner === 'C3') state.corner = 'C4';
+    state.rSurface = Number(e.target.value);
+    applyAllTokens();
+  });
+  document.getElementById('range-r-control').addEventListener('input', e => {
+    if (state.corner === 'C3') state.corner = 'C4';
+    state.rControl = Number(e.target.value);
+    applyAllTokens();
+  });
+  document.getElementById('range-chamfer').addEventListener('input', e => {
+    state.corner = 'C3';
+    state.chamfer = Number(e.target.value);
+    applyAllTokens();
+  });
+  document.getElementById('sw-pill-primary').addEventListener('click', () => {
+    if (state.corner === 'C3') {
+      pushToast('提示：45° 切角模式下主按钮保持切角一致', '如需胶囊主按钮，可先切换至 C1/C2/C4 方案。');
+      return;
+    }
+    state.pillPrimary = !state.pillPrimary;
+    applyAllTokens();
+  });
+  document.getElementById('range-stroke').addEventListener('input', e => {
+    state.strokeW = Number(e.target.value);
+    applyAllTokens();
+  });
+
+  /* ====== 战场底图切换 ====== */
+  document.querySelectorAll('[data-bg-btn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-bg-btn]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('backdrop-stage').dataset.bg = btn.dataset.bgBtn;
+    });
+  });
+
+  /* ====== 按钮解剖编号联动 ====== */
+  function setAnatomy(idx) {
+    document.querySelectorAll('[data-anat]').forEach(el => {
+      el.classList.toggle('active', el.dataset.anat === String(idx));
+    });
+  }
+  document.querySelectorAll('[data-anat]').forEach(el => {
+    el.addEventListener('click', () => setAnatomy(el.dataset.anat));
+  });
+
+  /* ====== 交互演示：加载防连点 / 斜切 Tab / 扫光行 / 微控件 ====== */
+  const loadBtn = document.getElementById('btn-loading-test');
+  loadBtn.addEventListener('click', () => {
+    if (loadBtn.disabled) return;
+    loadBtn.disabled = true;
+    loadBtn.innerHTML = '<span class="btn-spinner"></span> 同步指令中...';
+    setTimeout(() => {
+      loadBtn.disabled = false;
+      loadBtn.textContent = '指令已同步 ✓（可再测）';
+      pushToast('防连点交互完成', '点击后即时禁用并展示旋转状态，1.2 秒后恢复。', 'cyan');
+    }, 1200);
+  });
+
+  document.getElementById('demo-skew-tabs').querySelectorAll('.skew-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.getElementById('demo-skew-tabs').querySelectorAll('.skew-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  document.getElementById('demo-sweep-list').querySelectorAll('.ui-row').forEach(row => {
+    row.addEventListener('click', () => {
+      document.getElementById('demo-sweep-list').querySelectorAll('.ui-row').forEach(r => r.classList.remove('active'));
+      row.classList.add('active');
+    });
+  });
+
+  document.getElementById('demo-seg-ctrl').querySelectorAll('.seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('demo-seg-ctrl').querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // 垂直白棒滑块
+  const uiSlider = document.getElementById('demo-ui-slider');
+  const updateUiSlider = clientX => {
+    const rect = uiSlider.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(100, Math.round(((clientX - rect.left) / rect.width) * 100)));
+    uiSlider.querySelector('.ui-slider-fill').style.width = `${pct}%`;
+    uiSlider.querySelector('.ui-slider-thumb').style.left = `${pct}%`;
+    document.getElementById('demo-ui-slider-val').textContent = `${pct}%`;
+  };
+  uiSlider.addEventListener('pointerdown', e => {
+    uiSlider.setPointerCapture(e.pointerId);
+    updateUiSlider(e.clientX);
+    const onMove = ev => updateUiSlider(ev.clientX);
+    const onUp = () => {
+      uiSlider.removeEventListener('pointermove', onMove);
+      uiSlider.removeEventListener('pointerup', onUp);
+    };
+    uiSlider.addEventListener('pointermove', onMove);
+    uiSlider.addEventListener('pointerup', onUp);
+  });
+
+  // 无框 Stepper
+  const STEP_LABELS = ['低 · 1 / 3', '中 · 2 / 3', '高 · 3 / 3'];
+  let stepIdx = 2;
+  document.getElementById('demo-stepper').querySelectorAll('.ui-stepper-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      stepIdx = (stepIdx + Number(btn.dataset.dir) + STEP_LABELS.length) % STEP_LABELS.length;
+      document.getElementById('demo-step-label').textContent = STEP_LABELS[stepIdx];
+    });
+  });
+
+  // Switch
+  const demoSwitch = document.getElementById('demo-switch');
+  demoSwitch.addEventListener('click', () => {
+    const next = demoSwitch.getAttribute('aria-checked') !== 'true';
+    demoSwitch.setAttribute('aria-checked', String(next));
+  });
+
+  // 通用 Toast 触发按钮
+  document.querySelectorAll('[data-demo-toast]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pushToast(btn.dataset.demoToast, '', btn.dataset.toastTone || 'accent');
+    });
+  });
+
+  /* ====== 剪影渲染 ====== */
+  document.getElementById('tuner-icon-host').append(makeSvg(SILHOUETTES.tank.d, 20));
+  const silStrip = document.getElementById('silhouette-strip');
+  for (const key of Object.keys(SILHOUETTES)) {
+    const it = SILHOUETTES[key];
+    const chip = document.createElement('div');
+    chip.style.cssText = 'display:inline-flex;align-items:center;gap:8px;padding:7px 11px;background:var(--bg-slot);border:1px solid var(--line-hair);border-radius:var(--r-sm)';
+    const icoWrap = document.createElement('span');
+    icoWrap.style.cssText = `color:${it.col};display:inline-grid;place-items:center`;
+    icoWrap.append(makeSvg(it.d, 20));
+    const txt = document.createElement('span');
+    txt.innerHTML = `<strong style="font-size:12px;display:block;line-height:1.15">${it.name}</strong><small style="font-size:10.5px;color:var(--text-muted)">${it.ch}</small>`;
+    chip.append(icoWrap, txt);
+    silStrip.append(chip);
+  }
+
+  /* ====== 复制辅助与导出拍板令牌弹窗 ====== */
+  function copyText(text, okMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => pushToast(okMsg, '', 'cyan')).catch(() => fallbackCopy(text, okMsg));
+    } else {
+      fallbackCopy(text, okMsg);
+    }
+  }
+  function fallbackCopy(text, okMsg) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.append(ta);
+    ta.select();
+    try { document.execCommand('copy'); pushToast(okMsg, '', 'cyan'); } catch (_) { pushToast('请手动复制弹窗内文本', '', 'accent'); }
+    ta.remove();
+  }
+
+  function buildExportSnippet() {
+    const p = PALETTES[state.palette];
+    const b = BTN_STYLES[state.btnStyle];
+    const c = CORNERS[state.corner];
+    const isCh = state.corner === 'C3';
+    const chC = Math.max(4, Math.round(state.chamfer * 0.65));
+    return `/* Scavenger 生化黄黑 UI/UX 拍板令牌（V003）
+ * 组合代号：${state.palette}（${p.name}） + ${state.btnStyle}（${b.name}） + ${state.corner}（${c.name}）
+ */
+:root {
+  /* 01 · 配色令牌 */
+  --ui-bg-void: ${p.voidHex};
+  --ui-bg-panel: ${p.panelHex};
+  --ui-bg-surface: ${p.surfaceHex};
+  --ui-accent-primary: ${p.accentHex};
+  --ui-accent-strong: ${p.accentStrongHex};
+  --ui-text-primary: ${p.textPrimary};
+  --ui-text-secondary: ${p.textSecondary};
+  --ui-text-muted: ${p.textMuted};
+  --ui-text-ink: ${p.inkHex};
+
+  /* 02 · 倒角令牌 */
+  --ui-corner-mode: "${isCh ? 'chamfer-45deg' : 'border-radius'}";
+  --ui-r-surface: ${isCh ? '0px' : state.rSurface + 'px'};
+  --ui-r-control: ${isCh ? '0px' : state.rControl + 'px'};
+  --ui-btn-primary-radius: ${(!isCh && state.pillPrimary) ? '9999px' : (isCh ? '0px' : state.rControl + 'px')};${isCh ? `\n  --ui-chamfer-surface: ${state.chamfer}px;\n  --ui-chamfer-control: ${chC}px;` : ''}
+
+  /* 03 · 按钮表现与无底框外描边 */
+  --ui-button-preset: "${state.btnStyle} · ${b.name}";
+  --ui-outlined-text-stroke: ${state.strokeW.toFixed(1)}px #090a0f; /* 须配 paint-order: stroke fill */
+}`;
+  }
+
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  const modalCode = document.getElementById('modal-code');
+  const modalPrimary = document.getElementById('modal-primary');
+  let modalMode = 'export';
+
+  function openModal(mode) {
+    modalMode = mode;
+    const pill = document.getElementById('modal-pill');
+    const title = document.getElementById('modal-title');
+    const desc = document.getElementById('modal-desc');
+    modalPrimary.className = 'ui-btn ui-btn--primary';
+
+    if (mode === 'export') {
+      pill.innerHTML = '<i></i>DESIGN TOKEN EXPORT';
+      pill.style.color = 'var(--accent)';
+      title.textContent = `当前拍板规范：${state.palette} · ${state.btnStyle} · ${state.corner}`;
+      desc.textContent = '已汇总当前选定的整体配色、倒角处理与按钮表现令牌，可直接用于后续全局 UI 搭建。';
+      modalCode.hidden = false;
+      modalCode.textContent = buildExportSnippet();
+      modalPrimary.textContent = '一键复制 CSS 令牌';
+    } else if (mode === 'confirm') {
+      pill.innerHTML = '<i></i>STANDARD MODAL';
+      pill.style.color = 'var(--accent)';
+      title.textContent = '确认启用当前视觉规范？';
+      desc.textContent = '演示标准模态弹窗的遮罩景深、表面倒角、幽灵取消按钮与主行动 CTA 的视觉权重对照。';
+      modalCode.hidden = true;
+      modalPrimary.textContent = '确认执行';
+    } else {
+      pill.innerHTML = '<i></i>BIOHAZARD LOCKDOWN';
+      pill.style.color = 'var(--st-crimson)';
+      title.textContent = '高危封锁警报确认';
+      desc.textContent = '不可撤销或高危操作必须使用语义危险红按钮，并要求明确二次确认，避免误触。';
+      modalCode.hidden = true;
+      modalPrimary.className = 'ui-btn ui-btn--danger';
+      modalPrimary.textContent = '确认清空防线';
+    }
+    modalBackdrop.hidden = false;
+  }
+
+  function closeModal() { modalBackdrop.hidden = true; }
+  document.getElementById('btn-export-tokens').addEventListener('click', () => openModal('export'));
+  document.getElementById('btn-open-demo-modal').addEventListener('click', () => openModal('confirm'));
+  document.getElementById('btn-open-danger-modal').addEventListener('click', () => openModal('danger'));
+  document.getElementById('modal-close-x').addEventListener('click', closeModal);
+  document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) closeModal(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape' && !modalBackdrop.hidden) closeModal(); });
+  modalPrimary.addEventListener('click', () => {
+    if (modalMode === 'export') {
+      copyText(buildExportSnippet(), '已复制完整拍板 CSS 令牌');
+    } else if (modalMode === 'danger') {
+      pushToast('已执行高危操作演示', '模态遮罩与按钮语义层级核验通过。', 'crimson');
+      closeModal();
+    } else {
+      pushToast('已确认标准弹窗演示', '当前配色、按钮与倒角组合生效中。', 'cyan');
+      closeModal();
+    }
+  });
+
+  /* ====== 左侧目录滚动高亮联动 ====== */
+  const navLinks = Array.from(document.querySelectorAll('.nav-link'));
+  const sections = navLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  function setActiveNav(hash) {
+    navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === hash));
+  }
+  const io = new IntersectionObserver(entries => {
+    if (window.scrollY < 160) {
+      setActiveNav('#sec-color');
+      return;
+    }
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        setActiveNav(`#${entry.target.id}`);
+      }
+    }
+  }, { rootMargin: '-18% 0px -68% 0px', threshold: 0.01 });
+  sections.forEach(s => io.observe(s));
+  window.addEventListener('scroll', () => {
+    if (window.scrollY < 160) setActiveNav('#sec-color');
+  }, { passive: true });
+
+  applyAllTokens();
+})();
+</script>
+</body>
+</html>

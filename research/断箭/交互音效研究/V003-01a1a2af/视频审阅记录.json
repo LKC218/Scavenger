@@ -1,0 +1,99 @@
+{
+  "sources": [
+    {
+      "来源": "https://www.bilibili.com/video/BV1fENtzrE19/",
+      "标题": "地面单位该怎么操控? 断箭新手上路教学 | 断箭 Broken Arrow",
+      "作者": "飞行ACV",
+      "页面时长秒": 574,
+      "播放时长毫秒": 573483,
+      "清晰度代码": 64,
+      "文件字节": 72832380,
+      "SHA256": "b27c069db4b450857a44b69baa5684f78407ad0358b565864d2819bdf7cf03d0",
+      "获取方式": "标准公开播放接口，无登录、无用户 Cookie；不保存临时媒体签名网址",
+      "decoded_frames": 17204,
+      "expected_frames": 17204,
+      "subtitle_ocr_interval_seconds": 0.5,
+      "review_method": "完整文件顺序解码与字幕时间线审阅，关键操作另查0.5秒连续选帧；非音频转写或逐帧人工观看；未进行原作实机游玩"
+    },
+    {
+      "来源": "https://www.bilibili.com/video/BV1PUNUzkE6F/",
+      "标题": "空中草履虫舔地速成指南! | 断箭 Broken Arrow",
+      "作者": "飞行ACV",
+      "页面时长秒": 680,
+      "播放时长毫秒": 679500,
+      "清晰度代码": 64,
+      "文件字节": 89947476,
+      "SHA256": "f33c34baaac9b9204504664af64661e2b3a1a7078e723233f16c08d9cb2676e9",
+      "获取方式": "标准公开播放接口，无登录、无用户 Cookie；不保存临时媒体签名网址",
+      "decoded_frames": 20385,
+      "expected_frames": 20385,
+      "subtitle_ocr_interval_seconds": 0.5,
+      "review_method": "完整文件顺序解码与字幕时间线审阅，关键操作另查0.5秒连续选帧；非音频转写或逐帧人工观看；未进行原作实机游玩"
+    }
+  ],
+  "observations": [
+    {
+      "source": "BV1fENtzrE19",
+      "range": "00:43–01:34",
+      "observed": "攻击移动在接敌后停车；E取消命令不等于关闭自动交火；解说演示瞄准读条。",
+      "limit": "H的口述禁火不等于绝对禁止手动射击，按官方仅还击语义区分。"
+    },
+    {
+      "source": "BV1fENtzrE19",
+      "range": "02:11–03:01",
+      "observed": "F快速移动利用道路、R倒车、G攻击地面。",
+      "limit": "F保留已通过镜头复位；本轮没有道路快速移动。"
+    },
+    {
+      "source": "BV1fENtzrE19",
+      "range": "06:24–07:06",
+      "observed": "Shift串联多个移动与火力任务，规划时显示路线、任务落点和攻击区域。",
+      "dense_frames_reviewed": [
+        "06:24–06:43.5"
+      ]
+    },
+    {
+      "source": "BV1fENtzrE19",
+      "range": "08:13–09:20",
+      "observed": "不同车辆的雷达展开及移动互锁不同。",
+      "limit": "不能推导所有武器均可移动射击；三车使用各自原表字段。"
+    },
+    {
+      "source": "BV1PUNUzkE6F",
+      "range": "00:43–00:47",
+      "observed": "解说指出固定翼对地独立发现受限。",
+      "limit": "网页训练场继续全图明示目标，不伪装成已实现原作侦察体系。"
+    },
+    {
+      "source": "BV1PUNUzkE6F",
+      "range": "08:24–08:50",
+      "observed": "选定扫射航线后，固定翼按进场方向实施俯冲火箭弹和机炮攻击。",
+      "dense_frames_reviewed": [
+        "08:24–08:36"
+      ],
+      "limit": "参考为苏25演示；不能声称直接证明A10全部配装或声音。"
+    },
+    {
+      "source": "BV1PUNUzkE6F",
+      "range": "09:04–09:15",
+      "observed": "普通炸弹使用独立的轰炸路径；区别于扫射路径。",
+      "dense_frames_reviewed": [
+        "09:03–09:15"
+      ],
+      "limit": "网页沿用单枚炸弹、中点落弹；齐投与分段投弹暂未加入。"
+    }
+  ],
+  "unverified": [
+    "右键拖拽朝向的原作精确鼠标语义",
+    "双击同型选择的版本细节",
+    "原作自动武器评分和目标捕获公式",
+    "SurfaceImpactShell材质枚举值",
+    "原作完整实时FMOD混音及VFX Graph执行结果"
+  ],
+  "project_adaptation": [
+    "右键松开提交及朝向队形预览",
+    "Shift数字保存与Alt数字调用编组以避开浏览器快捷键",
+    "100生命普通丧尸机炮优先、超机炮射程导弹补位",
+    "原生GAU8连续事件的网页循环点、20毫秒接缝淡化及尾音衔接"
+  ]
+}

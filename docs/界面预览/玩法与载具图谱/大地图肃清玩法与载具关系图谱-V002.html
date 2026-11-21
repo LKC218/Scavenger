@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="paper">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>大地图肃清 · 玩法与载具协作图谱 V002</title>
+  <style>
+    :root {
+      /* 素雅暖纸浅色：大面积低饱和纸感 + 4 色克制语义系统 */
+      --bg-canvas: #f4f2ec;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f8f6f1;
+      --bg-hover: #f0ede5;
+      --border: #e5e0d5;
+      --border-strong: #cdc6b8;
+      --text-1: #1c211e;
+      --text-2: #5b635e;
+      --text-3: #8c938e;
+      --dot-grid: rgba(128, 122, 108, 0.14);
+
+      /* 静默连线（平时克制素雅，聚焦时亮起语义色） */
+      --edge-idle: #cbc5b7;
+      --edge-label-bg: rgba(255, 255, 255, 0.96);
+
+      /* 收敛为 4 组莫兰迪军图语义色 */
+      --sem-intel: #2d7ab8;      /* 情报 / 诱饵 / 空中侦察 */
+      --sem-intel-soft: rgba(45, 122, 184, 0.10);
+      --sem-fire: #c65341;       /* 火力 / 清群 / 敌对压迫 */
+      --sem-fire-soft: rgba(198, 83, 65, 0.10);
+      --sem-supply: #c48224;     /* 后勤 / 补给 / 物资 */
+      --sem-supply-soft: rgba(196, 130, 36, 0.11);
+      --sem-control: #27856b;    /* 地面占区 / 经济回流 */
+      --sem-control-soft: rgba(39, 133, 107, 0.10);
+
+      --bar-track: #ece8de;
+      --pill-active-bg: #1f2421;
+      --pill-active-fg: #f8f6f1;
+
+      --shadow-sm: 0 1px 2px rgba(24, 28, 25, 0.04);
+      --shadow-md: 0 6px 18px rgba(24, 28, 25, 0.08);
+      --radius-lg: 12px;
+      --radius-md: 9px;
+      --radius-sm: 6px;
+
+      --font-sans: "Bahnschrift", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+      --font-mono: "Cascadia Mono", "Consolas", "Microsoft YaHei UI", monospace;
+    }
+
+    html[data-theme="tactical"] {
+      /* 战术深色：呼应项目深绿灰军事沙盘基调，同样保持克制低噪 */
+      --bg-canvas: #101512;
+      --bg-surface: #161e19;
+      --bg-subtle: #121915;
+      --bg-hover: #1d2721;
+      --border: rgba(154, 178, 152, 0.18);
+      --border-strong: rgba(186, 212, 178, 0.40);
+      --text-1: #edf2e8;
+      --text-2: #a9b8a7;
+      --text-3: #6f806f;
+      --dot-grid: rgba(154, 178, 152, 0.10);
+
+      --edge-idle: rgba(154, 178, 152, 0.30);
+      --edge-label-bg: rgba(20, 28, 23, 0.96);
+
+      --sem-intel: #62c4f5;
+      --sem-intel-soft: rgba(98, 196, 245, 0.14);
+      --sem-fire: #f07360;
+      --sem-fire-soft: rgba(240, 115, 96, 0.14);
+      --sem-supply: #eab354;
+      --sem-supply-soft: rgba(234, 179, 84, 0.15);
+      --sem-control: #46cfb9;
+      --sem-control-soft: rgba(70, 207, 185, 0.14);
+
+      --bar-track: rgba(154, 178, 152, 0.14);
+      --pill-active-bg: #d4ee80;
+      --pill-active-fg: #111613;
+
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.28);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg-canvas);
+      color: var(--text-1);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+    /* 整体外壳：极简顶栏 + 高呼吸感主区 */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      min-height: 680px;
+      padding: 12px 14px 14px;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    /* 极简顶栏（仅保留标题与核心视角控件） */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .brand h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text-1);
+    }
+
+    .brand span {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 30px;
+      padding: 0 11px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-2);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      border-color: var(--border-strong);
+      color: var(--text-1);
+      background: var(--bg-hover);
+    }
+
+    .btn.is-on {
+      background: var(--pill-active-bg);
+      color: var(--pill-active-fg);
+      border-color: var(--pill-active-bg);
+      font-weight: 600;
+    }
+
+    .btn.is-hidden { display: none; }
+
+    /* 主工作区：左 61% 纯净拓扑，右 39% 剧本 + 详情 */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(600px, 1.56fr) minmax(350px, 1fr);
+      gap: 12px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .surface {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* 左侧拓扑顶部轻图例条（可点击过滤某类关系） */
+    .graph-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .legend-filters {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .legend-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      border: 1px solid transparent;
+      background: var(--bg-subtle);
+      color: var(--text-2);
+      font-size: 11.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .legend-btn:hover {
+      border-color: var(--border-strong);
+      color: var(--text-1);
+    }
+
+    .legend-btn.is-active {
+      border-color: currentColor;
+      background: var(--bg-surface);
+      font-weight: 600;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .graph-hint {
+      font-size: 11.5px;
+      color: var(--text-3);
+    }
+
+    /* 拓扑画布主体 */
+    .canvas-scroll {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      background-color: var(--bg-subtle);
+      background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+      background-size: 20px 20px;
+      padding: 22px 54px 22px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stage {
+      position: relative;
+      width: 100%;
+      max-width: 840px;
+      min-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 44px;
+      margin: auto;
+    }
+
+    .lane {
+      position: relative;
+      display: grid;
+      gap: 18px;
+      z-index: 2;
+    }
+
+    .lane.cols-1 {
+      grid-template-columns: minmax(210px, 260px);
+      justify-content: center;
+    }
+
+    .lane.cols-3 {
+      grid-template-columns: repeat(3, minmax(170px, 1fr));
+    }
+
+    .lane.cols-2 {
+      grid-template-columns: repeat(2, minmax(220px, 280px));
+      justify-content: center;
+      gap: 34px;
+    }
+
+    .lane-label {
+      position: absolute;
+      left: 0;
+      top: -21px;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--text-3);
+      pointer-events: none;
+    }
+
+    /* SVG 连线层 */
+    .edges-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .edge-path {
+      fill: none;
+      stroke: var(--edge-idle);
+      stroke-width: 1.65;
+      stroke-linecap: round;
+      opacity: 0.78;
+      transition: stroke 0.2s ease, opacity 0.2s ease, stroke-width 0.2s ease;
+      pointer-events: stroke;
+      cursor: pointer;
+    }
+
+    .edge-path.is-dashed { stroke-dasharray: 4 4; }
+    .edge-path.is-dim { opacity: 0.14; stroke-width: 1.25; }
+
+    .edge-path.is-active {
+      stroke: var(--edge-color);
+      opacity: 0.96;
+      stroke-width: 2.4;
+    }
+
+    .edge-path.is-flow {
+      stroke-dasharray: 7 5;
+      animation: flowDash 1.1s linear infinite;
+    }
+
+    @keyframes flowDash {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .edge-tag {
+      opacity: 0;
+      transition: opacity 0.16s ease;
+      pointer-events: none;
+    }
+
+    .edge-tag.is-show { opacity: 1; }
+
+    .edge-tag rect {
+      fill: var(--edge-label-bg);
+      stroke-width: 1;
+      rx: 99;
+      ry: 99;
+    }
+
+    .edge-tag text {
+      font-size: 10.5px;
+      font-weight: 600;
+      fill: var(--text-1);
+      text-anchor: middle;
+      dominant-baseline: central;
+      font-family: var(--font-sans);
+    }
+
+    /* 极简高呼吸感节点卡片 */
+    .node {
+      position: relative;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 11px 13px 10px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, opacity 0.2s ease;
+      user-select: none;
+    }
+
+    .node:hover {
+      border-color: var(--node-accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .node.is-selected {
+      border-color: var(--node-accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--node-accent) 26%, transparent), var(--shadow-md);
+    }
+
+    .node.is-related {
+      border-color: color-mix(in srgb, var(--node-accent) 62%, var(--border));
+    }
+
+    .node.is-dim { opacity: 0.22; }
+
+    .node-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 5px;
+    }
+
+    .node-name-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .node-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--node-accent);
+      flex-shrink: 0;
+    }
+
+    .node-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-role-tag {
+      font-size: 10.5px;
+      color: var(--text-3);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .node-brief {
+      font-size: 11.5px;
+      color: var(--text-2);
+      margin-bottom: 9px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 4px 极细职能比例条 */
+    .mini-bar {
+      height: 4px;
+      width: 100%;
+      border-radius: 99px;
+      background: var(--bar-track);
+      overflow: hidden;
+      display: flex;
+      gap: 1px;
+      margin-bottom: 7px;
+    }
+
+    .mini-bar span { height: 100%; }
+
+    .node-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: var(--text-3);
+    }
+
+    .node-limit {
+      color: var(--text-2);
+      font-weight: 500;
+    }
+
+    .node-limit.is-key {
+      color: var(--sem-fire);
+    }
+
+    /* 右侧分舱：上剧本驱动，下焦点详情/极简索引 */
+    .side-col {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sec-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+
+    .sec-sub {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    /* 右上：5 套核心玩法闭环 */
+    .loop-list {
+      padding: 8px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .loop-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 11px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      background: var(--bg-subtle);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .loop-item:hover {
+      background: var(--bg-hover);
+      border-color: var(--border);
+    }
+
+    .loop-item.is-active {
+      background: var(--bg-surface);
+      border-color: var(--loop-color);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--loop-color) 25%, transparent), var(--shadow-sm);
+    }
+
+    .loop-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .loop-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--loop-color);
+      background: color-mix(in srgb, var(--loop-color) 12%, transparent);
+      padding: 1px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .loop-text {
+      min-width: 0;
+    }
+
+    .loop-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .loop-one {
+      font-size: 11px;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .loop-arrow {
+      font-size: 12px;
+      color: var(--text-3);
+      flex-shrink: 0;
+    }
+
+    /* 右下：按需检查器（零重复信息） */
+    .inspector-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 13px 15px 15px;
+    }
+
+    /* 默认态：极简 3x3 要素索引 */
+    .index-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .idx-cell {
+      padding: 8px 9px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+
+    .idx-cell:hover {
+      border-color: var(--node-accent);
+      background: var(--bg-surface);
+    }
+
+    .idx-cell-title {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .idx-cell-sub {
+      font-size: 10.5px;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .overview-note {
+      padding: 11px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-subtle);
+      border: 1px dashed var(--border-strong);
+      font-size: 12px;
+      color: var(--text-2);
+      line-height: 1.55;
+    }
+
+    .overview-note strong { color: var(--text-1); }
+
+    /* 选中节点/剧本后的结构化详情 */
+    .detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .detail-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+
+    .detail-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+
+    .detail-pill {
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 99px;
+      color: var(--detail-accent);
+      background: color-mix(in srgb, var(--detail-accent) 12%, transparent);
+    }
+
+    .detail-desc {
+      font-size: 12px;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    .detail-block {
+      margin-top: 13px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .block-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+      margin-bottom: 7px;
+    }
+
+    /* 职能条明细 */
+    .weight-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .weight-row {
+      display: grid;
+      grid-template-columns: 64px 1fr 34px;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      color: var(--text-2);
+    }
+
+    .weight-track {
+      height: 5px;
+      border-radius: 99px;
+      background: var(--bar-track);
+      overflow: hidden;
+    }
+
+    .weight-fill {
+      height: 100%;
+      border-radius: 99px;
+    }
+
+    /* 硬约束要点 */
+    .rule-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .rule-list li {
+      position: relative;
+      padding-left: 13px;
+      font-size: 12px;
+      color: var(--text-2);
+      line-height: 1.48;
+    }
+
+    .rule-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--sem-fire);
+    }
+
+    /* 上下游可跳转芯片 */
+    .rel-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .rel-group-title {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+
+    .rel-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .rel-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      cursor: pointer;
+      transition: all 0.14s ease;
+      text-align: left;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .rel-chip:hover {
+      border-color: var(--chip-color);
+      background: var(--bg-surface);
+    }
+
+    .rel-chip-name {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+
+    .rel-chip-edge {
+      font-size: 10.5px;
+      color: var(--chip-color);
+    }
+
+    /* 剧本步骤链 */
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      font-size: 12px;
+      color: var(--text-1);
+      line-height: 1.5;
+    }
+
+    .step-badge {
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: var(--detail-accent);
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .tactic-box {
+      padding: 9px 11px;
+      border-radius: var(--radius-sm);
+      background: color-mix(in srgb, var(--sem-supply) 10%, var(--bg-subtle));
+      border-left: 3px solid var(--sem-supply);
+      font-size: 12px;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    .tactic-box strong { color: var(--text-1); }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+
+    @media (max-width: 1120px) {
+      .app { height: auto; overflow: visible; }
+      .main-grid { grid-template-columns: 1fr; }
+      .canvas-scroll { padding: 20px 38px 20px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- 极简顶栏 -->
+    <header class="topbar">
+      <div class="brand">
+        <h1>大地图肃清 · 玩法与载具协作图谱</h1>
+        <span>V002 · 点击节点、连线或右侧剧本查看功能联系</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn is-hidden" id="btnReset" type="button">返回全图</button>
+        <button class="btn" id="btnLabels" type="button">常显关系名</button>
+        <button class="btn" id="btnTheme" type="button">战术深色</button>
+      </div>
+    </header>
+
+    <!-- 主工作区 -->
+    <main class="main-grid">
+      <!-- 左栏：高呼吸感协作拓扑 -->
+      <section class="surface" aria-label="玩法与载具协作拓扑">
+        <div class="graph-bar">
+          <div class="legend-filters" id="legendFilters">
+            <button class="legend-btn" data-type="intel" style="color:var(--sem-intel)" type="button"><i class="legend-dot"></i>侦察 / 诱饵</button>
+            <button class="legend-btn" data-type="fire" style="color:var(--sem-fire)" type="button"><i class="legend-dot"></i>火力 / 敌对</button>
+            <button class="legend-btn" data-type="supply" style="color:var(--sem-supply)" type="button"><i class="legend-dot"></i>补给 / 后勤</button>
+            <button class="legend-btn" data-type="control" style="color:var(--sem-control)" type="button"><i class="legend-dot"></i>占区 / 回流</button>
+          </div>
+          <span class="graph-hint" id="graphHint">点图例可按关系类型筛选 · Esc 返回全图</span>
+        </div>
+
+        <div class="canvas-scroll" id="canvasScroll">
+          <div class="stage" id="stage">
+            <svg class="edges-layer" id="edgesSvg" aria-hidden="true"></svg>
+            <div class="lane cols-1" data-lane="0"><span class="lane-label">后勤中枢</span></div>
+            <div class="lane cols-3" data-lane="1"><span class="lane-label">空中支援与引导</span></div>
+            <div class="lane cols-3" data-lane="2"><span class="lane-label">地面主力与战术杠杆</span></div>
+            <div class="lane cols-2" data-lane="3"><span class="lane-label">对抗目标与胜负闭环</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 右栏：上剧本驱动 + 下焦点详情 -->
+      <aside class="side-col">
+        <section class="surface" aria-label="核心玩法闭环">
+          <div class="sec-head">
+            <span class="sec-title">核心玩法闭环</span>
+            <span class="sec-sub">点选一条，左侧高亮对应协作链</span>
+          </div>
+          <div class="loop-list" id="loopList"></div>
+        </section>
+
+        <section class="surface" aria-label="焦点详情与快速索引">
+          <div class="sec-head">
+            <span class="sec-title" id="inspectorTitle">要素快速索引</span>
+            <span class="sec-sub" id="inspectorSub">点击任意节点查看详情</span>
+          </div>
+          <div class="inspector-body" id="inspectorBody"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <!-- 精简数据结构：零冗余，后续增删载具只需改此处 -->
+  <script>
+    const SEM = {
+      intel:   { label: '侦察 / 诱饵', colorVar: '--sem-intel' },
+      fire:    { label: '火力 / 敌对', colorVar: '--sem-fire' },
+      supply:  { label: '补给 / 后勤', colorVar: '--sem-supply' },
+      control: { label: '占区 / 回流', colorVar: '--sem-control' },
+    };
+
+    const DATA = {
+      nodes: [
+        {
+          id: 'base',
+          name: '后方基地',
+          role: '后勤中枢',
+          lane: 0,
+          accent: '--sem-supply',
+          brief: '有限物资库存 · 地面增援与空中返补',
+          limitTag: '不可隔空补满',
+          keyLimit: false,
+          desc: '全图资源总闸。统一管理补弹与维修物资、诱饵补装、空中返航补弹和地面增援入场。',
+          weights: [
+            { label: '后勤补给', val: 75, sem: 'supply' },
+            { label: '阵地兜底', val: 25, sem: 'control' },
+          ],
+          limits: [
+            '后方库存有限，购入物资须经补给车前运，不会直接补满前线。',
+            '站点不可摧毁，但尸群被声源引回时仍可攻击站内车辆。',
+          ],
+        },
+        {
+          id: 'heli_trans',
+          name: '运输/侦察直升机',
+          role: '30m 探路投饵',
+          lane: 1,
+          accent: '--sem-intel',
+          brief: '高速揭雾探路 · 设延时投放声源诱饵',
+          limitTag: '携饵有限返补',
+          keyLimit: false,
+          desc: '全图“眼睛”与节奏控制器。30m 越障揭开战争迷雾，并在关键点降高投放延时诱饵。',
+          weights: [
+            { label: '侦察探路', val: 50, sem: 'intel' },
+            { label: '诱饵投送', val: 40, sem: 'intel' },
+            { label: '机动支援', val: 10, sem: 'supply' },
+          ],
+          limits: [
+            '诱饵携带量有限，耗尽必须返后方基地消耗物资补装。',
+            '无正面清群与占区能力，失联尸群只留带时间戳最后位置。',
+          ],
+        },
+        {
+          id: 'heli_atk',
+          name: '武装直升机',
+          role: '30m 机动火力',
+          lane: 1,
+          accent: '--sem-intel',
+          brief: '跨障伴随掩护 · 手选弹种点杀解围',
+          limitTag: '空弹返航',
+          keyLimit: false,
+          desc: '高机动伴随火力（AH-64D），不受地形阻挡，擅长保护补给线与近距解围被围坦克。',
+          weights: [
+            { label: '火力压制', val: 68, sem: 'fire' },
+            { label: '伴随侦察', val: 32, sem: 'intel' },
+          ],
+          limits: [
+            '弹药有限须返航补弹，各武器独立装填并由玩家手动选弹。',
+            '不可占领任务区，须配合地面部队完成最终控制。',
+          ],
+        },
+        {
+          id: 'plane_atk',
+          name: '固定翼攻击机',
+          role: '100m 面杀伤',
+          lane: 1,
+          accent: '--sem-intel',
+          brief: '高空盘旋待命 · 单下令清大型尸群',
+          limitTag: '攻击须单下令',
+          keyLimit: false,
+          desc: '重型爆发火力（A-10C）。普通移动仅在目标附近 100m 盘旋，配合诱饵聚怪打出最高性价比面打击。',
+          weights: [
+            { label: '爆发清群', val: 85, sem: 'fire' },
+            { label: '高空视野', val: 15, sem: 'intel' },
+          ],
+          limits: [
+            '持续飞行无法悬停，也不自动面攻击，每次打击须单独下令。',
+            '爆炸伤害从中心向外衰减（可隔墙），浪费在零散小群极不划算。',
+          ],
+        },
+        {
+          id: 'decoy',
+          name: '延时声源诱饵',
+          role: '聚怪调离道具',
+          lane: 2,
+          accent: '--sem-intel',
+          brief: '落地延时启动 · 强声源聚拢或调离尸群',
+          limitTag: '启动不可关闭',
+          keyLimit: true,
+          desc: '以少胜多的核心战术杠杆：把尸群聚进空袭杀伤区，或从占领点旁强行拉走尸群。',
+          weights: [
+            { label: '声源牵引', val: 100, sem: 'intel' },
+          ],
+          limits: [
+            '投放前设定延时，限时生效且可被尸群摧毁。',
+            '一旦启动无法关闭或回收，投放失误可能把尸群引向己方补给线。',
+          ],
+        },
+        {
+          id: 'tank',
+          name: '主战坦克',
+          role: '地面主力/占区',
+          lane: 2,
+          accent: '--sem-control',
+          brief: '清群收尾抗压 · 核心驻守占区单位',
+          limitTag: '毁车永久损失',
+          keyLimit: true,
+          desc: '正面战场支柱（M1A2）。开启地面警戒清剿残敌、护航补给车，并作为可移动地面作战车完成占区。',
+          weights: [
+            { label: '火力清群', val: 45, sem: 'fire' },
+            { label: '占区控制', val: 35, sem: 'control' },
+            { label: '前线抗压', val: 20, sem: 'supply' },
+          ],
+          limits: [
+            '开火与引擎噪音会吸引尸群；被近身持续损血，被毁后本局永久损失。',
+            '弹药有限且建筑挡弹丸，重履带碾压需承受另定代价。',
+          ],
+        },
+        {
+          id: 'supply',
+          name: '弹药补给车',
+          role: '前线后勤',
+          lane: 2,
+          accent: '--sem-supply',
+          brief: '前运物资补弹维修 · 维持前线不断档',
+          limitTag: '不可占区',
+          keyLimit: true,
+          desc: '连接后方库存与前线战力的动脉（M548A3），按实际交付量补弹维修，免去坦克长途回站中断推进。',
+          weights: [
+            { label: '前线补给', val: 90, sem: 'supply' },
+            { label: '机动转运', val: 10, sem: 'control' },
+          ],
+          limits: [
+            '严格不可占领任务区，且自身无武装极其脆弱。',
+            '补给时双方必须停稳、受补车辆必须停止开火，需提前清出安全窗口。',
+          ],
+        },
+        {
+          id: 'horde',
+          name: '预置尸群',
+          role: '敌方压迫机制',
+          lane: 3,
+          accent: '--sem-fire',
+          brief: '有限预置不无限刷 · 听声追击绕障围攻',
+          limitTag: '闯入中断占领',
+          keyLimit: true,
+          desc: '分散小群搭配少量大群。优先攻击近处地面部队，次选强声源，跨区行动不改变原属区域。',
+          weights: [
+            { label: '近身损耗', val: 65, sem: 'fire' },
+            { label: '声源响应', val: 35, sem: 'intel' },
+          ],
+          limits: [
+            '沿可通行路线绕行，不穿墙不破坏建筑；迷雾内仅传模糊群声提示大致方位。',
+            '只要进入任务区就会中断占领或令已控区失守。',
+          ],
+        },
+        {
+          id: 'zones',
+          name: '三大任务区',
+          role: '胜负与经济',
+          lane: 3,
+          accent: '--sem-control',
+          brief: '自由选序肃清占领 · 首占发点数回流',
+          limitTag: '须同时控 3/3',
+          keyLimit: false,
+          desc: '战场节奏与经济引擎。无强制倒计时，但必须清空原属与外来尸群并驻守控制。',
+          weights: [
+            { label: '胜负目标', val: 65, sem: 'control' },
+            { label: '点数产出', val: 35, sem: 'supply' },
+          ],
+          limits: [
+            '首占奖励一次性点数，失守后重新占领不重复发放奖励。',
+            '必须三个区域同时处于己方控制才算获胜。',
+          ],
+        },
+      ],
+
+      /* 精炼为 12 条决定核心体验的硬因果链路 */
+      edges: [
+        { id: 'e1',  from: 'base',       to: 'heli_trans', type: 'supply',  label: '返站补装诱饵' },
+        { id: 'e2',  from: 'base',       to: 'plane_atk',  type: 'supply',  label: '空中返航补弹' },
+        { id: 'e3',  from: 'base',       to: 'supply',     type: 'supply',  label: '装载有限物资' },
+        { id: 'e4',  from: 'heli_trans', to: 'decoy',      type: 'intel',   label: '设延时低空投放' },
+        { id: 'e5',  from: 'heli_trans', to: 'plane_atk',  type: 'intel',   label: '揭雾标定大群' },
+        { id: 'e6',  from: 'decoy',      to: 'horde',      type: 'intel',   label: '强声源聚怪/调离' },
+        { id: 'e7',  from: 'heli_atk',   to: 'horde',      type: 'fire',    label: '机动掩护点杀' },
+        { id: 'e8',  from: 'plane_atk',  to: 'horde',      type: 'fire',    label: '单下令面杀伤' },
+        { id: 'e9',  from: 'tank',       to: 'horde',      type: 'fire',    label: '警戒清群收尾' },
+        { id: 'e10', from: 'supply',     to: 'tank',       type: 'supply',  label: '停稳停火补弹维修' },
+        { id: 'e11', from: 'tank',       to: 'zones',      type: 'control', label: '清剿后驻守占领' },
+        { id: 'e12', from: 'horde',      to: 'tank',       type: 'fire',    label: '噪音引怪/近身磨血', dashed: true },
+        { id: 'e13', from: 'horde',      to: 'zones',      type: 'fire',    label: '闯入中断/导致失守', dashed: true },
+        { id: 'e14', from: 'zones',      to: 'base',       type: 'control', label: '首占点数回流增援/购物资' },
+      ],
+
+      loops: [
+        {
+          id: 'l1',
+          num: '01',
+          name: '迷雾侦察与探路',
+          one: '直升机揭雾定大群，避免地面孤车盲探',
+          sem: 'intel',
+          nodes: ['heli_trans', 'plane_atk', 'tank', 'horde'],
+          edges: ['e5', 'e9', 'e12'],
+          steps: [
+            '依据各区剩余尸群数与迷雾群声大致方位，锁定侦察方向。',
+            '运输/侦察直升机 30m 越障揭雾，标定大型尸群与通道阻塞情况。',
+            '同步给攻击机与主战坦克，选定低风险的先攻任务区。',
+          ],
+          tactic: '失联尸群仅保留带时间的最后位置，侦察必须与打击节奏紧扣。',
+        },
+        {
+          id: 'l2',
+          num: '02',
+          name: '延时诱饵聚怪收割',
+          one: '强声源聚拢尸群，空军一轮打出高性价比',
+          sem: 'intel',
+          nodes: ['base', 'heli_trans', 'decoy', 'horde', 'plane_atk'],
+          edges: ['e1', 'e4', 'e6', 'e5', 'e8', 'e2'],
+          steps: [
+            '运输直升机设延时投放声源诱饵，落地计时启动把分散尸群吸到开阔地。',
+            '100m 盘旋待命的固定翼收到独立攻击指令，趁聚怪窗口实施面杀伤。',
+            '耗尽诱饵与弹药的空中单位返后方基地补装整备。',
+          ],
+          tactic: '诱饵启动后不可关闭/回收，投放前必须留足延时与逃离空间。',
+        },
+        {
+          id: 'l3',
+          num: '03',
+          name: '空地协同正面清群',
+          one: '坦克抗压警戒收尾，武装直升机机动护翼',
+          sem: 'fire',
+          nodes: ['tank', 'heli_atk', 'horde'],
+          edges: ['e9', 'e7', 'e12'],
+          steps: [
+            '主战坦克占领开阔射界开启警戒，避开建筑墙体挡弹。',
+            '武装直升机 30m 伴随点杀侧翼逼近尸群，利用无友伤规则近距解围。',
+            '严控坦克与尸群接触距离，避免近身磨血造成永久战损。',
+          ],
+          tactic: '开火与引擎噪音会持续引怪，打完一波须留意周边增援尸群。',
+        },
+        {
+          id: 'l4',
+          num: '04',
+          name: '前线停稳补给窗口',
+          one: '补给车前运物资，抢出停稳停火空窗续航',
+          sem: 'supply',
+          nodes: ['base', 'supply', 'tank', 'heli_atk'],
+          edges: ['e3', 'e10', 'e7'],
+          steps: [
+            '补给车在后方基地装载有限物资，沿安全通道前运至前线后方。',
+            '坦克脱离接战停稳停火，补给车靠拢按实际消耗交付弹药与维修。',
+            '武装直升机在旁警戒兜底，补完后补给车立即后撤。',
+          ],
+          tactic: '受补车必须停火且补给车零武装，何时停下来补弹是核心节奏博弈。',
+        },
+        {
+          id: 'l5',
+          num: '05',
+          name: '占区换点与增援闭环',
+          one: '清光原属+外来尸群占点，点数回流滚雪球',
+          sem: 'control',
+          nodes: ['tank', 'zones', 'horde', 'base', 'supply'],
+          edges: ['e11', 'e13', 'e14', 'e3'],
+          steps: [
+            '彻底清空目标区的原属尸群（含区外击杀）及区内外来尸群。',
+            '主战坦克进点驻守完成占领（补给车不可占），严防尸群闯入中断。',
+            '首占一次性点数回流后方基地购买物资或增援，直至同时控制 3/3 区域获胜。',
+          ],
+          tactic: '失守后重占不再重复发点数，防线守不住会直接拖垮后期补给经济。',
+        },
+      ],
+    };
+
+    const nodeMap = new Map(DATA.nodes.map(n => [n.id, n]));
+    const edgeMap = new Map(DATA.edges.map(e => [e.id, e]));
+    const loopMap = new Map(DATA.loops.map(l => [l.id, l]));
+
+    const state = {
+      nodeId: null,
+      loopId: null,
+      typeFilter: null,
+      hoverNodeId: null,
+      hoverEdgeId: null,
+      showLabels: false,
+    };
+
+    function cssVar(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    /* ================= 1. 渲染拓扑节点 ================= */
+    function renderNodes() {
+      document.querySelectorAll('.lane').forEach(laneEl => {
+        const label = laneEl.querySelector('.lane-label');
+        laneEl.innerHTML = '';
+        if (label) laneEl.appendChild(label);
+      });
+
+      for (const n of DATA.nodes) {
+        const laneEl = document.querySelector(`.lane[data-lane="${n.lane}"]`);
+        const el = document.createElement('article');
+        el.className = 'node';
+        el.dataset.id = n.id;
+        el.style.setProperty('--node-accent', `var(${n.accent})`);
+
+        const segs = n.weights.map(w =>
+          `<span style="width:${w.val}%;background:var(${SEM[w.sem].colorVar})"></span>`
+        ).join('');
+
+        el.innerHTML = `
+          <div class="node-head">
+            <div class="node-name-wrap">
+              <span class="node-dot"></span>
+              <span class="node-name">${n.name}</span>
+            </div>
+            <span class="node-role-tag">${n.role}</span>
+          </div>
+          <div class="node-brief">${n.brief}</div>
+          <div class="mini-bar">${segs}</div>
+          <div class="node-foot">
+            <span>${n.weights[0].label}</span>
+            <span class="node-limit ${n.keyLimit ? 'is-key' : ''}">${n.limitTag}</span>
+          </div>
+        `;
+
+        el.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          selectNode(n.id);
+        });
+        el.addEventListener('mouseenter', () => {
+          state.hoverNodeId = n.id;
+          syncVisuals();
+        });
+        el.addEventListener('mouseleave', () => {
+          state.hoverNodeId = null;
+          syncVisuals();
+        });
+
+        laneEl.appendChild(el);
+      }
+    }
+
+    /* ================= 2. 绘制平滑 SVG 连线 ================= */
+    function drawEdges() {
+      const stage = document.getElementById('stage');
+      const svg = document.getElementById('edgesSvg');
+      const stageRect = stage.getBoundingClientRect();
+      const w = stage.scrollWidth;
+      const h = stage.scrollHeight;
+
+      svg.setAttribute('width', String(w));
+      svg.setAttribute('height', String(h));
+      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+
+      const boxes = new Map();
+      stage.querySelectorAll('.node').forEach(el => {
+        const r = el.getBoundingClientRect();
+        boxes.set(el.dataset.id, {
+          left: r.left - stageRect.left,
+          right: r.right - stageRect.left,
+          top: r.top - stageRect.top,
+          bottom: r.bottom - stageRect.top,
+          cx: (r.left + r.right) / 2 - stageRect.left,
+          cy: (r.top + r.bottom) / 2 - stageRect.top,
+          w: r.width,
+          h: r.height,
+        });
+      });
+
+      const slots = new Map();
+      const addSlot = (nid, side, eid, sortKey) => {
+        const k = `${nid}:${side}`;
+        if (!slots.has(k)) slots.set(k, []);
+        slots.get(k).push({ eid, sortKey });
+      };
+
+      const routed = DATA.edges.map(e => {
+        const a = nodeMap.get(e.from);
+        const b = nodeMap.get(e.to);
+        const ba = boxes.get(e.from);
+        const bb = boxes.get(e.to);
+
+        let mode = 'down';
+        let fs = 'bottom';
+        let ts = 'top';
+
+        if (a.lane === b.lane) {
+          mode = 'same';
+          if (ba.cx < bb.cx) { fs = 'right'; ts = 'left'; }
+          else { fs = 'left'; ts = 'right'; }
+        } else if (e.from === 'zones' && e.to === 'base') {
+          mode = 'loopback';
+          fs = 'right';
+          ts = 'right';
+        } else if (a.lane > b.lane) {
+          mode = 'up';
+          fs = 'top';
+          ts = 'bottom';
+        }
+
+        addSlot(e.from, fs, e.id, bb.cx);
+        addSlot(e.to, ts, e.id, ba.cx);
+        return { e, mode, fs, ts };
+      });
+
+      for (const list of slots.values()) list.sort((x, y) => x.sortKey - y.sortKey);
+
+      const anchor = (nid, side, eid) => {
+        const b = boxes.get(nid);
+        const list = slots.get(`${nid}:${side}`) || [{ eid }];
+        const idx = list.findIndex(x => x.eid === eid);
+        const n = list.length;
+        const frac = n === 1 ? 0.5 : 0.22 + (0.56 * idx) / (n - 1);
+        if (side === 'bottom') return { x: b.left + b.w * frac, y: b.bottom + 1 };
+        if (side === 'top') return { x: b.left + b.w * frac, y: b.top - 1 };
+        if (side === 'right') return { x: b.right + 1, y: b.top + b.h * (n === 1 ? 0.5 : 0.32 + (0.36 * idx) / (n - 1)) };
+        return { x: b.left - 1, y: b.top + b.h * (n === 1 ? 0.5 : 0.32 + (0.36 * idx) / (n - 1)) };
+      };
+
+      const idleColor = cssVar('--edge-idle');
+      let defs = `<defs>
+        <marker id="arr-idle" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.2" markerHeight="5.2" orient="auto-start-reverse">
+          <path d="M1.2 1.8 L8.6 5 L1.2 8.2 z" fill="${idleColor}" />
+        </marker>`;
+      for (const [k, cfg] of Object.entries(SEM)) {
+        const c = cssVar(cfg.colorVar);
+        defs += `<marker id="arr-${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.6" markerHeight="5.6" orient="auto-start-reverse">
+          <path d="M1.2 1.8 L8.6 5 L1.2 8.2 z" fill="${c}" />
+        </marker>`;
+      }
+      defs += '</defs>';
+
+      let paths = '';
+      let tags = '';
+
+      for (const item of routed) {
+        const { e, mode, fs, ts } = item;
+        const col = cssVar(SEM[e.type].colorVar);
+        const p1 = anchor(e.from, fs, e.id);
+        const p2 = anchor(e.to, ts, e.id);
+        let d = '';
+        let lx = (p1.x + p2.x) / 2;
+        let ly = (p1.y + p2.y) / 2;
+
+        if (mode === 'down') {
+          const dy = Math.max(32, (p2.y - p1.y) * 0.46);
+          const c1x = p1.x, c1y = p1.y + dy;
+          const c2x = p2.x, c2y = p2.y - dy;
+          d = `M ${p1.x} ${p1.y} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
+          lx = 0.125 * p1.x + 0.375 * c1x + 0.375 * c2x + 0.125 * p2.x;
+          ly = 0.125 * p1.y + 0.375 * c1y + 0.375 * c2y + 0.125 * p2.y;
+        } else if (mode === 'same') {
+          const lift = e.from === 'supply' ? -24 : 22;
+          const mx = (p1.x + p2.x) / 2;
+          const my = (p1.y + p2.y) / 2 + lift;
+          d = `M ${p1.x} ${p1.y} Q ${mx} ${my}, ${p2.x} ${p2.y}`;
+          lx = mx;
+          ly = (p1.y + 2 * my + p2.y) / 4;
+        } else if (mode === 'loopback') {
+          const railX = w + 30;
+          d = `M ${p1.x} ${p1.y} C ${railX} ${p1.y}, ${railX} ${p2.y}, ${p2.x} ${p2.y}`;
+          lx = railX - 42;
+          ly = (p1.y + p2.y) / 2;
+        } else {
+          const bendX = (p1.x + p2.x) / 2 - 28;
+          d = `M ${p1.x} ${p1.y} C ${bendX} ${p1.y - 36}, ${bendX} ${p2.y + 36}, ${p2.x} ${p2.y}`;
+          lx = 0.125 * p1.x + 0.75 * bendX + 0.125 * p2.x;
+          ly = (p1.y + p2.y) / 2;
+        }
+
+        paths += `<path class="edge-path ${e.dashed ? 'is-dashed' : ''}" data-eid="${e.id}" data-etype="${e.type}" style="--edge-color:${col}" d="${d}" marker-end="url(#arr-idle)" />`;
+
+        const tw = Math.max(54, e.label.length * 10.6 + 16);
+        tags += `<g class="edge-tag" data-etag="${e.id}" transform="translate(${lx}, ${ly})">
+          <rect x="${-tw / 2}" y="-10" width="${tw}" height="20" stroke="${col}"></rect>
+          <text>${e.label}</text>
+        </g>`;
+      }
+
+      svg.innerHTML = defs + paths + tags;
+
+      svg.querySelectorAll('.edge-path').forEach(pathEl => {
+        const eid = pathEl.dataset.eid;
+        pathEl.addEventListener('mouseenter', () => {
+          state.hoverEdgeId = eid;
+          syncVisuals();
+        });
+        pathEl.addEventListener('mouseleave', () => {
+          state.hoverEdgeId = null;
+          syncVisuals();
+        });
+        pathEl.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          selectNode(edgeMap.get(eid).from);
+        });
+      });
+
+      syncVisuals();
+    }
+
+    /* ================= 3. 渲染右侧剧本列表 ================= */
+    function renderLoops() {
+      const list = document.getElementById('loopList');
+      list.innerHTML = '';
+      for (const l of DATA.loops) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'loop-item';
+        btn.dataset.lid = l.id;
+        btn.style.setProperty('--loop-color', `var(${SEM[l.sem].colorVar})`);
+        btn.innerHTML = `
+          <div class="loop-left">
+            <span class="loop-num mono">${l.num}</span>
+            <div class="loop-text">
+              <div class="loop-name">${l.name}</div>
+              <div class="loop-one">${l.one}</div>
+            </div>
+          </div>
+          <span class="loop-arrow">›</span>
+        `;
+        btn.addEventListener('click', () => selectLoop(l.id));
+        list.appendChild(btn);
+      }
+    }
+
+    /* ================= 4. 渲染右下按需检查器 ================= */
+    function renderInspector() {
+      const titleEl = document.getElementById('inspectorTitle');
+      const subEl = document.getElementById('inspectorSub');
+      const bodyEl = document.getElementById('inspectorBody');
+
+      if (state.nodeId) {
+        const n = nodeMap.get(state.nodeId);
+        titleEl.textContent = '载具 / 要素详情';
+        subEl.textContent = '点击下方关系可直接跳转关联单位';
+
+        const incoming = DATA.edges.filter(e => e.to === n.id);
+        const outgoing = DATA.edges.filter(e => e.from === n.id);
+
+        const weightHtml = n.weights.map(w => `
+          <div class="weight-row">
+            <span>${w.label}</span>
+            <div class="weight-track"><div class="weight-fill" style="width:${w.val}%;background:var(${SEM[w.sem].colorVar})"></div></div>
+            <span class="mono" style="text-align:right">${w.val}%</span>
+          </div>
+        `).join('');
+
+        const renderRelChips = (edges, dir) => {
+          if (!edges.length) return '<span style="font-size:11px;color:var(--text-3)">无直接项</span>';
+          return edges.map(e => {
+            const targetId = dir === 'in' ? e.from : e.to;
+            const target = nodeMap.get(targetId);
+            return `
+              <button class="rel-chip" type="button" data-jump="${targetId}" style="--chip-color:var(${SEM[e.type].colorVar})">
+                <span class="rel-chip-name">${dir === 'in' ? '← ' : '→ '}${target.name}</span>
+                <span class="rel-chip-edge">${e.label}</span>
+              </button>
+            `;
+          }).join('');
+        };
+
+        bodyEl.innerHTML = `
+          <div class="detail-head" style="--detail-accent:var(${n.accent})">
+            <div>
+              <div class="detail-title-row">
+                <span class="detail-title">${n.name}</span>
+                <span class="detail-pill">${n.role}</span>
+              </div>
+              <p class="detail-desc">${n.desc}</p>
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <div class="block-label">职能倾向（定性）</div>
+            <div class="weight-rows">${weightHtml}</div>
+          </div>
+
+          <div class="detail-block">
+            <div class="block-label">核心硬约束</div>
+            <ul class="rule-list">${n.limits.map(x => `<li>${x}</li>`).join('')}</ul>
+          </div>
+
+          <div class="detail-block">
+            <div class="block-label">功能联系（点击跳转）</div>
+            <div class="rel-cols">
+              <div>
+                <div class="rel-group-title">依赖谁（输入）</div>
+                <div class="rel-chips">${renderRelChips(incoming, 'in')}</div>
+              </div>
+              <div>
+                <div class="rel-group-title">支撑谁（输出）</div>
+                <div class="rel-chips">${renderRelChips(outgoing, 'out')}</div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        bodyEl.querySelectorAll('[data-jump]').forEach(btn => {
+          btn.addEventListener('click', () => selectNode(btn.dataset.jump));
+        });
+        return;
+      }
+
+      if (state.loopId) {
+        const l = loopMap.get(state.loopId);
+        titleEl.textContent = `闭环 ${l.num} · 执行流程`;
+        subEl.textContent = '左侧已高亮对应载具与流向';
+
+        const chips = l.nodes.map(id => {
+          const n = nodeMap.get(id);
+          return `<button class="btn" type="button" data-jump="${id}" style="height:26px;font-size:11.5px">${n.name}</button>`;
+        }).join('');
+
+        bodyEl.innerHTML = `
+          <div style="--detail-accent:var(${SEM[l.sem].colorVar})">
+            <div class="detail-head">
+              <div>
+                <div class="detail-title-row">
+                  <span class="detail-title">${l.name}</span>
+                  <span class="detail-pill">${SEM[l.sem].label}</span>
+                </div>
+                <p class="detail-desc">${l.one}</p>
+              </div>
+            </div>
+
+            <div class="detail-block">
+              <div class="block-label">标准配合步骤</div>
+              <div class="step-list">
+                ${l.steps.map((s, i) => `<div class="step-row"><span class="step-badge mono">${i + 1}</span><span>${s}</span></div>`).join('')}
+              </div>
+            </div>
+
+            <div class="detail-block">
+              <div class="block-label">关键博弈点</div>
+              <div class="tactic-box"><strong>设计要点：</strong>${l.tactic}</div>
+            </div>
+
+            <div class="detail-block">
+              <div class="block-label">涉及要素（点击切换单车详情）</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">${chips}</div>
+            </div>
+          </div>
+        `;
+
+        bodyEl.querySelectorAll('[data-jump]').forEach(btn => {
+          btn.addEventListener('click', () => selectNode(btn.dataset.jump));
+        });
+        return;
+      }
+
+      /* 未聚焦默认态：极简 3x3 快速索引 */
+      titleEl.textContent = '要素快速索引';
+      subEl.textContent = '点击任意项或左侧节点查看详情';
+
+      const grid = DATA.nodes.map(n => `
+        <div class="idx-cell" data-jump="${n.id}" style="--node-accent:var(${n.accent})">
+          <div class="idx-cell-title"><span class="node-dot"></span><span>${n.name}</span></div>
+          <div class="idx-cell-sub">${n.role}</div>
+        </div>
+      `).join('');
+
+      bodyEl.innerHTML = `
+        <div class="index-grid">${grid}</div>
+        <div class="overview-note">
+          <strong>如何浏览本图：</strong><br/>
+          · <strong>悬停或点击左侧节点</strong>：仅亮起该载具的上下游彩线，右侧切出它的硬约束与跳转关系。<br/>
+          · <strong>点击上方玩法闭环</strong>：按真实战斗节奏逐步高亮多载具联动。<br/>
+          · <strong>点击图例按钮</strong>：单独透视“侦察 / 火力 / 补给 / 占区”任意一条机制主线。
+        </div>
+      `;
+
+      bodyEl.querySelectorAll('[data-jump]').forEach(el => {
+        el.addEventListener('click', () => selectNode(el.dataset.jump));
+      });
+    }
+
+    /* ================= 5. 状态同步与静默/彩色切换 ================= */
+    function syncVisuals() {
+      const activeNodes = new Set();
+      const activeEdges = new Set();
+      let focused = false;
+      let isFlowMode = false;
+
+      if (state.loopId) {
+        const l = loopMap.get(state.loopId);
+        focused = true;
+        isFlowMode = true;
+        l.nodes.forEach(id => activeNodes.add(id));
+        l.edges.forEach(id => activeEdges.add(id));
+      } else if (state.nodeId) {
+        focused = true;
+        activeNodes.add(state.nodeId);
+        for (const e of DATA.edges) {
+          if (e.from === state.nodeId || e.to === state.nodeId) {
+            activeEdges.add(e.id);
+            activeNodes.add(e.from);
+            activeNodes.add(e.to);
+          }
+        }
+      } else if (state.typeFilter) {
+        focused = true;
+        for (const e of DATA.edges) {
+          if (e.type === state.typeFilter) {
+            activeEdges.add(e.id);
+            activeNodes.add(e.from);
+            activeNodes.add(e.to);
+          }
+        }
+      } else if (state.hoverNodeId) {
+        focused = true;
+        activeNodes.add(state.hoverNodeId);
+        for (const e of DATA.edges) {
+          if (e.from === state.hoverNodeId || e.to === state.hoverNodeId) {
+            activeEdges.add(e.id);
+            activeNodes.add(e.from);
+            activeNodes.add(e.to);
+          }
+        }
+      } else if (state.hoverEdgeId) {
+        const e = edgeMap.get(state.hoverEdgeId);
+        if (e) {
+          focused = true;
+          activeEdges.add(e.id);
+          activeNodes.add(e.from);
+          activeNodes.add(e.to);
+        }
+      }
+
+      const hasPinned = Boolean(state.nodeId || state.loopId || state.typeFilter);
+      document.getElementById('btnReset').classList.toggle('is-hidden', !hasPinned);
+
+      document.querySelectorAll('.node').forEach(el => {
+        const id = el.dataset.id;
+        el.classList.remove('is-selected', 'is-related', 'is-dim');
+        if (!focused) return;
+        if (id === state.nodeId || id === state.hoverNodeId || (state.loopId && activeNodes.has(id))) {
+          el.classList.add('is-selected');
+        } else if (activeNodes.has(id)) {
+          el.classList.add('is-related');
+        } else {
+          el.classList.add('is-dim');
+        }
+      });
+
+      document.querySelectorAll('.edge-path').forEach(el => {
+        const eid = el.dataset.eid;
+        const etype = el.dataset.etype;
+        const on = activeEdges.has(eid) || state.hoverEdgeId === eid;
+        el.classList.remove('is-active', 'is-dim', 'is-flow');
+        if (on) {
+          el.classList.add('is-active');
+          if (isFlowMode) el.classList.add('is-flow');
+          el.setAttribute('marker-end', `url(#arr-${etype})`);
+        } else {
+          if (focused) el.classList.add('is-dim');
+          el.setAttribute('marker-end', 'url(#arr-idle)');
+        }
+      });
+
+      document.querySelectorAll('.edge-tag').forEach(el => {
+        const eid = el.dataset.etag;
+        const show = state.showLabels || state.hoverEdgeId === eid || (focused && activeEdges.has(eid));
+        el.classList.toggle('is-show', show);
+      });
+
+      document.querySelectorAll('.loop-item').forEach(el => {
+        el.classList.toggle('is-active', el.dataset.lid === state.loopId);
+      });
+
+      document.querySelectorAll('.legend-btn').forEach(el => {
+        el.classList.toggle('is-active', el.dataset.type === state.typeFilter);
+      });
+    }
+
+    function selectNode(id) {
+      if (state.nodeId === id) { resetAll(); return; }
+      state.nodeId = id;
+      state.loopId = null;
+      state.typeFilter = null;
+      renderInspector();
+      syncVisuals();
+    }
+
+    function selectLoop(id) {
+      if (state.loopId === id) { resetAll(); return; }
+      state.loopId = id;
+      state.nodeId = null;
+      state.typeFilter = null;
+      renderInspector();
+      syncVisuals();
+    }
+
+    function toggleTypeFilter(type) {
+      state.typeFilter = state.typeFilter === type ? null : type;
+      state.nodeId = null;
+      state.loopId = null;
+      renderInspector();
+      syncVisuals();
+    }
+
+    function resetAll() {
+      state.nodeId = null;
+      state.loopId = null;
+      state.typeFilter = null;
+      state.hoverNodeId = null;
+      state.hoverEdgeId = null;
+      renderInspector();
+      syncVisuals();
+    }
+
+    /* ================= 6. 事件绑定与启动 ================= */
+    document.getElementById('btnReset').addEventListener('click', resetAll);
+    document.getElementById('canvasScroll').addEventListener('click', resetAll);
+
+    document.getElementById('btnLabels').addEventListener('click', (ev) => {
+      state.showLabels = !state.showLabels;
+      ev.currentTarget.classList.toggle('is-on', state.showLabels);
+      syncVisuals();
+    });
+
+    document.getElementById('btnTheme').addEventListener('click', (ev) => {
+      const root = document.documentElement;
+      const toDark = root.getAttribute('data-theme') !== 'tactical';
+      root.setAttribute('data-theme', toDark ? 'tactical' : 'paper');
+      ev.currentTarget.textContent = toDark ? '素雅浅色' : '战术深色';
+      ev.currentTarget.classList.toggle('is-on', toDark);
+      requestAnimationFrame(drawEdges);
+    });
+
+    document.getElementById('legendFilters').addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.legend-btn');
+      if (!btn) return;
+      toggleTypeFilter(btn.dataset.type);
+    });
+
+    window.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape') resetAll();
+    });
+
+    const ro = new ResizeObserver(() => requestAnimationFrame(drawEdges));
+
+    renderNodes();
+    renderLoops();
+    renderInspector();
+    requestAnimationFrame(() => {
+      drawEdges();
+      ro.observe(document.getElementById('stage'));
+    });
+  </script>
+</body>
+</html>

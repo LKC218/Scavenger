@@ -1,0 +1,232 @@
+/* Scavenger 全局统一 UI/UX 设计令牌 V2.0（唯一数据源 · A3 烟炭双金 × B2 微描边 × C4 外柔内锐） */
+:root {
+  color-scheme: dark;
+
+  /* ========================================================================
+     Tier 1 · 基础原始色阶（Primitives）—— 仅由语义层引用
+     ======================================================================== */
+  --slate-950: #0a0b10;
+  --slate-900: #0d0e13;
+  --slate-850: #13141c;
+  --slate-800: #1b1c24;
+  --slate-750: #232530;
+  --slate-700: #2e303e;
+  --slate-600: #46495c;
+  --slate-400: #838896;
+  --slate-200: #b6bac5;
+  --slate-50:  #f5f6f9;
+
+  --gold-900: #3d3110;
+  --gold-700: #8c6d1f;
+  --gold-500: #d9aa2b;
+  --gold-400: #f0d372;
+  --gold-300: #f6de86;
+  --gold-200: #fbf0be;
+  --amber-500: #ffb800;
+
+  /* ========================================================================
+     Tier 2 · 表面、边框与文字语义层（战斗 HUD 实底 60FPS / 菜单毛玻璃分层）
+     ======================================================================== */
+  --ui-bg-canvas: #0d0e13;
+  --ui-bg-pod: rgba(19, 20, 28, 0.92);
+  --ui-bg-pod-elevated: #14151e;
+  --ui-bg-overlay-glass: linear-gradient(155deg, rgba(36, 37, 46, 0.90) 0%, rgba(20, 21, 28, 0.95) 58%, rgba(33, 29, 22, 0.90) 100%);
+  --ui-bg-slot: rgba(35, 37, 48, 0.88);
+  --ui-bg-hover: rgba(255, 255, 255, 0.085);
+
+  --ui-line-subtle: rgba(255, 255, 255, 0.09);
+  --ui-line-base: rgba(255, 255, 255, 0.19);
+  --ui-line-strong: rgba(255, 255, 255, 0.34);
+  --ui-line-accent: rgba(240, 211, 114, 0.52);
+  --ui-stroke-halo: rgba(9, 10, 15, 0.96);
+
+  --ui-text-primary: #f5f6f9;
+  --ui-text-secondary: #b6bac5;
+  --ui-text-muted: #838896;
+  --ui-text-inverse: #0d0e13;
+
+  --ui-accent-grad: linear-gradient(135deg, #f6de86 0%, #e5b73e 100%);
+  --ui-accent-glow: rgba(240, 211, 114, 0.24);
+  --ui-select-sweep: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.94) 62%, rgba(255, 255, 255, 0.24) 90%, rgba(255, 255, 255, 0) 100%);
+  --ui-rim-top: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+
+  /* ========================================================================
+     Tier 3 · 7 维零撞色全局语义通道与状态色（严禁业务模块私自重定义）
+     ======================================================================== */
+  --ui-ch-ground: #38e5c0;
+  --ui-ch-ground-inner: #9bf5e0;
+  --ui-ch-ground-fill: rgba(56, 229, 192, 0.15);
+
+  --ui-ch-heli: #68c8ff;
+  --ui-ch-heli-inner: #bae4ff;
+  --ui-ch-heli-fill: rgba(104, 200, 255, 0.15);
+
+  --ui-ch-plane: #b197fc;
+  --ui-ch-plane-inner: #dcd0ff;
+  --ui-ch-plane-fill: rgba(177, 151, 252, 0.15);
+
+  --ui-state-select: #f0d372;
+  --ui-state-select-inner: #f6de86;
+  --ui-state-select-fill: rgba(240, 211, 114, 0.16);
+
+  --ui-state-warn: #ffb800;
+  --ui-state-warn-fill: rgba(255, 184, 0, 0.16);
+
+  --ui-state-danger: #ff5266;
+  --ui-state-danger-fill: rgba(255, 82, 102, 0.18);
+
+  --ui-state-toxic: #a8f22c;
+  --ui-state-toxic-fill: rgba(168, 242, 44, 0.15);
+
+  --ui-state-safe: #3cd69f;
+  --ui-state-safe-fill: rgba(60, 214, 159, 0.15);
+
+  /* ========================================================================
+     字体栈、字阶、倒角（C4 外柔内锐）、4px 空间栅格、Z-Index 与动效令牌
+     ======================================================================== */
+  --ui-font-display: "Bahnschrift Condensed", "DIN Condensed", "Impact", "HarmonyOS Sans SC", "Microsoft YaHei UI", sans-serif;
+  --ui-font-sans: "Bahnschrift", "DIN Alternate", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  --ui-font-mono: "Cascadia Mono", "Consolas", "JetBrains Mono", "Microsoft YaHei UI", monospace;
+
+  --ui-fs-2xs: 10px;
+  --ui-fs-xs: 11px;
+  --ui-fs-sm: 12px;
+  --ui-fs-md: 13.5px;
+  --ui-fs-lg: 16px;
+  --ui-fs-xl: 20px;
+  --ui-fs-2xl: 26px;
+
+  /* C4 外柔内锐倒角体系 */
+  --ui-r-surface: 12px;
+  --ui-r-surface-lg: 16px;
+  --ui-r-control: 5px;
+  --ui-r-sm: 4px;
+  --ui-r-pill: 9999px;
+  /* 向下兼容旧圆角/切角变量名 */
+  --ui-radius-xs: 4px;
+  --ui-radius-sm: 5px;
+  --ui-chamfer-sm: 6px;
+  --ui-chamfer-md: 10px;
+
+  /* 4px 基础空间步长与三档控件高度 */
+  --ui-sp-1: 4px;
+  --ui-sp-2: 8px;
+  --ui-sp-3: 12px;
+  --ui-sp-4: 16px;
+  --ui-sp-6: 24px;
+  --ui-sp-8: 32px;
+
+  --ui-h-compact: 28px;
+  --ui-h-standard: 36px;
+  --ui-h-primary: 44px;
+
+  /* 无底框硬黑外描边粗细（须配 paint-order: stroke fill） */
+  --ui-outlined-stroke-w: 3.4px;
+
+  /* 5 级严格 Z-Index 架构 */
+  --ui-z-world: 100;
+  --ui-z-hud: 200;
+  --ui-z-drawer: 300;
+  --ui-z-overlay: 400;
+  --ui-z-system: 500;
+
+  /* 阴影与 3 档动效时长 */
+  --ui-shadow-pod: 0 14px 36px rgba(4, 5, 10, 0.52), 0 4px 12px rgba(0, 0, 0, 0.30);
+  --ui-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ui-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ui-dur-micro: 100ms;
+  --ui-dur-standard: 200ms;
+  --ui-dur-overlay: 300ms;
+  --ui-dur-fast: 100ms;
+  --ui-dur-mid: 200ms;
+}
+
+/* ==========================================================================
+   V2.1 原生物理三档尺码令牌组（限定于 [data-ui-size] 作用域，严禁 transform:scale）
+   ========================================================================== */
+[data-ui-size="compact"] {
+  --ui-sz-btn-h: 28px;
+  --ui-sz-btn-sm-h: 24px;
+  --ui-sz-btn-fs: 11px;
+  --ui-sz-btn-px: 10px;
+  --ui-sz-prompt-fs: 12.5px;
+  --ui-sz-keycap: 19px;
+  --ui-sz-keycap-fs: 9.5px;
+  --ui-sz-select-h: 25px;
+  --ui-sz-select-fs: 10.5px;
+  --ui-sz-cmd-cell-h: 48px;
+  --ui-sz-cmd-txt-fs: 10.5px;
+  --ui-sz-rail-w: 84px;
+  --ui-sz-drawer-w: 324px;
+  --ui-sz-insp-w: 324px;
+  --ui-sz-cmd-w: 236px;
+  --ui-sz-mm-w: 206px;
+  --ui-sz-mm-h: 114px;
+}
+
+[data-ui-size="lg"] {
+  --ui-sz-btn-h: 36px;
+  --ui-sz-btn-sm-h: 30px;
+  --ui-sz-btn-fs: 13px;
+  --ui-sz-btn-px: 15px;
+  --ui-sz-prompt-fs: 15px;
+  --ui-sz-keycap: 24px;
+  --ui-sz-keycap-fs: 11px;
+  --ui-sz-select-h: 32px;
+  --ui-sz-select-fs: 12px;
+  --ui-sz-cmd-cell-h: 68px;
+  --ui-sz-cmd-txt-fs: 13px;
+  --ui-sz-rail-w: 116px;
+  --ui-sz-drawer-w: 400px;
+  --ui-sz-insp-w: 412px;
+  --ui-sz-cmd-w: 332px;
+  --ui-sz-mm-w: 292px;
+  --ui-sz-mm-h: 168px;
+}
+
+[data-ui-size="xl"] {
+  --ui-sz-btn-h: 40px;
+  --ui-sz-btn-sm-h: 33px;
+  --ui-sz-btn-fs: 14px;
+  --ui-sz-btn-px: 18px;
+  --ui-sz-prompt-fs: 16.5px;
+  --ui-sz-keycap: 26px;
+  --ui-sz-keycap-fs: 12px;
+  --ui-sz-select-h: 36px;
+  --ui-sz-select-fs: 13px;
+  --ui-sz-cmd-cell-h: 78px;
+  --ui-sz-cmd-txt-fs: 14.5px;
+  --ui-sz-rail-w: 128px;
+  --ui-sz-drawer-w: 444px;
+  --ui-sz-insp-w: 454px;
+  --ui-sz-cmd-w: 372px;
+  --ui-sz-mm-w: 336px;
+  --ui-sz-mm-h: 196px;
+}
+
+.ui-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.ui-mono {
+  font-family: var(--ui-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.ui-display {
+  font-family: var(--ui-font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.08;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

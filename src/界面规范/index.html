@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scavenger 全局 UI/UX 活体规范台 · V2.1</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/ui/令牌.css">
+  <link rel="stylesheet" href="/ui/组件.css">
+  <link rel="stylesheet" href="/ui/场内视觉.css">
+  <link rel="stylesheet" href="/ui/规范页.css">
+</head>
+<body>
+  <header class="spec-topbar">
+    <div class="spec-brand">
+      <span class="spec-sigil" id="brand-sigil" aria-hidden="true"></span>
+      <div>
+        <h1>SCAVENGER 全局 UI/UX 活体规范台 · V2.1</h1>
+        <p>暗夜映画高反差 × 生化警戒黄黑（A3 烟炭双金 · B2 微描边 · C4 外柔内锐 · 原生三档物理尺码）· 单源同源渲染</p>
+      </div>
+    </div>
+
+    <nav class="spec-nav" aria-label="规范章节导航">
+      <a href="#sec-colors">01 语义色彩</a>
+      <a href="#sec-typography">02 字阶标尺</a>
+      <a href="#sec-icons">03 军事剪影</a>
+      <a href="#sec-components">04 平面战术舱</a>
+      <a href="#sec-sandbox">05 场内双层沙盒</a>
+      <a href="#sec-cluster">06 防叠字试验</a>
+      <a href="#sec-hud-scale">07 三档尺码与 HUD</a>
+    </nav>
+
+    <div class="spec-topbar-right">
+      <span class="ui-badge" id="spec-sha-badge" data-tone="select">同源校验中…</span>
+      <button type="button" class="ui-btn ui-btn--sm" id="btn-toggle-drawer" aria-expanded="false" aria-controls="debug-drawer">
+        <span>演训与调试抽屉</span>
+        <kbd class="ui-kbd">`</kbd>
+      </button>
+    </div>
+  </header>
+
+  <main class="spec-main">
+    <!-- 01 色彩语义分层矩阵 -->
+    <section id="sec-colors" class="ui-pod spec-section" aria-labelledby="title-colors">
+      <div class="spec-section-head">
+        <div>
+          <span class="ui-eyebrow">Section 01 / 3-Tier A3 Smoke-Slate &amp; Dual-Gold Palette</span>
+          <h2 id="title-colors">01 三层语义色彩矩阵（运行期实时读取）</h2>
+        </div>
+        <p class="spec-section-desc">正式运行锁定「A3 烟炭双金」暗色单主题：微冷烟炭底面与 3D 复古微缩暖滤镜拉开层次，7 维零撞色作战通道与主黄严格隔离；点击色卡复制 CSS 变量引用。</p>
+      </div>
+      <div id="color-matrix-mount"></div>
+    </section>
+
+    <!-- 02 字阶与等宽遥测读数标尺 -->
+    <section id="sec-typography" class="ui-pod spec-section" aria-labelledby="title-typo">
+      <div class="spec-section-head">
+        <div>
+          <span class="ui-eyebrow">Section 02 / Type Scale &amp; Telemetry</span>
+          <h2 id="title-typo">02 字阶规范与等宽遥测读数标尺</h2>
+        </div>
+        <p class="spec-section-desc">主文字使用 Bahnschrift / 微软雅黑 UI；所有坐标、距离、计时与帧耗时强制启用等宽数字 <code>tabular-nums</code>，消除高频刷新抖动。</p>
+      </div>
+      <div class="typo-layout">
+        <div class="type-scale-list" id="type-scale-mount"></div>
+        <div class="telemetry-demo">
+          <div class="ui-pod-head">
+            <span class="ui-eyebrow">实时等宽数字对齐演示</span>
+            <span class="ui-badge" data-tone="ground">tabular-nums</span>
+          </div>
+          <div class="telemetry-grid">
+            <div class="telemetry-cell"><span class="ui-eyebrow">模拟帧率</span><b id="tel-fps">60.0 FPS</b></div>
+            <div class="telemetry-cell"><span class="ui-eyebrow">航线预计耗时</span><b id="tel-eta">084m · 07s</b></div>
+            <div class="telemetry-cell"><span class="ui-eyebrow">旋翼离地高度</span><b id="tel-alt">030.0 m</b></div>
+            <div class="telemetry-cell"><span class="ui-eyebrow">交战计时</span><b id="tel-clock">00:00.0</b></div>
+          </div>
+          <p class="spec-section-desc">左侧字阶与右侧遥测数据均直接绑定 <code>--ui-font-sans</code>、<code>--ui-font-mono</code> 与 <code>--ui-fs-*</code> 令牌。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 武器库载具剪影、情景警示与 HUD 图标源 -->
+    <section id="sec-icons" class="ui-pod spec-section" aria-labelledby="title-icons">
+      <div class="spec-section-head">
+        <div>
+          <span class="ui-eyebrow">Section 03 / Arsenal Silhouettes · ISO Hazards · HUD Actions</span>
+          <h2 id="title-icons">03 武器库 12 兵种剪影、情景警示与 HUD 图标源（35 项导出）</h2>
+        </div>
+        <p class="spec-section-desc">按在库 129 款实装载具重划 12 大兵种负空间剪影（保留 tank/heli/plane 兼容别名）＋ 4 枚 ISO 7010 与高直觉情景警示图标 ＋ 19 枚统一 1.75px 功能图标，唯一源自 <code>图标与标绘.mjs</code>。</p>
+      </div>
+      <div class="icon-toolbar">
+        <div class="sandbox-ctrl-group">
+          <span>检视底图对照：</span>
+          <div class="ui-seg" id="icon-bg-seg">
+            <button type="button" data-bg="dark" class="active">深色舱</button>
+            <button type="button" data-bg="concrete">水泥停机坪</button>
+            <button type="button" data-bg="grass">深绿草地</button>
+            <button type="button" data-bg="paper">暖米图纸</button>
+          </div>
+        </div>
+        <span class="ui-badge" data-tone="select">12 类载具剪影 + 4 枚情景图标 + 19 枚功能图标</span>
+      </div>
+      <div class="silhouette-grid" id="silhouette-mount"></div>
+      <div class="hazard-grid" id="hazard-icon-mount"></div>
+      <div class="hud-icon-strip" id="hud-icon-mount"></div>
+    </section>
+
+    <!-- 04 战斗实底 HUD、游戏专属状态机与键鼠光标 -->
+    <section id="sec-components" class="ui-pod spec-section" aria-labelledby="title-comp">
+      <div class="spec-section-head">
+        <div>
+          <span class="ui-eyebrow">Section 04 / B2 Crisp-Rim · C4 Outer-Soft Inner-Sharp · Game States</span>
+          <h2 id="title-comp">04 战斗 HUD 组件、游戏专属状态机与键鼠光标</h2>
+        </div>
+        <p class="spec-section-desc">战斗常驻 HUD 强制高透暗实底（零 backdrop-filter 保 60FPS），暂停与模态浮层允许毛玻璃；按钮采用 L1 无底框硬描边 / L2 微描边 / L3 香槟金唯一主 CTA 三档分层。</p>
+      </div>
+      <div class="hud-showcase-grid">
+        <div class="ui-pod hud-showcase-card">
+          <div class="ui-pod-head">
+            <span class="ui-eyebrow">L1 / L2 / L3 按钮与 7 维通道徽章</span>
+            <span class="ui-badge" data-tone="select">B2 微描边</span>
+          </div>
+          <div class="hud-row">
+            <button type="button" class="ui-btn ui-btn--primary">L3 确认部署</button>
+            <button type="button" class="ui-btn" aria-pressed="true">激活保持</button>
+            <button type="button" class="ui-btn">L2 标准按钮</button>
+            <button type="button" class="ui-btn ui-btn--danger">危险 / 清空</button>
+            <button type="button" class="ui-btn ui-btn--toxic">生化洗消</button>
+            <button type="button" class="ui-btn" disabled>禁用态</button>
+          </div>
+          <div class="hud-row">
+            <button type="button" class="ui-prompt-btn"><span class="ui-outlined-text">重新居中</span><span class="ui-keycap ui-keycap--circle">C</span></button>
+            <button type="button" class="ui-prompt-btn is-active"><span class="ui-outlined-text">隐藏 HUD</span><span class="ui-keycap">F5</span></button>
+            <span class="ui-badge" data-tone="ground">地面青</span>
+            <span class="ui-badge" data-tone="heli">旋翼蓝</span>
+            <span class="ui-badge" data-tone="plane">固定翼紫</span>
+            <span class="ui-badge" data-tone="toxic">毒雾绿</span>
+            <span class="ui-badge" data-tone="danger">高危红</span>
+          </div>
+          <div class="hud-row">
+            <span class="ui-eyebrow">分段器与键盘键帽：</span>
+            <div class="ui-seg">
+              <button type="button" class="active"><kbd class="ui-kbd">3</kbd> 全部</button>
+              <button type="button"><kbd class="ui-kbd">1</kbd> 地面</button>
+              <button type="button"><kbd class="ui-kbd">2</kbd> 空中</button>
+            </div>
+          </div>
+          <div class="hud-row" style="align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:6px;border-top:1px solid var(--ui-line-subtle)">
+            <div class="ui-select" id="spec-roe-select" data-value="free" style="max-width:228px">
+              <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="交战规则下拉演示">
+                <span class="ui-select-val">
+                  <span class="ui-select-dot" style="color:var(--ui-state-danger);background:currentColor"></span>
+                  <span class="ui-select-txt">自由开火 · 优先高危</span>
+                </span>
+                <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+              </button>
+              <div class="ui-select-menu" role="listbox" hidden>
+                <button type="button" class="ui-select-option" role="option" data-val="free" data-dot="var(--ui-state-danger)" aria-selected="true">
+                  <span class="ui-select-option-main"><span class="ui-select-option-title"><span class="ui-select-dot" style="color:var(--ui-state-danger);background:currentColor"></span>自由开火 · 优先高危</span><span class="ui-select-option-sub">接敌即压制高危目标</span></span>
+                  <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                </button>
+                <button type="button" class="ui-select-option" role="option" data-val="return" data-dot="var(--ui-state-warn)" aria-selected="false">
+                  <span class="ui-select-option-main"><span class="ui-select-option-title"><span class="ui-select-dot" style="color:var(--ui-state-warn);background:currentColor"></span>仅还击 · 保持隐蔽</span><span class="ui-select-option-sub">受袭时自动反击</span></span>
+                  <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                </button>
+                <button type="button" class="ui-select-option" role="option" data-val="hold" data-dot="var(--ui-ch-ground)" aria-selected="false">
+                  <span class="ui-select-option-main"><span class="ui-select-option-title"><span class="ui-select-dot" style="color:var(--ui-ch-ground);background:currentColor"></span>停火待命 · 仅机动</span><span class="ui-select-option-sub">全员禁火静默推进</span></span>
+                  <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                </button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;font-size:11.5px;color:var(--ui-text-secondary)">
+              <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" class="ui-check" checked> 移动射击</label>
+              <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" class="ui-radio" name="spec-nav" checked> 常驻小地图</label>
+              <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" class="ui-radio" name="spec-nav"> 动态隐退</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui-pod hud-showcase-card">
+          <div class="ui-pod-head">
+            <span class="ui-eyebrow">编队单位卡 · 兵种通道左标</span>
+            <span class="ui-badge" data-tone="ground">零模糊实底</span>
+          </div>
+          <div class="hud-unit-grid" id="unit-card-mount"></div>
+          <div class="hud-row" style="margin-top:4px">
+            <span class="ui-eyebrow">5 类战术键鼠光标（悬停体验）：</span>
+            <span class="ui-badge ui-cur-default">默认</span>
+            <span class="ui-badge ui-cur-move" data-tone="ground">移动</span>
+            <span class="ui-badge ui-cur-attack" data-tone="danger">攻击</span>
+            <span class="ui-badge ui-cur-invalid" data-tone="warn">不可达</span>
+          </div>
+        </div>
+
+        <div class="ui-pod hud-showcase-card">
+          <div class="ui-pod-head">
+            <span class="ui-eyebrow">指令队列、延迟血条与镜头胶囊</span>
+            <button type="button" class="ui-btn ui-btn--sm" id="btn-demo-drawer-inline">打开调试抽屉</button>
+          </div>
+          <ul class="ui-command-list">
+            <li><strong>铁砧 01 · 移动中</strong><span>当前：移动（18, -18米） · 已设朝向 → 后续1：移动（34, -2米）</span></li>
+            <li class="is-pending"><strong>游隼 02 · 准备路径</strong><span>正在解析分区支撑与局部 30m 避障包络…</span></li>
+            <li class="is-rejected"><strong>铁砧 02 · 不可达</strong><span>地面目的地被机库静态障碍占用 · 已保留原任务</span></li>
+          </ul>
+          <div class="hud-row">
+            <span class="ui-eyebrow">右下控制胶囊：</span>
+            <div class="ui-capsule" aria-label="示例镜头控制胶囊">
+              <button type="button" title="逆时针旋转">↺</button>
+              <button type="button" title="顺时针旋转">↻</button>
+              <span class="ui-capsule-sep"></span>
+              <button type="button" title="拉远">－</button>
+              <span class="ui-capsule-readout">中景 220m</span>
+              <button type="button" title="拉近">＋</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 世界内贴地 UI、线框幽灵与双层分离高清沙盒 -->
+    <section id="sec-sandbox" class="ui-pod spec-section" aria-labelledby="title-sandbox">
+      <div class="spec-section-head">
+        <div>
+          <span class="ui-eyebrow">Section 05 / Diegetic Sandbox &amp; Dual-Layer HiDPI</span>
+          <h2 id="title-sandbox">05 世界内贴地 UI、线框幽灵与双层分离高清沙盒</h2>
+        </div>
+        <p class="spec-section-desc">地面与直升机保留正交贴地双环，固定翼仅留地面十字锚点＋垂直高度虚线＋100m 高空盘旋轨＋选中四角框；开启 640px 画布模拟后，仅底层 3D 模拟降为 640px，场内贴地双环、名牌与幽灵叠加层保持原生 DPR 高清锐利。</p>
+      </div>
+
+      <div class="sandbox-controls">
+        <div class="sandbox-ctrl-group">
+          <span>图层</span>
+          <div class="ui-seg" id="sb-layer-seg">
+            <button type="button" data-layer="ground">1 地面</button>
+            <button type="button" data-layer="air">2 空中</button>
+            <button type="button" data-layer="all" class="active">3 全部</button>
+          </div>
+        </div>
+        <div class="sandbox-ctrl-group">
+          <span>底图</span>
+          <div class="ui-seg" id="sb-bg-seg">
+            <button type="button" data-bg="split" class="active">双拼实景</button>
+            <button type="button" data-bg="concrete">水泥停机坪</button>
+            <button type="button" data-bg="grass">深绿草地</button>
+            <button type="button" data-bg="paper">暖米图纸</button>
+          </div>
+        </div>
+        <div class="sandbox-ctrl-group">
+          <span>景别</span>
+          <div class="ui-seg" id="sb-zoom-seg">
+            <button type="button" data-span="85">近景 85m</button>
+            <button type="button" data-span="220" class="active">中景 220m</button>
+            <button type="button" data-span="540">远景 540m</button>
+          </div>
+        </div>
+        <button type="button" class="ui-btn ui-btn--sm" id="sandbox-pixel-toggle" aria-pressed="false">640px 3D 画布模拟：关</button>
+        <button type="button" class="ui-btn ui-btn--sm" id="sb-reset">重置示范编队</button>
+      </div>
+
+      <div class="tactical-stage sandbox-frame" id="sb-stage" tabindex="0" aria-label="世界内贴地 UI 交互沙盒">
+        <canvas class="tactical-ground-canvas" id="sb-ground-canvas"></canvas>
+        <svg class="tactical-ring-svg" id="sb-ring-svg" aria-hidden="true"></svg>
+        <canvas class="tactical-vehicle-canvas" id="sb-vehicle-canvas"></canvas>
+        <div class="tactical-ui-layer" id="sb-ui-layer"></div>
+        <canvas class="tactical-air-canvas" id="sb-air-canvas"></canvas>
+        <div class="tactical-drag-box" id="sb-drag-box" hidden></div>
+
+        <div class="sandbox-hud-top">
+          <div class="ui-pod" style="padding:6px 10px;">
+            <span class="ui-eyebrow">五层秩序 · 线框幽灵</span>
+            <strong style="font-size:12px;">地面双环 / 直升机 30m / 固定翼 100m</strong>
+          </div>
+          <span class="ui-badge" id="sb-dpr-badge" data-tone="select">原生 DPR 核验中…</span>
+        </div>
+
+        <div class="sandbox-hud-bottom">
+          <div class="ui-pod ui-pod--chamfer sandbox-status-pod">
+            <strong id="sb-status-line">就绪 · 左键点选/框选，右键按住拖动预览线框幽灵与朝向</strong>
+            <small><kbd class="ui-kbd">1</kbd>/<kbd class="ui-kbd">2</kbd>/<kbd class="ui-kbd">3</kbd> 图层 · <kbd class="ui-kbd">左键</kbd> 选择 · <kbd class="ui-kbd">右键拖动</kbd> 混选下令 · <kbd class="ui-kbd">Shift</kbd> 排队 · <kbd class="ui-kbd">X</kbd> 停止 · <kbd class="ui-kbd">WASD</kbd>/<kbd class="ui-kbd">Q</kbd><kbd class="ui-kbd">E</kbd>/<kbd class="ui-kbd">滚轮</kbd> 观察</small>
+          </div>
+          <div class="ui-capsule" aria-label="沙盒镜头控制">
+            <button type="button" id="sb-rot-l" title="逆时针旋转 Q">↺</button>
+            <button type="button" id="sb-rot-r" title="顺时针旋转 E">↻</button>
+            <span class="ui-capsule-sep"></span>
+            <button type="button" id="sb-zoom-out" title="拉远">－</button>
+            <span class="ui-capsule-readout" id="sb-span-badge">中景 220m</span>
+            <button type="button" id="sb-zoom-in" title="拉近">＋</button>
+            <span class="ui-capsule-sep"></span>
+            <button type="button" id="sb-north" title="复位视角">北</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sandbox-metrics-bar" id="sb-metrics-bar">
+        <span>底层 3D 画布像素：<b id="sb-m-3d">--</b></span>
+        <span>叠加 UI 标绘像素：<b id="sb-m-ui">--</b></span>
+        <span>固定翼地面环：<b id="sb-m-plane-ring">--</b></span>
+      </div>
+    </section>
+
+    <!-- 06 密集编队防叠字交互试验台 -->
+    <section id="sec-cluster" class="ui-pod spec-section" aria-labelledby="title-cluster">
+      <div class="spec-section-head">
+        <div>
+          <span class="ui-eyebrow">Section 06 / Ground-Anchored Anti-Overlap</span>
+          <h2 id="title-cluster">06 密集编队车底锚定防叠字试验台</h2>
+        </div>
+        <p class="spec-section-desc">车底地面落点严格固定不跳槽；碰撞时按「悬停 &gt; 选中 &gt; 移动/交战 &gt; 待命」优先级，将重叠的低优先级名牌原地收缩为紧凑兵种剪影点或低透退让，悬停即时展开并支持 Tab 循环。</p>
+      </div>
+
+      <div class="cluster-layout">
+        <div class="cluster-stage-wrap">
+          <div class="cluster-controls">
+            <label>编队间距：<input type="range" class="ui-range" id="cluster-spacing" min="6" max="36" step="1" value="9"><b class="ui-tabular" id="cluster-spacing-val">9 m</b></label>
+            <label><input type="checkbox" class="ui-check" id="collision-toggle" checked> 启用三级防叠字策略</label>
+            <button type="button" class="ui-btn ui-btn--sm" id="cluster-tab-btn"><kbd class="ui-kbd">Tab</kbd> 循环重叠单位</button>
+            <span class="ui-badge" id="cluster-summary-badge" data-tone="select">--</span>
+          </div>
+          <div class="cluster-stage" id="cluster-stage" tabindex="0" aria-label="密集编队防叠字实时舞台">
+            <svg class="tactical-ring-svg" id="cluster-ring-svg" aria-hidden="true"></svg>
+            <div class="tactical-ui-layer" id="cluster-ui-layer"></div>
+          </div>
+        </div>
+
+        <div class="cluster-diag-table-wrap">
+          <table class="cluster-diag-table">
+            <thead>
+              <tr>
+                <th>单位</th>
+                <th>优先级</th>
+                <th>当前形态</th>
+                <th>锚点位移</th>
+              </tr>
+            </thead>
+            <tbody id="cluster-diag-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 原生物理三档尺码与 4C 实战 HUD 骨架实操台 -->
+    <section id="sec-hud-scale" class="ui-pod spec-section" aria-labelledby="title-hud-scale">
+      <div class="spec-section-head">
+        <div>
+          <span class="ui-eyebrow">Section 07 / Native Physical Size System &amp; 4C Three-Row HUD Skeleton</span>
+          <h2 id="title-hud-scale">07 原生物理三档尺码与 4C 实战 HUD 骨架实操台</h2>
+        </div>
+        <p class="spec-section-desc">沉淀阶段 4C V002 验收标准：通过 <code>[data-ui-size="compact|lg|xl"]</code> 驱动纯 CSS 原生字号、按钮高度与面板尺寸（严禁 <code>transform: scale()</code> 造成发虚），支持画幅联动自动切换安全尺度与 <code>.ui-select</code> 自动底沿探测向上弹出。</p>
+      </div>
+
+      <div id="hud-scale-stage" class="hud-scale-stage" data-ui-size="lg" data-aspect="full">
+        <div class="scale-toolbar">
+          <div class="scale-ctrl-left">
+            <span class="scale-ctrl-lbl">物理尺码档位：</span>
+            <div class="ui-size-seg" id="spec-size-seg" role="group" aria-label="HUD 物理尺码三档切换">
+              <button type="button" class="ui-size-seg-btn" data-size="compact">紧凑 680p</button>
+              <button type="button" class="ui-size-seg-btn active" data-size="lg">标准大号</button>
+              <button type="button" class="ui-size-seg-btn" data-size="xl">超大高分</button>
+            </div>
+            <button type="button" class="ui-btn ui-btn--sm" id="scale-aspect-btn">画幅：全屏</button>
+          </div>
+          <span class="ui-badge" id="scale-metrics-readout" data-tone="select">--</span>
+        </div>
+
+        <div class="ui-hud-grid scale-demo-hud" id="scale-demo-hud">
+          <!-- ROW 1 示范顶栏 -->
+          <div class="scale-hud-top">
+            <div class="ui-pod scale-pts-pod">
+              <span class="ui-display scale-pts-num">420</span>
+              <span class="ui-mono scale-pts-meta">点数 PTS · 1850 物资 · 6/8</span>
+            </div>
+            <div class="scale-hud-actions">
+              <button type="button" class="ui-prompt-btn" id="scale-demo-prompt">
+                <span class="ui-outlined-text">轮盘</span><span class="ui-keycap ui-keycap--circle">V</span>
+              </button>
+              <button type="button" class="ui-btn scale-accent-btn" id="scale-demo-btn">⊕ 增援 [P]</button>
+            </div>
+          </div>
+
+          <!-- ROW 2 示范中间安全走廊 -->
+          <div class="scale-hud-middle">
+            <aside class="ui-pod ui-cat-rail" aria-label="极窄兵种分类轨示范">
+              <div class="scale-rail-item is-active"><span>全部</span><b class="ui-mono">6</b></div>
+              <div class="scale-rail-item"><span>重甲</span><b class="ui-mono">2</b></div>
+              <div class="scale-rail-item"><span>旋翼</span><b class="ui-mono">2</b></div>
+            </aside>
+            <div class="scale-corridor-hint">中间核心战场透空安全区（零常驻遮挡 · 零 backdrop-filter）</div>
+          </div>
+
+          <!-- ROW 3 示范底中净空双翼 -->
+          <div class="ui-hud-bottom">
+            <div class="ui-pod scale-mm-pod" id="scale-demo-minimap">
+              <div class="scale-mm-head">
+                <span class="ui-mono">RADAR · MINIMAP</span>
+                <span>全地/空</span>
+              </div>
+              <div class="scale-mm-canvas-sim">
+                <span class="scale-zone-dot" style="left:24%;top:62%;color:var(--ui-ch-ground)"></span>
+                <span class="scale-zone-dot" style="left:50%;top:48%;color:var(--ui-state-select)"></span>
+                <span class="scale-zone-dot" style="left:76%;top:34%;color:var(--ui-state-danger)"></span>
+              </div>
+            </div>
+
+            <div class="scale-br-wing">
+              <div class="ui-pod scale-insp-pod">
+                <div class="scale-insp-head">
+                  <strong>铁砧 01 · M1A2 SEP v3</strong>
+                  <span class="ui-mono" style="color:var(--ui-ch-ground)">86%</span>
+                </div>
+                <div class="ui-hp-track">
+                  <div class="ui-hp-fill" style="width:86%;background:var(--ui-ch-ground)"></div>
+                </div>
+                <div class="scale-insp-foot">
+                  <span class="ui-badge" data-tone="select">120mm 高爆 28</span>
+                  <div class="ui-select" id="scale-roe-select" data-value="free">
+                    <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="示范底沿交战规则">
+                      <span class="ui-select-val">
+                        <span class="ui-select-dot" style="color:var(--ui-state-danger);background:currentColor"></span>
+                        <span class="ui-select-txt">自由开火 · 优先高危</span>
+                      </span>
+                      <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+                    </button>
+                    <div class="ui-select-menu" role="listbox" hidden>
+                      <button type="button" class="ui-select-option" role="option" data-val="free" data-dot="var(--ui-state-danger)" aria-selected="true">
+                        <span class="ui-select-option-main">
+                          <span class="ui-select-option-title">自由开火 · 优先高危</span>
+                          <span class="ui-select-option-sub">发现有效目标立即开火</span>
+                        </span>
+                        <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                      </button>
+                      <button type="button" class="ui-select-option" role="option" data-val="return" data-dot="var(--ui-state-warn)" aria-selected="false">
+                        <span class="ui-select-option-main">
+                          <span class="ui-select-option-title">仅还击 · 保持隐蔽</span>
+                          <span class="ui-select-option-sub">减小枪声降低远距吸怪</span>
+                        </span>
+                        <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                      </button>
+                      <button type="button" class="ui-select-option" role="option" data-val="hold" data-dot="var(--ui-ch-ground)" aria-selected="false">
+                        <span class="ui-select-option-main">
+                          <span class="ui-select-option-title">停火待命 · 接受补给</span>
+                          <span class="ui-select-option-sub">停稳停火以完成快速补给</span>
+                        </span>
+                        <svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ui-pod scale-cmd-shell" id="scale-cmd-shell">
+                <div class="scale-cmd-head">
+                  <span style="color:var(--ui-state-select);font-weight:800">COMMAND · 3×2 HUD</span>
+                  <span class="ui-mono">无缩放失真</span>
+                </div>
+                <div class="ui-cmd-grid">
+                  <button type="button" class="ui-cmd-cell" id="scale-demo-cmd">
+                    <span class="c-kbd">M</span>
+                    <span class="c-txt">机动部署</span>
+                    <span class="c-sub">右键预览</span>
+                  </button>
+                  <button type="button" class="ui-cmd-cell is-active-mode">
+                    <span class="c-kbd">G</span>
+                    <span class="c-txt">地面警戒</span>
+                    <span class="c-sub">已开启</span>
+                  </button>
+                  <button type="button" class="ui-cmd-cell">
+                    <span class="c-kbd">R</span>
+                    <span class="c-charge">×3</span>
+                    <span class="c-txt">声源诱饵</span>
+                    <span class="c-sub">4s 延时</span>
+                  </button>
+                  <button type="button" class="ui-cmd-cell is-cooling" id="scale-cmd-cool">
+                    <span class="c-kbd">E</span>
+                    <span class="c-txt">停稳补给</span>
+                    <span class="c-sub">回弹修甲</span>
+                    <div class="ui-cd-mask" style="--cd-deg:150deg"><span class="ui-cd-sec">3s</span></div>
+                  </button>
+                  <button type="button" class="ui-cmd-cell">
+                    <span class="c-kbd">Q</span>
+                    <span class="c-txt">空中舔地</span>
+                    <span class="c-sub">A-10C</span>
+                  </button>
+                  <button type="button" class="ui-cmd-cell is-locked" disabled>
+                    <span class="c-kbd">B</span>
+                    <span class="c-txt">饱和轰炸</span>
+                    <span class="c-sub">未解锁</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 默认隐藏的「演训与调试抽屉」 -->
+  <div class="ui-drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside class="ui-drawer" id="debug-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+    <div class="ui-pod-head">
+      <div>
+        <span class="ui-eyebrow">Training &amp; Debug Drawer</span>
+        <h2 id="drawer-title" style="margin:2px 0 0;font-size:15px;">演训与调试抽屉</h2>
+      </div>
+      <button type="button" class="ui-btn ui-btn--sm" id="drawer-close" aria-label="关闭调试抽屉">关闭 Esc</button>
+    </div>
+    <div class="ui-drawer-body">
+      <div class="ui-drawer-section">
+        <h3>渲染与画质对照</h3>
+        <div class="ui-field-row">
+          <span>3D 内部画质</span>
+          <div class="ui-select" id="drawer-quality" data-value="native" style="max-width:196px">
+            <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="3D 内部画质">
+              <span class="ui-select-val"><span class="ui-select-txt">原生高清（推荐主线）</span></span>
+              <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+            <div class="ui-select-menu" role="listbox" hidden>
+              <button type="button" class="ui-select-option" role="option" data-val="native" aria-selected="true"><span class="ui-select-option-title">原生高清（推荐主线）</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              <button type="button" class="ui-select-option" role="option" data-val="640" aria-selected="false"><span class="ui-select-option-title">640宽 · 标准像素</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              <button type="button" class="ui-select-option" role="option" data-val="480" aria-selected="false"><span class="ui-select-option-title">480宽 · 粗颗粒</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="ui-field-row">
+          <span>阴影模式</span>
+          <div class="ui-select" id="drawer-shadow" data-value="realtime" style="max-width:196px">
+            <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="阴影模式">
+              <span class="ui-select-val"><span class="ui-select-txt">实时 · 自动分级</span></span>
+              <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+            <div class="ui-select-menu" role="listbox" hidden>
+              <button type="button" class="ui-select-option" role="option" data-val="realtime" aria-selected="true"><span class="ui-select-option-title">实时 · 自动分级</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              <button type="button" class="ui-select-option" role="option" data-val="simple" aria-selected="false"><span class="ui-select-option-title">简化 · 性能优先</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <p class="spec-section-desc">外围 HUD、贴地双环、剪影 SVG 与线框幽灵层始终脱离此档位保持原生 DPR 矢量锐利。</p>
+      </div>
+      <div class="ui-drawer-section">
+        <h3>负载与采样（实机演训预留槽）</h3>
+        <div class="ui-field-row">
+          <span>场内单位数量</span>
+          <div class="ui-select" id="drawer-count" data-value="30" style="max-width:196px">
+            <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="场内单位数量">
+              <span class="ui-select-val"><span class="ui-select-txt">30 单位</span></span>
+              <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+            <div class="ui-select-menu" role="listbox" hidden>
+              <button type="button" class="ui-select-option" role="option" data-val="10" aria-selected="false"><span class="ui-select-option-title">10 单位</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              <button type="button" class="ui-select-option" role="option" data-val="30" aria-selected="true"><span class="ui-select-option-title">30 单位</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              <button type="button" class="ui-select-option" role="option" data-val="100" aria-selected="false"><span class="ui-select-option-title">100 单位</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              <button type="button" class="ui-select-option" role="option" data-val="200" aria-selected="false"><span class="ui-select-option-title">200 单位</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <label class="ui-field-row">
+          <span>总音量</span>
+          <input type="range" class="ui-range" id="drawer-vol" min="0" max="100" value="25">
+        </label>
+        <div class="hud-row" style="margin-top:10px;">
+          <button type="button" class="ui-btn ui-btn--sm" id="drawer-sync-pixel">切换沙盒 640px 对照</button>
+          <button type="button" class="ui-btn ui-btn--sm ui-btn--ghost" id="drawer-copy-sha">复制源码摘要</button>
+        </div>
+      </div>
+      <div class="ui-drawer-section">
+        <h3>规范同源信息</h3>
+        <p class="spec-section-desc" id="drawer-status-detail">正在核对共享源码指纹…</p>
+      </div>
+    </div>
+  </aside>
+
+  <div class="spec-toast" id="spec-toast" role="status" hidden></div>
+  <script type="module" src="/ui/规范页.mjs"></script>
+</body>
+</html>

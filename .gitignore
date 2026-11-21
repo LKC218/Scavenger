@@ -1,0 +1,40 @@
+# 依赖与构建输出
+node_modules/
+dist/
+coverage/
+.vite/
+
+# Python 缓存与本地虚拟环境
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 本地环境变量与私密凭据；示例配置可提交
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+credentials.local.json
+secrets.local.json
+
+# 本地个人数据与调试产物
+/private/
+/health-data/
+*.log
+
+# 本地工具、运行时、游戏路径配置、输入快照和提取批次
+/local-data/
+
+# 可再生成的临时工作文件
+/tmp/
+/temp/
+
+# 编辑器个人配置与系统文件
+.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

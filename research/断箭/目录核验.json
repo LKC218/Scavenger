@@ -1,0 +1,98 @@
+{
+  "checked_at_utc": "2026-11-02T19:30:17.932591+00:00",
+  "steam": {
+    "appid": "1604270",
+    "name": "Broken Arrow",
+    "installdir": "broken_arrow",
+    "buildid": "26273833",
+    "SizeOnDisk": "65419446171",
+    "StateFlags": "4"
+  },
+  "data_file_count": 587,
+  "data_size_bytes": 65060254763,
+  "unity_bundle_versions": {
+    "6000.3.24f1": 77
+  },
+  "bundle_signatures": {
+    "UnityFS": 77
+  },
+  "file_counts": {
+    ".bundle": 76,
+    ".unity3d": 1,
+    ".gts": 5,
+    ".gtp": 20
+  },
+  "tilesets": [
+    {
+      "file": "BrokenArrow_Data\\StreamingAssets\\537f6111b7f7f1fc2a566a8cf39aaceb.gts",
+      "signature": "GRPG",
+      "format_version": 6
+    },
+    {
+      "file": "BrokenArrow_Data\\StreamingAssets\\7e5a82a0694bda2f9244c7501bf9671b.gts",
+      "signature": "GRPG",
+      "format_version": 6
+    },
+    {
+      "file": "BrokenArrow_Data\\StreamingAssets\\8fdbe61542d0b73766a3c98c05f46d90.gts",
+      "signature": "GRPG",
+      "format_version": 6
+    },
+    {
+      "file": "BrokenArrow_Data\\StreamingAssets\\e766727c2cfea45ae21d23be6a800576.gts",
+      "signature": "GRPG",
+      "format_version": 6
+    },
+    {
+      "file": "BrokenArrow_Data\\StreamingAssets\\f51bbaf7a40a0ab4909c16ff519cc9cf.gts",
+      "signature": "GRPG",
+      "format_version": 6
+    }
+  ],
+  "unit_named_bundle_candidates": [
+    {
+      "file": "BrokenArrow_Data\\StreamingAssets\\aa\\PC\\units_assets_all_1645fd571438db658efed11f2b078e94.bundle",
+      "size_bytes": 3353963131
+    }
+  ],
+  "validation": {
+    "directory_and_headers_only": true,
+    "game_launched": false,
+    "extraction_tested": false,
+    "model_count_verified": false
+  },
+  "game_directory_alias": "断箭安装目录",
+  "evidence": {
+    "local_snapshot": "local-data/断箭/输入快照/目录核验-构建26273833.json",
+    "snapshot_sha256": "5a037ff5da5730dfedf19063e29e83cdde4b8cb6d971732a494678530ff6f386",
+    "scope": "目录清单、Steam 安装元数据及资源文件头；未解析或提取资产"
+  },
+  "tool_preparation": {
+    "tools": [
+      {
+        "repository": "AssetRipper/AssetRipper",
+        "version": "2.0.0",
+        "release_url": "https://github.com/AssetRipper/AssetRipper/releases/tag/2.0.0",
+        "download_sha256": "9a7ef0e7c5c3ea5b90b4e6d855e2d98d5f7ec8c3f9e26fccbc194c6a7b01baf7",
+        "github_digest_matched": true
+      },
+      {
+        "repository": "Nenkai/GraniteTextureReader",
+        "version": "1.1.5",
+        "release_url": "https://github.com/Nenkai/GraniteTextureReader/releases/tag/1.1.5",
+        "download_sha256": "b1f036bef11d86e42a4701b726f20b7d1456312debae96780228c701a3c62d42",
+        "github_digest_matched": true
+      }
+    ],
+    "runtime": {
+      "version": "9.0.22",
+      "sha512": "ebe32c4c7b69a9d3b9b822678a46846f4dc075b1b82f1868e17d2f61ad089d75440da97471fff554dd953b34cc134ea49ac86a18e14265df8b686e23565e1dcb",
+      "published_digest_matched": true
+    },
+    "startup_checks": {
+      "assetripper_help_exit_code": 0,
+      "granite_help_exit_code": 0,
+      "game_resource_tested": false
+    }
+  }
+}

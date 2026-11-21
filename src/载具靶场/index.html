@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>载具靶场 · 操作验证</title><link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/界面.css">
+  <script type="importmap">{"imports":{"three":"/vendor/build/three.module.js","three/addons/":"/vendor/examples/jsm/"}}</script>
+  <script type="module" src="/入口.mjs"></script>
+</head>
+<body>
+  <header><a class="brand" href="/" aria-label="载具靶场首页"><span class="brand-icon">⌖</span><span>载具靶场<small>城市联合演训 · 操作原型 02</small></span></a>
+    <div class="header-center"><i class="live"></i><span id="running">演训进行中</span><span class="divider"></span><span id="clock">00:00</span></div>
+    <div class="header-actions"><button id="focus" title="C：平滑聚焦当前选中单位，不自动跟随" disabled>聚焦选中 C</button><button id="sound" aria-pressed="false">声音 关</button><button id="pause">Ⅱ 暂停</button><button id="reset" class="quiet">重置靶场</button></div>
+  </header>
+  <main>
+    <section id="battlefield" tabindex="0" aria-label="三维战场，左键选择，右键下令">
+      <div id="canvas-host"></div><div id="labels" aria-hidden="true"></div>
+      <div class="field-top"><span class="field-tag">试验区 <b>08</b></span><span id="map-name">简模城市 / 安全高度 / 无友伤</span></div>
+      <div class="compass"><b>N</b><span>↑</span></div>
+      <div id="drag-box" hidden></div><div id="mode-banner" hidden></div>
+      <div id="toast" role="status">左键选择载具，右键地面移动或右键靶标攻击</div>
+      <div class="field-bottom"><span><i class="live"></i> 战术视图 <b id="resolution">—</b></span><span id="stats">正在初始化</span></div>
+      <div id="loading"><span class="eyebrow">载具靶场 / 02</span><h1>建立城市演训场</h1><p id="load-status">正在读取固定资源清单…</p><div class="loader-track"><i></i></div><small>三款真实载具 · 程序飞行 · 独立单机</small></div>
+      <div id="pause-overlay" hidden><strong>演训暂停</strong><span>可选择与下令 · 恢复后执行</span></div>
+    </section>
+    <aside>
+      <div class="aside-title"><span class="eyebrow">战场概况</span><span class="badge">单机</span></div>
+      <div class="score"><strong id="kills">0<span>/ 6</span></strong><div>已摧毁靶标<small id="combat-stats">0 次发射 · 0 次命中</small></div></div>
+      <canvas id="minimap" width="280" height="210" aria-label="战场小地图，点击移动镜头"></canvas>
+      <div class="section-label">兵力编组 <span id="unit-total">共 30 单位</span></div>
+      <div class="groups"><button data-group="tank"><kbd>1</kbd> 地面 <b>0</b></button><button data-group="heli"><kbd>2</kbd> 旋翼 <b>0</b></button><button data-group="plane"><kbd>4</kbd> 固定翼 <b>0</b></button><button data-group="all"><kbd>3</kbd> 全部 <b>0</b></button></div>
+      <div class="roster-tools"><select id="roster-filter" aria-label="单位卡片分类"><option value="all">全部型号</option><option value="tank">坦克</option><option value="heli">直升机</option><option value="plane">固定翼</option></select><span id="roster-page"></span></div>
+      <div id="roster" class="roster"></div>
+      <div class="roster-tools"><button id="roster-prev">上一页</button><button id="roster-next">下一页</button></div>
+      <section id="defense-panel" hidden aria-label="丧尸防线控制">
+        <div class="defense-mission"><span class="eyebrow">守住防线</span><strong id="defense-phase">准备就绪</strong><p id="defense-ledger">普通丧尸100生命 · 越线每只扣1耐久</p><div class="integrity-track"><i id="integrity-bar"></i></div><small id="defense-integrity">防线耐久 30 / 30</small></div>
+        <div class="defense-actions"><button id="defense-start">开始防守</button><button id="guard-toggle" aria-pressed="true">警戒 开</button></div>
+        <p class="defense-hint" id="guard-hint">自动警戒限地面与旋翼；固定翼手动拖线攻击。</p>
+        <details><summary>波次与试验设置</summary><div class="lab-controls">
+          <label>载具配置<select id="defense-force"><option value="trio">三车协同 · 各1</option><option value="tank">坦克闭环 · 1辆</option><option value="ten">10载具 · 6/3/1</option><option value="thirty">30载具 · 20/8/2</option></select></label>
+          <label>首波数量<input id="zombie-count" type="number" min="1" max="1000" step="1" value="100"></label>
+          <label>防线耐久<input id="defense-health" type="number" min="1" max="1000" value="30"></label>
+          <label>波间隔 秒<input id="wave-interval" type="number" min="0" max="60" value="10"></label>
+          <label>丧尸速度 米/秒<input id="zombie-speed" type="number" min="0.1" max="5" step="0.1" value="1.6"></label>
+          <label>随机种子<input id="defense-seed" type="number" min="1" max="99999999" value="261104"></label>
+          <label>角色<select id="zombie-model"><option value="mixed">十三款混合</option><option value="single">编号0单款</option></select></label>
+          <label class="check"><input id="defense-endless" type="checkbox">持续战斗压力 · 不判输赢</label>
+          <button id="defense-apply">应用设置并重开</button><p>三波：首波 / 1.5倍 / 2倍；压力模式循环波次。500以上仅探索容量。</p>
+        </div></details>
+      </section>
+      <details open><summary>演训与性能测试</summary><div class="lab-controls">
+        <label>地图<select id="scenario"><option value="city">城市 1200 × 1200米</option><option value="classic">小靶场对照</option></select></label>
+        <label>场内数量<select id="unit-count"><option>10</option><option selected>30</option><option>50</option><option>100</option><option>200</option><option>500</option></select></label>
+        <label>负载<select id="load-mode"><option value="manual">手动指挥</option><option value="static">静态显示</option><option value="move">持续移动</option><option value="combat">恢复靶持续交战</option></select></label>
+        <label>阴影<select id="shadow-quality"><option value="realtime">实时 · 自动分级</option><option value="simple">简化 · 性能优先</option></select></label>
+        <label>总音量 <output id="volume-value">100%</output><input id="volume" type="range" min="0" max="100" value="100" aria-label="总音量"></label>
+        <label>响度增强<select id="enhancement" aria-label="响度增强"><option value="0">原始 · 0dB</option><option value="6" selected>增强 · +6dB</option><option value="12">强增强 · +12dB</option></select></label>
+        <label class="check"><input id="recover" type="checkbox">靶标摧毁后2秒恢复</label>
+        <div class="bench-buttons"><button id="overview">全场总览</button><button id="bench60">采样60秒</button><button id="bench180">采样180秒</button><button id="bench-stop">停止采样</button><button id="bench-export" disabled>导出JSON</button></div>
+        <p id="bench-status" role="status">先预热10秒，再正式采样</p><p id="population-stats"></p><p id="audio-stats"></p>
+      </div></details>
+      <details><summary>操作速查 <span>?</span></summary><div class="help"><p><kbd>左键</kbd> 点选 / 拖框；<kbd>Shift</kbd> 追加；双击选可见同型</p><p><kbd>右键松开</kbd> 移动 / 指定攻击；拖动预览朝向与队形</p><p><kbd>1 / 2 / 4 / 3</kbd> 地面 / 旋翼 / 固定翼 / 全部</p><p><kbd>Shift+数字</kbd> 保存编组；<kbd>Alt+数字</kbd> 调用（网页适配）</p><p><kbd>WASD</kbd> 平移；<kbd>滚轮</kbd> 指向位置缩放</p><p><kbd>中键拖动</kbd> 旋转；<kbd>F</kbd> 复位</p><p><kbd>C</kbd> 聚焦选中，不自动跟随</p><p><kbd>Q / G</kbd> 地面与旋翼攻击移动 / 攻击地面</p><p><kbd>K / B</kbd> 拖线扫射 / 轰炸，B以中点为落弹区</p><p><kbd>R</kbd> 坦克倒车；<kbd>E</kbd> 取消任务，警戒保持</p><p><kbd>Shift 下令</kbd> 排队；<kbd>Tab</kbd> 子选择</p><p><kbd>空格</kbd> 暂停；<kbd>Esc</kbd> 退出未提交预览</p></div></details>
+      <div class="settings"><label for="quality">画面精度</label><select id="quality"><option value="640">640宽 · 标准像素</option><option value="480">480宽 · 粗颗粒</option></select></div>
+      <p class="scope-note">原型参数用于验证指挥与打靶手感。<br>无限储备 · 保留装填 · 不含步兵与敌群</p>
+    </aside>
+    <footer>
+      <div class="selection-summary"><span class="eyebrow">当前指挥</span><strong id="selection-title">尚未选择单位</strong><span id="selection-sub">点选载具，或按 3 选择全部</span></div>
+      <div id="commands" class="commands"><button data-mode="attackMove"><kbd>Q</kbd><span>攻击移动</span></button><button data-mode="ground"><kbd>G</kbd><span>攻击地面</span></button><button data-mode="reverse"><kbd>R</kbd><span>坦克倒车</span></button><button data-mode="strafe"><kbd>K</kbd><span>固定翼扫射</span></button><button data-mode="bomb"><kbd>B</kbd><span>普通轰炸</span></button><button id="stop"><kbd>E</kbd><span>取消任务</span></button></div>
+      <div class="weapon-control"><span class="eyebrow">直升机武器</span><div><button data-weapon="auto" hidden>自动</button><button data-weapon="gun" class="active">机炮</button><button data-weapon="missile">导弹</button></div><div id="weapon-enable" hidden><button data-enable="gun">机炮 开</button><button data-enable="missile">导弹 开</button></div><small id="weapon-status">选择直升机后切换</small></div>
+    </footer>
+  </main>
+  <div id="fatal" hidden role="alert"></div>
+  <div id="defense-result" hidden role="dialog" aria-label="防线战斗结果"><div><span class="eyebrow">本次防守结束</span><h2 id="defense-result-title"></h2><p id="defense-result-summary"></p><button id="defense-retry">重新布防</button></div></div>
+</body></html>

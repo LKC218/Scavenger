@@ -1,0 +1,80 @@
+{
+  "weapons": {
+    "tank": {
+      "name": "120毫米主炮",
+      "range": 52,
+      "reload": 3.2,
+      "aim": 0.45,
+      "speed": 85,
+      "damage": 180,
+      "blast": 4,
+      "audio": "tank"
+    },
+    "gun": {
+      "name": "30毫米机炮",
+      "range": 43,
+      "reload": 0.3,
+      "aim": 0.25,
+      "speed": 105,
+      "damage": 22,
+      "blast": 1,
+      "audio": "heli"
+    },
+    "missile": {
+      "name": "制导导弹",
+      "range": 74,
+      "reload": 6,
+      "aim": 0.65,
+      "speed": 32,
+      "damage": 290,
+      "blast": 5,
+      "audio": "missile"
+    },
+    "planeGun": {
+      "name": "A-10C机炮",
+      "range": 240,
+      "reload": 0.1,
+      "aim": 0,
+      "speed": 360,
+      "damage": 28,
+      "blast": 1.8,
+      "audio": "plane"
+    },
+    "bomb": {
+      "name": "普通炸弹",
+      "range": 320,
+      "reload": 6,
+      "aim": 0,
+      "speed": 52,
+      "damage": 680,
+      "blast": 17,
+      "audio": "bomb"
+    }
+  },
+  "flight": {
+    "speed": 52,
+    "turnRate": 0.55,
+    "radius": 110,
+    "altitude": 72,
+    "gravity": 9.8
+  },
+  "schema": 1,
+  "status": "当前源码参数，尚未接入丧尸战斗",
+  "movement": {
+    "tank_speed_mps": 8.0,
+    "heli_speed_mps": 13.0
+  },
+  "source_identity": [
+    {
+      "path": "src/载具靶场/模拟.mjs",
+      "bytes": 16522,
+      "sha256": "2d153ddf4fef3565b405c60ee8de7753b859beec879f6ab4390518ed3ecfbf9b"
+    },
+    {
+      "path": "src/载具靶场/飞行.mjs",
+      "bytes": 4699,
+      "sha256": "3dba4e0960f9d60c50af76140a25b7bddf7c88291f32373b7f76e9cb1ae34ae0"
+    }
+  ],
+  "impact_note": "命中目标全额，爆炸半径内其他靶统一55%；没有随距离衰减或逐目标爆炸遮挡。"
+}

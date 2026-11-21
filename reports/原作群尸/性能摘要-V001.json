@@ -1,0 +1,304 @@
+{
+  "schema": 1,
+  "version": "V001-GPU96",
+  "mode": "无窗口GPU压力对比，非前台稳定60帧验收",
+  "source_sha256": "e5e6f4b2c9d1ce167b667914b76d6918a3b0f057fa01de4c2748745f322cdfc9",
+  "cases": [
+    {
+      "family": "cartoon",
+      "count": 500,
+      "fps": 164.33488538502866,
+      "p95_ms": 6.199999999982538,
+      "p99_ms": 6.2000000000116415,
+      "max_ms": 97,
+      "gpu_ms": 0.17222285574225146,
+      "gpu_samples": 29579,
+      "submit_cpu_ms": 0.4936308316654696,
+      "sync_cpu_ms": 0.28776200135528757,
+      "simulation_cpu_ms": 0.03401284651872352,
+      "calls": 19,
+      "triangles": 404014,
+      "dropped_s": 0,
+      "long33_pct": 0.030425963488843813,
+      "min_visible": 500,
+      "min_animated": 500,
+      "elapsed_s": 179.9983,
+      "frames": 29580,
+      "sample": "cartoon-500-open-180s-1793867502258531700.json",
+      "sample_sha256": "701bd229147d09382e47e466ec3e7ddf55fa57eb5f5c5a7a06a894ff9628e147",
+      "environment": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "browserLabel": "chrome",
+        "three": "187",
+        "gpu": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "internal": [
+          640,
+          360
+        ],
+        "viewport": [
+          1600,
+          1000
+        ],
+        "headless": true,
+        "focused": true,
+        "visible": true,
+        "hardwareConcurrency": 16
+      },
+      "budget_pass": true
+    },
+    {
+      "family": "native",
+      "count": 500,
+      "fps": 164.80720362759183,
+      "p95_ms": 6.199999999982538,
+      "p99_ms": 6.2000000000116415,
+      "max_ms": 30.39999999999418,
+      "gpu_ms": 0.07815002831715202,
+      "gpu_samples": 29664,
+      "submit_cpu_ms": 0.16498567333123787,
+      "sync_cpu_ms": 0.2546232934652523,
+      "simulation_cpu_ms": 0.03298162818708489,
+      "calls": 8,
+      "triangles": 198572,
+      "dropped_s": 0,
+      "long33_pct": 0.0,
+      "min_visible": 500,
+      "min_animated": 500,
+      "elapsed_s": 179.99820000000003,
+      "frames": 29665,
+      "sample": "native-500-open-180s-1793867735126739100.json",
+      "sample_sha256": "9ccacaa279429817df10458c7cab62c87c84db08700338fad81425f8fb290299",
+      "environment": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "browserLabel": "chrome",
+        "three": "187",
+        "gpu": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "internal": [
+          640,
+          360
+        ],
+        "viewport": [
+          1600,
+          1000
+        ],
+        "headless": true,
+        "focused": true,
+        "visible": true,
+        "hardwareConcurrency": 16
+      },
+      "budget_pass": true
+    },
+    {
+      "family": "cartoon",
+      "count": 650,
+      "fps": 164.85711253939618,
+      "p95_ms": 6.19999999999709,
+      "p99_ms": 6.2000000000116415,
+      "max_ms": 18.30000000000291,
+      "gpu_ms": 0.12134607892696868,
+      "gpu_samples": 29673,
+      "submit_cpu_ms": 0.46960301949992417,
+      "sync_cpu_ms": 0.3422221473025297,
+      "simulation_cpu_ms": 0.041952551063533065,
+      "calls": 19,
+      "triangles": 525122,
+      "dropped_s": 0,
+      "long33_pct": 0.0,
+      "min_visible": 650,
+      "min_animated": 650,
+      "elapsed_s": 179.99830000000003,
+      "frames": 29674,
+      "sample": "cartoon-650-open-180s-1793867938681039200.json",
+      "sample_sha256": "2a60aafbd54e5c7bb3dc8ffe1ae8e4a4a0f82714986bae2b0ac710bc521d5077",
+      "environment": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "browserLabel": "chrome",
+        "three": "187",
+        "gpu": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "internal": [
+          640,
+          360
+        ],
+        "viewport": [
+          1600,
+          1000
+        ],
+        "headless": true,
+        "focused": true,
+        "visible": true,
+        "hardwareConcurrency": 16
+      },
+      "budget_pass": true
+    },
+    {
+      "family": "native",
+      "count": 650,
+      "fps": 164.87951817269183,
+      "p95_ms": 6.199999999982538,
+      "p99_ms": 6.2000000000116415,
+      "max_ms": 7.899999999994179,
+      "gpu_ms": 0.10877563904707784,
+      "gpu_samples": 29677,
+      "submit_cpu_ms": 0.14742233299722615,
+      "sync_cpu_ms": 0.26654087204067634,
+      "simulation_cpu_ms": 0.03678819328743345,
+      "calls": 8,
+      "triangles": 258047,
+      "dropped_s": 0,
+      "long33_pct": 0.0,
+      "min_visible": 650,
+      "min_animated": 650,
+      "elapsed_s": 179.99809999999997,
+      "frames": 29678,
+      "sample": "native-650-open-180s-1793868170228201900.json",
+      "sample_sha256": "3bdba76165113544951f95eaab81c8ca9569a1cdff8ec4fb6a45cbf5d66da48a",
+      "environment": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "browserLabel": "chrome",
+        "three": "187",
+        "gpu": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "internal": [
+          640,
+          360
+        ],
+        "viewport": [
+          1600,
+          1000
+        ],
+        "headless": true,
+        "focused": true,
+        "visible": true,
+        "hardwareConcurrency": 16
+      },
+      "budget_pass": true
+    },
+    {
+      "family": "cartoon",
+      "count": 800,
+      "fps": 164.8184680237839,
+      "p95_ms": 6.19999999999709,
+      "p99_ms": 6.2000000000116415,
+      "max_ms": 24.29999999998836,
+      "gpu_ms": 0.2338746917450325,
+      "gpu_samples": 29667,
+      "submit_cpu_ms": 0.37404611032896645,
+      "sync_cpu_ms": 0.358109747854099,
+      "simulation_cpu_ms": 0.047606849119025005,
+      "calls": 19,
+      "triangles": 646230,
+      "dropped_s": 0,
+      "long33_pct": 0.0,
+      "min_visible": 800,
+      "min_animated": 800,
+      "elapsed_s": 180.0041,
+      "frames": 29668,
+      "sample": "cartoon-800-open-180s-1793868371416435600.json",
+      "sample_sha256": "232e17dd53d258613945cd07698df06bd3a074f8ad46adc37c41fe2bccf428ae",
+      "environment": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "browserLabel": "chrome",
+        "three": "187",
+        "gpu": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "internal": [
+          640,
+          360
+        ],
+        "viewport": [
+          1600,
+          1000
+        ],
+        "headless": true,
+        "focused": true,
+        "visible": true,
+        "hardwareConcurrency": 16
+      },
+      "budget_pass": true
+    },
+    {
+      "family": "native",
+      "count": 800,
+      "fps": 163.6573739708219,
+      "p95_ms": 6.19999999999709,
+      "p99_ms": 6.2000000000116415,
+      "max_ms": 84.89999999999418,
+      "gpu_ms": 0.11249971823335864,
+      "gpu_samples": 29457,
+      "submit_cpu_ms": 0.1487337905174806,
+      "sync_cpu_ms": 0.37044945344155883,
+      "simulation_cpu_ms": 0.049657138985013824,
+      "calls": 8,
+      "triangles": 317522,
+      "dropped_s": 0,
+      "long33_pct": 0.057709281010251884,
+      "min_visible": 800,
+      "min_animated": 800,
+      "elapsed_s": 179.998,
+      "frames": 29458,
+      "sample": "native-800-open-180s-1793868596253165700.json",
+      "sample_sha256": "830b15ce16f40d1739c97288b214ce70d066a6feb435645a2fb2756c05b18558",
+      "environment": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "browserLabel": "chrome",
+        "three": "187",
+        "gpu": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "internal": [
+          640,
+          360
+        ],
+        "viewport": [
+          1600,
+          1000
+        ],
+        "headless": true,
+        "focused": true,
+        "visible": true,
+        "hardwareConcurrency": 16
+      },
+      "budget_pass": true
+    }
+  ],
+  "assets": [
+    {
+      "role": "Walker",
+      "bytes": 843372,
+      "sha256": "82a134d7427534ee2e0d2d82e74a87a89ff76ed444148b682a46679a06a1d418",
+      "bones": 46,
+      "clips": 9,
+      "triangles": 330,
+      "source_unchanged": true
+    },
+    {
+      "role": "Runner",
+      "bytes": 901068,
+      "sha256": "bc3e42e548946132120d704d40773c931d6698840611b3bc76e61c6e02ea15fb",
+      "bones": 46,
+      "clips": 9,
+      "triangles": 447,
+      "source_unchanged": true
+    }
+  ],
+  "pose": {
+    "scope": "各原片段5个时刻，全部顶点",
+    "reports": [
+      {
+        "id": "model:ba-walker-lod2",
+        "clips": 9,
+        "maximum": 0.0017275525823967689,
+        "exact": 1.1080467730019196e-07
+      },
+      {
+        "id": "model:ba-runner-lod2",
+        "clips": 9,
+        "maximum": 0.001733788155631391,
+        "exact": 1.1177977297520333e-07
+      }
+    ]
+  },
+  "cartoon_retirement": {
+    "files": 26,
+    "bytes": 8211188,
+    "deleted": false,
+    "automatic_retirement_registered": false
+  },
+  "conditions": "工程师继续使用电脑，未建立整机空载条件；不含完整地图载具战斗负载；同屏为视锥内实例，允许互相遮挡"
+}

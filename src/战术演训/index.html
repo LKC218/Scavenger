@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>战术演训原型</title><link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/界面.css">
+  <script type="importmap">{"imports":{"three":"/vendor/build/three.module.js","three/addons/":"/vendor/examples/jsm/"}}</script>
+  <script type="module" src="/入口.mjs"></script>
+</head>
+<body>
+  <header><a class="brand" href="/" aria-label="战术演训原型首页"><span class="brand-icon">⌖</span><span>战术演训原型<small>G01贴身名牌候选</small></span></a>
+    <div class="header-center"><i class="live"></i><span id="running">演训进行中</span><span class="divider"></span><span id="clock">00:00</span></div>
+    <div class="header-actions"><button id="focus" title="F：一次聚焦当前选中单位" disabled>聚焦选中 F</button><button id="follow" aria-pressed="false" title="持续跟随当前接收单位；手动平移后取消" disabled>跟随选中</button><button id="sound" aria-pressed="false">声音 关</button><button id="pause">Ⅱ 暂停</button><button id="reset" class="quiet">重置演训</button></div>
+  </header>
+  <main>
+    <section id="battlefield" tabindex="0" aria-label="三维战场，左键选择，右键下令">
+      <div id="canvas-host"></div><div id="labels"></div>
+      <div class="field-top"><span class="field-tag">整改候选 <b>G01 V004</b></span><span id="map-name">Airbase全图 · 贴身名牌</span></div>
+      <div class="compass"><b>N</b><span>↑</span></div>
+      <div id="drag-box" hidden></div><div id="mode-banner" hidden></div>
+      <div id="toast" role="status">左键选择 · 右键按住预览、松开移动 · Shift 排队</div>
+      <div class="field-bottom"><span><i class="live"></i> 战术视图 <b id="resolution">—</b></span><span id="stats">正在初始化</span></div>
+      <div id="loading"><span class="eyebrow">战术演训原型</span><h1>准备Airbase全图</h1><p id="load-status">正在读取固定资源清单…</p><div class="loader-track"><i></i></div><small>G01贴身名牌候选 · 等待人工验收</small></div>
+      <div id="pause-overlay" hidden><strong>演训暂停</strong><span>可选择与下令 · 恢复后执行</span></div>
+    </section>
+    <aside>
+      <div class="aside-title"><span class="eyebrow">战场概况</span><span class="badge">单机</span></div>
+      <div class="score"><strong id="move-count">0</strong><div>单位移动中<small id="movement-stats">移动指挥 · 等待人工验收</small></div></div>
+      <canvas id="minimap" width="280" height="210" aria-label="战场小地图，点击移动镜头"></canvas>
+      <div class="section-label">兵力编组 <span id="unit-total">共 30 单位</span></div>
+      <div class="groups"><button data-group="tank"><kbd>1</kbd> 地面 <b>0</b></button><button data-group="heli"><kbd>2</kbd> 旋翼 <b>0</b></button><button data-group="plane"><kbd>4</kbd> 固定翼 <b>0</b></button><button data-group="all"><kbd>3</kbd> 全部 <b>0</b></button></div>
+      <div class="layer-filters" role="group" aria-label="空地选择筛选"><button data-layer="all" aria-pressed="true">全部</button><button data-layer="ground" aria-pressed="false">地面</button><button data-layer="air" aria-pressed="false">空中</button></div>
+      <div class="roster-tools"><span id="roster-scope">全部单位</span><span id="roster-page"></span></div>
+      <div id="roster" class="roster"></div>
+      <div class="roster-tools"><button id="roster-prev">上一页</button><button id="roster-next">下一页</button></div>
+      <details open><summary>演训与技术采样</summary><div class="lab-controls">
+        <label>地图<select id="scenario"><option value="city">城市 1200 × 1200米</option><option value="classic">小靶场对照</option></select></label>
+        <label>场内数量<select id="unit-count"><option>10</option><option selected>30</option><option>50</option><option>100</option><option>200</option><option>500</option></select></label>
+        <label>负载<select id="load-mode"><option value="idle">手动移动指挥</option><option value="static">静态显示</option></select></label>
+        <label>阴影<select id="shadow-quality"><option value="realtime">实时 · 自动分级</option><option value="simple">简化 · 性能优先</option></select></label>
+        <label>总音量 <output id="volume-value">25%</output><input id="volume" type="range" min="0" max="100" value="25" aria-label="总音量"></label>
+        <label>响度增强<select id="enhancement" aria-label="响度增强"><option value="0">原始 · 0dB</option><option value="6" selected>增强 · +6dB</option><option value="12">强增强 · +12dB</option></select></label>
+        <div class="bench-buttons"><button id="overview">全场总览</button><button id="bench60">采样60秒</button><button id="bench180">采样180秒</button><button id="bench-stop">停止采样</button><button id="bench-export" disabled>导出JSON</button></div>
+        <p id="bench-status" role="status">先预热10秒，再正式采样；本步仅验证移动指挥</p><p id="population-stats"></p><p id="audio-stats"></p>
+      </div></details>
+      <details><summary>操作速查 <span>?</span></summary><div class="help"><p><kbd>左键</kbd> 点选 / 拖框；<kbd>Shift</kbd> 追加；双击选可见同型</p><p><kbd>右键按住</kbd> 预览落点；拖动调整朝向与队形，松开提交移动</p><p><kbd>全部 / 地面 / 空中</kbd> 同时筛选屏幕选择与单位卡</p><p><kbd>1 / 2 / 4 / 3</kbd> 地面 / 旋翼 / 固定翼 / 全部</p><p><kbd>Shift+数字</kbd> 保存编组；<kbd>Alt+数字</kbd> 调用</p><p><kbd>WASD / 中键拖动</kbd> 平移；<kbd>滚轮</kbd> 指向位置缩放</p><p><kbd>Q / E</kbd> 旋转；<kbd>F</kbd> 一次聚焦选中</p><p><kbd>跟随选中</kbd> 持续跟随；手动平移退出跟随</p><p><kbd>Shift 下令</kbd> 追加队列；<kbd>Tab</kbd> 循环鼠标处重叠单位</p><p><kbd>X</kbd> 停止并清空队列；固定翼继续盘旋</p><p><kbd>空格</kbd> 暂停；<kbd>Esc</kbd> 撤回未提交预览</p></div></details>
+      <div class="settings"><label for="quality">画面精度</label><select id="quality"><option value="640">640宽 · 标准像素</option><option value="480">480宽 · 粗颗粒</option></select></div>
+      <p class="scope-note">本候选仅验证移动指挥，等待工程师人工验收。<br>飞机选中高度关联方向已通过，细节仍待优化。<br>技术采样不代表完整战斗或设备性能验收。</p>
+    </aside>
+    <footer>
+      <div class="selection-summary"><span class="eyebrow">当前指挥</span><strong id="selection-title">尚未选择单位</strong><span id="selection-sub">点选载具，或按 3 选择全部</span></div>
+      <section class="command-status" aria-label="所选单位指令状态"><p id="command-summary" role="status">选择单位后查看当前任务与队列</p><ol id="command-list"><li class="command-empty">右键按住预览移动，松开后提交；Shift 追加队列。</li></ol></section>
+      <div id="commands" class="commands"><button id="stop" disabled><kbd>X</kbd><span>停止并清队列</span></button></div>
+    </footer>
+  </main>
+  <div id="fatal" hidden role="alert"></div>
+</body></html>

@@ -1,0 +1,111 @@
+// 在隔离的Unity后台项目中读取原资源包，以原Avatar求解人形动画。
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
+
+public static class 原生动作采样
+{
+    [Serializable] public class 配置 { public string bundle; public string output; }
+    [Serializable] public class 帧 { public float time; public float[] trs; }
+    [Serializable] public class 网格核验 { public int frame; public float[] vertices; }
+    [Serializable] public class 动作 { public string name; public float duration; public float sampleRate; public bool humanMotion; public bool looping; public 帧[] frames; public 网格核验[] checks; }
+    [Serializable] public class 角色 { public string name; public string prefab; public string avatar; public bool validAvatar; public bool humanAvatar; public string[] paths; public 动作[] clips; }
+    [Serializable] public class 结果 { public string unity; public 角色[] roles; }
+
+    public static void Run()
+    {
+        try
+        {
+            string project = Directory.GetParent(Application.dataPath).FullName;
+            var config = JsonUtility.FromJson<配置>(File.ReadAllText(Path.Combine(project, "采样配置.json")));
+            var bundle = AssetBundle.LoadFromFile(config.bundle);
+            if (!bundle) throw new Exception("原资源包加载失败");
+            var result = new 结果 { unity = Application.unityVersion };
+            var records = new List<角色>();
+            foreach (string role in new[] { "Walker", "Runner" })
+            {
+                string source = "Assets/Resources_moved/ModelPrefabs/Zombie/" + role + "/ZOM_" + role + "1.prefab";
+                var prefab = bundle.LoadAsset<GameObject>(source);
+                if (!prefab) throw new Exception("预制体加载失败：" + role);
+                var go = UnityEngine.Object.Instantiate(prefab);
+                var animator = go.GetComponentInChildren<Animator>(true);
+                if (!animator || !animator.avatar || !animator.avatar.isValid) throw new Exception("Avatar无效：" + role);
+                var clips = animator.runtimeAnimatorController.animationClips.Distinct().OrderBy(c => c.name).ToArray();
+                var transforms = go.GetComponentsInChildren<Transform>(true);
+                var initialT = transforms.Select(t => t.localPosition).ToArray();
+                var initialQ = transforms.Select(t => t.localRotation).ToArray();
+                var initialS = transforms.Select(t => t.localScale).ToArray();
+                var renderer = go.GetComponentsInChildren<SkinnedMeshRenderer>(true).First(r => r.name == "lod_0");
+                var record = new 角色 { name = role, prefab = source, avatar = animator.avatar.name,
+                    validAvatar = animator.avatar.isValid, humanAvatar = animator.avatar.isHuman,
+                    paths = transforms.Select(t => AnimationUtility.CalculateTransformPath(t, go.transform)).ToArray() };
+                var animations = new List<动作>();
+                foreach (var clip in clips)
+                {
+                    for (int i = 0; i < transforms.Length; i++)
+                    {
+                        transforms[i].localPosition = initialT[i];
+                        transforms[i].localRotation = initialQ[i];
+                        transforms[i].localScale = initialS[i];
+                    }
+                    var graph = PlayableGraph.Create(role + "/" + clip.name);
+                    graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
+                    var playable = AnimationClipPlayable.Create(graph, clip);
+                    playable.SetApplyFootIK(false);
+                    playable.SetApplyPlayableIK(false);
+                    var output = AnimationPlayableOutput.Create(graph, "原生采样", animator);
+                    output.SetSourcePlayable(playable);
+                    animator.applyRootMotion = false;
+                    animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                    graph.Play();
+                    int count = Mathf.CeilToInt(clip.length * clip.frameRate) + 1;
+                    var frames = new 帧[count];
+                    var checks = new List<网格核验>();
+                    for (int frame = 0; frame < count; frame++)
+                    {
+                        float time = Mathf.Min(frame / clip.frameRate, clip.length);
+                        playable.SetTime(time);
+                        graph.Evaluate(0);
+                        var values = new float[transforms.Length * 10];
+                        for (int index = 0; index < transforms.Length; index++)
+                        {
+                            var tr = transforms[index]; int k = index * 10;
+                            var t = tr.localPosition; var q = tr.localRotation; var s = tr.localScale;
+                            values[k] = t.x; values[k+1] = t.y; values[k+2] = t.z;
+                            values[k+3] = q.x; values[k+4] = q.y; values[k+5] = q.z; values[k+6] = q.w;
+                            values[k+7] = s.x; values[k+8] = s.y; values[k+9] = s.z;
+                        }
+                        frames[frame] = new 帧 { time = time, trs = values };
+                        if (frame == 0 || frame == count / 2 || frame == count - 1)
+                        {
+                            var baked = new Mesh(); renderer.BakeMesh(baked, false);
+                            checks.Add(new 网格核验 { frame = frame, vertices = baked.vertices.SelectMany(v => new[] { v.x, v.y, v.z }).ToArray() });
+                            UnityEngine.Object.DestroyImmediate(baked);
+                        }
+                    }
+                    graph.Destroy();
+                    animations.Add(new 动作 { name = clip.name, duration = clip.length, sampleRate = clip.frameRate,
+                        humanMotion = clip.humanMotion, looping = clip.isLooping, frames = frames, checks = checks.ToArray() });
+                    Debug.Log("原生采样完成：" + role + "/" + clip.name + "，帧数" + count);
+                }
+                record.clips = animations.ToArray(); records.Add(record);
+                UnityEngine.Object.DestroyImmediate(go);
+            }
+            result.roles = records.ToArray();
+            using (var stream = new FileStream(config.output, FileMode.CreateNew))
+            using (var writer = new StreamWriter(stream)) writer.Write(JsonUtility.ToJson(result));
+            bundle.Unload(true);
+            EditorApplication.Exit(0);
+        }
+        catch (Exception error)
+        {
+            Debug.LogException(error);
+            EditorApplication.Exit(1);
+        }
+    }
+}

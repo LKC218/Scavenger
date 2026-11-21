@@ -1,0 +1,1445 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCAVENGER · 全局系统界面原型 V001（主菜单 / 关卡选择 / 暂停 / 系统设置）</title>
+<style>
+/* ==========================================================================
+   SCAVENGER 全局系统界面原型 V001（阶段 4A）
+   100% 消费 V2.0 设计系统令牌：A3 烟炭双金 × B2 战术微描边 × C4 外柔内锐 (12px/5px)
+   双层分离：底层动态战场画布施加 680p 复古微缩暖滤镜，顶层全部菜单/UI 保持 100% 原生高清
+   离线自包含，零外部 CDN 依赖
+   ========================================================================== */
+:root {
+  color-scheme: dark;
+  /* Tier 1 Primitives */
+  --slate-950: #0a0b10;
+  --slate-900: #0d0e13;
+  --slate-850: #13141c;
+  --slate-800: #1b1c24;
+  --slate-750: #232530;
+  --slate-400: #838896;
+  --slate-200: #b6bac5;
+  --slate-50:  #f5f6f9;
+  --gold-400:  #f0d372;
+  --gold-300:  #f6de86;
+  --amber-500: #ffb800;
+
+  /* Tier 2 Semantic */
+  --ui-bg-canvas: #0d0e13;
+  --ui-bg-pod: rgba(19, 20, 28, 0.92);
+  --ui-bg-pod-elevated: #14151e;
+  --ui-bg-overlay-glass: linear-gradient(155deg, rgba(36, 37, 46, 0.86) 0%, rgba(19, 20, 28, 0.92) 58%, rgba(33, 29, 22, 0.86) 100%);
+  --ui-bg-slot: rgba(35, 37, 48, 0.86);
+  --ui-bg-hover: rgba(255, 255, 255, 0.085);
+
+  --ui-line-subtle: rgba(255, 255, 255, 0.09);
+  --ui-line-base: rgba(255, 255, 255, 0.19);
+  --ui-line-strong: rgba(255, 255, 255, 0.34);
+  --ui-line-accent: rgba(240, 211, 114, 0.52);
+
+  --ui-text-primary: #f5f6f9;
+  --ui-text-secondary: #b6bac5;
+  --ui-text-muted: #838896;
+  --ui-text-inverse: #0d0e13;
+
+  --ui-accent-grad: linear-gradient(135deg, #f6de86 0%, #e5b73e 100%);
+  --ui-accent-glow: rgba(240, 211, 114, 0.24);
+  --ui-select-sweep: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.95) 64%, rgba(255, 255, 255, 0.26) 92%, rgba(255, 255, 255, 0) 100%);
+  --ui-rim-top: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  --ui-shadow-pod: 0 22px 58px rgba(3, 4, 9, 0.64), 0 6px 18px rgba(0, 0, 0, 0.36);
+
+  /* Tier 3 7-Channel Tactical Colors */
+  --ui-ch-ground: #38e5c0;
+  --ui-ch-heli: #68c8ff;
+  --ui-ch-plane: #b197fc;
+  --ui-state-select: #f0d372;
+  --ui-state-select-fill: rgba(240, 211, 114, 0.16);
+  --ui-state-warn: #ffb800;
+  --ui-state-warn-fill: rgba(255, 184, 0, 0.16);
+  --ui-state-danger: #ff5266;
+  --ui-state-danger-fill: rgba(255, 82, 102, 0.18);
+  --ui-state-toxic: #a8f22c;
+  --ui-state-safe: #3cd69f;
+
+  /* Geometry, Typography, Motion, Z-Index */
+  --ui-r-surface: 12px;
+  --ui-r-surface-lg: 16px;
+  --ui-r-control: 5px;
+  --ui-r-sm: 4px;
+  --ui-r-pill: 9999px;
+
+  --ui-font-display: "Bahnschrift Condensed", "DIN Condensed", "Impact", "HarmonyOS Sans SC", "Microsoft YaHei UI", sans-serif;
+  --ui-font-sans: "Bahnschrift", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC", sans-serif;
+  --ui-font-mono: "Cascadia Mono", "Consolas", "JetBrains Mono", "Microsoft YaHei UI", monospace;
+
+  --ui-outlined-stroke-w: 3.4px;
+  --ui-dur-micro: 100ms;
+  --ui-dur-standard: 200ms;
+  --ui-dur-overlay: 300ms;
+  --ui-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --vignette-alpha: 0.48;
+}
+
+body.is-reduced-motion *,
+body.is-reduced-motion *::before,
+body.is-reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #06070a;
+  color: var(--ui-text-primary);
+  font-family: var(--ui-font-sans);
+  font-size: 13.5px;
+  line-height: 1.48;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+button, input { font-family: inherit; color: inherit; }
+[hidden] { display: none !important; }
+.mono { font-family: var(--ui-font-mono); font-variant-numeric: tabular-nums; }
+.display-font {
+  font-family: var(--ui-font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+  line-height: 1.02;
+}
+
+/* ==========================================================================
+   全局画幅外壳（支持全屏自适应 / 16:9 标准 / 21:9 Hor+ 实机比例切换）
+   ========================================================================== */
+.viewport-host {
+  width: 100vw;
+  height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: #050608;
+}
+.game-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ui-bg-canvas);
+  transition: width var(--ui-dur-overlay) var(--ui-ease-out), height var(--ui-dur-overlay) var(--ui-ease-out);
+}
+.game-shell[data-aspect="16:9"] {
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
+  box-shadow: 0 0 0 1px var(--ui-line-base), 0 24px 64px rgba(0, 0, 0, 0.85);
+}
+.game-shell[data-aspect="21:9"] {
+  width: min(100vw, calc(100dvh * 21 / 9));
+  height: min(100dvh, calc(100vw * 9 / 21));
+  box-shadow: 0 0 0 1px var(--ui-line-base), 0 24px 64px rgba(0, 0, 0, 0.85);
+}
+
+/* ==========================================================================
+   底层 3D 复古微缩暖滤镜背景画布 ＋ 景深虚化暗角
+   ========================================================================== */
+.bg-scene-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+  filter: contrast(1.08) saturate(1.10) sepia(0.06);
+  transition: filter var(--ui-dur-overlay) var(--ui-ease-out), transform var(--ui-dur-overlay) var(--ui-ease-out);
+}
+.game-shell.is-blurred .bg-scene-canvas {
+  filter: contrast(1.08) saturate(1.05) sepia(0.06) blur(10px) brightness(0.62);
+  transform: scale(1.03);
+}
+.vignette-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(10, 11, 16, 0.84) 0%, rgba(10, 11, 16, 0.42) 44%, rgba(10, 11, 16, 0.12) 100%),
+    radial-gradient(ellipse at 54% 48%, transparent 46%, rgba(6, 7, 11, var(--vignette-alpha)) 100%);
+}
+
+/* ==========================================================================
+   顶部极简导航与场景切换栏（含 680p 双画幅预览切钮与音效开关）
+   ========================================================================== */
+.sys-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 58px;
+  z-index: 40;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: linear-gradient(180deg, rgba(10, 11, 16, 0.86) 0%, rgba(10, 11, 16, 0.42) 68%, rgba(10, 11, 16, 0) 100%);
+}
+.top-left, .top-right { display: flex; align-items: center; gap: 10px; }
+.sys-sigil {
+  width: 30px; height: 30px; border-radius: var(--ui-r-control);
+  background: var(--ui-accent-grad); color: var(--ui-text-inverse);
+  display: grid; place-items: center;
+  font-family: var(--ui-font-display); font-size: 16px; font-weight: 800;
+  box-shadow: 0 4px 12px var(--ui-accent-glow);
+}
+.status-pill {
+  display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px;
+  border-radius: var(--ui-r-pill); background: rgba(19, 20, 28, 0.84);
+  border: 1px solid var(--ui-line-accent); font-family: var(--ui-font-mono);
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em; color: var(--ui-state-select);
+}
+.status-pill i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ui-state-warn); box-shadow: 0 0 8px var(--ui-state-warn);
+}
+
+/* 斜切平行四边形导航 Tab */
+.skew-tabs { display: flex; align-items: center; gap: 5px; }
+.skew-tab {
+  border: 1px solid var(--ui-line-subtle);
+  background: rgba(19, 20, 28, 0.72);
+  color: var(--ui-text-secondary);
+  padding: 6px 15px;
+  border-radius: var(--ui-r-sm);
+  transform: skewX(-13deg);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background var(--ui-dur-micro), color var(--ui-dur-micro), border-color var(--ui-dur-micro);
+}
+.skew-tab > span { display: inline-block; transform: skewX(13deg); }
+.skew-tab:hover:not(.active) { background: rgba(255, 255, 255, 0.14); color: var(--ui-text-primary); }
+.skew-tab.active { background: #ffffff; color: var(--ui-text-inverse); border-color: #ffffff; box-shadow: 0 4px 16px rgba(255, 255, 255, 0.20); }
+
+/* ==========================================================================
+   V2.0 共享按钮、毛玻璃、L1 无底框硬黑描边与扫光列表
+   ========================================================================== */
+.ui-overlay-glass {
+  position: relative;
+  background: var(--ui-bg-overlay-glass);
+  backdrop-filter: blur(22px) saturate(1.18);
+  border: 1px solid var(--ui-line-base);
+  border-radius: var(--ui-r-surface-lg);
+  box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+  color: var(--ui-text-primary);
+}
+.ui-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 36px; padding: 0 15px; border: 1px solid var(--ui-line-base);
+  border-radius: var(--ui-r-control); background: var(--ui-bg-slot); color: var(--ui-text-primary);
+  font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  box-shadow: var(--ui-rim-top), 0 3px 10px rgba(0, 0, 0, 0.30);
+  transition: transform var(--ui-dur-micro) var(--ui-ease-out), border-color var(--ui-dur-micro), color var(--ui-dur-micro), background var(--ui-dur-micro), filter var(--ui-dur-micro);
+}
+.ui-btn:hover:not(:disabled) { border-color: var(--ui-state-select); color: var(--ui-state-select); background: var(--ui-bg-hover); }
+.ui-btn:active:not(:disabled) { transform: scale(0.98); }
+.ui-btn:focus-visible { outline: 2px solid var(--ui-state-select); outline-offset: 2px; }
+.ui-btn:disabled { opacity: 0.36; cursor: not-allowed; }
+.ui-btn--sm { height: 28px; padding: 0 10px; font-size: 11.5px; border-radius: var(--ui-r-sm); }
+.ui-btn--lg { height: 44px; padding: 0 22px; font-size: 13.5px; }
+.ui-btn--primary {
+  background: var(--ui-accent-grad); color: var(--ui-text-inverse); border-color: transparent; font-weight: 800;
+  box-shadow: 0 8px 22px var(--ui-accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+.ui-btn--primary:hover:not(:disabled) { background: var(--ui-accent-grad); color: var(--ui-text-inverse); border-color: transparent; filter: brightness(1.07); }
+.ui-btn--ghost { background: transparent; border-color: var(--ui-line-subtle); color: var(--ui-text-secondary); box-shadow: none; }
+.ui-btn--ghost:hover:not(:disabled) { background: rgba(255, 255, 255, 0.06); border-color: var(--ui-line-strong); color: var(--ui-text-primary); }
+.ui-btn--danger { background: var(--ui-state-danger-fill); border-color: rgba(255, 82, 102, 0.38); color: var(--ui-state-danger); box-shadow: none; }
+.ui-btn--danger:hover:not(:disabled) { background: var(--ui-state-danger); border-color: var(--ui-state-danger); color: #ffffff; }
+
+/* L1 无底框硬黑描边快捷提示 */
+.ui-prompt-btn {
+  display: inline-flex; align-items: center; gap: 7px; padding: 3px 5px;
+  border: 0; background: transparent; cursor: pointer;
+  transition: transform var(--ui-dur-micro) var(--ui-ease-out);
+}
+.ui-prompt-btn:hover { transform: translateY(-1px); }
+.ui-outlined-text {
+  color: #ffffff; font-size: 13.5px; font-weight: 800; letter-spacing: 0.03em;
+  paint-order: stroke fill; -webkit-text-stroke: var(--ui-outlined-stroke-w) #090a0f;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.52);
+}
+.ui-prompt-btn:hover .ui-outlined-text { color: var(--ui-state-select); }
+.ui-keycap {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 22px; min-width: 22px; padding: 0 6px; border-radius: var(--ui-r-pill);
+  background: #ffffff; color: #090a0f; border: 2px solid #090a0f;
+  font-family: var(--ui-font-mono); font-size: 10.5px; font-weight: 900; line-height: 1;
+  -webkit-text-stroke: 0 !important; text-shadow: none !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.48);
+}
+.ui-keycap--circle { width: 22px; padding: 0; border-radius: 50%; }
+.ui-keycap--dark { background: rgba(18, 19, 27, 0.90); color: rgba(255, 255, 255, 0.76); border: 1.6px solid rgba(255, 255, 255, 0.34); }
+
+/* 纯白扫光焦点列表 */
+.sweep-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.sweep-row {
+  position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 46px; padding: 10px 18px; border-radius: var(--ui-r-sm);
+  color: var(--ui-text-secondary); font-size: 14.5px; font-weight: 700; cursor: pointer;
+  transition: background var(--ui-dur-micro), color var(--ui-dur-micro), padding-left var(--ui-dur-micro);
+}
+.sweep-row + .sweep-row::before {
+  content: ""; position: absolute; left: 18px; right: 18px; top: 0; height: 1px; background: var(--ui-line-subtle);
+}
+.sweep-row:hover:not(.active):not(.is-locked) { color: var(--ui-text-primary); background: rgba(255, 255, 255, 0.055); }
+.sweep-row.active {
+  background: var(--ui-select-sweep); color: var(--ui-text-inverse); font-weight: 800; padding-left: 22px;
+}
+.sweep-row.active::before, .sweep-row.active + .sweep-row::before { opacity: 0; }
+.sweep-tag {
+  font-family: var(--ui-font-mono); font-size: 10.5px; padding: 2px 7px; border-radius: var(--ui-r-sm);
+  background: rgba(255, 255, 255, 0.07); color: var(--ui-text-muted); white-space: nowrap;
+}
+.sweep-row.active .sweep-tag { background: rgba(13, 14, 19, 0.88); color: #f5f6f9; }
+.sweep-row.is-locked {
+  opacity: 0.48; cursor: not-allowed;
+  background: repeating-linear-gradient(-45deg, rgba(255,255,255,0.025) 0 6px, transparent 6px 12px);
+}
+
+/* ==========================================================================
+   屏幕容器通用规范（严格遵守四周 24px 安全区）
+   ========================================================================== */
+.sys-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  padding: 72px 28px 62px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.sys-screen[hidden] { display: none !important; }
+
+/* 底部无底框统一键位引导条 */
+.sys-footer-prompts {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 18px;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.sys-footer-prompts > * { pointer-events: auto; }
+.prompt-group { display: flex; align-items: center; gap: 16px; }
+
+/* ==========================================================================
+   场景 1 · 主菜单（非对称电影排版：左侧主列 + 右下行动微卡）
+   ========================================================================== */
+.main-menu-grid {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  padding-bottom: 14px;
+}
+.menu-hero-col {
+  width: min(410px, 44vw);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: auto;
+  margin-top: auto;
+}
+.game-logo-title {
+  margin: 0;
+  font-size: clamp(46px, 5.8vw, 72px);
+  letter-spacing: 0.08em;
+  line-height: 0.94;
+  color: #ffffff;
+  text-shadow: 0 8px 30px rgba(0, 0, 0, 0.72);
+}
+.game-logo-title span { color: var(--ui-state-select); }
+.game-logo-sub {
+  margin: 4px 0 0;
+  font-family: var(--ui-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  color: var(--ui-text-secondary);
+}
+.resume-pod {
+  width: min(350px, 34vw);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.mini-progress {
+  height: 7px; border-radius: var(--ui-r-sm); background: rgba(10, 11, 16, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12); overflow: hidden;
+}
+.mini-progress > i { display: block; height: 100%; background: var(--ui-accent-grad); }
+
+/* ==========================================================================
+   场景 2 · 行动与关卡选择（双栏战区简报 + SVG 三区略图 + 唯一主 CTA）
+   ========================================================================== */
+.ops-layout {
+  width: min(1160px, 100%);
+  height: min(560px, 100%);
+  margin: auto;
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 18px;
+}
+.ops-left {
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+.ops-right {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  overflow: hidden;
+}
+.ops-map-box {
+  position: relative;
+  flex: 1;
+  min-height: 170px;
+  border-radius: var(--ui-r-control);
+  background: rgba(10, 11, 16, 0.78);
+  border: 1px solid var(--ui-line-subtle);
+  overflow: hidden;
+}
+.ops-squad-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+.ops-unit-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px;
+  border-radius: var(--ui-r-sm); background: rgba(13, 14, 19, 0.72);
+  border: 1px solid var(--ui-line-subtle); font-size: 11.5px; font-weight: 700;
+}
+
+/* ==========================================================================
+   场景 3 · 战局暂停菜单（经典二分景深构图）
+   ========================================================================== */
+.pause-layout {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+}
+.pause-rail {
+  height: 100%;
+  padding: 84px 16px 68px;
+  background: linear-gradient(180deg, rgba(16, 17, 24, 0.90) 0%, rgba(12, 13, 19, 0.94) 100%);
+  backdrop-filter: blur(22px);
+  border-right: 1px solid var(--ui-line-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.pause-right {
+  padding: 90px 44px 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  text-align: right;
+}
+.pause-chapter-title {
+  margin: 4px 0 10px;
+  font-size: clamp(36px, 4.4vw, 54px);
+  color: var(--ui-state-select);
+  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.65);
+}
+.sector-pills { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.sector-pill {
+  padding: 6px 12px; border-radius: var(--ui-r-control);
+  background: var(--ui-bg-pod); border: 1px solid var(--ui-line-base);
+  font-family: var(--ui-font-mono); font-size: 11.5px; display: inline-flex; align-items: center; gap: 7px;
+}
+.sector-pill i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+/* ==========================================================================
+   场景 4 · 系统设置面板（居中毛玻璃浮窗 + 斜切 Tab + 滚屏渐隐 + 实时联动）
+   ========================================================================== */
+.settings-panel {
+  width: min(780px, 100%);
+  height: min(540px, 100%);
+  margin: auto;
+  padding: 20px 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.settings-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 8px 0 12px;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 7%, #000 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 7%, #000 92%, transparent 100%);
+}
+.settings-scroll::-webkit-scrollbar { display: none; }
+.set-row {
+  position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  min-height: 46px; padding: 9px 16px; border-radius: var(--ui-r-sm);
+  color: var(--ui-text-secondary); font-size: 13.5px; font-weight: 700; cursor: pointer;
+}
+.set-row + .set-row::before {
+  content: ""; position: absolute; left: 16px; right: 16px; top: 0; height: 1px; background: var(--ui-line-subtle);
+}
+.set-row:hover:not(.active) { background: rgba(255, 255, 255, 0.05); color: var(--ui-text-primary); }
+.set-row.active { background: var(--ui-select-sweep); color: var(--ui-text-inverse); font-weight: 800; }
+.set-row.active::before, .set-row.active + .set-row::before { opacity: 0; }
+.set-ctrl {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 3px 9px; border-radius: var(--ui-r-sm);
+}
+.set-row.active .set-ctrl {
+  background: rgba(13, 14, 19, 0.88);
+  color: #f5f6f9;
+}
+
+/* 设置控件：Switch / 垂直白棒 Slider / 无框 Stepper */
+.ui-switch {
+  position: relative; width: 42px; height: 22px; border-radius: var(--ui-r-pill);
+  border: 1.5px solid rgba(255, 255, 255, 0.45); background: rgba(13, 14, 19, 0.65);
+  cursor: pointer; padding: 0; transition: background var(--ui-dur-standard), border-color var(--ui-dur-standard);
+}
+.ui-switch::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 15px; height: 15px;
+  border-radius: 50%; background: #ffffff; transition: transform var(--ui-dur-standard) var(--ui-ease-out);
+}
+.ui-switch[aria-checked="true"] { background: var(--ui-state-select); border-color: var(--ui-state-select); }
+.ui-switch[aria-checked="true"]::after { transform: translateX(19px); background: var(--ui-text-inverse); }
+
+.ui-slider { position: relative; width: 146px; height: 22px; display: inline-flex; align-items: center; cursor: pointer; }
+.ui-slider-track {
+  position: relative; width: 100%; height: 7px; border-radius: var(--ui-r-pill);
+  background: rgba(10, 11, 16, 0.90); box-shadow: 0 0 0 1.5px #07070b; overflow: hidden;
+}
+.ui-slider-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ui-state-select); }
+.ui-slider-thumb {
+  position: absolute; top: 50%; width: 7px; height: 17px; border-radius: 3px; transform: translate(-50%, -50%);
+  background: #ffffff; box-shadow: 0 0 0 1.8px #07070b; pointer-events: none;
+}
+
+.ui-stepper { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; }
+.ui-step-btn {
+  width: 24px; height: 24px; border: 1px solid var(--ui-line-base); border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08); color: #f5f6f9; display: grid; place-items: center; cursor: pointer;
+}
+.ui-step-btn:hover { border-color: var(--ui-state-select); color: var(--ui-state-select); }
+
+.settings-foot {
+  padding-top: 10px;
+  border-top: 1px solid var(--ui-line-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+/* ==========================================================================
+   Z-400 高危模态弹窗、部署加载遮罩 & Z-500 Toast 队列
+   ========================================================================== */
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background: rgba(5, 6, 10, 0.74);
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.modal-box {
+  width: min(460px, 100%);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.deploy-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  background: rgba(8, 9, 14, 0.90);
+  backdrop-filter: blur(12px);
+  display: grid;
+  place-items: center;
+}
+.deploy-card {
+  width: min(440px, 90%);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.toast-stack {
+  position: absolute;
+  right: 26px;
+  top: 66px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast-item {
+  pointer-events: auto;
+  min-width: 240px;
+  max-width: 340px;
+  padding: 10px 14px;
+  border-radius: var(--ui-r-control);
+  background: var(--ui-bg-pod);
+  border: 1px solid var(--ui-line-base);
+  box-shadow: var(--ui-shadow-pod);
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+.toast-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex: 0 0 auto; }
+.toast-item strong { display: block; font-size: 12px; }
+.toast-item span { display: block; font-size: 11px; color: var(--ui-text-secondary); }
+
+@media (max-width: 920px) {
+  .ops-layout { grid-template-columns: 1fr; overflow-y: auto; }
+  .pause-layout { grid-template-columns: 1fr; }
+  .pause-right { display: none; }
+  .resume-pod { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="viewport-host">
+  <div class="game-shell" id="game-shell" data-aspect="full">
+    <!-- 底层 3D 暖调微缩电影背景画布 -->
+    <canvas class="bg-scene-canvas" id="bg-canvas"></canvas>
+    <div class="vignette-layer" id="vignette-layer"></div>
+
+    <!-- 顶部极简系统导航 -->
+    <header class="sys-topbar">
+      <div class="top-left">
+        <div class="sys-sigil" aria-hidden="true">SC</div>
+        <span class="status-pill"><i></i>SECTOR 04 · BIOHAZARD ALERT</span>
+      </div>
+
+      <nav class="skew-tabs" id="top-screen-tabs" aria-label="系统外壳场景切换">
+        <button type="button" class="skew-tab active" data-screen="main"><span>主菜单</span></button>
+        <button type="button" class="skew-tab" data-screen="ops"><span>行动选择</span></button>
+        <button type="button" class="skew-tab" data-screen="pause"><span>战局暂停</span></button>
+        <button type="button" class="skew-tab" data-screen="settings"><span>系统设置</span></button>
+      </nav>
+
+      <div class="top-right">
+        <button type="button" class="ui-btn ui-btn--sm" id="btn-cycle-aspect" title="切换 680p 渲染比例框">画幅：全屏</button>
+        <button type="button" class="ui-btn ui-btn--sm" id="btn-toggle-sfx">UI 音效：关</button>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         场景 1 · 主菜单（Main Menu）
+         ==================================================================== -->
+    <section class="sys-screen" id="screen-main" aria-label="游戏主菜单">
+      <div class="main-menu-grid">
+        <div class="menu-hero-col">
+          <div>
+            <h1 class="display-font game-logo-title">SCAV<span>ENGER</span></h1>
+            <p class="game-logo-sub">BIOHAZARD TACTICAL COMMAND // AIRBASE SECTOR</p>
+          </div>
+          <ul class="sweep-list" id="main-menu-list" role="menu"></ul>
+        </div>
+
+        <aside class="ui-overlay-glass resume-pod" aria-label="上次行动摘要">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="mono" style="font-size:10.5px;color:var(--ui-state-select)">LAST OPERATION · 存档就绪</span>
+            <span class="mono" style="font-size:11px;color:var(--ui-ch-ground)">1 / 3 区域肃清</span>
+          </div>
+          <div>
+            <strong style="font-size:16px;display:block">太阳带空军基地 · 跑道肃清</strong>
+            <span style="font-size:11.5px;color:var(--ui-text-secondary)">后方站补给充足 · 东北机库检测到高密度尸群</span>
+          </div>
+          <div class="mini-progress"><i style="width:38%"></i></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid var(--ui-line-subtle)">
+            <div style="display:flex;gap:10px;align-items:center" id="resume-icons"></div>
+            <span class="mono" style="font-size:11px;color:var(--ui-text-muted)">01:14:22</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         场景 2 · 行动与关卡选择（Operations）
+         ==================================================================== -->
+    <section class="sys-screen" id="screen-ops" hidden aria-label="行动与关卡选择">
+      <div class="ops-layout">
+        <div class="ui-overlay-glass ops-left">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0 6px">
+            <strong class="display-font" style="font-size:20px;color:var(--ui-state-select)">OPERATIONS · 战区部署</strong>
+            <span class="mono" id="ops-count-badge" style="font-size:11px;color:var(--ui-text-muted)">03 SECTORS</span>
+          </div>
+          <div class="skew-tabs" id="ops-mode-tabs" style="padding:0 4px">
+            <button type="button" class="skew-tab active" data-mode="campaign"><span>大地图肃清</span></button>
+            <button type="button" class="skew-tab" data-mode="defense"><span>防线专项</span></button>
+          </div>
+          <ul class="sweep-list" id="ops-list" style="margin-top:4px"></ul>
+        </div>
+
+        <div class="ui-overlay-glass ops-right" id="ops-detail">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
+            <div>
+              <div class="mono" id="ops-code" style="font-size:11px;color:var(--ui-state-select)">OP-01 · AIRBASE</div>
+              <h2 class="display-font" id="ops-title" style="margin:3px 0 6px;font-size:28px">太阳带空军基地</h2>
+              <p id="ops-desc" style="margin:0;font-size:12.5px;color:var(--ui-text-secondary);max-width:560px"></p>
+            </div>
+            <div id="ops-hazard-badge" style="display:flex;align-items:center;gap:8px;padding:7px 11px;border-radius:var(--ui-r-control);background:rgba(13,14,19,0.78);border:1px solid var(--ui-line-base);flex:0 0 auto"></div>
+          </div>
+
+          <div class="ops-map-box" id="ops-map-host"></div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:11.5px;color:var(--ui-text-muted)">建议武器库初始编成（基于在库兵种）</span>
+              <span class="mono" id="ops-threat-txt" style="font-size:11.5px;color:var(--ui-state-warn)">威胁评级：三级生化</span>
+            </div>
+            <div class="ops-squad-strip" id="ops-squad-strip"></div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--ui-line-subtle)">
+            <button type="button" class="ui-btn ui-btn--ghost" id="btn-ops-back">返回主菜单</button>
+            <button type="button" class="ui-btn ui-btn--primary ui-btn--lg" id="btn-ops-deploy">部署进入战区 <span class="ui-keycap">ENTER</span></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         场景 3 · 战局暂停菜单（二分景深构图）
+         ==================================================================== -->
+    <section class="sys-screen" id="screen-pause" hidden style="padding:0" aria-label="战局暂停菜单">
+      <div class="pause-layout">
+        <aside class="pause-rail">
+          <div style="padding:0 16px">
+            <div class="mono" style="font-size:11px;color:var(--ui-state-select);letter-spacing:0.12em">SIMULATION PAUSED</div>
+            <h2 class="display-font" style="margin:4px 0 0;font-size:32px">战局暂停</h2>
+          </div>
+          <ul class="sweep-list" id="pause-menu-list"></ul>
+          <div style="margin-top:auto;padding:12px 16px 0;border-top:1px solid var(--ui-line-subtle);font-size:11.5px;color:var(--ui-text-muted)">
+            暂停期间允许观察镜头与审阅编队队列，恢复后自动继续执行航路。
+          </div>
+        </aside>
+
+        <div class="pause-right">
+          <div>
+            <div class="mono" style="font-size:12px;color:var(--ui-text-secondary);letter-spacing:0.14em">ACT I · SUNBELT AIRBASE</div>
+            <div class="display-font pause-chapter-title">BIOHAZARD BREACH</div>
+            <div class="sector-pills">
+              <span class="sector-pill" style="color:var(--ui-state-safe)"><i></i>A区 西侧停机坪 · 已肃清</span>
+              <span class="sector-pill" style="color:var(--ui-state-warn)"><i></i>B区 主跑道南翼 · 交战中</span>
+              <span class="sector-pill" style="color:var(--ui-state-danger)"><i></i>C区 东北机库群 · 沦陷</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+            <button type="button" class="ui-prompt-btn" id="btn-pause-resume-quick"><span class="ui-outlined-text">立即恢复战斗</span><span class="ui-keycap">ESC</span></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         场景 4 · 系统设置面板（4 大分类 + 实时联动控件）
+         ==================================================================== -->
+    <section class="sys-screen" id="screen-settings" hidden aria-label="系统设置面板">
+      <div class="ui-overlay-glass settings-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div class="skew-tabs" id="set-cat-tabs">
+            <button type="button" class="skew-tab active" data-cat="display"><span>画面与显示</span></button>
+            <button type="button" class="skew-tab" data-cat="audio"><span>音频与混音</span></button>
+            <button type="button" class="skew-tab" data-cat="hud"><span>HUD 与导航</span></button>
+            <button type="button" class="skew-tab" data-cat="controls"><span>键鼠控制</span></button>
+          </div>
+          <span class="mono" style="font-size:11px;color:var(--ui-text-muted)">Q / E 切页</span>
+        </div>
+
+        <div class="settings-scroll">
+          <ul class="sweep-list" id="set-rows-mount"></ul>
+        </div>
+
+        <div class="settings-foot">
+          <span id="set-desc-line" style="font-size:12px;color:var(--ui-text-secondary)">选中任意设置项查看说明；暗角、画幅、减少动效与音效开关均实时生效。</span>
+          <div style="display:flex;align-items:center;gap:10px;flex:0 0 auto">
+            <span class="mono" id="set-counter" style="font-size:11.5px;color:var(--ui-state-select)">01 / 04</span>
+            <button type="button" class="ui-btn ui-btn--ghost ui-btn--sm" id="btn-set-reset">恢复默认</button>
+            <button type="button" class="ui-btn ui-btn--primary ui-btn--sm" id="btn-set-apply">应用设置</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 底部 L1 无底框硬黑外描边键位引导 -->
+    <footer class="sys-footer-prompts">
+      <span class="mono" style="font-size:11px;color:var(--ui-text-muted)">SCAVENGER SYSTEM SHELL V001 · 680P DUAL-LAYER SPEC</span>
+      <div class="prompt-group">
+        <button type="button" class="ui-prompt-btn" id="foot-confirm"><span class="ui-outlined-text">确认</span><span class="ui-keycap">ENTER</span></button>
+        <button type="button" class="ui-prompt-btn" id="foot-back"><span class="ui-outlined-text">返回</span><span class="ui-keycap">ESC</span></button>
+      </div>
+    </footer>
+
+    <!-- Z-400 高危模态二次确认弹窗 -->
+    <div class="modal-backdrop" id="confirm-modal" hidden>
+      <div class="ui-overlay-glass modal-box" role="dialog" aria-modal="true" aria-labelledby="cm-title">
+        <span class="status-pill" id="cm-pill" style="align-self:flex-start;color:var(--ui-state-danger);border-color:rgba(255,82,102,0.45)"><i style="background:var(--ui-state-danger);box-shadow:0 0 8px var(--ui-state-danger)"></i>CONFIRMATION REQUIRED</span>
+        <h3 class="display-font" id="cm-title" style="margin:0;font-size:24px">确认执行高危操作？</h3>
+        <p id="cm-desc" style="margin:0;font-size:12.5px;color:var(--ui-text-secondary)"></p>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px">
+          <button type="button" class="ui-btn ui-btn--ghost" id="cm-cancel">取消 <span class="ui-keycap ui-keycap--dark">ESC</span></button>
+          <button type="button" class="ui-btn ui-btn--danger" id="cm-ok">确认执行</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 部署转场加载层 -->
+    <div class="deploy-overlay" id="deploy-overlay" hidden>
+      <div class="ui-overlay-glass deploy-card">
+        <span class="mono" style="font-size:11px;color:var(--ui-state-select)">DEPLOYING TASK FORCE // 680P STYLIZED</span>
+        <strong class="display-font" id="deploy-title" style="font-size:24px">太阳带空军基地</strong>
+        <div class="mini-progress" style="height:9px"><i id="deploy-bar" style="width:0%;transition:width 0.9s var(--ui-ease-out)"></i></div>
+        <span id="deploy-tip" style="font-size:12px;color:var(--ui-text-secondary)">战术提示：补给车前运物资时，双方须停稳并暂时停火。</span>
+      </div>
+    </div>
+
+    <!-- Z-500 Toast 队列 -->
+    <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  let uid = 0;
+
+  /* ====== 同源 V2.0 武器库剪影与 ISO 情景图标 ====== */
+  const ICONS = {
+    mbt: { d: 'M2.2 14.4 L4.2 11.8 L8.0 11.8 L9.4 8.6 L14.8 8.6 L16.0 10.1 L18.2 10.1 L18.2 9.6 L20.0 9.6 L20.0 10.1 L23.0 10.1 L23.0 11.4 L15.8 11.4 L15.4 12.1 L19.8 12.1 L21.6 14.3 L19.8 17.5 L3.8 17.5 Z M5.6 14.4h2.1v1.7H5.6Z M9.2 14.4h2.1v1.7H9.2Z M12.8 14.4h2.1v1.7H12.8Z M16.4 14.4h2.1v1.7H16.4Z' },
+    supply: { d: 'M2.4 6.6 L15.2 6.6 L15.2 11.4 L16.2 11.4 L16.2 8.2 L19.4 8.2 L21.6 11.6 L21.6 15.8 L19.6 17.8 L3.6 17.8 L2.4 15.6 Z M17.2 9.4 h1.8 l1.2 2.2 h-3.0 Z M7.8 8.3 H9.8 V10.1 H11.6 V12.1 H9.8 V13.9 H7.8 V12.1 H6.0 V10.1 H7.8 Z M5.4 15.2 a1.4 1.4 0 1 0 0.01 0 Z M11.4 15.2 a1.4 1.4 0 1 0 0.01 0 Z M17.4 15.2 a1.4 1.4 0 1 0 0.01 0 Z' },
+    attack_heli: { d: 'M3.0 6.0 H21.6 V7.4 H13.6 V9.4 H12.0 V7.4 H3.0 Z M2.0 10.6 L3.6 9.4 L4.4 11.8 L9.8 11.8 L11.4 9.4 L15.6 9.4 L18.2 11.2 L21.8 12.6 L22.2 13.8 L18.4 14.8 L15.0 15.4 L14.0 16.6 H9.6 L8.8 14.6 L4.2 13.6 L3.0 15.0 L2.0 14.0 Z M12.2 10.4 H15.2 L16.8 11.8 H12.2 Z M9.6 17.4 H15.8 V18.4 H9.6 Z' },
+    trans_heli: { d: 'M1.8 6.4 H10.8 V7.6 H7.0 V9.8 H5.6 V7.6 H1.8 Z M13.2 6.4 H22.2 V7.6 H18.4 V9.8 H17.0 V7.6 H13.2 Z M3.2 11.2 L5.4 9.8 H18.6 L21.4 11.8 L21.6 14.8 L18.8 16.4 H5.2 L2.6 14.6 Z M16.4 11.2 H19.2 L20.2 12.6 H16.4 Z M7.0 12.0 H9.6 V13.6 H7.0 Z M11.0 12.0 H13.6 V13.6 H11.0 Z' },
+    cas: { d: 'M12.0 1.8 L13.4 5.2 L13.6 9.4 L22.2 10.0 V13.0 L13.6 12.8 L13.4 15.4 L14.6 15.8 V17.8 H13.2 L13.0 19.0 L17.0 19.6 V21.8 L12.6 21.0 L12.0 22.2 L11.4 21.0 L7.0 21.8 V19.6 L11.0 19.0 L10.8 17.8 H9.4 V15.8 L10.6 15.4 L10.4 12.8 L1.8 13.0 V10.0 L10.4 9.4 L10.6 5.2 Z M11.4 5.2 H12.6 V8.4 H11.4 Z' },
+    arty: { d: 'M2.2 15.2 L3.4 12.2 L6.4 12.2 L6.8 9.2 L12.2 9.2 L19.8 3.6 L20.9 5.0 L13.8 10.4 L14.4 12.2 L19.6 12.2 L21.2 14.6 L19.4 17.8 L3.6 17.8 Z M1.8 17.8 L4.0 15.6 L5.0 16.5 L3.2 18.6 Z M6.0 14.8h2.2v1.6H6.0Z M10.6 14.8h2.2v1.6H10.6Z M15.2 14.8h2.2v1.6H15.2Z' },
+    uav: { d: 'M12.0 2.0 C13.2 2.0 13.8 3.2 13.5 5.4 L13.1 10.6 L23.0 11.4 V12.8 L13.0 12.6 L12.8 18.0 L16.2 20.8 L15.4 22.0 L12.0 19.8 L8.6 22.0 L7.8 20.8 L11.2 18.0 L11.0 12.6 L1.0 12.8 V11.4 L10.9 10.6 L10.5 5.4 C10.2 3.2 10.8 2.0 12.0 2.0 Z' },
+    biohazard: { custom: 'biohazard' },
+    gasmask: { d: 'M12 2.4 C7.4 2.4 4.4 5.6 4.4 10.2 L4.8 14.2 L2.6 15.4 L3.4 18.6 L6.8 18.2 L8.8 20.6 H15.2 L17.2 18.2 L20.6 18.6 L21.4 15.4 L19.2 14.2 L19.6 10.2 C19.6 5.6 16.6 2.4 12 2.4 Z M8.5 8.6 A2.3 2.0 0 1 0 8.51 12.6 A2.3 2.0 0 1 0 8.5 8.6 Z M15.5 8.6 A2.3 2.0 0 1 0 15.51 12.6 A2.3 2.0 0 1 0 15.5 8.6 Z M12 14.2 A2.3 2.3 0 1 0 12 18.8 A2.3 2.3 0 1 0 12 14.2 Z' },
+    horde: { d: 'M12 2.4 C6.9 2.4 3.6 6.0 3.6 10.6 C3.6 13.4 5.1 15.6 7.0 16.8 V20.4 C7.0 21.0 7.5 21.4 8.1 21.4 H15.9 C16.5 21.4 17.0 21.0 17.0 20.4 V16.8 C18.9 15.6 20.4 13.4 20.4 10.6 C20.4 6.0 17.1 2.4 12 2.4 Z M8.6 9.4 A2.0 2.0 0 1 0 8.61 13.4 A2.0 2.0 0 1 0 8.6 9.4 Z M15.4 9.4 A2.0 2.0 0 1 0 15.41 13.4 A2.0 2.0 0 1 0 15.4 9.4 Z M12 13.2 L13.4 16.0 H10.6 Z M9.6 18.0 H10.8 V20.4 H9.6 Z M13.2 18.0 H14.4 V20.4 H13.2 Z' },
+  };
+  function makeIcon(id, size = 18) {
+    const it = ICONS[id] || ICONS.mbt;
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', String(size));
+    svg.setAttribute('height', String(size));
+    svg.setAttribute('aria-hidden', 'true');
+    if (it.custom === 'biohazard') {
+      const m = `bio-sys-${++uid}`;
+      svg.innerHTML = `<defs><mask id="${m}"><rect width="24" height="24" fill="white"/><circle cx="12" cy="6.6" r="3.6" fill="black"/><circle cx="16.9" cy="15.2" r="3.6" fill="black"/><circle cx="7.1" cy="15.2" r="3.6" fill="black"/><circle cx="12" cy="12.3" r="1.7" fill="black"/><path d="M12 12.3 L12 16.4 M12 12.3 L8.4 10.2 M12 12.3 L15.6 10.2" stroke="black" stroke-width="1.05" stroke-linecap="round"/></mask></defs><g mask="url(#${m})" fill="currentColor"><circle cx="12" cy="8.1" r="5.1"/><circle cx="15.6" cy="14.4" r="5.1"/><circle cx="8.4" cy="14.4" r="5.1"/><circle cx="12" cy="12.3" r="4.0" fill="none" stroke="currentColor" stroke-width="1.3"/></g>`;
+      return svg;
+    }
+    const p = document.createElementNS(SVG_NS, 'path');
+    p.setAttribute('d', it.d);
+    p.setAttribute('fill', 'currentColor');
+    p.setAttribute('fill-rule', 'evenodd');
+    svg.append(p);
+    return svg;
+  }
+
+  /* ====== 离线 Web Audio UI 微反馈音（默认静音，开启后生效） ====== */
+  let sfxEnabled = false;
+  let audioCtx = null;
+  function playSfx(kind) {
+    if (!sfxEnabled) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const beep = (f, t0, dur, g, type = 'triangle') => {
+        const o = audioCtx.createOscillator();
+        const gn = audioCtx.createGain();
+        o.type = type; o.frequency.setValueAtTime(f, now + t0);
+        gn.gain.setValueAtTime(0.0001, now + t0);
+        gn.gain.exponentialRampToValueAtTime(g, now + t0 + 0.006);
+        gn.gain.exponentialRampToValueAtTime(0.0001, now + t0 + dur);
+        o.connect(gn); gn.connect(audioCtx.destination);
+        o.start(now + t0); o.stop(now + t0 + dur + 0.02);
+      };
+      if (kind === 'hover') beep(840, 0, 0.024, 0.03, 'sine');
+      else if (kind === 'confirm') { beep(520, 0, 0.04, 0.06); beep(780, 0.038, 0.055, 0.06); }
+      else if (kind === 'cancel') { beep(520, 0, 0.035, 0.05, 'sine'); beep(350, 0.032, 0.05, 0.05, 'sine'); }
+    } catch (_) {}
+  }
+
+  /* ====== Toast 队列（上限 2 条） ====== */
+  const toastStack = document.getElementById('toast-stack');
+  function pushToast(title, desc = '', col = 'var(--ui-state-select)') {
+    while (toastStack.children.length >= 2) toastStack.lastElementChild.remove();
+    const el = document.createElement('div');
+    el.className = 'toast-item';
+    el.innerHTML = `<span class="toast-dot" style="background:${col};box-shadow:0 0 8px ${col}"></span><div><strong style="color:${col}">${title}</strong>${desc ? `<span>${desc}</span>` : ''}</div>`;
+    toastStack.prepend(el);
+    setTimeout(() => el.remove(), 2400);
+  }
+
+  /* ====== 底层动态电影机场夜景画布（680p 暖调微缩滤镜层） ====== */
+  const bgCanvas = document.getElementById('bg-canvas');
+  const bCtx = bgCanvas.getContext('2d');
+  const particles = Array.from({ length: 34 }, () => ({
+    x: Math.random(), y: Math.random(), r: 0.9 + Math.random() * 1.9,
+    vx: 0.00008 + Math.random() * 0.00016, vy: -0.00005 - Math.random() * 0.0001, a: 0.14 + Math.random() * 0.25,
+  }));
+  function resizeBg() {
+    const rect = document.getElementById('game-shell').getBoundingClientRect();
+    bgCanvas.width = Math.max(320, Math.round(rect.width * 0.72));
+    bgCanvas.height = Math.max(200, Math.round(rect.height * 0.72));
+  }
+  window.addEventListener('resize', resizeBg);
+  resizeBg();
+
+  let bgPhase = 0;
+  function drawBg() {
+    const w = bgCanvas.width, h = bgCanvas.height;
+    bgPhase += 0.004;
+    const sky = bCtx.createRadialGradient(w * 0.70, h * 0.22, 20, w * 0.50, h * 0.50, Math.max(w, h) * 0.85);
+    sky.addColorStop(0, '#3a2b25');
+    sky.addColorStop(0.42, '#1d2232');
+    sky.addColorStop(1, '#0d0f17');
+    bCtx.fillStyle = sky;
+    bCtx.fillRect(0, 0, w, h);
+
+    // 机场主跑道与暖金引导灯光晕
+    bCtx.fillStyle = 'rgba(22, 26, 36, 0.78)';
+    bCtx.beginPath();
+    bCtx.moveTo(0, h * 0.84); bCtx.lineTo(w * 0.86, h * 0.12);
+    bCtx.lineTo(w, h * 0.26); bCtx.lineTo(w * 0.26, h); bCtx.closePath();
+    bCtx.fill();
+
+    for (let t = 0.08; t <= 0.92; t += 0.14) {
+      const lx = w * (0.10 + t * 0.78), ly = h * (0.88 - t * 0.70);
+      const pulse = 0.36 + Math.sin(bgPhase * 2 + t * 8) * 0.10;
+      const g = bCtx.createRadialGradient(lx, ly, 1, lx, ly, 26);
+      g.addColorStop(0, `rgba(240, 211, 114, ${pulse})`);
+      g.addColorStop(1, 'rgba(240, 211, 114, 0)');
+      bCtx.fillStyle = g;
+      bCtx.beginPath(); bCtx.arc(lx, ly, 26, 0, Math.PI * 2); bCtx.fill();
+    }
+
+    // 东北沦陷区火光散景
+    const fire = bCtx.createRadialGradient(w * 0.82, h * 0.26, 8, w * 0.82, h * 0.26, 175);
+    fire.addColorStop(0, 'rgba(255, 82, 102, 0.28)');
+    fire.addColorStop(1, 'rgba(255, 82, 102, 0)');
+    bCtx.fillStyle = fire;
+    bCtx.fillRect(w * 0.45, 0, w * 0.55, h * 0.65);
+
+    // 缓慢飘移的微尘颗粒
+    for (const p of particles) {
+      p.x = (p.x + p.vx) % 1;
+      p.y = (p.y + p.vy + 1) % 1;
+      bCtx.fillStyle = `rgba(240, 211, 114, ${p.a})`;
+      bCtx.beginPath(); bCtx.arc(p.x * w, p.y * h, p.r, 0, Math.PI * 2); bCtx.fill();
+    }
+    requestAnimationFrame(drawBg);
+  }
+  requestAnimationFrame(drawBg);
+
+  /* ====== 全局视图栈与导航 ====== */
+  const SCREENS = ['main', 'ops', 'pause', 'settings'];
+  let activeScreen = 'main';
+  const navHistory = [];
+
+  function setScreen(name, pushHist = true) {
+    if (pushHist && activeScreen !== name) navHistory.push(activeScreen);
+    activeScreen = name;
+    for (const s of SCREENS) document.getElementById(`screen-${s}`).hidden = s !== name;
+    document.querySelectorAll('#top-screen-tabs .skew-tab').forEach(b => b.classList.toggle('active', b.dataset.screen === name));
+    document.getElementById('game-shell').classList.toggle('is-blurred', name === 'pause' || name === 'settings');
+  }
+  document.querySelectorAll('#top-screen-tabs .skew-tab').forEach(b => {
+    b.addEventListener('click', () => { playSfx('confirm'); setScreen(b.dataset.screen, true); });
+  });
+
+  /* ====== 680p 画幅比例框切换 ====== */
+  const ASPECTS = [
+    { id: 'full', label: '全屏' },
+    { id: '16:9', label: '16:9 (1208×680)' },
+    { id: '21:9', label: '21:9 Hor+ (1588×680)' },
+  ];
+  let aspectIdx = 0;
+  function applyAspect() {
+    const a = ASPECTS[aspectIdx];
+    document.getElementById('game-shell').dataset.aspect = a.id;
+    document.getElementById('btn-cycle-aspect').textContent = `画幅：${a.id === 'full' ? '全屏' : a.id}`;
+    setTimeout(resizeBg, 320);
+  }
+  document.getElementById('btn-cycle-aspect').addEventListener('click', () => {
+    aspectIdx = (aspectIdx + 1) % ASPECTS.length;
+    applyAspect();
+    if (activeScreen === 'settings') renderSettingsRows();
+    pushToast(`已切换画幅：${ASPECTS[aspectIdx].label}`, '外围安全区与 UI 原生高清保持不变', 'var(--ui-ch-ground)');
+  });
+
+  function syncSfxBtn() {
+    document.getElementById('btn-toggle-sfx').textContent = `UI 音效：${sfxEnabled ? '开' : '关'}`;
+  }
+  document.getElementById('btn-toggle-sfx').addEventListener('click', () => {
+    sfxEnabled = !sfxEnabled;
+    syncSfxBtn();
+    if (sfxEnabled) playSfx('confirm');
+    if (activeScreen === 'settings') renderSettingsRows();
+  });
+
+  /* ====== Z-400 高危模态确认弹窗 ====== */
+  const modalEl = document.getElementById('confirm-modal');
+  let modalOnOk = null;
+  function openConfirm({ title, desc, okLabel = '确认执行', onOk }) {
+    document.getElementById('cm-title').textContent = title;
+    document.getElementById('cm-desc').textContent = desc;
+    document.getElementById('cm-ok').textContent = okLabel;
+    modalOnOk = onOk;
+    modalEl.hidden = false;
+  }
+  function closeConfirm() { modalEl.hidden = true; modalOnOk = null; }
+  document.getElementById('cm-cancel').addEventListener('click', () => { playSfx('cancel'); closeConfirm(); });
+  modalEl.addEventListener('click', e => { if (e.target === modalEl) { playSfx('cancel'); closeConfirm(); } });
+  document.getElementById('cm-ok').addEventListener('click', () => {
+    playSfx('confirm');
+    const cb = modalOnOk;
+    closeConfirm();
+    if (cb) cb();
+  });
+
+  /* ====== 场景 1 · 主菜单 ====== */
+  const MAIN_ITEMS = [
+    { label: '继续行动', tag: 'AIRBASE · 1/3', act: () => triggerDeploy('太阳带空军基地 · 续战') },
+    { label: '新行动部署', tag: '选择战区', act: () => setScreen('ops', true) },
+    { label: '战术演训场', tag: '暂停页演示', act: () => setScreen('pause', true) },
+    { label: '系统设置', tag: '画面 / 音频 / 键位', act: () => setScreen('settings', true) },
+    {
+      label: '退出行动', tag: '桌面', act: () => openConfirm({
+        title: '确认退出 Scavenger？',
+        desc: '当前本地战术配置与上次存档进度已自动保留。',
+        okLabel: '确认退出',
+        onOk: () => pushToast('已拦截退出演示', '当前处于交互原型沙盒中', 'var(--ui-state-danger)'),
+      }),
+    },
+  ];
+  let mainIdx = 0;
+  const mainListEl = document.getElementById('main-menu-list');
+  function renderMainMenu() {
+    mainListEl.replaceChildren();
+    MAIN_ITEMS.forEach((it, idx) => {
+      const li = document.createElement('li');
+      li.className = `sweep-row${idx === mainIdx ? ' active' : ''}`;
+      li.innerHTML = `<span>${it.label}</span><span class="sweep-tag">${it.tag}</span>`;
+      li.addEventListener('pointerenter', () => { if (mainIdx !== idx) { mainIdx = idx; playSfx('hover'); renderMainMenu(); } });
+      li.addEventListener('click', () => { playSfx('confirm'); it.act(); });
+      mainListEl.append(li);
+    });
+  }
+  renderMainMenu();
+  const resumeIcons = document.getElementById('resume-icons');
+  [['mbt', 'var(--ui-ch-ground)'], ['attack_heli', 'var(--ui-ch-heli)'], ['cas', 'var(--ui-ch-plane)']].forEach(([k, c]) => {
+    const ic = makeIcon(k, 18); ic.style.color = c; resumeIcons.append(ic);
+  });
+
+  /* ====== 场景 2 · 行动与关卡选择（支持大地图肃清 / 防线专项双模式切换） ====== */
+  const OPS_MODES = {
+    campaign: {
+      badge: '03 SECTORS',
+      items: [
+        {
+          id: 'airbase', code: 'OP-01 · AIRBASE', title: '太阳带空军基地', tag: '已开放', hazard: 'biohazard', hazCol: 'var(--ui-state-warn)', hazLabel: '三级生化危情',
+          desc: '指挥精锐空地特遣队肃清西停机坪、主跑道南翼与东北机库三个区域。通过占区获取点数增援，利用运输直升机投放延时声源诱饵调动尸群。',
+          threat: '威胁评级：三级生化 · 推荐编成 4 兵种',
+          units: [['mbt', 'M1A2 主战坦克', 'var(--ui-ch-ground)'], ['supply', 'M548 补给车', 'var(--ui-state-safe)'], ['trans_heli', 'UH-60 诱饵运输', 'var(--ui-ch-heli)'], ['cas', 'A-10C 对地攻击', 'var(--ui-ch-plane)']],
+          zones: [['A 停机坪', 22, 62, '#3cd69f'], ['B 主跑道', 52, 46, '#ffb800'], ['C 东北机库', 78, 28, '#ff5266']],
+        },
+        {
+          id: 'wetland', code: 'OP-02 · SOUTH WETLAND', title: '南侧酸蚀湿地封锁', tag: '进阶行动', hazard: 'gasmask', hazCol: 'var(--ui-state-toxic)', hazLabel: '剧毒气溶胶带',
+          desc: '南翼化工厂泄漏形成持续酸雾隔离带，地面重甲需依托北侧公路网推进，由武装直升机与察打无人机实施高空侦察与火力掩护。',
+          threat: '威胁评级：剧毒扩散 · 空中优先',
+          units: [['mbt', 'M1A2 SEP v3', 'var(--ui-ch-ground)'], ['arty', 'M142 HIMARS', 'var(--ui-ch-ground)'], ['attack_heli', 'AH-64D 武装直升机', 'var(--ui-ch-heli)'], ['uav', 'MQ-9 察打无人机', 'var(--ui-ch-plane)']],
+          zones: [['A 北岸桥头', 26, 36, '#38e5c0'], ['B 化工厂区', 55, 58, '#a8f22c'], ['C 泄洪闸口', 80, 66, '#ff5266']],
+        },
+        {
+          id: 'citadel', code: 'OP-03 · URBAN CORE', title: '市中心沦陷核心', tag: '未解锁', locked: true, hazard: 'horde', hazCol: 'var(--ui-state-danger)', hazLabel: '极高危尸潮红区',
+          desc: '需先完成 OP-01 太阳带空军基地全三区肃清后解锁本行动。',
+          threat: '威胁评级：极高危（锁定中）',
+          units: [['mbt', '重甲集群', 'var(--ui-ch-ground)'], ['cas', '高空清场', 'var(--ui-ch-plane)']],
+          zones: [['核心禁区', 50, 50, '#ff5266']],
+        },
+      ],
+    },
+    defense: {
+      badge: '02 TRIALS',
+      items: [
+        {
+          id: 'df-airbase', code: 'DF-01 · PERIMETER HOLD', title: '空军基地三车防线守卫', tag: '防线实训', hazard: 'biohazard', hazCol: 'var(--ui-state-warn)', hazLabel: '多波次尸潮冲击',
+          desc: '依托主跑道前沿构建三车交叉火力防线，抵御 5 波高密度尸群冲锋，保护后方补给线与核心防线分值不归零。',
+          threat: '专项演训：5 波次防线坚守 · 三车协同',
+          units: [['mbt', 'M1A2 主战坦克', 'var(--ui-ch-ground)'], ['attack_heli', 'AH-64D 武装直升机', 'var(--ui-ch-heli)'], ['cas', 'A-10C 对地攻击', 'var(--ui-ch-plane)']],
+          zones: [['西翼火力点', 28, 56, '#3cd69f'], ['主跑道阻击线', 56, 48, '#ffb800'], ['尸潮涌入口', 82, 32, '#ff5266']],
+        },
+        {
+          id: 'df-surge', code: 'DF-02 · NIGHT SURGE', title: '夜幕高密群尸压力演训', tag: '极限抗压', hazard: 'horde', hazCol: 'var(--ui-state-danger)', hazLabel: '满载 500 尸潮压境',
+          desc: '全场景 500 级同屏丧尸连续波次冲击，重点检验远近火力梯次配合、火箭炮面杀伤与低弹药紧急补给节奏。',
+          threat: '专项演训：满载抗压 · 补给与火力调度',
+          units: [['mbt', 'M1A2 SEP v3', 'var(--ui-ch-ground)'], ['arty', 'M142 HIMARS', 'var(--ui-ch-ground)'], ['supply', 'M548 补给车', 'var(--ui-state-safe)'], ['attack_heli', 'AH-64D 武装直升机', 'var(--ui-ch-heli)']],
+          zones: [['一号防线', 30, 60, '#ffb800'], ['二号防线', 58, 42, '#ff5266'], ['东侧缺口', 82, 54, '#ff5266']],
+        },
+      ],
+    },
+  };
+  let opsMode = 'campaign';
+  let opsIdx = 0;
+  function getOpsList() { return OPS_MODES[opsMode].items; }
+  function renderOps() {
+    const list = getOpsList();
+    if (opsIdx >= list.length || list[opsIdx].locked) opsIdx = 0;
+    document.getElementById('ops-count-badge').textContent = OPS_MODES[opsMode].badge;
+    const ul = document.getElementById('ops-list');
+    ul.replaceChildren();
+    list.forEach((op, idx) => {
+      const isAct = idx === opsIdx;
+      const li = document.createElement('li');
+      li.className = `sweep-row${isAct ? ' active' : ''}${op.locked ? ' is-locked' : ''}`;
+      const titleWrap = document.createElement('span');
+      titleWrap.style.cssText = 'display:inline-flex;align-items:center;gap:8px';
+      const miniHaz = makeIcon(op.hazard, 16);
+      miniHaz.style.color = isAct ? '#0d0e13' : op.hazCol;
+      miniHaz.style.flex = '0 0 auto';
+      titleWrap.append(miniHaz, document.createTextNode(op.title));
+      const tag = document.createElement('span');
+      tag.className = 'sweep-tag';
+      tag.textContent = op.tag;
+      li.append(titleWrap, tag);
+      li.addEventListener('click', () => {
+        if (op.locked) { pushToast('该战区尚未解锁', '需先完成 OP-01 太阳带空军基地全部三区肃清', 'var(--ui-state-danger)'); return; }
+        opsIdx = idx; playSfx('confirm'); renderOps();
+      });
+      ul.append(li);
+    });
+    const cur = list[opsIdx];
+    document.getElementById('ops-code').textContent = cur.code;
+    document.getElementById('ops-title').textContent = cur.title;
+    document.getElementById('ops-desc').textContent = cur.desc;
+    document.getElementById('ops-threat-txt').textContent = cur.threat;
+
+    const hb = document.getElementById('ops-hazard-badge');
+    hb.replaceChildren();
+    const hIco = makeIcon(cur.hazard, 24); hIco.style.color = cur.hazCol;
+    const hTxt = document.createElement('span');
+    hTxt.innerHTML = `<strong style="display:block;font-size:12px;color:${cur.hazCol}">${cur.hazLabel}</strong><small class="mono" style="font-size:10px;color:var(--ui-text-muted)">HAZARD CLASS</small>`;
+    hb.append(hIco, hTxt);
+
+    const sq = document.getElementById('ops-squad-strip');
+    sq.replaceChildren();
+    for (const [ik, nm, col] of cur.units) {
+      const chip = document.createElement('div');
+      chip.className = 'ops-unit-chip';
+      const ic = makeIcon(ik, 17); ic.style.color = col;
+      chip.append(ic, document.createTextNode(nm));
+      sq.append(chip);
+    }
+
+    const mapHost = document.getElementById('ops-map-host');
+    mapHost.innerHTML = `
+      <svg viewBox="0 0 600 220" width="100%" height="100%" preserveAspectRatio="none">
+        <defs><pattern id="ops-grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs>
+        <rect width="600" height="220" fill="url(#ops-grid)"/>
+        <path d="M55 188 L520 34" stroke="rgba(240,211,114,0.34)" stroke-width="14" stroke-linecap="round"/>
+        <path d="M55 188 L520 34" stroke="rgba(240,211,114,0.8)" stroke-width="1.5" stroke-dasharray="10 8"/>
+        <circle cx="72" cy="176" r="10" fill="rgba(60,214,159,0.22)" stroke="#3cd69f" stroke-width="2"/>
+        <text x="90" y="180" fill="#3cd69f" font-family="Consolas,monospace" font-size="11" font-weight="700">后方补给站</text>
+        ${cur.zones.map(([zn, x, y, col]) => `
+          <g transform="translate(${x * 6}, ${y * 2.2})">
+            <circle r="24" fill="${col}" fill-opacity="0.14" stroke="${col}" stroke-width="1.6" stroke-dasharray="6 4"/>
+            <circle r="5" fill="${col}"/>
+            <text x="14" y="4" fill="#f5f6f9" font-family="Microsoft YaHei UI,sans-serif" font-size="12" font-weight="700">${zn}</text>
+          </g>
+        `).join('')}
+      </svg>`;
+  }
+  renderOps();
+  document.querySelectorAll('#ops-mode-tabs .skew-tab').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#ops-mode-tabs .skew-tab').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    opsMode = b.dataset.mode;
+    opsIdx = 0;
+    playSfx('hover');
+    renderOps();
+  }));
+  document.getElementById('btn-ops-back').addEventListener('click', () => { playSfx('cancel'); setScreen('main', false); });
+
+  function triggerDeploy(title) {
+    const ov = document.getElementById('deploy-overlay');
+    const bar = document.getElementById('deploy-bar');
+    document.getElementById('deploy-title').textContent = title;
+    bar.style.width = '0%';
+    ov.hidden = false;
+    requestAnimationFrame(() => { bar.style.width = '100%'; });
+    setTimeout(() => {
+      ov.hidden = true;
+      setScreen('pause', true);
+      pushToast(`已载入战区：${title}`, '演示自动切入战局暂停视图（按 ESC 可逐层返回）', 'var(--ui-ch-ground)');
+    }, 1050);
+  }
+  document.getElementById('btn-ops-deploy').addEventListener('click', () => {
+    playSfx('confirm');
+    triggerDeploy(getOpsList()[opsIdx].title);
+  });
+
+  /* ====== 场景 3 · 战局暂停菜单 ====== */
+  const PAUSE_ITEMS = [
+    { label: '恢复行动', tag: 'ESC', act: () => pushToast('已恢复战场模拟', '在实机中将关闭暂停层并恢复时间流速', 'var(--ui-state-safe)') },
+    { label: '从检查点重试', tag: '最近存档', act: () => openConfirm({ title: '从检查点重试？', desc: '将回退至最近一次区域肃清完成时的编队与物资状态。', okLabel: '确认重试', onOk: () => pushToast('已重载最近战术检查点', '', 'var(--ui-state-select)') }) },
+    { label: '重新部署防线', tag: '重置本关', act: () => openConfirm({ title: '确认重新部署整场防线？', desc: '本局全部占区进度与当前航路队列将被清空，无法撤销。', okLabel: '确认重置', onOk: () => triggerDeploy('太阳带空军基地 · 重置部署') }) },
+    { label: '战区态势简报', tag: 'OP-01', act: () => setScreen('ops', true) },
+    { label: '系统设置', tag: '画面 / 音频', act: () => setScreen('settings', true) },
+    { label: '返回主菜单', tag: '离开战局', act: () => openConfirm({ title: '返回主菜单？', desc: '未保存的临时演训状态将丢失，确认离开当前战局？', okLabel: '返回主菜单', onOk: () => { navHistory.length = 0; setScreen('main', false); } }) },
+  ];
+  let pauseIdx = 0;
+  const pauseListEl = document.getElementById('pause-menu-list');
+  function renderPauseMenu() {
+    pauseListEl.replaceChildren();
+    PAUSE_ITEMS.forEach((it, idx) => {
+      const li = document.createElement('li');
+      li.className = `sweep-row${idx === pauseIdx ? ' active' : ''}`;
+      li.innerHTML = `<span>${it.label}</span><span class="sweep-tag">${it.tag}</span>`;
+      li.addEventListener('pointerenter', () => { if (pauseIdx !== idx) { pauseIdx = idx; playSfx('hover'); renderPauseMenu(); } });
+      li.addEventListener('click', () => { playSfx('confirm'); it.act(); });
+      pauseListEl.append(li);
+    });
+  }
+  renderPauseMenu();
+  document.getElementById('btn-pause-resume-quick').addEventListener('click', () => PAUSE_ITEMS[0].act());
+
+  /* ====== 场景 4 · 系统设置面板（4 分类实时联动） ====== */
+  const SET_STATE = {
+    vignette: 48,
+    reducedMotion: false,
+    masterVol: 25,
+    loudnessIdx: 1,
+    hordeAudio: true,
+    navModeIdx: 0,
+    clamp219: true,
+    antiOverlap: true,
+    showFps: true,
+  };
+  const LOUDNESS_OPTS = ['原始 0 dB', '增强 6 dB（默认）', '强增强 12 dB'];
+  const NAV_OPTS = ['常驻小地图', '动态隐退', '动态＋指南针'];
+  const SET_CATS = ['display', 'audio', 'hud', 'controls'];
+  let setCat = 'display';
+  let setRowIdx = 0;
+
+  function getRowsForCat(cat) {
+    if (cat === 'display') return [
+      { kind: 'static', label: '渲染分辨率基线', val: '680p 复古微缩 Stylized（已锁定）', desc: '唯一渲染基线：3D 固定 680p 垂直高度并叠加轻暖滤镜，UI 保持原生高清无滤镜。' },
+      { kind: 'stepper', label: '视口画幅比例框', val: ASPECTS[aspectIdx].label, desc: '实时校验 16:9（1208×680）与 21:9 Hor+（1588×680）双画幅安全区适配。', step: dir => { aspectIdx = (aspectIdx + dir + ASPECTS.length) % ASPECTS.length; applyAspect(); } },
+      { kind: 'slider', label: '画面暗角景深强度', val: SET_STATE.vignette, desc: '拖曳垂直白棒实时调节屏幕边缘暗角深度，突出战场中心与四周无底框提示。', set: v => { SET_STATE.vignette = v; document.documentElement.style.setProperty('--vignette-alpha', (v / 100).toFixed(2)); } },
+      { kind: 'switch', label: '减少动效（无障碍降级）', val: SET_STATE.reducedMotion, desc: '开启后将全部过渡动画降级为瞬切，满足对高频动效敏感用户的舒适度需求。', toggle: () => { SET_STATE.reducedMotion = !SET_STATE.reducedMotion; document.body.classList.toggle('is-reduced-motion', SET_STATE.reducedMotion); } },
+    ];
+    if (cat === 'audio') return [
+      { kind: 'slider', label: '战场总音量（默认 25%）', val: SET_STATE.masterVol, desc: '控制载具引擎、武器开火与丧尸群声的全局输出音量。', set: v => { SET_STATE.masterVol = v; } },
+      { kind: 'stepper', label: '响度增强档位', val: LOUDNESS_OPTS[SET_STATE.loudnessIdx], desc: '保持同音量滑块切换 0dB / 6dB / 12dB 响度增益，机械循环声不中断。', step: dir => { SET_STATE.loudnessIdx = (SET_STATE.loudnessIdx + dir + LOUDNESS_OPTS.length) % LOUDNESS_OPTS.length; } },
+      { kind: 'switch', label: '界面微反馈音效（Web Audio）', val: sfxEnabled, desc: '开启后在悬停扫光、确认部署与 ESC 回退时播放克制低频的战术微提示音（-18dB）。', toggle: () => { sfxEnabled = !sfxEnabled; syncSfxBtn(); if (sfxEnabled) playSfx('confirm'); } },
+      { kind: 'switch', label: '迷雾尸群方位提示声', val: SET_STATE.hordeAudio, desc: '迷雾内可听到模糊群声以提示大致方位，但不透露精确位置与数量。', toggle: () => { SET_STATE.hordeAudio = !SET_STATE.hordeAudio; } },
+    ];
+    if (cat === 'hud') return [
+      { kind: 'stepper', label: '导航与小地图显隐模式', val: NAV_OPTS[SET_STATE.navModeIdx], desc: '常驻小地图适合高强度指挥，动态隐退与顶部指南针适合沉浸视野。', step: dir => { SET_STATE.navModeIdx = (SET_STATE.navModeIdx + dir + NAV_OPTS.length) % NAV_OPTS.length; } },
+      { kind: 'switch', label: '21:9 带鱼屏 HUD 横向收束', val: SET_STATE.clamp219, desc: '在 21:9 超宽屏下将四角战斗 HUD 收束至安全横向跨度内，避免大幅转头扫视。', toggle: () => { SET_STATE.clamp219 = !SET_STATE.clamp219; } },
+      { kind: 'switch', label: '密集编队贴地名牌防叠字', val: SET_STATE.antiOverlap, desc: '碰撞时按「悬停 > 选中 > 交战 > 待命」原地收缩为紧凑兵种剪影点，锚点永不跳槽。', toggle: () => { SET_STATE.antiOverlap = !SET_STATE.antiOverlap; } },
+      { kind: 'switch', label: '显示等宽帧率遥测（FPS / ms）', val: SET_STATE.showFps, desc: '在安全区角落以 tabular-nums 等宽数字展示实时帧率与帧耗时。', toggle: () => { SET_STATE.showFps = !SET_STATE.showFps; } },
+    ];
+    return [
+      { kind: 'keys', label: '点选 / 框选可见单位', keys: ['左键'], desc: '按屏幕可见机身位置点选或拖框选择；双击选可见同型。' },
+      { kind: 'keys', label: '下达移动 / 攻击 / 拖朝向', keys: ['右键', 'Shift'], desc: '右键按住预览线框幽灵与到达朝向，松开提交；按住 Shift 追加命令队列。' },
+      { kind: 'keys', label: '地面 / 空中 / 全部图层筛选', keys: ['1', '2', '3'], desc: '空地重叠时快速切层，或按 Tab 循环切换重叠单位。' },
+      { kind: 'keys', label: '视角聚焦 / 复位 / 停止任务', keys: ['C', 'F', 'X'], desc: 'C 单次聚焦选中编队，F 平滑复位视角，X 立刻停止当前任务队列。' },
+      { kind: 'keys', label: '演训与调试抽屉 / 逐层退出', keys: ['~ / `', 'ESC'], desc: '波浪/反引号键开关低频调试抽屉；ESC 严格按 LIFO 栈逐层退出弹窗、设置或暂停。' },
+    ];
+  }
+
+  function renderSettingsRows() {
+    const rows = getRowsForCat(setCat);
+    if (setRowIdx >= rows.length) setRowIdx = 0;
+    const ul = document.getElementById('set-rows-mount');
+    ul.replaceChildren();
+    rows.forEach((r, idx) => {
+      const li = document.createElement('li');
+      li.className = `set-row${idx === setRowIdx ? ' active' : ''}`;
+      const lbl = document.createElement('span');
+      lbl.textContent = r.label;
+      const ctrl = document.createElement('div');
+      ctrl.className = 'set-ctrl';
+
+      if (r.kind === 'static') {
+        ctrl.innerHTML = `<span class="mono" style="font-size:11.5px;color:var(--ui-state-select)">${r.val}</span>`;
+      } else if (r.kind === 'stepper') {
+        const st = document.createElement('div'); st.className = 'ui-stepper';
+        const bPrev = document.createElement('button'); bPrev.type = 'button'; bPrev.className = 'ui-step-btn'; bPrev.textContent = '‹';
+        const txt = document.createElement('span'); txt.textContent = r.val;
+        const bNext = document.createElement('button'); bNext.type = 'button'; bNext.className = 'ui-step-btn'; bNext.textContent = '›';
+        bPrev.addEventListener('click', e => { e.stopPropagation(); r.step(-1); playSfx('hover'); renderSettingsRows(); });
+        bNext.addEventListener('click', e => { e.stopPropagation(); r.step(1); playSfx('hover'); renderSettingsRows(); });
+        st.append(bPrev, txt, bNext);
+        ctrl.append(st);
+      } else if (r.kind === 'switch') {
+        const sw = document.createElement('button'); sw.type = 'button'; sw.className = 'ui-switch';
+        sw.setAttribute('role', 'switch'); sw.setAttribute('aria-checked', String(r.val));
+        sw.addEventListener('click', e => { e.stopPropagation(); r.toggle(); playSfx('confirm'); renderSettingsRows(); });
+        ctrl.append(sw);
+      } else if (r.kind === 'slider') {
+        const sl = document.createElement('div'); sl.className = 'ui-slider';
+        sl.innerHTML = `<div class="ui-slider-track"><div class="ui-slider-fill" style="width:${r.val}%"></div></div><div class="ui-slider-thumb" style="left:${r.val}%"></div>`;
+        const valEl = document.createElement('span'); valEl.className = 'mono'; valEl.style.minWidth = '36px'; valEl.style.textAlign = 'right'; valEl.textContent = `${r.val}%`;
+        const update = x => {
+          const rect = sl.getBoundingClientRect();
+          const pct = Math.max(0, Math.min(100, Math.round(((x - rect.left) / rect.width) * 100)));
+          sl.querySelector('.ui-slider-fill').style.width = `${pct}%`;
+          sl.querySelector('.ui-slider-thumb').style.left = `${pct}%`;
+          valEl.textContent = `${pct}%`;
+          r.set(pct);
+        };
+        sl.addEventListener('pointerdown', e => {
+          e.stopPropagation(); sl.setPointerCapture(e.pointerId); update(e.clientX);
+          const mv = ev => update(ev.clientX);
+          const up = () => { sl.removeEventListener('pointermove', mv); sl.removeEventListener('pointerup', up); };
+          sl.addEventListener('pointermove', mv); sl.addEventListener('pointerup', up);
+        });
+        ctrl.append(sl, valEl);
+      } else if (r.kind === 'keys') {
+        for (const k of r.keys) {
+          const kp = document.createElement('span');
+          kp.className = `ui-keycap${k.length === 1 ? ' ui-keycap--circle' : ''}`;
+          kp.textContent = k;
+          ctrl.append(kp);
+        }
+      }
+
+      li.append(lbl, ctrl);
+      li.addEventListener('pointerenter', () => {
+        if (setRowIdx !== idx) {
+          setRowIdx = idx;
+          playSfx('hover');
+          ul.querySelectorAll('.set-row').forEach((n, i) => n.classList.toggle('active', i === setRowIdx));
+          document.getElementById('set-desc-line').textContent = r.desc;
+          document.getElementById('set-counter').textContent = `0${idx + 1} / 0${rows.length}`;
+        }
+      });
+      ul.append(li);
+    });
+    document.getElementById('set-desc-line').textContent = rows[setRowIdx].desc;
+    document.getElementById('set-counter').textContent = `0${setRowIdx + 1} / 0${rows.length}`;
+    document.querySelectorAll('#set-cat-tabs .skew-tab').forEach(b => b.classList.toggle('active', b.dataset.cat === setCat));
+  }
+  renderSettingsRows();
+  document.querySelectorAll('#set-cat-tabs .skew-tab').forEach(b => b.addEventListener('click', () => {
+    setCat = b.dataset.cat; setRowIdx = 0; playSfx('hover'); renderSettingsRows();
+  }));
+  document.getElementById('btn-set-reset').addEventListener('click', () => {
+    SET_STATE.vignette = 48; SET_STATE.reducedMotion = false; SET_STATE.masterVol = 25; SET_STATE.loudnessIdx = 1;
+    aspectIdx = 0; applyAspect();
+    document.documentElement.style.setProperty('--vignette-alpha', '0.48');
+    document.body.classList.remove('is-reduced-motion');
+    renderSettingsRows();
+    pushToast('已恢复默认系统设置', '总音量 25%、暗角 48%、全屏自适应', 'var(--ui-ch-ground)');
+  });
+  document.getElementById('btn-set-apply').addEventListener('click', () => {
+    playSfx('confirm');
+    pushToast('系统设置已应用并保存', '所有画面、音频与 HUD 偏好已同步生效', 'var(--ui-state-safe)');
+  });
+
+  /* ====== 统一键盘控制（↑/↓、Enter、Q/E、严格 LIFO ESC 回退栈） ====== */
+  function goBackLifo() {
+    if (!modalEl.hidden) { playSfx('cancel'); closeConfirm(); return; }
+    if (!document.getElementById('deploy-overlay').hidden) return;
+    if (navHistory.length) {
+      playSfx('cancel');
+      setScreen(navHistory.pop(), false);
+    } else if (activeScreen !== 'main') {
+      playSfx('cancel');
+      setScreen('main', false);
+    } else {
+      pushToast('已在顶层主菜单', '点击「退出行动」可演示高危模态二次确认');
+    }
+  }
+  document.getElementById('foot-back').addEventListener('click', goBackLifo);
+  document.getElementById('foot-confirm').addEventListener('click', () => {
+    if (!modalEl.hidden) { document.getElementById('cm-ok').click(); return; }
+    if (activeScreen === 'main') MAIN_ITEMS[mainIdx].act();
+    else if (activeScreen === 'ops') document.getElementById('btn-ops-deploy').click();
+    else if (activeScreen === 'pause') PAUSE_ITEMS[pauseIdx].act();
+    else if (activeScreen === 'settings') document.getElementById('btn-set-apply').click();
+  });
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { goBackLifo(); return; }
+    if (!modalEl.hidden) {
+      if (e.key === 'Enter') document.getElementById('cm-ok').click();
+      return;
+    }
+    if (activeScreen === 'settings' && (e.key === 'q' || e.key === 'Q' || e.key === 'e' || e.key === 'E')) {
+      const dir = (e.key === 'e' || e.key === 'E') ? 1 : -1;
+      const i = SET_CATS.indexOf(setCat);
+      setCat = SET_CATS[(i + dir + SET_CATS.length) % SET_CATS.length];
+      setRowIdx = 0; playSfx('hover'); renderSettingsRows();
+      return;
+    }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      const dir = e.key === 'ArrowDown' ? 1 : -1;
+      playSfx('hover');
+      if (activeScreen === 'main') { mainIdx = (mainIdx + dir + MAIN_ITEMS.length) % MAIN_ITEMS.length; renderMainMenu(); }
+      else if (activeScreen === 'ops') {
+        const list = getOpsList();
+        const unlocked = list.map((o, i) => (o.locked ? -1 : i)).filter(i => i >= 0);
+        if (unlocked.length) {
+          const pos = Math.max(0, unlocked.indexOf(opsIdx));
+          opsIdx = unlocked[(pos + dir + unlocked.length) % unlocked.length];
+          renderOps();
+        }
+      }
+      else if (activeScreen === 'pause') { pauseIdx = (pauseIdx + dir + PAUSE_ITEMS.length) % PAUSE_ITEMS.length; renderPauseMenu(); }
+      else if (activeScreen === 'settings') {
+        const len = getRowsForCat(setCat).length;
+        setRowIdx = (setRowIdx + dir + len) % len;
+        renderSettingsRows();
+      }
+    } else if (e.key === 'Enter') {
+      document.getElementById('foot-confirm').click();
+    }
+  });
+})();
+</script>
+</body>
+</html>

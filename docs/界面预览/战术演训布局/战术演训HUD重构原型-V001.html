@@ -1,0 +1,1532 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>战术演训 HUD 布局重构原型（断箭 × 红龙 × V002 暖金灵魂）· V001</title>
+<style>
+:root{
+  --font-display:"Bahnschrift Condensed","Impact","DIN Condensed","Haettenschweiler","HarmonyOS Sans SC","Microsoft YaHei UI",sans-serif;
+  --font-sans:"Bahnschrift","Outfit","HarmonyOS Sans SC","Microsoft YaHei UI",sans-serif;
+  --font-mono:"Cascadia Mono","Consolas","JetBrains Mono","Microsoft YaHei UI",monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+
+  /* V002 已确认基准：OKLCH 暗夜暖金曜石毛玻璃（全面去直角硬框与顶黄条） */
+  --bg-void:#0f1117;
+  --bg-glass:linear-gradient(155deg,rgba(40,38,56,0.88) 0%,rgba(23,23,33,0.92) 56%,rgba(32,27,23,0.88) 100%);
+  --bg-glass-soft:rgba(28,28,40,0.78);
+  --bg-card:rgba(255,255,255,0.055);
+  --bg-card-hover:rgba(255,255,255,0.12);
+  --hairline:rgba(255,255,255,0.09);
+  --glass-rim:inset 0 1px 0 rgba(255,255,255,0.09),inset 0 0 0 1px rgba(255,255,255,0.045);
+  --shadow-float:0 22px 54px rgba(3,4,10,0.62),0 4px 14px rgba(0,0,0,0.36);
+
+  --text-white:#f5f5f8;
+  --text-sub:#b3b6c4;
+  --text-muted:#767a8c;
+  --text-ink:#111118;
+
+  --gold:#f3d97d;
+  --gold-soft:rgba(243,217,125,0.16);
+  --gold-pill:linear-gradient(135deg,#f8e396 0%,#ecc45b 100%);
+  --cyan:#38e5c0;
+  --cyan-soft:rgba(56,229,192,0.18);
+  --sky:#68c8ff;
+  --sky-soft:rgba(104,200,255,0.18);
+  --violet:#b197fc;
+  --violet-soft:rgba(177,151,252,0.18);
+  --emerald:#3cd69f;
+  --crimson:#ff5266;
+  --crimson-soft:rgba(255,82,102,0.18);
+  --toxic:#a8f22c;
+
+  --r-sm:7.2px;
+  --r-md:9.6px;
+  --r-lg:12px;
+  --r-xl:16.8px;
+  --r-pill:9999px;
+  --select-sweep:linear-gradient(90deg,#ffffff 0%,rgba(255,255,255,0.92) 52%,rgba(255,255,255,0.16) 95%,rgba(255,255,255,0) 100%);
+}
+
+*{box-sizing:border-box}
+html,body{
+  margin:0;width:100%;height:100%;overflow:hidden;
+  background:var(--bg-void);color:var(--text-white);
+  font-family:var(--font-sans);font-size:13px;line-height:1.4;
+  -webkit-font-smoothing:antialiased;user-select:none;
+}
+button,select,input{font-family:inherit;color:inherit}
+[hidden]{display:none!important}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.display-font{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;line-height:0.98}
+.halo-text{text-shadow:0 1px 0 #07080c,0 -1px 0 #07080c,1px 0 0 #07080c,-1px 0 0 #07080c,0 2px 8px rgba(0,0,0,0.86)}
+
+/* ====== 100% 全屏 3D/2.5D 战场视口 ====== */
+#battlefield{position:fixed;inset:0;width:100vw;height:100dvh;overflow:hidden;outline:none}
+#scene-canvas,#ring-svg,#labels-layer{position:absolute;inset:0;width:100%;height:100%;display:block}
+#ring-svg{pointer-events:none;z-index:3}
+#labels-layer{pointer-events:none;z-index:4;overflow:hidden}
+#drag-box{
+  position:fixed;z-index:18;pointer-events:none;border-radius:4px;
+  background:rgba(243,217,125,0.14);border:1.5px solid var(--gold);box-shadow:0 0 18px rgba(243,217,125,0.22);
+}
+
+/* ====== 无框毛玻璃共享底座 ====== */
+.glass{
+  position:relative;border:0;border-radius:var(--r-lg);
+  background:var(--bg-glass);backdrop-filter:blur(22px) saturate(1.2);
+  box-shadow:var(--shadow-float),var(--glass-rim);overflow:hidden;
+}
+.glass.with-motif::before{
+  content:"";position:absolute;right:-20px;bottom:-20px;width:160px;height:160px;pointer-events:none;opacity:.055;
+  background:radial-gradient(circle at 65% 65%,var(--gold) 0%,transparent 52%),
+    repeating-conic-gradient(from 12deg at 75% 75%,rgba(243,217,125,0.5) 0deg 14deg,transparent 14deg 36deg);
+  mask-image:radial-gradient(circle at 75% 75%,#000 10%,transparent 72%);
+  -webkit-mask-image:radial-gradient(circle at 75% 75%,#000 10%,transparent 72%);
+}
+.key-cap{
+  display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;padding:0 5px;
+  border-radius:4px;background:rgba(255,255,255,0.92);color:var(--text-ink);text-shadow:none!important;
+  font-family:var(--font-mono);font-size:10px;font-weight:800;line-height:1;
+}
+.key-cap--dark{background:rgba(16,17,24,0.85);color:var(--text-white);box-shadow:inset 0 0 0 1px rgba(255,255,255,0.24)}
+
+/* ====== 场内 V004 贴身名牌（紧贴载体、紧凑与选中分态） ====== */
+.unit-tag{
+  position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;
+  display:inline-flex;align-items:center;gap:5px;padding:2px 7px 2px 5px;border-radius:5px;
+  background:rgba(16,18,26,0.78);backdrop-filter:blur(6px);color:#eef1f6;
+  font-size:11.5px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.55),inset 0 0 0 1px rgba(255,255,255,0.12);
+  transition:background .12s,box-shadow .12s,color .12s;
+}
+.unit-tag:hover{background:rgba(36,38,52,0.92);box-shadow:inset 0 0 0 1px rgba(255,255,255,0.45)}
+.unit-tag.is-selected{
+  background:rgba(24,23,32,0.92);color:var(--gold);
+  box-shadow:0 4px 14px rgba(0,0,0,0.7),inset 0 0 0 1.5px var(--gold);z-index:6;
+}
+.unit-tag.compact{padding:3px 5px;border-radius:999px}
+.unit-tag.compact .tag-text{display:none}
+.unit-tag em{font-style:normal;font-family:var(--font-mono);font-size:10px;color:var(--text-sub);margin-left:3px}
+
+/* ====== HUD 整体可由 F5 隐退，左下角留恢复小角标 ====== */
+#hud-root{position:fixed;inset:0;z-index:20;pointer-events:none;transition:opacity .2s var(--ease)}
+#hud-root>*{pointer-events:auto}
+#hud-root.is-hidden{opacity:0;pointer-events:none}
+#hud-root.is-hidden *{pointer-events:none!important}
+#hud-restore-chip{
+  position:fixed;left:18px;bottom:18px;z-index:55;border:0;border-radius:var(--r-pill);
+  padding:7px 14px;background:var(--bg-glass-soft);backdrop-filter:blur(14px);box-shadow:var(--glass-rim);
+  color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;
+}
+
+/* ====== 1. TOP-LEFT：战区点数 ＋ 《断箭》极窄垂直分类窄轨 ＋ 横滑名册抽屉 ====== */
+.tl-cluster{position:fixed;left:18px;top:16px;z-index:30;display:flex;flex-direction:column;align-items:flex-start;gap:10px;pointer-events:none}
+.tl-cluster>*{pointer-events:auto}
+.tl-points{
+  display:flex;align-items:center;gap:11px;padding:8px 14px;border-radius:var(--r-lg);
+  background:var(--bg-glass);backdrop-filter:blur(20px);box-shadow:var(--shadow-float),var(--glass-rim);
+}
+.tl-points .pts-val{font-family:var(--font-display);font-size:28px;color:var(--gold);line-height:0.95}
+.tl-points .pts-meta{display:flex;flex-direction:column;font-size:11px;color:var(--text-sub)}
+.tl-points .pts-meta b{color:var(--emerald);font-family:var(--font-mono);font-size:11.5px}
+
+/* 《断箭》风极窄分类垂直轨（默认只占左边缘一小列） */
+.cat-rail{
+  display:flex;flex-direction:column;gap:3px;padding:6px;border-radius:var(--r-lg);width:96px;
+}
+.cat-btn{
+  position:relative;border:0;border-radius:var(--r-sm);background:transparent;color:var(--text-sub);
+  padding:6px 8px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;cursor:pointer;
+  transition:background .14s,color .14s;
+}
+.cat-btn:hover:not(.active){background:var(--bg-card);color:var(--text-white)}
+.cat-btn.active{background:#ffffff;color:var(--text-ink)}
+.cat-btn-top{width:100%;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800}
+.cat-btn-name{display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700}
+.cat-dot{width:7px;height:7px;border-radius:50%}
+.cat-divider{height:1px;background:var(--hairline);margin:2px 4px}
+.layer-mini{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:2px}
+.layer-mini button{
+  border:0;border-radius:5px;padding:4px 0;background:var(--bg-card);color:var(--text-sub);
+  font-size:10.5px;font-weight:700;cursor:pointer;
+}
+.layer-mini button.active{background:var(--gold);color:var(--text-ink)}
+
+/* 横向滑出的单位名册抽屉（默认收起，保证绝不撞到左下 Toast / AIR COMM） */
+.roster-flyout{
+  position:fixed;left:122px;top:74px;width:306px;max-height:calc(100dvh - 385px);z-index:34;
+  border-radius:var(--r-xl);padding:13px 14px 11px;display:flex;flex-direction:column;gap:8px;
+}
+.roster-head{display:flex;align-items:center;justify-content:space-between}
+.roster-head h3{margin:0;font-size:24px;color:var(--gold)}
+.roster-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:7px;overflow-y:auto;padding-right:2px;scrollbar-width:none;
+  mask-image:linear-gradient(180deg,#000 0%,#000 90%,transparent 100%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 90%,transparent 100%);
+}
+.roster-grid::-webkit-scrollbar{display:none}
+.r-card{
+  position:relative;border:0;border-radius:var(--r-md);background:var(--bg-card);padding:8px 9px;
+  text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:3px;
+  transition:background .12s,transform .12s,box-shadow .12s;
+}
+.r-card:hover{background:var(--bg-card-hover);transform:translateY(-1px)}
+.r-card.selected{background:var(--select-sweep);color:var(--text-ink)}
+.r-card-top{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:12px;font-weight:800}
+.r-card-sub{font-size:10.5px;opacity:0.74;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-card-bar{height:2px;border-radius:99px;background:rgba(255,255,255,0.12);margin-top:2px;overflow:hidden}
+.r-card-bar i{display:block;height:100%;background:var(--cyan)}
+.r-card.selected .r-card-bar i{background:var(--text-ink)}
+
+/* ====== 2. TOP-CENTER：超薄战术战局浮岛 ＋ 实景罗盘 ====== */
+.tc-island{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:28;
+  display:flex;align-items:center;gap:14px;padding:7px 18px;border-radius:var(--r-pill);
+  background:var(--bg-glass);backdrop-filter:blur(22px);box-shadow:var(--shadow-float),var(--glass-rim);
+}
+.tc-live{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700}
+.tc-live i{width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 9px var(--emerald)}
+.tc-live.paused i{background:var(--gold);box-shadow:0 0 9px var(--gold)}
+.tc-clock{font-family:var(--font-display);font-size:24px;color:#ffffff;letter-spacing:0.06em}
+.tc-sep{width:1px;height:18px;background:var(--hairline)}
+.tc-stat{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-sub)}
+.tc-stat b{font-family:var(--font-mono);color:var(--gold);font-size:13px}
+.tc-compass{
+  display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:var(--r-pill);
+  background:rgba(255,255,255,0.07);font-family:var(--font-mono);font-size:11px;color:var(--text-white);
+}
+
+/* ====== 3. TOP-RIGHT：极精简控制图标簇 ＋ 演训实验抽屉 ====== */
+.tr-cluster{position:fixed;right:18px;top:16px;z-index:30;display:flex;align-items:center;gap:6px}
+.icon-pill{
+  border:0;border-radius:var(--r-pill);height:34px;padding:0 12px;
+  background:var(--bg-glass-soft);backdrop-filter:blur(16px);box-shadow:var(--glass-rim);
+  color:var(--text-white);font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;
+  cursor:pointer;transition:background .14s,color .14s,transform .12s;
+}
+.icon-pill:hover:not(:disabled){background:rgba(255,255,255,0.16)}
+.icon-pill:disabled{opacity:.35;cursor:not-allowed}
+.icon-pill.active{background:#ffffff;color:var(--text-ink)}
+.icon-pill--lab{color:var(--gold);box-shadow:inset 0 0 0 1px rgba(243,217,125,0.35),var(--shadow-float)}
+.icon-pill--lab.active{background:var(--gold-pill);color:var(--text-ink)}
+
+/* 演训实验与调试滑出抽屉（默认收起！包含原版 310px aside 所有科研功能） */
+.lab-drawer{
+  position:fixed;right:18px;top:62px;width:360px;max-height:calc(100dvh - 280px);z-index:42;
+  border-radius:var(--r-xl);padding:16px 18px;display:flex;flex-direction:column;gap:12px;
+}
+.lab-tabs{display:flex;gap:5px}
+.lab-tab{
+  flex:1;border:0;border-radius:4px;transform:skewX(-12deg);padding:6px 8px;background:rgba(255,255,255,0.07);
+  color:var(--text-sub);font-size:11.5px;font-weight:700;cursor:pointer;
+}
+.lab-tab>span{display:inline-block;transform:skewX(12deg)}
+.lab-tab.active{background:#ffffff;color:var(--text-ink)}
+.lab-body{overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:2px;scrollbar-width:none}
+.lab-body::-webkit-scrollbar{display:none}
+.lab-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 10px;border-radius:var(--r-sm);
+  background:rgba(255,255,255,0.045);font-size:12px;
+}
+.lab-select{
+  border:0;border-radius:6px;background:rgba(14,15,22,0.88);padding:5px 9px;font-size:11.5px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.16);outline:none;
+}
+/* V002 垂直白棒滑块 */
+.gta-slider{position:relative;width:128px;height:20px;display:inline-flex;align-items:center;cursor:pointer}
+.gta-slider-track{position:relative;width:100%;height:6px;border-radius:99px;background:rgba(12,12,18,0.88);box-shadow:0 0 0 1.5px #060609}
+.gta-slider-fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--gold)}
+.gta-slider-thumb{
+  position:absolute;top:50%;width:6px;height:15px;border-radius:2.5px;transform:translate(-50%,-50%);
+  background:#ffffff;box-shadow:0 0 0 1.5px #060609;pointer-events:none;
+}
+.bench-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.bench-btn{
+  border:0;border-radius:var(--r-sm);padding:7px 10px;background:var(--bg-card);color:var(--text-white);
+  font-size:11.5px;font-weight:700;cursor:pointer;transition:background .12s;
+}
+.bench-btn:hover:not(:disabled){background:var(--bg-card-hover)}
+.bench-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ====== 4. BOTTOM-LEFT：消息气泡 ＋ 《红龙》航空快选 ＋ 《断箭》小地图 ＋ 竖直 1~0 编组 ＋ 动态多选托盘 ====== */
+.bl-cluster{
+  position:fixed;left:18px;bottom:16px;z-index:30;display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  pointer-events:none;
+}
+.bl-cluster>*{pointer-events:auto}
+.bl-toast{
+  max-width:410px;padding:7px 14px;border-radius:var(--r-pill);
+  background:rgba(20,21,30,0.84);backdrop-filter:blur(14px);box-shadow:var(--glass-rim);
+  display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-white);
+}
+.bl-toast i{width:7px;height:7px;border-radius:50%;background:var(--gold);flex:0 0 auto}
+
+/* 《红龙》风精简航空快选卡：直接一排呼出高空 30m/100m 单位，不用再满图找飞机！ */
+.air-comm-strip{
+  display:flex;align-items:center;gap:5px;padding:5px 7px;border-radius:var(--r-md);
+  background:var(--bg-glass-soft);backdrop-filter:blur(16px);box-shadow:var(--glass-rim);
+}
+.air-comm-label{font-family:var(--font-display);font-size:13px;color:var(--gold);padding:0 5px 0 3px;letter-spacing:0.06em}
+.air-chip{
+  border:0;border-radius:6px;padding:4px 8px;background:var(--bg-card);color:var(--text-sub);
+  display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;cursor:pointer;
+  transition:background .12s,color .12s;
+}
+.air-chip:hover{background:var(--bg-card-hover);color:#ffffff}
+.air-chip.active{background:#ffffff;color:var(--text-ink)}
+
+.bl-main-row{display:flex;align-items:flex-end;gap:8px}
+/* 《断箭》小地图盒 */
+.minimap-shell{display:flex;flex-direction:column;gap:5px;width:224px}
+.minimap-tools{display:flex;gap:4px}
+.mm-tool{
+  flex:1;border:0;border-radius:6px;height:24px;background:var(--bg-glass-soft);backdrop-filter:blur(12px);
+  box-shadow:var(--glass-rim);color:var(--text-sub);font-size:10.5px;font-weight:700;cursor:pointer;
+}
+.mm-tool.active{background:#ffffff;color:var(--text-ink)}
+.minimap-box{
+  position:relative;width:224px;height:158px;border-radius:var(--r-lg);overflow:hidden;
+  background:#151824;box-shadow:var(--shadow-float),inset 0 0 0 1.5px rgba(255,255,255,0.20);cursor:crosshair;
+}
+#minimap-canvas{width:100%;height:100%;display:block}
+.mm-hint{position:absolute;left:7px;bottom:5px;font-family:var(--font-mono);font-size:9.5px;color:rgba(255,255,255,0.62);pointer-events:none}
+
+/* 《断箭》紧贴小地图右缘的 1~9, 0 竖直编组槽 */
+.cg-strip{
+  display:grid;grid-template-columns:1fr;gap:3px;height:158px;padding:4px;border-radius:var(--r-md);
+  background:var(--bg-glass-soft);backdrop-filter:blur(16px);box-shadow:var(--glass-rim);
+}
+.cg-btn{
+  position:relative;width:24px;height:100%;border:0;border-radius:4px;background:rgba(255,255,255,0.05);
+  color:var(--text-muted);font-family:var(--font-mono);font-size:10px;font-weight:800;
+  display:grid;place-items:center;cursor:pointer;padding:0;transition:background .12s,color .12s;
+}
+.cg-btn.has-units{color:var(--text-white);background:rgba(255,255,255,0.12)}
+.cg-btn.has-units::after{content:"";position:absolute;right:2px;top:2px;width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.cg-btn:hover{background:rgba(255,255,255,0.22);color:#ffffff}
+.cg-btn.active{background:#ffffff;color:var(--text-ink)}
+
+/* 《断箭》多选剪影矩阵托盘（仅选中 >= 2 单位时在编组右侧动态出现！） */
+.multi-tray{
+  width:274px;max-height:158px;border-radius:var(--r-lg);padding:8px 9px;display:flex;flex-direction:column;gap:6px;
+}
+.multi-tray-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-sub)}
+.multi-tray-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;overflow-y:auto;scrollbar-width:none;
+}
+.multi-tray-grid::-webkit-scrollbar{display:none}
+.m-chip{
+  position:relative;border:0;border-radius:6px;background:var(--bg-card);padding:5px 4px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--text-white);
+  transition:background .12s;
+}
+.m-chip:hover{background:var(--bg-card-hover)}
+.m-chip.focused{box-shadow:inset 0 0 0 1.5px var(--gold);background:rgba(243,217,125,0.12)}
+.m-chip span{font-family:var(--font-mono);font-size:9.5px;white-space:nowrap}
+.multi-tray-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--hairline);padding-top:5px}
+.tiny-act{border:0;border-radius:5px;padding:3px 8px;background:var(--bg-card);color:var(--text-sub);font-size:10.5px;font-weight:700;cursor:pointer}
+.tiny-act:hover{background:#ffffff;color:var(--text-ink)}
+
+/* ====== 5. BOTTOM-RIGHT：右侧 4×3 《断箭/红龙》命令矩阵 ＋ 左侧动态「单选详情与队列卡」 ====== */
+.br-cluster{
+  position:fixed;right:18px;bottom:16px;z-index:30;display:flex;align-items:flex-end;gap:10px;pointer-events:none;
+}
+.br-cluster>*{pointer-events:auto}
+
+/* 单选详情 + 移动队列卡（仅选中 1 单位时滑出，平时完全隐藏！） */
+.inspector-card{width:286px;padding:13px 15px;border-radius:var(--r-xl);display:flex;flex-direction:column;gap:9px}
+.insp-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.insp-title{display:flex;align-items:center;gap:9px}
+.insp-ico{
+  width:38px;height:38px;border-radius:var(--r-md);background:rgba(255,255,255,0.08);
+  display:grid;place-items:center;flex:0 0 auto;
+}
+.insp-name strong{display:block;font-size:16px;line-height:1.15;color:var(--gold)}
+.insp-name small{font-size:11px;color:var(--text-sub)}
+.insp-state{
+  padding:3px 9px;border-radius:var(--r-pill);font-size:10.5px;font-weight:800;
+  background:var(--cyan-soft);color:var(--cyan);white-space:nowrap;
+}
+.insp-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.metric-cell{background:rgba(255,255,255,0.045);border-radius:6px;padding:5px 7px}
+.metric-cell span{display:block;font-size:9.5px;color:var(--text-muted)}
+.metric-cell b{font-family:var(--font-mono);font-size:12px}
+.insp-queue{border-top:1px solid var(--hairline);padding-top:7px;display:flex;flex-direction:column;gap:4px}
+.insp-q-head{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-muted)}
+.q-item{
+  display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 8px;border-radius:5px;
+  background:rgba(255,255,255,0.04);font-size:11px;
+}
+.q-item.rejected{background:var(--crimson-soft);color:var(--crimson)}
+
+/* 4×3 战术命令按钮矩阵 */
+.cmd-grid-shell{width:276px;padding:10px;border-radius:var(--r-xl);display:flex;flex-direction:column;gap:6px}
+.cmd-grid-head{display:flex;justify-content:space-between;align-items:center;padding:0 3px;font-size:10.5px;color:var(--text-muted)}
+.cmd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.cmd-cell{
+  position:relative;height:52px;border:0;border-radius:var(--r-md);background:var(--bg-card);color:var(--text-white);
+  padding:5px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  cursor:pointer;transition:background .12s,transform .1s,box-shadow .12s;
+}
+.cmd-cell:hover:not(:disabled):not(.is-locked){background:var(--bg-card-hover);transform:translateY(-1px)}
+.cmd-cell.active{background:#ffffff;color:var(--text-ink);box-shadow:0 4px 16px rgba(255,255,255,0.22)}
+.cmd-cell.is-danger:hover:not(:disabled){background:var(--crimson);color:#ffffff}
+.cmd-cell.is-locked{opacity:.42;background:rgba(16,16,24,0.52);cursor:pointer}
+.cmd-cell .c-kbd{
+  position:absolute;left:4px;top:3px;font-family:var(--font-mono);font-size:9px;font-weight:800;opacity:0.65;
+}
+.cmd-cell .c-lock{position:absolute;right:4px;top:3px;font-size:9px;color:var(--gold)}
+.cmd-cell .c-txt{font-size:10.5px;font-weight:700;white-space:nowrap}
+
+/* ====== 帮助速查弹窗（从右上角 ? 打开） ====== */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:70;background:rgba(8,8,14,0.68);backdrop-filter:blur(12px);
+  display:grid;place-items:center;padding:20px;
+}
+.help-modal{width:min(560px,100%);border-radius:var(--r-xl);padding:22px 24px}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin:14px 0 18px;font-size:12px;color:var(--text-sub)}
+.help-grid div{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--hairline)}
+</style>
+</head>
+<body>
+
+<main id="battlefield" tabindex="0" aria-label="全屏三维战术演训战场">
+  <canvas id="scene-canvas"></canvas>
+  <svg id="ring-svg" aria-hidden="true"></svg>
+  <div id="labels-layer"></div>
+  <div id="drag-box" hidden></div>
+</main>
+
+<!-- F5 纯净视角下左下角最小恢复角标 -->
+<button type="button" id="hud-restore-chip" hidden>恢复 HUD（F5）</button>
+
+<div id="hud-root">
+  <!-- ====== 1. 左上：兵力点数 ＋ 《断箭》极窄垂直分类窄轨 ＋ 横向滑出花名册 ====== -->
+  <section class="tl-cluster" aria-label="兵力分类与召唤抽屉">
+    <div class="tl-points">
+      <div>
+        <div class="pts-val" id="pts-total">30</div>
+      </div>
+      <div class="pts-meta">
+        <span>编成可用单位</span>
+        <b id="pts-moving">0 机动中 · +G01</b>
+      </div>
+    </div>
+
+    <aside class="glass cat-rail" id="cat-rail" aria-label="兵种快速分类"></aside>
+  </section>
+
+  <!-- 点击左上分类后滑出的单位名册浮窗 -->
+  <section class="glass with-motif roster-flyout" id="roster-flyout" hidden aria-label="单位名册清单">
+    <div class="roster-head">
+      <div>
+        <h3 class="display-font" id="flyout-title">ALL FORCES</h3>
+        <div style="font-size:11px;color:var(--text-muted)" id="flyout-sub">点击点选 · 双击居中定位 · Shift 多选</div>
+      </div>
+      <button type="button" class="tiny-act" id="flyout-close">收起 ✕</button>
+    </div>
+    <div class="roster-grid" id="roster-grid"></div>
+  </section>
+
+  <!-- ====== 2. 顶部正中：超薄战局时钟态势胶囊 ====== -->
+  <header class="tc-island" aria-label="战局时钟与态势">
+    <div class="tc-live" id="tc-live"><i></i><span id="tc-status">演训进行中</span></div>
+    <span class="tc-sep"></span>
+    <span class="tc-clock" id="tc-clock">00:00</span>
+    <span class="tc-sep"></span>
+    <span class="tc-stat">Airbase · 机动 <b id="tc-move-count">0/30</b></span>
+    <span class="tc-compass" id="tc-compass">N 000° ↑</span>
+  </header>
+
+  <!-- ====== 3. 右上：精简系统操作 ＋ 演训实验抽屉开关 ====== -->
+  <nav class="tr-cluster" aria-label="系统与演训实验室">
+    <button type="button" class="icon-pill" id="btn-focus" title="F：居中聚焦当前选中" disabled>聚焦 <span class="key-cap">F</span></button>
+    <button type="button" class="icon-pill" id="btn-follow" title="G：持续跟随选中" disabled>跟随</button>
+    <button type="button" class="icon-pill" id="btn-sound">声音 关</button>
+    <button type="button" class="icon-pill" id="btn-pause">暂停</button>
+    <button type="button" class="icon-pill" id="btn-help" title="操作快捷键指南">?</button>
+    <button type="button" class="icon-pill icon-pill--lab" id="btn-lab-toggle">⚙ 演训实验</button>
+    <button type="button" class="icon-pill" id="btn-hud-hide" title="F5：纯净无 HUD 视角">F5</button>
+  </nav>
+
+  <!-- 收纳进右上齿轮里的“科研压测与演训实验抽屉” -->
+  <aside class="glass with-motif lab-drawer" id="lab-drawer" hidden aria-label="演训与技术采样抽屉">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <strong class="display-font" style="font-size:22px;color:var(--gold)">LAB &amp; BENCHMARK</strong>
+      <button type="button" class="tiny-act" id="lab-close">关闭 ✕</button>
+    </div>
+    <div class="lab-tabs">
+      <button type="button" class="lab-tab active" data-ltab="sim"><span>场景与规模</span></button>
+      <button type="button" class="lab-tab" data-ltab="perf"><span>压测采样</span></button>
+      <button type="button" class="lab-tab" data-ltab="demo"><span>演示快捷态</span></button>
+    </div>
+    <div class="lab-body" id="lab-body-sim">
+      <div class="lab-row"><span>演训地图</span><select class="lab-select" id="lab-scenario"><option value="airbase" selected>Airbase 1200×1200m</option><option value="range">小靶场对照</option></select></div>
+      <div class="lab-row"><span>场内总编制</span><select class="lab-select" id="lab-unit-count"><option value="10">10 单位</option><option value="30" selected>30 单位（默认）</option><option value="50">50 单位</option><option value="100">100 单位</option><option value="200">200 单位</option><option value="500">500 单位</option></select></div>
+      <div class="lab-row"><span>3D 画面精度</span><select class="lab-select" id="lab-quality"><option value="native" selected>原生 DPR 高清（HUD锐利）</option><option value="640">640宽 · 标准像素对比</option><option value="480">480宽 · 粗颗粒对比</option></select></div>
+      <div class="lab-row">
+        <span>总音量 <b class="mono" id="lab-vol-val" style="color:var(--gold)">25%</b></span>
+        <div class="gta-slider" id="lab-vol-slider"><div class="gta-slider-track"><div class="gta-slider-fill" style="width:25%"></div></div><div class="gta-slider-thumb" style="left:25%"></div></div>
+      </div>
+      <div class="lab-row"><span>响度增强</span><select class="lab-select" id="lab-enhance"><option value="0">原始 0dB</option><option value="6" selected>增强 +6dB</option><option value="12">强增强 +12dB</option></select></div>
+    </div>
+    <div class="lab-body" id="lab-body-perf" hidden>
+      <div class="bench-grid">
+        <button type="button" class="bench-btn" id="bench-overview">全场总览 A</button>
+        <button type="button" class="bench-btn" id="bench-60">采样 60 秒</button>
+        <button type="button" class="bench-btn" id="bench-180">采样 180 秒</button>
+        <button type="button" class="bench-btn" id="bench-export" disabled>导出 JSON</button>
+      </div>
+      <div class="lab-row"><span style="color:var(--text-sub);font-size:11px" id="bench-status">先预热 10 秒，再正式采样；本步仅验证移动指挥与新全屏 HUD。</span></div>
+      <div style="font-size:10.5px;color:var(--text-muted);line-height:1.55">
+        G01 候选不接入战斗伤害与武器系统，调试菜单已按《全局UI-UX规范》从主战视区隔离收起。
+      </div>
+    </div>
+    <div class="lab-body" id="lab-body-demo" hidden>
+      <p style="margin:0;font-size:11.5px;color:var(--text-sub)">一键预览新布局在不同作战选择状态下的动态伸缩行为：</p>
+      <div class="bench-grid">
+        <button type="button" class="bench-btn" id="demo-none">状态① 全空（纯全屏）</button>
+        <button type="button" class="bench-btn" id="demo-single">状态② 单选单位卡</button>
+        <button type="button" class="bench-btn" id="demo-multi">状态③ 多选混编托盘</button>
+        <button type="button" class="bench-btn" id="demo-move">演示④ 下达线框机动</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ====== 4. 左下：《断箭》小地图 ＋ 《红龙》航空快选条 ＋ 竖直 1~0 编组 ＋ 动态多选托盘 ====== -->
+  <section class="bl-cluster" aria-label="导航小地图与编组区">
+    <div class="bl-toast" id="bl-toast"><i></i><span>左键点选/框选 · 右键按住预览线框并拖动调整朝向 · Shift 追加队列</span></div>
+
+    <!-- 吸收《红龙》左下 AIRPORT PANEL 精华：高空单位一行快选直达！ -->
+    <div class="air-comm-strip" id="air-comm-strip" title="《红龙》航空支援条精华：无需仰头找飞机，一键选中并居中高空单位">
+      <span class="air-comm-label">AIR COMM</span>
+      <div id="air-chips-mount" style="display:flex;gap:4px"></div>
+    </div>
+
+    <div class="bl-main-row">
+      <div class="minimap-shell">
+        <div class="minimap-tools">
+          <button type="button" class="mm-tool active" data-layer="all">全部</button>
+          <button type="button" class="mm-tool" data-layer="ground">仅地面</button>
+          <button type="button" class="mm-tool" data-layer="air">仅空中</button>
+          <button type="button" class="mm-tool" id="mm-recenter">居中 C</button>
+        </div>
+        <div class="minimap-box" id="minimap-box" title="点击小地图平移主战视角">
+          <canvas id="minimap-canvas" width="224" height="158"></canvas>
+          <span class="mm-hint">点击平移镜头</span>
+        </div>
+      </div>
+
+      <!-- 《断箭》贴边竖直 1~9, 0 快速编组槽（Shift+数字保存，点击调用） -->
+      <div class="cg-strip" id="cg-strip" aria-label="1至0快捷编组"></div>
+
+      <!-- 《断箭》动态多选单位托盘（仅选中 >=2 单位时自动浮出！） -->
+      <div class="glass multi-tray" id="multi-tray" hidden aria-label="当前多选单位托盘">
+        <div class="multi-tray-head">
+          <strong id="multi-title" style="color:var(--gold)">已混编选中 0 单位</strong>
+          <span class="mono" style="font-size:10px">TAB 切换焦点</span>
+        </div>
+        <div class="multi-tray-grid" id="multi-tray-grid"></div>
+        <div class="multi-tray-foot">
+          <button type="button" class="tiny-act" id="multi-focus-next">切换焦点 (TAB)</button>
+          <button type="button" class="tiny-act" id="multi-clear">取消选择</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 5. 右下：动态「单选详情卡」 ＋ 《断箭/红龙》4×3 战术命令矩阵 ====== -->
+  <section class="br-cluster" aria-label="单选详情与战术命令矩阵">
+    <!-- 仅单选 1 单位时平滑出现，未选或全选多单位时自动收回 -->
+    <div class="glass with-motif inspector-card" id="inspector-card" hidden>
+      <div class="insp-top">
+        <div class="insp-title">
+          <div class="insp-ico" id="insp-ico"></div>
+          <div class="insp-name">
+            <strong id="insp-name">铁砧 01</strong>
+            <small id="insp-model">M1A2 主战坦克 · 地面 0m</small>
+          </div>
+        </div>
+        <span class="insp-state" id="insp-state">待命就绪</span>
+      </div>
+      <div class="insp-metrics">
+        <div class="metric-cell"><span>高度层</span><b id="insp-alt">0 m</b></div>
+        <div class="metric-cell"><span>航速</span><b id="insp-spd">48 km/h</b></div>
+        <div class="metric-cell"><span>队列长度</span><b id="insp-qlen">0 段</b></div>
+      </div>
+      <div class="insp-queue">
+        <div class="insp-q-head"><span>移动航路与状态回执</span><span class="mono">Shift 追加</span></div>
+        <div id="insp-q-list"></div>
+      </div>
+    </div>
+
+    <!-- 4 列 × 3 行命令盘（G01 开放机动亮起，G02 未来武器以锁态占位对齐布局规格） -->
+    <div class="glass cmd-grid-shell" aria-label="4×3战术命令面板">
+      <div class="cmd-grid-head">
+        <span style="color:var(--gold);font-weight:700" id="cmd-scope-label">COMMAND · 未选择单位</span>
+        <span class="mono">4×3 GRID</span>
+      </div>
+      <div class="cmd-grid" id="cmd-grid"></div>
+    </div>
+  </section>
+</div>
+
+<!-- 操作速查模态弹窗 -->
+<div class="modal-backdrop" id="help-modal" hidden>
+  <div class="glass with-motif help-modal" role="dialog" aria-modal="true">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 class="display-font" style="margin:0;font-size:28px;color:var(--gold)">TACTICAL HOTKEYS · G01</h3>
+      <button type="button" class="tiny-act" id="help-close">关闭 ESC</button>
+    </div>
+    <div class="help-grid">
+      <div><span class="key-cap">左键</span> 点选 / 拖框选择</div>
+      <div><span class="key-cap">右键拖</span> 预览落点＋拖动定朝向</div>
+      <div><span class="key-cap">Shift+右键</span> 追加移动指令队列</div>
+      <div><span class="key-cap">1/2/4/3</span> 地面/旋翼/固定翼/全部</div>
+      <div><span class="key-cap">Shift+数字</span> 保存快速编组</div>
+      <div><span class="key-cap">TAB</span> 循环切换焦点单位</div>
+      <div><span class="key-cap">F / G</span> 一次聚焦 / 持续跟随</div>
+      <div><span class="key-cap">X</span> 停止并清空当前队列</div>
+      <div><span class="key-cap">WASD/中键</span> 平移视角，滚轮缩放</div>
+      <div><span class="key-cap">F5</span> 隐藏/恢复纯净 HUD</div>
+    </div>
+    <div style="text-align:right">
+      <button type="button" class="tiny-act" style="padding:7px 18px;background:var(--gold);color:var(--text-ink)" id="help-ok">返回演训战场</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const SILHOUETTES = {
+    tank: 'M3 13 L5 11.5 L8 11.5 L9.5 8.5 L14.5 8.5 L15.8 10.2 L18.5 10.2 L18.5 9.8 L20.2 9.8 L20.2 10.2 L23 10.2 L23 11.4 L15.8 11.4 L15.5 12.2 L19.5 12.2 L21 14 L19.2 17.2 L4 17.2 L2.2 14.5 Z M6 14.5h2.2v1.4H6Z M10.4 14.5h2.2v1.4H10.4Z M14.8 14.5h2.2v1.4H14.8Z',
+    supply: 'M3 6.5 L15.8 6.5 L15.8 11 L16.6 11 L16.6 8 L19.5 8 L21.4 11.5 L21.4 15.5 L19.6 17.8 L3.6 17.8 L2.2 15.5 L2.2 13 L3 13 Z M17.4 9.2h1.7l1.1 2.3H17.4Z M8.4 8.2H10.4V10H12.2V12H10.4V13.8H8.4V12H6.6V10H8.4Z M5 15.2h2.5v1.3H5Z M11 15.2h2.5v1.3H11Z M16.2 15.2h2.2v1.3H16.2Z',
+    heli: 'M3 6.2H21V7.6H13V9.6H11V7.6H3Z M2 10.2L4.2 10.2L5.2 12.2L10.2 12.2L11.5 9.6L15.6 9.6L17.8 11.5L20.5 12.5L21.8 13.8L20.2 14.8L16.2 15L14.5 16.5H10L9.2 15L4.5 13.8L3.2 15L2 14.2Z M12.2 10.6H14.8L16.4 12.1H12.2Z',
+    plane: 'M12 1.8L13.5 5.2L13.6 9.5L22.2 10.2V13.2L13.5 13L13.4 15.2L14.4 15.6V17.8H13.1L13 19L16.8 19.6V21.6L12.7 21L12 22.2L11.3 21L7.2 21.6V19.6L11 19L10.9 17.8H9.6V15.6L10.6 15.2L10.5 13L1.8 13.2V10.2L10.4 9.5L10.5 5.2Z M11.4 5.4h1.2v3H11.4Z',
+  };
+
+  function makeIcon(path, size = 16, stroke = false) {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', size);
+    svg.setAttribute('height', size);
+    svg.setAttribute('aria-hidden', 'true');
+    const p = document.createElementNS(SVG_NS, 'path');
+    p.setAttribute('d', path);
+    if (stroke) {
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', 'currentColor');
+      p.setAttribute('stroke-width', '2');
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('stroke-linejoin', 'round');
+    } else {
+      p.setAttribute('fill', 'currentColor');
+      p.setAttribute('fill-rule', 'evenodd');
+    }
+    svg.append(p);
+    return svg;
+  }
+
+  /* ====== 模拟 30 单位编成（21 坦克 + 3 补给 + 3 游隼直升机 + 3 雷霆固定翼） ====== */
+  const units = [];
+  let seq = 1;
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 8; c++) {
+      const idx = r * 8 + c + 1;
+      const isSupply = idx > 21;
+      units.push({
+        id: `u${seq++}`,
+        name: isSupply ? `驼鹿 0${idx - 21}` : `铁砧 ${String(idx).padStart(2, '0')}`,
+        model: isSupply ? 'M548 后勤补给车' : 'M1A2 主战坦克',
+        kind: isSupply ? 'supply' : 'tank',
+        layer: 'ground',
+        alt: 0, speed: isSupply ? 14 : 18, yaw: 0,
+        x: -44 + c * 13, z: 4 + r * 14,
+        col: isSupply ? '#3cd69f' : '#38e5c0',
+        queue: [], selected: idx === 1, focused: idx === 1, rejectedReason: '',
+      });
+    }
+  }
+  // 3 架 30m 游隼直升机
+  for (let i = 1; i <= 3; i++) {
+    units.push({
+      id: `u${seq++}`, name: `游隼 0${i}`, model: 'AH-64D 阿帕奇', kind: 'heli', layer: 'air',
+      alt: 30, speed: 32, yaw: -0.4,
+      x: 56 + i * 16, z: 16 + (i % 2) * 10,
+      col: '#68c8ff', queue: [], selected: false, focused: false, rejectedReason: '',
+    });
+  }
+  // 3 架 100m 雷霆固定翼（空中高空盘旋，居中落在战区视野内）
+  for (let i = 1; i <= 3; i++) {
+    units.push({
+      id: `u${seq++}`, name: `雷霆 0${i}`, model: 'A-10C 疣猪攻击机', kind: 'plane', layer: 'air',
+      alt: 100, speed: 46, yaw: 0, phase: (i - 1) * 2.1,
+      orbitCx: -6 + (i - 2) * 32, orbitCz: 22, orbitR: 18,
+      x: -6, z: 22,
+      col: '#b197fc', queue: [], selected: false, focused: false, rejectedReason: '',
+    });
+  }
+
+  /* ====== 状态 ====== */
+  const cam = { x: 0, z: 4, zoom: 0.92, yaw: 0 };
+  let activeCat = null; // null | 'all' | 'tank' | 'heli' | 'plane'
+  let layerFilter = 'all'; // 'all' | 'ground' | 'air'
+  let paused = false;
+  let following = false;
+  let shiftQueueMode = false;
+  let soundOn = false;
+  let elapsedSec = 2;
+  let totalTargetCount = 30;
+  const controlGroups = new Map([
+    ['1', new Set(['u1', 'u2', 'u3', 'u4'])],
+    ['2', new Set(['u25', 'u26', 'u27'])],
+    ['4', new Set(['u28', 'u29', 'u30'])],
+  ]);
+
+  /* 禁入障碍多边形（模拟机场西侧封闭机库群：地面不可进入，空中可越） */
+  const BLOCKED_BOX = { x1: -88, z1: -10, x2: -54, z2: 14 };
+  function isBlockedForGround(x, z) {
+    return x >= BLOCKED_BOX.x1 && x <= BLOCKED_BOX.x2 && z >= BLOCKED_BOX.z1 && z <= BLOCKED_BOX.z2;
+  }
+
+  function showToast(msg, tone = '#f3d97d') {
+    const box = document.getElementById('bl-toast');
+    box.innerHTML = `<i style="background:${tone};box-shadow:0 0 8px ${tone}"></i><span>${msg}</span>`;
+  }
+
+  /* ====== 投影与绘图 ====== */
+  const canvas = document.getElementById('scene-canvas');
+  const ctx = canvas.getContext('2d');
+  const ringSvg = document.getElementById('ring-svg');
+  const labelsLayer = document.getElementById('labels-layer');
+  const mmCanvas = document.getElementById('minimap-canvas');
+  const mmCtx = mmCanvas.getContext('2d');
+
+  const unitDom = new Map();
+  for (const u of units) {
+    const g = document.createElementNS(SVG_NS, 'g');
+    const rOut = document.createElementNS(SVG_NS, 'ellipse');
+    const rIn = document.createElementNS(SVG_NS, 'ellipse');
+    rOut.setAttribute('fill', 'none'); rIn.setAttribute('fill', 'none');
+    g.append(rOut, rIn);
+    ringSvg.append(g);
+
+    const tag = document.createElement('button');
+    tag.type = 'button';
+    tag.className = 'unit-tag';
+    const ic = makeIcon(SILHOUETTES[u.kind], 14, false);
+    const txt = document.createElement('span');
+    txt.className = 'tag-text';
+    txt.textContent = u.name;
+    tag.append(ic, txt);
+    tag.addEventListener('click', e => {
+      e.stopPropagation();
+      selectUnits([u.id], e.shiftKey);
+    });
+    tag.addEventListener('dblclick', e => {
+      e.stopPropagation();
+      selectUnits([u.id], false);
+      focusSelected();
+    });
+    labelsLayer.append(tag);
+    unitDom.set(u.id, { g, rOut, rIn, tag });
+  }
+
+  function proj(wx, wy, wz) {
+    const w = canvas.width, h = canvas.height;
+    const dx = wx - cam.x, dz = wz - cam.z;
+    const c = Math.cos(cam.yaw), s = Math.sin(cam.yaw);
+    const rx = dx * c - dz * s;
+    const rz = dx * s + dz * c;
+    const ppm = (h / 165) * cam.zoom;
+    return { x: w * 0.5 + rx * ppm, y: h * 0.5 + rz * 0.74 * ppm - wy * 0.64 * ppm, ppm };
+  }
+  function screenToWorld(sx, sy) {
+    const w = canvas.width, h = canvas.height;
+    const ppm = (h / 165) * cam.zoom;
+    const rx = (sx - w * 0.5) / ppm;
+    const rz = (sy - h * 0.5) / (ppm * 0.74);
+    const c = Math.cos(-cam.yaw), s = Math.sin(-cam.yaw);
+    return { x: cam.x + rx * c - rz * s, z: cam.z + rx * s + rz * c };
+  }
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    ringSvg.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ====== 选择与同步 ====== */
+  function getSelected() { return units.filter(u => u.selected); }
+  function getFocused() { return units.find(u => u.focused) || getSelected()[0] || null; }
+
+  function selectUnits(ids, append = false) {
+    const allowed = units.filter(u => layerFilter === 'all' || u.layer === layerFilter);
+    const allowedSet = new Set(allowed.map(u => u.id));
+    if (!append) units.forEach(u => { u.selected = false; u.focused = false; });
+    let firstPicked = null;
+    for (const id of ids) {
+      if (!allowedSet.has(id)) continue;
+      const u = units.find(x => x.id === id);
+      if (u) {
+        u.selected = true;
+        if (!firstPicked) firstPicked = u;
+      }
+    }
+    const sel = getSelected();
+    if (sel.length && !sel.some(u => u.focused)) sel[0].focused = true;
+    syncAllUI();
+  }
+
+  function focusSelected() {
+    const f = getFocused();
+    if (!f) return;
+    cam.x = f.x; cam.z = f.z;
+    showToast(`镜头已居中定位至 ${f.name}（${f.model}）`, '#38e5c0');
+  }
+
+  /* ====== 右键交互：按住预览线框幽灵与拖动设置朝向 + 松开提交 ====== */
+  let dragBoxStart = null;
+  let rmbPreview = null; // { tx, tz, yaw, dragged }
+
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  canvas.addEventListener('pointerdown', e => {
+    if (e.button === 0) {
+      if (activeCat && !e.shiftKey) {
+        activeCat = null;
+        document.getElementById('roster-flyout').hidden = true;
+        renderCatRail();
+      }
+      dragBoxStart = { x: e.clientX, y: e.clientY };
+    } else if (e.button === 2) {
+      const sel = getSelected();
+      if (!sel.length) {
+        showToast('请先左键选择或框选载具，再右键下达机动命令', '#ff5266');
+        return;
+      }
+      const wPt = screenToWorld(e.clientX, e.clientY);
+      rmbPreview = { x: wPt.x, z: wPt.z, yaw: 0, dragged: false, sx: e.clientX, sy: e.clientY };
+    }
+  });
+
+  window.addEventListener('pointermove', e => {
+    if (dragBoxStart) {
+      const box = document.getElementById('drag-box');
+      const dx = Math.abs(e.clientX - dragBoxStart.x), dy = Math.abs(e.clientY - dragBoxStart.y);
+      if (dx > 5 || dy > 5) {
+        box.hidden = false;
+        box.style.left = `${Math.min(e.clientX, dragBoxStart.x)}px`;
+        box.style.top = `${Math.min(e.clientY, dragBoxStart.y)}px`;
+        box.style.width = `${dx}px`;
+        box.style.height = `${dy}px`;
+      }
+    }
+    if (rmbPreview) {
+      const distPx = Math.hypot(e.clientX - rmbPreview.sx, e.clientY - rmbPreview.sy);
+      if (distPx > 12) {
+        rmbPreview.dragged = true;
+        const aim = screenToWorld(e.clientX, e.clientY);
+        rmbPreview.yaw = Math.atan2(aim.z - rmbPreview.z, aim.x - rmbPreview.x);
+      }
+    }
+  });
+
+  window.addEventListener('pointerup', e => {
+    if (e.button === 0 && dragBoxStart) {
+      const box = document.getElementById('drag-box');
+      const x1 = Math.min(e.clientX, dragBoxStart.x), x2 = Math.max(e.clientX, dragBoxStart.x);
+      const y1 = Math.min(e.clientY, dragBoxStart.y), y2 = Math.max(e.clientY, dragBoxStart.y);
+      dragBoxStart = null;
+      box.hidden = true;
+      if (x2 - x1 > 6 || y2 - y1 > 6) {
+        const hits = [];
+        for (const u of units) {
+          const sp = proj(u.x, u.alt, u.z);
+          if (sp.x >= x1 && sp.x <= x2 && sp.y >= y1 && sp.y <= y2) hits.push(u.id);
+        }
+        selectUnits(hits, e.shiftKey);
+      } else {
+        // 单击空白取消选择（除非 Shift）
+        if (!e.shiftKey) selectUnits([], false);
+      }
+    } else if (e.button === 2 && rmbPreview) {
+      const p = rmbPreview;
+      rmbPreview = null;
+      commitMoveCommand(p.x, p.z, p.yaw, p.dragged, e.shiftKey || shiftQueueMode);
+    }
+  });
+
+  function commitMoveCommand(tx, tz, yaw, spreadLine, append) {
+    const sel = getSelected();
+    if (!sel.length) return;
+    let accepted = 0, rejected = 0;
+    const movable = sel.filter(u => u.kind !== 'plane');
+    movable.forEach((u, idx) => {
+      let ox = 0, oz = 0;
+      if (movable.length > 1) {
+        const offset = (idx - (movable.length - 1) / 2) * 9;
+        const perp = spreadLine ? yaw + Math.PI / 2 : 0;
+        ox = Math.cos(perp) * offset;
+        oz = Math.sin(perp) * offset;
+      }
+      const gx = tx + ox, gz = tz + oz;
+      if (u.layer === 'ground' && isBlockedForGround(gx, gz)) {
+        u.rejectedReason = '禁止进入封闭机库障碍区（原地停稳）';
+        rejected++;
+        return;
+      }
+      u.rejectedReason = '';
+      if (!append) u.queue = [];
+      u.queue.push({ x: gx, z: gz, yaw: spreadLine ? yaw : Math.atan2(gz - u.z, gx - u.x) });
+      accepted++;
+    });
+
+    // 固定翼改为转移高空盘旋锚点
+    sel.filter(u => u.kind === 'plane').forEach(u => {
+      u.orbitCx = tx; u.orbitCz = tz;
+      if (!append) u.queue = [];
+      u.queue.push({ x: tx, z: tz, isOrbit: true });
+      accepted++;
+    });
+
+    if (rejected > 0 && accepted === 0) {
+      showToast(`指令拒绝：${rejected} 辆地面单位目标位于机库障碍区（不可擅改终点）`, '#ff5266');
+    } else {
+      showToast(`已向 ${accepted} 个单位${append ? '追加排队' : '提交'}线框机动航路${rejected ? `（${rejected} 辆遇障拒收）` : ''}`, '#38e5c0');
+    }
+    syncAllUI();
+  }
+
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    cam.zoom = Math.max(0.45, Math.min(2.2, cam.zoom * (e.deltaY > 0 ? 0.91 : 1.09)));
+  }, { passive: false });
+
+  /* ====== UI 各区渲染（严格复刻《断箭》+《红龙》+ V002） ====== */
+  function renderCatRail() {
+    const rail = document.getElementById('cat-rail');
+    rail.replaceChildren();
+    const groups = [
+      { id: 'all', k: '3', name: '全部', cnt: units.length, col: '#f3d97d', ico: SILHOUETTES.supply },
+      { id: 'tank', k: '1', name: '地面', cnt: units.filter(u => u.layer === 'ground').length, col: '#38e5c0', ico: SILHOUETTES.tank },
+      { id: 'heli', k: '2', name: '旋翼', cnt: units.filter(u => u.kind === 'heli').length, col: '#68c8ff', ico: SILHOUETTES.heli },
+      { id: 'plane', k: '4', name: '固定翼', cnt: units.filter(u => u.kind === 'plane').length, col: '#b197fc', ico: SILHOUETTES.plane },
+    ];
+    for (const g of groups) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `cat-btn${activeCat === g.id ? ' active' : ''}`;
+      btn.innerHTML = `<div class="cat-btn-top"><span class="cat-dot" style="background:${g.col}"></span><span class="mono">${g.cnt}</span></div>`;
+      const nameRow = document.createElement('div');
+      nameRow.className = 'cat-btn-name';
+      nameRow.append(makeIcon(g.ico, 13, false));
+      const lbl = document.createElement('span');
+      lbl.textContent = `[${g.k}] ${g.name}`;
+      nameRow.append(lbl);
+      btn.append(nameRow);
+      btn.addEventListener('click', () => {
+        if (activeCat === g.id) {
+          activeCat = null;
+          document.getElementById('roster-flyout').hidden = true;
+        } else {
+          activeCat = g.id;
+          renderRosterFlyout();
+          document.getElementById('roster-flyout').hidden = false;
+        }
+        renderCatRail();
+      });
+      rail.append(btn);
+    }
+    const div = document.createElement('div');
+    div.className = 'cat-divider';
+    rail.append(div);
+    const lMini = document.createElement('div');
+    lMini.className = 'layer-mini';
+    [['ground', '仅地'], ['air', '仅空']].forEach(([l, lbl]) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = lbl;
+      b.className = layerFilter === l ? 'active' : '';
+      b.addEventListener('click', () => {
+        layerFilter = layerFilter === l ? 'all' : l;
+        syncAllUI();
+      });
+      lMini.append(b);
+    });
+    rail.append(lMini);
+  }
+
+  function renderRosterFlyout() {
+    const titleMap = { all: 'ALL FORCES', tank: 'GROUND ARMOR', heli: 'ROTORCRAFT 30M', plane: 'FIXED-WING 100M' };
+    document.getElementById('flyout-title').textContent = titleMap[activeCat || 'all'];
+    const list = units.filter(u => {
+      if (activeCat === 'tank') return u.layer === 'ground';
+      if (activeCat === 'heli') return u.kind === 'heli';
+      if (activeCat === 'plane') return u.kind === 'plane';
+      return true;
+    });
+    const grid = document.getElementById('roster-grid');
+    grid.replaceChildren();
+    for (const u of list) {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = `r-card${u.selected ? ' selected' : ''}`;
+      card.innerHTML = `
+        <div class="r-card-top"><span>${u.name}</span><span class="mono" style="font-size:10px;opacity:.75">${u.alt}m</span></div>
+        <div class="r-card-sub">${u.queue.length ? `机动队列 ×${u.queue.length}` : (u.rejectedReason ? '⚠ 障碍拒收' : '待命就绪')}</div>
+        <div class="r-card-bar"><i style="width:${u.queue.length ? 85 : 100}%"></i></div>
+      `;
+      card.addEventListener('click', e => { selectUnits([u.id], e.shiftKey); });
+      card.addEventListener('dblclick', () => { selectUnits([u.id], false); focusSelected(); });
+      grid.append(card);
+    }
+  }
+  document.getElementById('flyout-close').addEventListener('click', () => {
+    activeCat = null;
+    document.getElementById('roster-flyout').hidden = true;
+    renderCatRail();
+  });
+
+  function renderAirCommStrip() {
+    const mount = document.getElementById('air-chips-mount');
+    mount.replaceChildren();
+    const airs = units.filter(u => u.layer === 'air');
+    for (const u of airs) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `air-chip${u.selected ? ' active' : ''}`;
+      b.append(makeIcon(SILHOUETTES[u.kind], 13, false));
+      const sp = document.createElement('span');
+      sp.textContent = u.name.replace(' ', '');
+      b.append(sp);
+      b.addEventListener('click', e => {
+        selectUnits([u.id], e.shiftKey);
+        if (!e.shiftKey) focusSelected();
+      });
+      mount.append(b);
+    }
+  }
+
+  function renderControlGroups() {
+    const host = document.getElementById('cg-strip');
+    host.replaceChildren();
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].forEach(key => {
+      const set = controlGroups.get(key);
+      const b = document.createElement('button');
+      b.type = 'button';
+      const has = set && set.size > 0;
+      const isAct = has && Array.from(set).every(id => units.find(u => u.id === id)?.selected);
+      b.className = `cg-btn${has ? ' has-units' : ''}${isAct ? ' active' : ''}`;
+      b.textContent = key;
+      b.title = has ? `编组 ${key}（共 ${set.size} 单位）· 点击选中，Shift+点击覆写保存` : `编组 ${key} 空槽 · Shift+数字保存当前选中`;
+      b.addEventListener('click', e => {
+        if (e.shiftKey) {
+          const selIds = getSelected().map(u => u.id);
+          controlGroups.set(key, new Set(selIds));
+          showToast(`已将 ${selIds.length} 个单位保存至快捷编组 [${key}]`, '#f3d97d');
+          renderControlGroups();
+        } else if (has) {
+          selectUnits(Array.from(set), false);
+        }
+      });
+      host.append(b);
+    });
+  }
+
+  function renderDynamicSelection() {
+    const sel = getSelected();
+    const multiTray = document.getElementById('multi-tray');
+    const inspCard = document.getElementById('inspector-card');
+
+    if (sel.length === 0) {
+      multiTray.hidden = true;
+      inspCard.hidden = true;
+    } else if (sel.length === 1) {
+      multiTray.hidden = true;
+      inspCard.hidden = false;
+      const u = sel[0];
+      const icoHost = document.getElementById('insp-ico');
+      icoHost.replaceChildren();
+      const svg = makeIcon(SILHOUETTES[u.kind], 24, false);
+      svg.style.color = u.col;
+      icoHost.append(svg);
+
+      document.getElementById('insp-name').textContent = u.name;
+      document.getElementById('insp-model').textContent = `${u.model} · ${u.layer === 'ground' ? '地面通道' : '空中高度层'}`;
+      const stEl = document.getElementById('insp-state');
+      if (u.rejectedReason) {
+        stEl.textContent = '障碍拦截'; stEl.style.background = 'var(--crimson-soft)'; stEl.style.color = 'var(--crimson)';
+      } else if (u.queue.length) {
+        stEl.textContent = '机动执行中'; stEl.style.background = 'var(--cyan-soft)'; stEl.style.color = 'var(--cyan)';
+      } else {
+        stEl.textContent = u.kind === 'plane' ? '100m 盘旋中' : '待命就绪';
+        stEl.style.background = 'var(--gold-soft)'; stEl.style.color = 'var(--gold)';
+      }
+      document.getElementById('insp-alt').textContent = `${u.alt} m`;
+      document.getElementById('insp-spd').textContent = `${u.speed * 3} km/h`;
+      document.getElementById('insp-qlen').textContent = `${u.queue.length} 段`;
+
+      const qList = document.getElementById('insp-q-list');
+      qList.replaceChildren();
+      if (u.rejectedReason) {
+        const d = document.createElement('div');
+        d.className = 'q-item rejected';
+        d.textContent = `✕ ${u.rejectedReason}`;
+        qList.append(d);
+      } else if (u.queue.length === 0) {
+        const d = document.createElement('div');
+        d.className = 'q-item';
+        d.innerHTML = `<span style="color:var(--text-muted)">右键拖曳设定目标与到达朝向</span><span class="mono">IDLE</span>`;
+        qList.append(d);
+      } else {
+        u.queue.slice(0, 3).forEach((q, idx) => {
+          const dist = Math.round(Math.hypot(q.x - u.x, q.z - u.z));
+          const d = document.createElement('div');
+          d.className = 'q-item';
+          d.innerHTML = `<span>#${idx + 1} ${q.isOrbit ? '更新盘旋中心' : '前往战术点位'}</span><span class="mono" style="color:var(--cyan)">${dist}m</span>`;
+          qList.append(d);
+        });
+      }
+    } else {
+      // >=2 单位混编：收起单选细节，右下保持纯命令盘，左下弹出《断箭》多选矩阵！
+      inspCard.hidden = true;
+      multiTray.hidden = false;
+      document.getElementById('multi-title').textContent = `混编指挥 · ${sel.length} 单位`;
+      const grid = document.getElementById('multi-tray-grid');
+      grid.replaceChildren();
+      for (const u of sel) {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = `m-chip${u.focused ? ' focused' : ''}`;
+        const svg = makeIcon(SILHOUETTES[u.kind], 16, false);
+        svg.style.color = u.col;
+        chip.append(svg);
+        const sp = document.createElement('span');
+        sp.textContent = u.name.replace(' ', '');
+        chip.append(sp);
+        chip.addEventListener('click', e => {
+          if (e.shiftKey) {
+            u.selected = false; u.focused = false;
+            syncAllUI();
+          } else {
+            units.forEach(x => { x.focused = x.id === u.id; });
+            syncAllUI();
+          }
+        });
+        grid.append(chip);
+      }
+    }
+  }
+
+  const CMD_SLOTS = [
+    { k: 'RMB', label: '机动部署', ico: 'M5 12h14 M13 6l6 6-6 6', fn: () => showToast('在战场任意处按住鼠标右键拖动，即可预览线框落点并展开横队', '#38e5c0'), needSel: true },
+    { k: 'SHF', label: '排队模式', ico: 'M4 6h7v4H4z M13 14h7v4h-7z M11 8h4v6', fn: () => { shiftQueueMode = !shiftQueueMode; renderCmdGrid(); }, activeFn: () => shiftQueueMode },
+    { k: 'X', label: '停止清队', ico: 'M6 6l12 12 M18 6L6 18', danger: true, needSel: true, fn: () => { getSelected().forEach(u => { u.queue = []; u.rejectedReason = ''; }); showToast('已停稳并清空队列（固定翼维持盘旋）', '#ff5266'); syncAllUI(); } },
+    { k: 'F', label: '聚焦中心', ico: 'M12 3v4 M12 17v4 M3 12h4 M17 12h4 M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0', needSel: true, fn: focusSelected },
+    { k: 'G', label: '持续跟随', ico: 'M12 4l6 14-6-3-6 3Z', needSel: true, fn: () => { following = !following; renderCmdGrid(); }, activeFn: () => following },
+    { k: 'A', label: '全场总览', ico: 'M4 8V4h4 M16 4h4v4 M20 16v4h-4 M8 20H4v-4', fn: () => { cam.x = 0; cam.z = 4; cam.zoom = 0.72; showToast('视角已切至 Airbase 全场总览（70~400m 可逆缩放）', '#f3d97d'); } },
+    { k: 'SPC', label: '演训暂停', ico: 'M8 5h3v14H8z M14 5h3v14h-3z', fn: () => { paused = !paused; syncTopButtons(); renderCmdGrid(); }, activeFn: () => paused },
+    { k: 'C', label: '重置视角', ico: 'M4 12a8 8 0 1 0 3-6.2 L4 8', fn: () => { cam.x = 0; cam.z = 6; cam.zoom = 1.0; cam.yaw = 0; } },
+    { k: 'Q', label: '攻移·G02', ico: 'M12 2v20 M2 12h20', locked: true },
+    { k: 'B', label: '公路快进', ico: 'M13 2L4 14h7l-1 8 9-12h-7Z', locked: true },
+    { k: 'V', label: '烟幕掩护', ico: 'M4 15c2-4 5-5 8-3 2-3 6-3 8 1', locked: true },
+    { k: 'T', label: '火控·G02', ico: 'M12 12m-7 0a7 7 0 1 0 14 0a7 7 0 1 0-14 0', locked: true },
+  ];
+
+  function renderCmdGrid() {
+    const sel = getSelected();
+    document.getElementById('cmd-scope-label').textContent = sel.length === 0 ? 'COMMAND · 未选择单位' : (sel.length === 1 ? `COMMAND · ${sel[0].name}` : `COMMAND · ${sel.length} 单位混编`);
+    const grid = document.getElementById('cmd-grid');
+    grid.replaceChildren();
+    for (const c of CMD_SLOTS) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const isAct = c.activeFn ? c.activeFn() : false;
+      btn.className = `cmd-cell${isAct ? ' active' : ''}${c.danger ? ' is-danger' : ''}${c.locked ? ' is-locked' : ''}`;
+      if (c.needSel && !sel.length && !c.locked) btn.disabled = true;
+      btn.innerHTML = `<span class="c-kbd">${c.k}</span>${c.locked ? '<span class="c-lock">🔒</span>' : ''}`;
+      btn.append(makeIcon(c.ico, 17, true));
+      const lbl = document.createElement('span');
+      lbl.className = 'c-txt';
+      lbl.textContent = c.label;
+      btn.append(lbl);
+      btn.addEventListener('click', () => {
+        if (c.locked) {
+          showToast(`「${c.label}」将在 G02 战斗版本开放，当前 G01 候选严守仅移动指挥边界`, '#f3d97d');
+          return;
+        }
+        c.fn();
+      });
+      grid.append(btn);
+    }
+  }
+
+  function syncTopButtons() {
+    const sel = getSelected();
+    document.getElementById('btn-focus').disabled = !sel.length;
+    document.getElementById('btn-follow').disabled = !sel.length;
+    document.getElementById('btn-follow').classList.toggle('active', following);
+    document.getElementById('btn-pause').classList.toggle('active', paused);
+    document.getElementById('btn-pause').textContent = paused ? '恢复' : '暂停';
+    document.getElementById('tc-live').classList.toggle('paused', paused);
+    document.getElementById('tc-status').textContent = paused ? '演训已暂停' : '演训进行中';
+
+    const movingCnt = units.filter(u => u.queue.length > 0).length;
+    document.getElementById('pts-moving').textContent = `${movingCnt} 机动中 · G01 候选`;
+    document.getElementById('tc-move-count').textContent = `${movingCnt}/${totalTargetCount}`;
+  }
+
+  function syncAllUI() {
+    renderCatRail();
+    if (!document.getElementById('roster-flyout').hidden) renderRosterFlyout();
+    renderAirCommStrip();
+    renderControlGroups();
+    renderDynamicSelection();
+    renderCmdGrid();
+    syncTopButtons();
+    document.querySelectorAll('.mm-tool[data-layer]').forEach(b => b.classList.toggle('active', b.dataset.layer === layerFilter));
+  }
+
+  /* ====== 顶部、左下、实验室抽屉绑定 ====== */
+  document.getElementById('btn-focus').addEventListener('click', focusSelected);
+  document.getElementById('btn-follow').addEventListener('click', () => { following = !following; syncAllUI(); });
+  document.getElementById('btn-pause').addEventListener('click', () => { paused = !paused; syncAllUI(); });
+  document.getElementById('btn-sound').addEventListener('click', e => { soundOn = !soundOn; e.currentTarget.textContent = soundOn ? '声音 开' : '声音 关'; e.currentTarget.classList.toggle('active', soundOn); });
+  document.getElementById('btn-hud-hide').addEventListener('click', toggleHudVisibility);
+  document.getElementById('hud-restore-chip').addEventListener('click', toggleHudVisibility);
+
+  function toggleHudVisibility() {
+    const root = document.getElementById('hud-root');
+    const hid = root.classList.toggle('is-hidden');
+    document.getElementById('hud-restore-chip').hidden = !hid;
+  }
+
+  document.getElementById('btn-help').addEventListener('click', () => { document.getElementById('help-modal').hidden = false; });
+  document.getElementById('help-close').addEventListener('click', () => { document.getElementById('help-modal').hidden = true; });
+  document.getElementById('help-ok').addEventListener('click', () => { document.getElementById('help-modal').hidden = true; });
+
+  document.getElementById('btn-lab-toggle').addEventListener('click', () => {
+    const dr = document.getElementById('lab-drawer');
+    dr.hidden = !dr.hidden;
+    document.getElementById('btn-lab-toggle').classList.toggle('active', !dr.hidden);
+  });
+  document.getElementById('lab-close').addEventListener('click', () => {
+    document.getElementById('lab-drawer').hidden = true;
+    document.getElementById('btn-lab-toggle').classList.remove('active');
+  });
+
+  document.querySelectorAll('.lab-tab').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.lab-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const t = btn.dataset.ltab;
+    document.getElementById('lab-body-sim').hidden = t !== 'sim';
+    document.getElementById('lab-body-perf').hidden = t !== 'perf';
+    document.getElementById('lab-body-demo').hidden = t !== 'demo';
+  }));
+
+  document.getElementById('lab-unit-count').addEventListener('change', e => {
+    totalTargetCount = Number(e.target.value);
+    document.getElementById('pts-total').textContent = String(totalTargetCount);
+    syncTopButtons();
+    showToast(`已切换模拟兵力规模：${totalTargetCount} 单位（性能压测参数）`, '#f3d97d');
+  });
+
+  // 滑块拖曳
+  const volSlider = document.getElementById('lab-vol-slider');
+  volSlider.addEventListener('pointerdown', e => {
+    const upd = cx => {
+      const r = volSlider.getBoundingClientRect();
+      const p = Math.max(0, Math.min(100, Math.round(((cx - r.left) / r.width) * 100)));
+      volSlider.querySelector('.gta-slider-fill').style.width = `${p}%`;
+      volSlider.querySelector('.gta-slider-thumb').style.left = `${p}%`;
+      document.getElementById('lab-vol-val').textContent = `${p}%`;
+    };
+    upd(e.clientX);
+    const mv = ev => upd(ev.clientX);
+    const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+  });
+
+  // 演示快捷按钮（便于审阅 4 种真实作战交互状态）
+  document.getElementById('demo-none').addEventListener('click', () => selectUnits([], false));
+  document.getElementById('demo-single').addEventListener('click', () => selectUnits(['u1'], false));
+  document.getElementById('demo-multi').addEventListener('click', () => selectUnits(['u1', 'u2', 'u3', 'u22', 'u25', 'u28'], false));
+  document.getElementById('demo-move').addEventListener('click', () => {
+    selectUnits(['u1', 'u2', 'u3', 'u25'], false);
+    commitMoveCommand(42, -16, -0.35, true, false);
+  });
+
+  document.getElementById('multi-focus-next').addEventListener('click', () => {
+    const sel = getSelected(); if (!sel.length) return;
+    const idx = sel.findIndex(u => u.focused);
+    units.forEach(u => { u.focused = false; });
+    sel[(idx + 1) % sel.length].focused = true;
+    syncAllUI();
+  });
+  document.getElementById('multi-clear').addEventListener('click', () => selectUnits([], false));
+  document.querySelectorAll('.mm-tool[data-layer]').forEach(btn => btn.addEventListener('click', () => { layerFilter = btn.dataset.layer; syncAllUI(); }));
+  document.getElementById('mm-recenter').addEventListener('click', () => { cam.x = 0; cam.z = 6; cam.zoom = 1; });
+  document.getElementById('minimap-box').addEventListener('click', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    cam.x = ((e.clientX - r.left) / r.width - 0.5) * 200;
+    cam.z = ((e.clientY - r.top) / r.height - 0.5) * 140;
+  });
+
+  /* ====== 主渲染与轻量模拟循环 ====== */
+  let lastT = performance.now();
+  function tick(now) {
+    const dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+
+    if (!paused) {
+      elapsedSec += dt;
+      const m = String(Math.floor(elapsedSec / 60)).padStart(2, '0');
+      const s = String(Math.floor(elapsedSec % 60)).padStart(2, '0');
+      document.getElementById('tc-clock').textContent = `${m}:${s}`;
+
+      for (const u of units) {
+        if (u.kind === 'plane') {
+          u.phase -= dt * 0.65;
+          u.x = u.orbitCx + Math.cos(u.phase) * u.orbitR;
+          u.z = u.orbitCz + Math.sin(u.phase) * u.orbitR;
+          u.yaw = u.phase - Math.PI / 2;
+        } else if (u.queue.length > 0) {
+          const tgt = u.queue[0];
+          const dx = tgt.x - u.x, dz = tgt.z - u.z;
+          const dist = Math.hypot(dx, dz);
+          if (dist < 1.2) {
+            u.x = tgt.x; u.z = tgt.z;
+            if (typeof tgt.yaw === 'number') u.yaw = tgt.yaw;
+            u.queue.shift();
+            if (u.selected && u.queue.length === 0) renderDynamicSelection();
+          } else {
+            u.yaw = Math.atan2(dz, dx);
+            const step = Math.min(dist, u.speed * dt);
+            u.x += (dx / dist) * step;
+            u.z += (dz / dist) * step;
+          }
+        }
+      }
+      if (following) {
+        const f = getFocused();
+        if (f) { cam.x += (f.x - cam.x) * 0.14; cam.z += (f.z - cam.z) * 0.14; }
+      }
+    }
+
+    drawScene();
+    drawMinimap();
+    requestAnimationFrame(tick);
+  }
+
+  function drawScene() {
+    const w = canvas.width, h = canvas.height;
+    // Airbase 高俯视黄昏实战草地与跑道场景
+    const bg = ctx.createRadialGradient(w * 0.65, h * 0.28, 40, w * 0.5, h * 0.52, Math.max(w, h) * 0.85);
+    bg.addColorStop(0, '#363b2d');
+    bg.addColorStop(0.5, '#252922');
+    bg.addColorStop(1, '#141715');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    // 主跑道（参考工程师截图水平带状空军基地跑道）
+    const pTL = proj(-150, 0, -34), pTR = proj(150, 0, -34), pBR = proj(150, 0, -14), pBL = proj(-150, 0, -14);
+    ctx.fillStyle = '#484c52';
+    ctx.beginPath(); ctx.moveTo(pTL.x, pTL.y); ctx.lineTo(pTR.x, pTR.y); ctx.lineTo(pBR.x, pBR.y); ctx.lineTo(pBL.x, pBL.y); ctx.closePath(); ctx.fill();
+    // 跑道中心黄虚线
+    const rL = proj(-145, 0, -24), rR = proj(145, 0, -24);
+    ctx.strokeStyle = 'rgba(243,217,125,0.65)'; ctx.lineWidth = 2; ctx.setLineDash([14, 10]);
+    ctx.beginPath(); ctx.moveTo(rL.x, rL.y); ctx.lineTo(rR.x, rR.y); ctx.stroke(); ctx.setLineDash([]);
+
+    // 停机坪混凝土区域
+    const a1 = proj(-65, 0, -14), a2 = proj(22, 0, -14), a3 = proj(22, 0, 52), a4 = proj(-65, 0, 52);
+    ctx.fillStyle = 'rgba(130,134,136,0.22)';
+    ctx.beginPath(); ctx.moveTo(a1.x, a1.y); ctx.lineTo(a2.x, a2.y); ctx.lineTo(a3.x, a3.y); ctx.lineTo(a4.x, a4.y); ctx.closePath(); ctx.fill();
+
+    // 机库封闭障碍区（地面红区不可通行标记）
+    const b1 = proj(BLOCKED_BOX.x1, 0, BLOCKED_BOX.z1), b2 = proj(BLOCKED_BOX.x2, 0, BLOCKED_BOX.z1);
+    const b3 = proj(BLOCKED_BOX.x2, 0, BLOCKED_BOX.z2), b4 = proj(BLOCKED_BOX.x1, 0, BLOCKED_BOX.z2);
+    ctx.fillStyle = 'rgba(255,82,102,0.16)'; ctx.strokeStyle = 'rgba(255,82,102,0.75)'; ctx.lineWidth = 1.6;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(b1.x, b1.y); ctx.lineTo(b2.x, b2.y); ctx.lineTo(b3.x, b3.y); ctx.lineTo(b4.x, b4.y); ctx.closePath();
+    ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+
+    // 绘制单位、贴地双环、固定翼 100m 轨与方案2「线框幽灵」航路
+    const multiSel = getSelected().length > 1;
+    for (const u of units) {
+      const gp = proj(u.x, 0, u.z);
+      const ap = proj(u.x, u.alt, u.z);
+      const dom = unitDom.get(u.id);
+      const dimOut = layerFilter !== 'all' && u.layer !== layerFilter;
+
+      dom.tag.style.opacity = dimOut ? '0.28' : '1';
+      dom.tag.classList.toggle('is-selected', u.selected);
+      // 密排策略：当非选中且同屏密集时转为紧凑图标胶囊
+      dom.tag.classList.toggle('compact', !u.selected && units.length >= 24 && u.kind === 'tank' && Number(u.id.slice(1)) > 6);
+      dom.tag.style.transform = `translate3d(${ap.x}px,${ap.y - 16}px,0) translate(-50%,-100%)`;
+
+      // 地面同心双环（固定翼绝不画地面圆环！）
+      if (u.kind === 'plane') {
+        dom.g.style.display = 'none';
+        if (u.selected) {
+          ctx.strokeStyle = 'rgba(177,151,252,0.68)'; ctx.lineWidth = 1.5; ctx.setLineDash([7, 5]);
+          ctx.beginPath();
+          for (let i = 0; i <= 36; i++) {
+            const a = (i / 36) * Math.PI * 2;
+            const pt = proj(u.orbitCx + Math.cos(a) * u.orbitR, 100, u.orbitCz + Math.sin(a) * u.orbitR);
+            i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y);
+          }
+          ctx.stroke(); ctx.setLineDash([]);
+        }
+      } else {
+        dom.g.style.display = dimOut ? 'none' : '';
+        const rx = (u.kind === 'heli' ? 5.2 : 4.2) * gp.ppm;
+        const ry = rx * 0.74;
+        dom.rOut.setAttribute('cx', gp.x); dom.rOut.setAttribute('cy', gp.y);
+        dom.rOut.setAttribute('rx', rx); dom.rOut.setAttribute('ry', ry);
+        dom.rOut.setAttribute('stroke', u.selected ? '#ffffff' : u.col);
+        dom.rOut.setAttribute('stroke-width', u.selected ? '2.2' : '1.2');
+        dom.rOut.setAttribute('opacity', u.selected ? '0.96' : '0.42');
+        dom.rIn.setAttribute('cx', gp.x); dom.rIn.setAttribute('cy', gp.y);
+        dom.rIn.setAttribute('rx', rx * 0.75); dom.rIn.setAttribute('ry', ry * 0.75);
+        dom.rIn.setAttribute('stroke', u.selected ? '#f3d97d' : u.col);
+        dom.rIn.setAttribute('stroke-width', '1');
+        dom.rIn.setAttribute('opacity', u.selected ? '0.9' : '0.26');
+      }
+
+      // 空中垂直高度投影线 + 地面十字锚点
+      if (u.alt > 0) {
+        ctx.strokeStyle = u.selected ? '#f3d97d' : 'rgba(104,200,255,0.45)';
+        ctx.lineWidth = 1.3; ctx.setLineDash([4, 4]);
+        ctx.beginPath(); ctx.moveTo(gp.x, gp.y); ctx.lineTo(ap.x, ap.y); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(gp.x - 4, gp.y); ctx.lineTo(gp.x + 4, gp.y); ctx.moveTo(gp.x, gp.y - 3); ctx.lineTo(gp.x, gp.y + 3); ctx.stroke();
+      }
+
+      // 已提交航路 + 方案 2 终点 1:1 线框幽灵轮廓
+      if (u.queue.length > 0) {
+        let prev = gp;
+        for (const q of u.queue) {
+          const tp = proj(q.x, 0, q.z);
+          ctx.strokeStyle = '#07080c'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(tp.x, tp.y); ctx.stroke();
+          ctx.strokeStyle = u.col; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(tp.x, tp.y); ctx.stroke();
+          const tap = proj(q.x, u.alt, q.z);
+          if (u.alt > 0) {
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(tp.x, tp.y); ctx.lineTo(tap.x, tap.y); ctx.stroke();
+            ctx.setLineDash([]);
+          }
+          ctx.strokeStyle = u.col; ctx.lineWidth = 1.6;
+          ctx.strokeRect(tap.x - 9, tap.y - 6, 18, 12);
+          prev = tp;
+        }
+      }
+
+      // 右键拖动幽灵预览
+      if (rmbPreview && u.selected && u.kind !== 'plane') {
+        const selMov = getSelected().filter(x => x.kind !== 'plane');
+        const idx = selMov.indexOf(u);
+        const off = (idx - (selMov.length - 1) / 2) * 9;
+        const perp = rmbPreview.dragged ? rmbPreview.yaw + Math.PI / 2 : 0;
+        const px = rmbPreview.x + (selMov.length > 1 ? Math.cos(perp) * off : 0);
+        const pz = rmbPreview.z + (selMov.length > 1 ? Math.sin(perp) * off : 0);
+        const bad = u.layer === 'ground' && isBlockedForGround(px, pz);
+        const tp = proj(px, 0, pz), tap = proj(px, u.alt, pz);
+        ctx.strokeStyle = '#07080c'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(gp.x, gp.y); ctx.lineTo(tp.x, tp.y); ctx.stroke();
+        ctx.strokeStyle = bad ? '#ff5266' : '#f3d97d'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(gp.x, gp.y); ctx.lineTo(tp.x, tp.y); ctx.stroke();
+        ctx.strokeRect(tap.x - 10, tap.y - 7, 20, 14);
+      }
+
+      // 载具简易实体方块剪影
+      ctx.save();
+      ctx.translate(ap.x, ap.y);
+      ctx.rotate(u.yaw);
+      ctx.fillStyle = dimOut ? 'rgba(130,135,145,0.4)' : (u.selected ? '#f3d97d' : u.col);
+      ctx.strokeStyle = '#08090c'; ctx.lineWidth = 1.5;
+      ctx.fillRect(-9, -5.5, 18, 11);
+      ctx.strokeRect(-9, -5.5, 18, 11);
+      ctx.restore();
+
+      // 选中固定翼高空机身四角锁定框
+      if (u.selected && u.alt > 0) {
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.8;
+        const hw = 15, hh = 11, c = 5;
+        ctx.beginPath();
+        ctx.moveTo(ap.x - hw, ap.y - hh + c); ctx.lineTo(ap.x - hw, ap.y - hh); ctx.lineTo(ap.x - hw + c, ap.y - hh);
+        ctx.moveTo(ap.x + hw - c, ap.y - hh); ctx.lineTo(ap.x + hw, ap.y - hh); ctx.lineTo(ap.x + hw, ap.y - hh + c);
+        ctx.moveTo(ap.x - hw, ap.y + hh - c); ctx.lineTo(ap.x - hw, ap.y + hh); ctx.lineTo(ap.x - hw + c, ap.y + hh);
+        ctx.moveTo(ap.x + hw - c, ap.y + hh); ctx.lineTo(ap.x + hw, ap.y + hh); ctx.lineTo(ap.x + hw, ap.y + hh - c);
+        ctx.stroke();
+      }
+    }
+  }
+
+  function drawMinimap() {
+    const w = 224, h = 158;
+    const toMm = (wx, wz) => ({ x: w * 0.5 + wx * 1.02, y: h * 0.5 + wz * 1.02 });
+    mmCtx.fillStyle = '#181c26'; mmCtx.fillRect(0, 0, w, h);
+    mmCtx.fillStyle = '#3c424c'; mmCtx.fillRect(10, 42, 204, 16);
+    const b1 = toMm(BLOCKED_BOX.x1, BLOCKED_BOX.z1), b2 = toMm(BLOCKED_BOX.x2, BLOCKED_BOX.z2);
+    mmCtx.fillStyle = 'rgba(255,82,102,0.34)'; mmCtx.fillRect(b1.x, b1.y, b2.x - b1.x, b2.y - b1.y);
+    for (const u of units) {
+      if (u.queue.length) {
+        const a = toMm(u.x, u.z), b = toMm(u.queue[0].x, u.queue[0].z);
+        mmCtx.strokeStyle = 'rgba(56,229,192,0.75)'; mmCtx.lineWidth = 1.2;
+        mmCtx.beginPath(); mmCtx.moveTo(a.x, a.y); mmCtx.lineTo(b.x, b.y); mmCtx.stroke();
+      }
+      const p = toMm(u.x, u.z);
+      mmCtx.fillStyle = u.selected ? '#f3d97d' : u.col;
+      mmCtx.beginPath(); mmCtx.arc(p.x, p.y, u.selected ? 3.4 : 2.3, 0, Math.PI * 2); mmCtx.fill();
+    }
+    // 相机视口白框
+    const cp = toMm(cam.x, cam.z);
+    const vw = 76 / cam.zoom, vh = 52 / cam.zoom;
+    mmCtx.strokeStyle = 'rgba(255,255,255,0.8)'; mmCtx.lineWidth = 1.2;
+    mmCtx.strokeRect(cp.x - vw / 2, cp.y - vh / 2, vw, vh);
+  }
+
+  /* ====== 全局快捷键（100% 对齐演训原型手势） ====== */
+  window.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    if (e.key === 'F5') { e.preventDefault(); toggleHudVisibility(); return; }
+    if (e.key === 'Escape') {
+      if (!document.getElementById('help-modal').hidden) { document.getElementById('help-modal').hidden = true; return; }
+      if (rmbPreview) { rmbPreview = null; return; }
+      if (!document.getElementById('lab-drawer').hidden) { document.getElementById('lab-drawer').hidden = true; return; }
+    }
+    if (e.key === ' ') { e.preventDefault(); paused = !paused; syncAllUI(); return; }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      document.getElementById('multi-focus-next').click();
+      return;
+    }
+    if (k === 'f') { focusSelected(); return; }
+    if (k === 'g') { following = !following; syncAllUI(); return; }
+    if (k === 'x') { CMD_SLOTS[2].fn(); return; }
+    if (k === 'a') { CMD_SLOTS[5].fn(); return; }
+    if (k === 'c') { CMD_SLOTS[7].fn(); return; }
+    if (k === 'w') cam.z -= 12;
+    if (k === 's') cam.z += 12;
+    if (k === 'd') cam.x += 12;
+    if (k === 'q') cam.yaw -= 0.12;
+    if (k === 'e') cam.yaw += 0.12;
+    if (['1', '2', '3', '4'].includes(e.key) && !e.shiftKey && !e.altKey) {
+      if (e.key === '1') selectUnits(units.filter(u => u.layer === 'ground').map(u => u.id));
+      if (e.key === '2') selectUnits(units.filter(u => u.kind === 'heli').map(u => u.id));
+      if (e.key === '4') selectUnits(units.filter(u => u.kind === 'plane').map(u => u.id));
+      if (e.key === '3') selectUnits(units.map(u => u.id));
+    }
+  });
+
+  syncAllUI();
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

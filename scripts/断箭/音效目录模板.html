@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>断箭 · 载具音效配套库</title>
+<style>
+:root{color-scheme:dark;--bg:#111513;--panel:#1a201c;--line:#343e35;--ink:#e6e9df;--dim:#a6b2a4;--amber:#e3bc6c;--green:#99bf9d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Microsoft YaHei UI","PingFang SC",sans-serif;font-size:14px;line-height:1.6}button,input,select{font:inherit}button,a,input,select,audio{outline-offset:4px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--amber)}a{color:var(--amber)}header{padding:34px max(24px,4vw) 24px;border-bottom:1px solid var(--line);background:linear-gradient(105deg,#283227,#151b17 68%)}.kicker{letter-spacing:.18em;color:var(--amber);font-size:12px}h1{font-family:"STSong","SimSun",serif;font-size:clamp(28px,4vw,48px);font-weight:500;margin:8px 0}header p{color:var(--dim);max-width:820px;margin:8px 0}.metrics{display:flex;gap:38px;flex-wrap:wrap;margin-top:22px}.metrics strong{font:32px "Consolas",monospace;color:var(--amber);margin-right:8px}.metrics span{color:var(--dim)}.toolbar{display:flex;gap:12px;flex-wrap:wrap;padding:18px max(24px,4vw);background:#171c18;border-bottom:1px solid var(--line)}label{color:var(--dim)}input[type=search],select{display:block;background:#0f1510;color:var(--ink);border:1px solid #56614e;padding:10px 12px;border-radius:3px;margin-top:4px;min-height:44px}input[type=search]{width:min(400px,80vw)}.workspace{display:grid;grid-template-columns:310px minmax(0,1fr);max-width:1600px;margin:auto}.sidebar{border-right:1px solid var(--line);padding:20px 16px}.result{margin:0 8px 15px;color:var(--dim)}#models{display:grid;gap:4px;max-height:calc(100vh - 360px);overflow:auto;scrollbar-color:#626f58 var(--bg)}.model{width:100%;text-align:left;color:var(--ink);background:transparent;border:1px solid transparent;border-left:3px solid transparent;padding:10px 12px;border-radius:2px;cursor:pointer}.model:hover{background:#242e24}.model[aria-current=true]{background:#2e382a;border-color:#44533c;border-left:3px solid var(--amber)}.model strong{display:block;overflow-wrap:anywhere;font-family:Consolas,monospace}.model small{color:var(--dim);display:block}.detail{padding:30px;min-width:0}.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,38%);gap:28px;align-items:center}.hero h2{font-size:28px;line-height:1.3;overflow-wrap:anywhere;margin:10px 0}.hero img{width:100%;border:1px solid var(--line);border-radius:3px}.id{font:13px Consolas,monospace;color:var(--dim);overflow-wrap:anywhere}.badge{display:inline-block;border:1px solid #56694b;color:var(--green);padding:2px 9px;font-size:12px;margin:0 5px 6px 0}.warn{color:var(--amber);border-color:#6a5936}.note{border-left:2px solid var(--amber);padding:10px 16px;color:var(--dim);background:#21261e;margin:22px 0}.tracks{display:grid;gap:12px}.track{border:1px solid var(--line);background:var(--panel);padding:17px 20px;border-radius:3px}.trackhead{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}.track h3{font-size:16px;margin:0 0 5px}.track .path{font:12px/1.6 Consolas,monospace;overflow-wrap:anywhere;color:var(--dim)}audio{display:block;width:100%;height:40px;margin:12px 0 6px}.loop{display:flex;align-items:center;gap:8px;font-size:12px}.loop input{width:18px;height:18px}details{margin-top:12px;font-size:12px;color:var(--dim)}summary{cursor:pointer;color:var(--amber)}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:Consolas,monospace}.empty{padding:50px 16px;text-align:center;color:var(--dim)}footer{border-top:1px solid var(--line);padding:20px max(24px,4vw);color:var(--dim);font-size:12px}.links{display:flex;gap:20px;flex-wrap:wrap}.legend{font-size:12px;color:var(--dim)}
+@media(max-width:760px){header{padding:24px 18px}.toolbar{padding:16px 18px}.workspace{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid var(--line);padding:15px}#models{max-height:220px}.detail{padding:20px 16px}.hero{grid-template-columns:1fr;gap:12px}.hero img{max-height:250px;object-fit:contain}.metrics{gap:20px}.metrics strong{font-size:24px}.track{padding:15px}.toolbar label:first-child{width:100%}input[type=search]{width:100%}}
+</style>
+<header>
+ <div class="kicker">断箭 / 本地资源研究 / 载具音效档案</div>
+ <h1>载具音效配套库</h1>
+ <p id="release-status" role="status">候选版 · 等待库级验收</p>
+ <p>从型号找到对应的运动、射击与命中声音。全部为有限时长事件渲染，逐条听审未登记，循环接缝未经确认。</p>
+ <div class="metrics" id="metrics"></div>
+ <p id="review-summary" role="status"></p>
+</header>
+<div class="toolbar">
+ <label>搜索型号、单位或事件<input id="search" type="search" placeholder="例如 A10、Abrams、GAU8" autocomplete="off"></label>
+ <label>载具分类<select id="category"><option value="all">全部分类</option><option value="air">空中</option><option value="ground">地面</option></select></label>
+ <label>映射状态<select id="status"><option value="all">全部状态</option><option value="confirmed">引用完整</option><option value="partial">部分映射</option><option value="unresolved">无配置引用</option></select></label>
+</div>
+<main class="workspace">
+ <aside class="sidebar" aria-label="型号列表"><p class="result" id="result" role="status"></p><nav id="models" aria-label="选择型号"></nav></aside>
+ <section class="detail" id="detail" aria-label="配套音效"></section>
+</main>
+<footer><div class="links"><a href="README.md">使用与迁移说明</a><a href="型号音效映射.json">完整 JSON 清单</a><a href="型号音效映射.csv">CSV 清单</a><a href="输出核验.json">输出指纹</a></div><p>原模型文件采用相对链接，依赖原静态批次。4 项模型待修状态保持原样。页面播放状态仅验证播放器，不代表实际听审。</p></footer>
+<script id="delivery" type="application/json">__DELIVERY_DATA__</script>
+<script>
+'use strict';
+const data=JSON.parse(document.querySelector('#delivery').textContent);
+const $=s=>document.querySelector(s);
+if(data.release?.status==='formal')$('#release-status').textContent=`正式版 ${data.release.version} · 工程师库级验收通过`;
+const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const stateLabels={confirmed:'引用完整',partial:'部分映射',unresolved:'无配置引用',empty_field:'源字段为空',event_not_indexed:'事件未索引',empty_preset:'源预设为空'};
+const roles={MoveEvent:'发动机 / 运动',DeathEvent:'载具毁伤',Shot:'射击 / 发射',Impact:'命中 / 爆炸',MissileInterception:'拦截爆炸',InfantryPeopleDeathEvent:'乘员死亡',InfantryPeopleZombieEvent:'特殊乘员事件',InfantryHitEvent:'乘员命中',RadioFuseImpact:'近炸',GroundImpact:'地面命中',WaterImpact:'水面命中',VehicleImpact:'载具命中',BuildingImpact:'建筑命中',InfantryImpact:'步兵命中',Tracer:'飞行 / 曳光'};
+let selected=null,activeAudio=null;
+$('#metrics').innerHTML=`<span><strong>${data.summary.models}</strong>资源入口</span><span><strong>${data.summary.models_with_audio}</strong>有确证声音</span><span><strong>${data.summary.events}</strong>共享事件</span><span><strong>${data.summary.missing_event_paths.length}</strong>事件路径待解决</span>`;
+if(data.summary.playback_review){const r=data.summary.playback_review;$('#review-summary').textContent=`第二轮复核：${r.affected_models} 个型号的 ${r.normal_covered_references} 条回退引用已核对正常命中分支，采用已导出的弹药声音。${r.unresolved_fallback_paths} 条武器回退路径仍未解析；新增音频 ${r.recovered_new_event_paths}，未作运行时验证。`;}
+function pauseAll(){document.querySelectorAll('audio').forEach(a=>a.pause());activeAudio=null;}
+function show(model){
+ pauseAll(); selected=model.model_id;
+ document.querySelectorAll('.model').forEach(b=>b.setAttribute('aria-current',String(b.dataset.id===selected)));
+ const groups=new Map();
+ model.references.forEach(ref=>{const key=(ref.event_path||ref.preset||'空')+'|'+(ref.role_field||ref.domain);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(ref);});
+ const hero=`<div class="hero"><div><span class="badge">${model.category==='air'?'空中':'地面'}</span><span class="badge ${model.mapping_status==='confirmed'?'':'warn'}">${stateLabels[model.mapping_status]}</span><h2>${escape(model.unit_name||model.model_id)}</h2><p class="id">${escape(model.model_id)} · ${escape(model.model_variant)}</p><p class="legend">${model.audio_event_count} 个可播放事件 · 听审：待试听<br>模型：${model.model_status==='passed'?'原静态检查通过':'待修参考'} · 循环点：未知</p><div class="links"><a href="${escape(model.model_links['model.glb'])}">原 GLB</a><a href="${escape(model.model_links['model.blend'])}">原 Blender 工程</a><a href="型号/${encodeURIComponent(model.model_id)}.json">型号映射</a></div></div><img src="${escape(model.thumbnail)}" alt="${escape(model.model_id)}原模型静态预览"></div>`;
+ const note=`<div class="note">${escape(model.configuration_note)}${model.issues.length?'<br>'+model.issues.map(escape).join('<br>'):''}${model.impact_review?'<br>命中分支复核：'+escape(model.impact_review.note):''}<br>试听为固定距离与默认参数的事件渲染；不代表原始录音或游戏中的实时混音。</div>`;
+ const groupList=[...groups.values()];
+ const tracks=groupList.map((refs,index)=>{
+  const ref=refs[0], audio=data.audio[ref.event_path], role=roles[ref.role_field]||ref.role_field||'预设';
+  const status=ref.audio_path?'技术检查通过 · 待试听':stateLabels[ref.mapping_status]||'未导出';
+  const player=audio?`<audio id="audio-${index}" controls preload="none" src="${escape(audio.path)}" aria-label="${escape(role)}音效"></audio><label class="loop"><input type="checkbox" data-loop="audio-${index}">主动循环播放（非无缝验证）</label><p class="legend">${audio.check.duration_seconds.toFixed(2)} 秒 · 48kHz / 双声道 · ${audio.model_users} 个型号共享 · 事件渲染</p>`:'';
+  const reviewed=refs.filter(r=>r.playback_review),routes=reviewed.flatMap(r=>r.playback_review.ammunition_routes);
+  const routeLinks=[...new Set(routes.map(r=>r.event_path))].map(path=>{const target=groupList.findIndex(g=>g.some(r=>r.event_path===path&&r.role_field==='Impact'));return target<0?escape(path):`<a href="#track-${target}">查看弹药命中音：${escape(path.split('/').pop())}</a>`;}).join('<br>');
+  const reviewNote=reviewed.length?`<p class="note">正常命中采用对应弹药预设；本条武器回退事件仍未解析。下列为当前弹药事件，可在本页对应条目试听：<br>${routeLinks}<br>这不是事件别名，原字段与映射状态保留。运行时触发情况未验证。</p>`:'';
+  return `<article class="track" id="track-${index}"><div class="trackhead"><h3>${escape(role)}</h3><span class="badge ${audio?'':'warn'}">${escape(status)}</span></div><div class="path">${escape(ref.event_path||ref.preset||'未设置')}</div>${player}${reviewNote}<details><summary>引用依据${refs.length>1?' · '+refs.length+' 条引用':''}与渲染参数</summary><pre>${escape(JSON.stringify({引用:refs.map(r=>({来源:r.origin,预设:r.preset,字段链:r.field_chain,映射状态:r.mapping_status,命中分支复核:r.playback_review})),事件:ref.event,渲染:audio?.render,渲染来源批次:audio?.source_batch,技术检查:audio?.check},null,2))}</pre></details></article>`;
+ }).join('');
+ $('#detail').innerHTML=hero+note+`<div class="tracks">${tracks||'<p class="empty">没有确证的配置引用，未替配声音。</p>'}</div>`;
+}
+function filter(){
+ const query=$('#search').value.trim().toLowerCase(), category=$('#category').value,status=$('#status').value;
+ const models=data.models.filter(m=>(category==='all'||m.category===category)&&(status==='all'||m.mapping_status===status)&&[m.model_id,m.unit_name,...m.references.map(r=>r.event_path||'')].join(' ').toLowerCase().includes(query));
+ $('#result').textContent=`显示 ${models.length} / ${data.models.length} 个资源入口`;
+ $('#models').innerHTML=models.map(m=>`<button class="model" data-id="${escape(m.model_id)}" aria-current="${m.model_id===selected}"><strong>${escape(m.model_id)}</strong><small>${escape(m.unit_name||'无当前单位引用')}<br>${m.audio_event_count} 个事件 · ${stateLabels[m.mapping_status]}</small></button>`).join('')||'<p class="empty">没有匹配型号，请调整搜索或筛选。</p>';
+ if(!models.length){pauseAll();selected=null;$('#detail').innerHTML='<div class="empty">没有搜索结果。</div>';return;}
+ show(models.find(m=>m.model_id===selected)||models[0]);
+}
+$('#models').addEventListener('click',event=>{const button=event.target.closest('button[data-id]');if(button)show(data.models.find(m=>m.model_id===button.dataset.id));});
+['search','category','status'].forEach(id=>$('#'+id).addEventListener(id==='search'?'input':'change',filter));
+$('#detail').addEventListener('change',event=>{const id=event.target.dataset.loop;if(id)document.getElementById(id).loop=event.target.checked;});
+document.addEventListener('play',event=>{if(event.target.tagName==='AUDIO'){if(activeAudio&&activeAudio!==event.target)activeAudio.pause();activeAudio=event.target;}},true);
+filter();
+</script>
+</html>

@@ -1,0 +1,849 @@
+/* ==========================================================================
+   程序化 9km 大地图实战 680p 战术 HUD（仅消费 Code SSOT V2.1 令牌与组件）
+   约束：严禁重定义 --ui-ch-* / --ui-state-*；常驻 HUD 严禁大面积 backdrop-filter
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #06070a;
+  color: var(--ui-text-primary);
+  font-family: var(--ui-font-sans);
+  font-size: var(--ui-fs-md);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button, input {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* ====== 外壳舞台（兼容渲染基线 layoutAspectFrameBox 精确 16:9 / 21:9 比例盒） ====== */
+#canvas-host {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
+  background: var(--ui-bg-canvas);
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(240, 211, 114, 0.28);
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.84);
+}
+
+#canvas-host[data-aspect="21:9"] {
+  border-color: rgba(56, 229, 192, 0.34);
+}
+
+#canvas-host[data-embed="1"] {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#canvas-host > canvas:first-of-type {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* ====== Z-200 三行安全区 CSS Grid 战斗 HUD ====== */
+.scv-hud-grid {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ui-z-hud);
+  padding: clamp(8px, 1.15vh, 14px) clamp(10px, 1.25vw, 16px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(6px, 0.9vh, 10px);
+  pointer-events: none;
+  transition: opacity 180ms var(--ui-ease-out);
+}
+
+#canvas-host[data-aspect="21:9"] .scv-hud-grid {
+  max-width: 1580px;
+  margin: 0 auto;
+}
+
+.scv-hud-grid.is-hidden-hud {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#hud-restore-chip {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: calc(var(--ui-z-hud) + 15);
+}
+
+/* ====== ROW 1：流体三栏顶栏（左遥测、中态势与视距、右L1快捷组+编辑） ====== */
+.scv-hud-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.scv-top-left,
+.scv-top-center,
+.scv-top-right {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  pointer-events: auto;
+}
+
+.scv-top-right {
+  gap: 10px;
+}
+
+.scv-tele-pod {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 13px;
+  max-width: min(520px, 39vw);
+  white-space: nowrap;
+}
+
+.scv-tele-pts {
+  font-size: 28px;
+  line-height: 0.94;
+  color: var(--ui-state-select);
+  flex: 0 0 auto;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-tele-pts {
+  font-size: 22px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-tele-pts {
+  font-size: 32px;
+}
+
+.scv-tele-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.scv-tele-title {
+  font-size: var(--ui-fs-xs);
+  font-weight: 800;
+  color: var(--ui-text-primary);
+}
+
+.scv-hud-status-txt {
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-fs-2xs);
+  color: var(--ui-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scv-center-island {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--ui-r-pill);
+  white-space: nowrap;
+}
+
+.scv-run-btn {
+  border: 0;
+  background: transparent;
+  padding: 3px 7px;
+  border-radius: var(--ui-r-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--ui-fs-xs);
+  font-weight: 800;
+  color: var(--ui-text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.scv-run-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.scv-run-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ui-state-safe);
+  box-shadow: 0 0 8px var(--ui-state-safe);
+}
+
+.scv-run-btn.is-paused .scv-run-dot {
+  background: var(--ui-state-warn);
+  box-shadow: 0 0 8px var(--ui-state-warn);
+}
+
+.scv-top-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--ui-line-subtle);
+  flex: 0 0 auto;
+}
+
+.scv-pill-btn {
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-sm);
+  background: transparent;
+  color: var(--ui-text-secondary);
+  padding: 3px 8px;
+  font-size: var(--ui-fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--ui-dur-micro), color var(--ui-dur-micro), border-color var(--ui-dur-micro);
+}
+
+.scv-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ui-text-primary);
+}
+
+.scv-pill-btn.active {
+  background: #ffffff;
+  color: var(--ui-text-inverse);
+}
+
+.scv-accent-btn {
+  border-color: var(--ui-line-accent);
+  color: var(--ui-state-select);
+}
+
+.scv-accent-btn.active {
+  background: var(--ui-accent-grad);
+  border-color: transparent;
+  color: var(--ui-text-inverse);
+}
+
+/* ====== ROW 2：中间安全走廊（极窄左轨 + 互斥滑出名册/右侧编辑抽屉） ====== */
+.scv-hud-middle {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 0;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.scv-mid-left,
+.scv-mid-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  height: 100%;
+  min-height: 0;
+  pointer-events: none;
+}
+
+.scv-cat-btn {
+  border: 1px solid transparent;
+  border-radius: var(--ui-r-control);
+  background: transparent;
+  color: var(--ui-text-secondary);
+  padding: 7px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  cursor: pointer;
+  transition: background var(--ui-dur-micro), color var(--ui-dur-micro);
+}
+
+.scv-cat-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ui-text-primary);
+}
+
+.scv-cat-btn.active {
+  background: #ffffff;
+  color: var(--ui-text-inverse);
+}
+
+.scv-cat-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--ui-fs-2xs);
+  font-weight: 800;
+}
+
+.scv-cat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.scv-cat-name {
+  font-size: var(--ui-fs-sm);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* 左侧编队名册滑出抽屉（实底防透字 + 物理限高不碰底栏） */
+.scv-roster-flyout {
+  pointer-events: auto;
+  width: min(320px, 28vw);
+  max-height: 100%;
+  padding: 12px 13px;
+  background: var(--ui-bg-pod-elevated);
+  border: 1px solid var(--ui-line-base);
+  border-radius: var(--ui-r-surface);
+  box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.scv-roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: thin;
+}
+
+/* 右侧演训与地图编辑抽屉（保留 #editor-drawer 供脚本控制，全实底物理限高） */
+.scv-editor-drawer {
+  pointer-events: auto;
+  width: var(--ui-sz-drawer-w, 380px);
+  max-width: min(444px, 38vw);
+  max-height: 100%;
+  padding: 13px 15px;
+  background: var(--ui-bg-pod-elevated);
+  border: 1px solid var(--ui-line-base);
+  border-radius: var(--ui-r-surface);
+  box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.scv-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--ui-line-subtle);
+}
+
+.scv-drawer-head h3 {
+  margin: 2px 0 0;
+  font-size: var(--ui-fs-lg);
+  color: var(--ui-state-select);
+}
+
+.scv-drawer-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--ui-line-subtle);
+}
+
+.scv-drawer-lbl {
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-secondary);
+  font-weight: 700;
+}
+
+.scv-drawer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.scv-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  padding: 8px 9px;
+  border-radius: var(--ui-r-control);
+  background: var(--ui-bg-slot);
+  border: 1px solid var(--ui-line-subtle);
+  font-size: var(--ui-fs-xs);
+}
+
+.scv-stat-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.scv-stat-cell span {
+  font-size: var(--ui-fs-2xs);
+  color: var(--ui-text-muted);
+}
+
+.scv-stat-cell b {
+  font-family: var(--ui-font-mono);
+  color: var(--ui-text-primary);
+}
+
+/* ====== ROW 3：底部双翼分离（底中完全贯通净空！） ====== */
+.scv-bl-wing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.scv-bl-wing > * {
+  pointer-events: auto;
+}
+
+.scv-br-wing {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 9px;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.scv-br-wing > * {
+  pointer-events: auto;
+}
+
+.scv-bl-toast {
+  max-width: min(520px, 44vw);
+  padding: 5px 12px;
+  border-radius: var(--ui-r-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-secondary);
+}
+
+.scv-bl-toast i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ui-state-select);
+  flex: 0 0 auto;
+}
+
+.scv-bl-toast span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scv-air-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.scv-air-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 6px;
+  border-radius: var(--ui-r-control);
+}
+
+.scv-air-chip {
+  border: 1px solid var(--ui-line-subtle);
+  border-radius: var(--ui-r-sm);
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ui-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--ui-fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.scv-air-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.scv-air-chip.active {
+  background: #ffffff;
+  color: var(--ui-text-inverse);
+  border-color: #ffffff;
+}
+
+.scv-mm-cg-pair {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+}
+
+.scv-minimap-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: var(--ui-sz-mm-w, 292px);
+}
+
+.scv-minimap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.scv-minimap-head .ui-badge {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scv-minimap-head .ui-prompt-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.scv-minimap-box {
+  position: relative;
+  width: var(--ui-sz-mm-w, 292px);
+  height: var(--ui-sz-mm-h, 168px);
+  border-radius: var(--ui-r-surface);
+  overflow: hidden;
+  background: #0d1218;
+  border: 1px solid var(--ui-line-strong);
+  box-shadow: var(--ui-shadow-pod);
+  cursor: crosshair;
+}
+
+#hud-minimap-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.scv-mm-hint {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 4px;
+  font-family: var(--ui-font-mono);
+  font-size: 10px;
+  line-height: 1.2;
+  color: rgba(245, 246, 249, 0.84);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.scv-cg-strip {
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  height: var(--ui-sz-mm-h, 168px);
+  padding: 4px;
+  border-radius: var(--ui-r-control);
+}
+
+.scv-cg-btn {
+  width: 26px;
+  border: 0;
+  border-radius: var(--ui-r-sm);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ui-text-secondary);
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-fs-xs);
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.scv-cg-btn.active {
+  background: #ffffff;
+  color: var(--ui-text-inverse);
+}
+
+/* 右下详情卡 & 3×2 命令盘 */
+.scv-inspector-card {
+  width: var(--ui-sz-insp-w, 400px);
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scv-insp-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.scv-insp-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.scv-insp-ico {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--ui-r-control);
+  background: rgba(255, 255, 255, 0.07);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.scv-insp-name {
+  min-width: 0;
+}
+
+.scv-insp-name strong {
+  display: block;
+  font-size: var(--ui-fs-md);
+  color: var(--ui-state-select);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scv-insp-name small {
+  display: block;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scv-insp-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.scv-weapon-strip {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.scv-wep-pill {
+  border: 1px solid var(--ui-line-base);
+  border-radius: var(--ui-r-sm);
+  padding: 3px 7px;
+  background: rgba(11, 12, 18, 0.88);
+  color: var(--ui-text-secondary);
+  font-size: var(--ui-fs-xs);
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.scv-wep-pill.active {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+  background: var(--ui-state-select-fill);
+  font-weight: 700;
+}
+
+.scv-inspector-card .ui-select {
+  min-width: 118px;
+  max-width: 146px;
+}
+
+.scv-cmd-shell {
+  width: var(--ui-sz-cmd-w, 326px);
+  padding: 10px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.scv-cmd-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-muted);
+}
+
+/* ====== Z-400 4A 二分景深暂停菜单（仅此层允许 backdrop-filter） ====== */
+.scv-pause-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ui-z-overlay);
+  background: rgba(6, 7, 11, 0.72);
+  backdrop-filter: blur(18px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.scv-pause-card {
+  width: min(760px, 94%);
+  padding: 22px 24px;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 20px;
+}
+
+.scv-pause-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scv-pause-btn {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.scv-pause-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  padding-left: 16px;
+  border-left: 1px solid var(--ui-line-subtle);
+}
+
+.scv-kbd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-secondary);
+}
+
+.scv-kbd-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ====== Z-500 Toast 队列 ====== */
+.scv-toast-stack {
+  position: absolute;
+  top: 66px;
+  right: 16px;
+  z-index: var(--ui-z-system);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  transition: right 180ms var(--ui-ease-out);
+}
+
+.scv-toast-stack.drawer-shifted {
+  right: calc(min(444px, 38vw) + 26px);
+}
+
+.scv-toast-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--ui-r-control);
+  background: rgba(16, 17, 25, 0.96);
+  border: 1px solid var(--ui-line-base);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.65);
+  font-size: var(--ui-fs-xs);
+  max-width: 340px;
+}
+
+.scv-toast-item strong {
+  display: block;
+  font-size: var(--ui-fs-sm);
+  color: var(--ui-state-select);
+}
+
+.scv-toast-item span {
+  display: block;
+  color: var(--ui-text-secondary);
+}
+
+/* ====== 680p 小窗 / 窄视口安全防碰撞保险丝（保持图 1 舒展比例与零文字重叠） ====== */
+@media (max-width: 1380px), (max-height: 750px) {
+  .scv-tele-pod {
+    max-width: min(380px, 34vw);
+  }
+  .scv-minimap-shell,
+  .scv-minimap-box {
+    max-width: 242px;
+  }
+  .scv-minimap-box,
+  .scv-cg-strip {
+    max-height: 132px;
+  }
+  .scv-minimap-head .ui-prompt-btn .ui-outlined-text {
+    font-size: 12.5px;
+  }
+  .scv-inspector-card {
+    max-width: 332px;
+  }
+  .scv-cmd-shell {
+    max-width: 292px;
+  }
+  .scv-cmd-shell .ui-cmd-cell {
+    height: min(var(--ui-sz-cmd-cell-h, 58px), 58px);
+    padding: 17px 5px 5px;
+    gap: 1px;
+  }
+  .scv-cmd-shell .ui-cmd-cell .c-kbd {
+    font-size: 10px;
+    top: 3px;
+    left: 5px;
+  }
+  .scv-cmd-shell .ui-cmd-cell .c-txt {
+    font-size: 12px;
+  }
+  .scv-cmd-shell .ui-cmd-cell .c-sub {
+    font-size: 10px;
+  }
+}

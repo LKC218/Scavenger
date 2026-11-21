@@ -1,0 +1,121 @@
+{
+  "来源": [
+    {
+      "编号": "BA01",
+      "类型": "本地安装元数据",
+      "位置": "Steam库/steamapps/appmanifest_1604270.acf",
+      "核验范围": "仅登记应用编号、构建号、安装状态及磁盘占用；不归档账号字段",
+      "证据": "目录核验.json"
+    },
+    {
+      "编号": "BA02",
+      "类型": "本地文件头",
+      "位置": "断箭安装目录/BrokenArrow_Data/",
+      "核验范围": "587 个文件的目录元数据；77 个 UnityFS 包头；5 个第 6 版 GTS 文件头",
+      "证据": "目录核验.json"
+    },
+    {
+      "编号": "BA03",
+      "类型": "工具官方发布",
+      "网址": "https://github.com/AssetRipper/AssetRipper/releases/tag/2.0.0",
+      "核验范围": "Windows x64 免费版下载及发布摘要校验、命令行帮助启动；不证明当前游戏解析成功"
+    },
+    {
+      "编号": "BA04",
+      "类型": "工具官方发布",
+      "网址": "https://github.com/Nenkai/GraniteTextureReader/releases/tag/1.1.5",
+      "核验范围": "Windows x64 下载及发布摘要校验、通过本地 .NET 9 启动帮助；不证明虚拟纹理提取成功"
+    },
+    {
+      "编号": "BA05",
+      "类型": "工具版本说明",
+      "网址": "https://github.com/Nenkai/GraniteTextureReader/blob/1.1.5/README.md",
+      "核验范围": "作者声明仅支持第 6 版 GTS，并说明较新 Unity 游戏的已知提取问题"
+    },
+    {
+      "编号": "BA06",
+      "类型": "运行时官方元数据",
+      "网址": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/9.0/releases.json",
+      "核验范围": "本次下载的 Windows x64 .NET Runtime 9.0.22 与 SHA-512；原始值在本地工具记录中固定"
+    },
+    {
+      "编号": "BA07",
+      "类型": "解析库官方源码",
+      "网址": "https://github.com/K0lb3/UnityPy",
+      "核验范围": "隔离环境固定UnityPy 1.25.4，实际解析本批次单位包并导出选定预制体；不将库兼容声明当作实测结论"
+    },
+    {
+      "编号": "BA08",
+      "类型": "社区数据库格式源码",
+      "网址": "https://github.com/JohnJinHM/BA-Units/blob/master/docs/EXTRACTION.md",
+      "补充网址": "https://github.com/JohnJinHM/BA-Units/blob/master/tools/table_schema.py",
+      "核验范围": "作为24段数据库解码及表序参考；本次本地数据独立校验Base64、AES-CBC、填充、UTF8、JSON和唯一Id，字段与引用按实际表核对",
+      "证据": "批次/BA-26273833-001/证据/装配/源配置核验.json"
+    },
+    {
+      "编号": "BA09",
+      "类型": "Addressables格式实现",
+      "网址": "https://github.com/nesrak1/AddressablesTools/blob/3dbc8210a10c9ef0592580bb6710b5623fcc8d33/AddressablesTools/Catalog/ResourceLocation.cs",
+      "版本": "3dbc8210a10c9ef0592580bb6710b5623fcc8d33",
+      "核验范围": "目录v2正式key/location映射；不使用相邻字符串猜别名",
+      "证据": "批次/BA-26273833-001/证据/装配/装配核验结论.json"
+    },
+    {
+      "编号": "BA10",
+      "类型": "工具源码与本地编译着色器证据",
+      "网址": "https://github.com/Nenkai/GraniteTextureReader/tree/1.1.5",
+      "补充网址": "https://github.com/Unity-Technologies/Graphics/blob/master/Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl",
+      "核验范围": "GTS层格式与Unity法线解码函数参考；实际Normal/Mask与Camo公式另由本地Shader属性和反汇编证实，不将全部Shader一概处理",
+      "证据": "批次/BA-26273833-001/证据/纹理/证据清单.json"
+    },
+    {
+      "编号": "BA11",
+      "类型": "本地模型与视觉证据",
+      "位置": "批次/BA-26273833-001/",
+      "核验范围": "按件保存Blender工程、GLB、四视角、独立回读、图像指纹及交付选择；通过范围为静态几何与所审可见区域",
+      "证据": "交付选择.json、模型库核验.json、批次完成核验.json"
+    },
+    {
+      "编号": "BA12",
+      "类型": "FMOD官方接口与集成源码",
+      "网址": "https://github.com/fmod/fmod-for-unity/tree/2.02/Assets/Plugins/FMOD/src",
+      "补充网址": "https://www.fmod.com/docs/2.04/api/core-api-system.html",
+      "核验范围": "稳定C接口、Settings字段和离线模式参考；实测运行库为游戏随附2.01.11，版本与行为独立实测，原始源码与摘要留本地工具目录"
+    },
+    {
+      "编号": "BA13",
+      "类型": "音频工具官方发布",
+      "网址": "https://github.com/vgmstream/vgmstream/releases/tag/r2168",
+      "核验范围": "Windows x64压缩包SHA-256匹配；帮助输出可读但退出码1；SFX_Unit.bank直接识别失败，不扩大为所有路径不兼容"
+    },
+    {
+      "编号": "BA14",
+      "类型": "本地音效字段与技术证据",
+      "位置": "批次/BA-26273833-002/",
+      "核验范围": "原始设置、SFX预设、正式位置、原生GUID、101个事件渲染、输入输出和原模型指纹；实际听审、真实浏览器及循环接缝待验收",
+      "证据": "输入清单.json、型号音效映射.json、证据/A10首测关口.json、事件渲染结果.json、交付完成核验.json"
+    },
+    {
+      "编号": "BA15",
+      "类型": "IL2CPP分析工具官方发布与源码",
+      "网址": "https://github.com/SamboyCoding/Cpp2IL/releases/tag/2022.1.0-pre-release.21",
+      "补充网址": "https://github.com/SamboyCoding/Cpp2IL/tree/2022.1.0-pre-release.21/LibCpp2IL",
+      "核验范围": "官方Windows及NetFramework472附件SHA-256与发布digest匹配；实际使用后者LibCpp2IL读取当前构建版本39元数据与类型布局，不执行游戏方法。CLI自报构建提交与参考源码标签分别记录。",
+      "证据": "批次/BA-26273833-003/输入清单.json、证据/音效类型布局.json、证据/命中泛型类型核验.json"
+    },
+    {
+      "编号": "BA16",
+      "类型": "原生函数结构官方说明",
+      "网址": "https://learn.microsoft.com/en-us/cpp/build/exception-handling-x64?view=msvc-170",
+      "核验范围": "RUNTIME_FUNCTION及UNW_FLAG_CHAININFO结构参考；实际函数范围由当前PE异常目录及机器码验证，不能以片段起点替代完整函数入口。"
+    },
+    {
+      "编号": "BA17",
+      "类型": "本地命中音效调用证据",
+      "位置": "批次/BA-26273833-003/",
+      "核验范围": "52型号、56未索引武器回退引用与61弹药关系的正常分支；复用首轮7个弹药命中事件，不冒充旧路径恢复或全局未使用证明；未作运行观测及实际听审。",
+      "证据": "命中音效复核.json、证据/命中构造反汇编.json、证据/音效调用反汇编-含展开链.json、交付完成核验.json"
+    }
+  ],
+  "边界": "按预制体资源入口计数，包含配置变体；未做几何去重。静态模型与默认配置候选的提取、视觉检查，不等于动画、所有配装、引擎集成或设备性能验收。"
+}

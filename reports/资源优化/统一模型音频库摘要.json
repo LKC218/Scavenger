@@ -1,0 +1,48 @@
+{
+  "revision": 3,
+  "model_entries": 131,
+  "audio_events": 253,
+  "variants": 400,
+  "current_files": 923,
+  "retained_bytes": 6847133997,
+  "runtime_models_bytes": 503466252,
+  "runtime_audio_bytes": 21614982,
+  "default_models_bytes": 176773296,
+  "range_model_bytes": 3585884,
+  "old_conservative_range_bytes": 32512508,
+  "candidate_files": 10911,
+  "candidate_bytes": 77789867436,
+  "manifest_sha256": "c0f912431a18239308a5f22e13cef846efa4f7232bdc21550ec22160d91d2559",
+  "deleted": 10910,
+  "technical_browsers": [
+    "chrome",
+    "msedge"
+  ],
+  "cleanup": {
+    "approved_count": 10911,
+    "approved_bytes": 77789867436,
+    "approved_sha256": "c0f912431a18239308a5f22e13cef846efa4f7232bdc21550ec22160d91d2559",
+    "this_batch_files": 9732,
+    "this_batch_bytes": 52814736105,
+    "other_batch_files": 1178,
+    "other_batch_bytes": 16904781244,
+    "recycled_files": 10910,
+    "recycled_bytes": 69719517349,
+    "protected_files": 1,
+    "protected_bytes": 8070350087,
+    "protected": [
+      {
+        "path": "local-data/资源归档/全库第一版/原始资源固实归档.7z",
+        "bytes": 8070350087
+      }
+    ],
+    "permanently_deleted": 10910,
+    "permanently_deleted_bytes": 69719517349,
+    "currently_recycled_files": 0,
+    "automatic_purge": false,
+    "purge_not_before": 1794339507.2049434,
+    "earliest_review_local": "2026-11-10T11:38:27.204943-08:00",
+    "receipt": "local-data/维护清理/回收/统一库清单-261103-001/回执.json",
+    "other_receipt": "local-data/维护清理/回收/恢复副本1178-261103-001/回执.json"
+  }
+}

@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "source_identity": [
+    {
+      "path": "src/载具靶场/index.html",
+      "sha256": "5a2223f5535b66b43c76a771183e6acf8602a72ec6c46030fdbf6177e88a2367"
+    },
+    {
+      "path": "src/载具靶场/入口.mjs",
+      "sha256": "cc3b4b9f75a6042279b7de7393aeb42d7ed7a90e8751c015cd759ca681d65169"
+    },
+    {
+      "path": "src/载具靶场/地图.mjs",
+      "sha256": "1f3fefb3119ee243c7b1be2dc59776d75739df8e63ab3a9097e4d5be0b533474"
+    },
+    {
+      "path": "src/载具靶场/场景.mjs",
+      "sha256": "6ab3d8c530363ca86035e3c4fb9efbeba28db7bc5632e7fd2d30558dea107660"
+    },
+    {
+      "path": "src/载具靶场/声音.mjs",
+      "sha256": "39aeb3b96f6fd54a5e3295b31d73216cdb706e0ca66419943ce531d2b0053b70"
+    },
+    {
+      "path": "src/载具靶场/寻路.mjs",
+      "sha256": "ab13cad20e817dd62b3d1aeb370dcd551ef83d8e6064a5afbfcca5c86cb1e092"
+    },
+    {
+      "path": "src/载具靶场/模拟.mjs",
+      "sha256": "74a3c10474e04d14e0397d61a1150bc52bf8c6bc085a3867354b6f584b4a3115"
+    },
+    {
+      "path": "src/载具靶场/界面.css",
+      "sha256": "7b111aa61cc77c903de34bbe99e51a112bbf506490bfc0b203d588693d4da22e"
+    },
+    {
+      "path": "src/载具靶场/统计.mjs",
+      "sha256": "1a850ca93cec8d20c71d1b4387cecf78e6aaceec9385c9e98ab48cd3024ffcd7"
+    },
+    {
+      "path": "src/载具靶场/输入.mjs",
+      "sha256": "0f17453063918f834c0d814c686c1e1860e2112a32a8dc5454e0ac76310101ab"
+    },
+    {
+      "path": "src/载具靶场/飞行.mjs",
+      "sha256": "59a0f1cc1c0565c99d1ada97be03a0f7978b9110a00f6764103f1a0335eacd0b"
+    }
+  ],
+  "runtime_identity": {
+    "manifest": "985ddec30c51b926f40b804a189d71fb698a95c194d269a25ab6932c95786b7c",
+    "loader": "6b23f6d7adf5325bfe323d7f11e34d57ee48e72e58ffca5807bffc1f5abee471"
+  },
+  "viewport": [
+    1600,
+    1000
+  ],
+  "camera": {
+    "x": -180,
+    "z": 165,
+    "span": 120,
+    "angle": 0.35
+  },
+  "conditions": "独立无窗口；三型现有运行资源；局部前线持续交战；音量100%及6dB；640宽；预热10秒再采样60秒；浏览器串行",
+  "cases": [
+    {
+      "browser": "chrome",
+      "version": "156.0.8078.79",
+      "mode": "simple",
+      "count": 100,
+      "p95": 7.200000000004366,
+      "p99": 7.400000000001455,
+      "max": 14.200000000000728,
+      "over33ms": 0,
+      "gpu95": 1.0456,
+      "gpu50": 1.03052,
+      "renderCpu95": 0.5,
+      "drawCalls": 48,
+      "triangles": 5495768,
+      "casters": {
+        "samples": 8622,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0
+      },
+      "shadow": {
+        "extent": 256,
+        "texel": 0.125,
+        "mode": "simple",
+        "weight": 0,
+        "casters": 0,
+        "triangles": 0,
+        "mapSize": 2048,
+        "updating": false
+      },
+      "renderer": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "internal": [
+        640,
+        395
+      ],
+      "visibleUnitsStart": 13,
+      "visibleUnitsEnd": 10,
+      "shotsEnd": 2265,
+      "within60fps": true,
+      "disjoint": 0,
+      "dropped": 0
+    },
+    {
+      "browser": "chrome",
+      "version": "156.0.8078.79",
+      "mode": "realtime",
+      "count": 100,
+      "p95": 7.299999999999272,
+      "p99": 7.400000000001455,
+      "max": 14.19999999999709,
+      "over33ms": 0,
+      "gpu95": 4.72265,
+      "gpu50": 3.31751,
+      "renderCpu95": 0.6000000014901161,
+      "drawCalls": 69,
+      "triangles": 7172740,
+      "casters": {
+        "samples": 8624,
+        "p50": 34,
+        "p95": 40,
+        "p99": 41
+      },
+      "shadow": {
+        "extent": 256,
+        "texel": 0.125,
+        "mode": "realtime",
+        "weight": 1,
+        "casters": 30,
+        "triangles": 1678076,
+        "mapSize": 2048,
+        "updating": true
+      },
+      "renderer": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "internal": [
+        640,
+        395
+      ],
+      "visibleUnitsStart": 13,
+      "visibleUnitsEnd": 10,
+      "shotsEnd": 2264,
+      "within60fps": true,
+      "disjoint": 0,
+      "dropped": 0
+    },
+    {
+      "browser": "msedge",
+      "version": "156.0.4314.58",
+      "mode": "simple",
+      "count": 100,
+      "p95": 7.299999999995634,
+      "p99": 7.400000000001455,
+      "max": 44.80000000000291,
+      "over33ms": 14,
+      "gpu95": 1.09528,
+      "gpu50": 1.03512,
+      "renderCpu95": 0.6000000014901161,
+      "drawCalls": 48,
+      "triangles": 5495768,
+      "casters": {
+        "samples": 8541,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0
+      },
+      "shadow": {
+        "extent": 256,
+        "texel": 0.125,
+        "mode": "simple",
+        "weight": 0,
+        "casters": 0,
+        "triangles": 0,
+        "mapSize": 2048,
+        "updating": false
+      },
+      "renderer": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "internal": [
+        640,
+        395
+      ],
+      "visibleUnitsStart": 13,
+      "visibleUnitsEnd": 10,
+      "shotsEnd": 2265,
+      "within60fps": true,
+      "disjoint": 0,
+      "dropped": 0
+    },
+    {
+      "browser": "msedge",
+      "version": "156.0.4314.58",
+      "mode": "realtime",
+      "count": 100,
+      "p95": 7.200000000000728,
+      "p99": 7.399999999994179,
+      "max": 14.200000000000728,
+      "over33ms": 0,
+      "gpu95": 1.85064,
+      "gpu50": 1.21468,
+      "renderCpu95": 0.6000000014901161,
+      "drawCalls": 69,
+      "triangles": 7172740,
+      "casters": {
+        "samples": 8629,
+        "p50": 34,
+        "p95": 40,
+        "p99": 41
+      },
+      "shadow": {
+        "extent": 256,
+        "texel": 0.125,
+        "mode": "realtime",
+        "weight": 1,
+        "casters": 30,
+        "triangles": 1678076,
+        "mapSize": 2048,
+        "updating": true
+      },
+      "renderer": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "internal": [
+        640,
+        395
+      ],
+      "visibleUnitsStart": 13,
+      "visibleUnitsEnd": 10,
+      "shotsEnd": 2264,
+      "within60fps": true,
+      "disjoint": 0,
+      "dropped": 0
+    },
+    {
+      "browser": "chrome",
+      "version": "156.0.8078.79",
+      "mode": "simple",
+      "count": 500,
+      "p95": 7.200000000004366,
+      "p99": 7.399999999994179,
+      "max": 14.10000000000582,
+      "over33ms": 0,
+      "gpu95": 4.72244,
+      "gpu50": 3.53688,
+      "renderCpu95": 0.4000000059604645,
+      "drawCalls": 48,
+      "triangles": 27473576,
+      "casters": {
+        "samples": 8625,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0
+      },
+      "shadow": {
+        "extent": 256,
+        "texel": 0.125,
+        "mode": "simple",
+        "weight": 0,
+        "casters": 0,
+        "triangles": 0,
+        "mapSize": 2048,
+        "updating": false
+      },
+      "renderer": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "internal": [
+        640,
+        395
+      ],
+      "visibleUnitsStart": 51,
+      "visibleUnitsEnd": 54,
+      "shotsEnd": 13722,
+      "within60fps": true,
+      "disjoint": 0,
+      "dropped": 0
+    },
+    {
+      "browser": "chrome",
+      "version": "156.0.8078.79",
+      "mode": "realtime",
+      "count": 500,
+      "p95": 7.200000000004366,
+      "p99": 13.599999999998545,
+      "max": 14.30000000000291,
+      "over33ms": 0,
+      "gpu95": 5.37884,
+      "gpu50": 3.14224,
+      "renderCpu95": 0.5,
+      "drawCalls": 69,
+      "triangles": 33919768,
+      "casters": {
+        "samples": 8531,
+        "p50": 120,
+        "p95": 184,
+        "p99": 188
+      },
+      "shadow": {
+        "extent": 256,
+        "texel": 0.125,
+        "mode": "realtime",
+        "weight": 1,
+        "casters": 116,
+        "triangles": 6456896,
+        "mapSize": 2048,
+        "updating": true
+      },
+      "renderer": "ANGLE (AMD, AMD Radeon RX 7900 XTX (0x0000744C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "internal": [
+        640,
+        395
+      ],
+      "visibleUnitsStart": 51,
+      "visibleUnitsEnd": 54,
+      "shotsEnd": 13722,
+      "within60fps": true,
+      "disjoint": 0,
+      "dropped": 0
+    }
+  ],
+  "mainPassed": true,
+  "gpu95Delta100": {
+    "chrome": 3.6770499999999995,
+    "msedge": 0.75536
+  }
+}

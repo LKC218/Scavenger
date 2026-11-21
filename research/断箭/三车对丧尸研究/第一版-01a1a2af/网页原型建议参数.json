@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "version": "V001",
+  "status": "设计建议，未接入原型，数值未获玩法验收",
+  "confirmed_scope": "M1A2、AH-64D、A-10C；载具打丧尸，丧尸攻击基地或防线目标；载具受损后续讨论",
+  "zombie": {
+    "health": 100,
+    "requires_headshot": false,
+    "health_status": "工程师确认的暂定调参基准",
+    "suggested_collision_radius_m": 0.35,
+    "suggested_collision_height_m": 1.8,
+    "suggested_move_speed_mps": 1.6,
+    "collision_and_speed_status": "研究建议，未确认实际角色尺寸和步频",
+    "armor_rule": "首轮无丧尸装甲，不把原作步兵TargetType掩码直接套用",
+    "failure_pressure": "冲击基地或防线目标；基地生命、接触伤害与波次后续讨论"
+  },
+  "rules": {
+    "reserve": "保持已确认的无限储备；有限弹药与补给只作后续候选",
+    "friendly_fire": false,
+    "infantry_squads": false,
+    "vehicle_combat": false,
+    "auto_fire": "保持普通移动与待机不主动攻击；指定攻击与攻击移动交战，区域攻击按命令执行",
+    "collision": "逻辑弹丸扫掠线段；丧尸简化圆柱或胶囊；单个弹丸只结算最近实体，不穿透多只",
+    "blast": "三维距离，满伤内圈加线性衰减外圈；实心建筑遮挡则范围伤害为0；同弹直击与范围取较大值",
+    "guidance": "沿用本项目自主追踪；不复制LaserGuided原作规则。目标失效后继续飞向最后位置，不自动换活靶",
+    "crowd_efficiency": "用空间网格查询，去重后处理全部有效候选；特效上限不截断伤害，重负载时明确报告或限制生成，不丢弃伤害任务"
+  },
+  "movement": [
+    {"kind":"tank","label":"M1A2","speed_mps":8,"reverse_mps":4,"acceleration_mps2":3,"braking_mps2":5,"turn_radps":1.1,"reason":"保留当前前进节奏，新增独立倒车和渐进启停建议；道路加速后置"},
+    {"kind":"heli","label":"AH-64D","speed_mps":18,"acceleration_mps2":6,"braking_mps2":8,"turn_radps":1.5,"altitude_m":35,"reason":"提高跨街区调动能力；接近靶区后悬停，安全高度不低于地面或屋顶加余量"},
+    {"kind":"plane","label":"A-10C","speed_mps":52,"turn_radps":0.55,"orbit_radius_m":110,"altitude_m":72,"reason":"保留现有持续飞行和单次攻击流程；v除以角速度约94.5米只是理想转弯下限，不是实测盘旋半径"}
+  ],
+  "weapons": [
+    {"id":"tank_he","label":"M1A2主炮范围弹","kind":"tank","current_key":"tank","source_ammo_id":253,"range_m":90,"interval_s":3.2,"aim_s":0.45,"projectile_speed_mps":85,"damage":180,"inner_radius_m":2,"outer_radius_m":7,"edge_multiplier":0.25,"burst_shots":1,"role":"对密集地面群体形成间歇清场，副机枪作为后续持续补漏候选","reason":"以原HEAT弹253作为关联参考；建议量表独立，扩大当前4米爆炸外圈并加入距离与墙体约束"},
+    {"id":"heli_gun","label":"AH-64D机炮","kind":"heli","current_key":"gun","source_ammo_id":10,"range_m":100,"interval_s":0.15,"aim_s":0.25,"projectile_speed_mps":105,"damage":24,"inner_radius_m":0.35,"outer_radius_m":2,"edge_multiplier":0.2,"burst_shots":5,"burst_rest_after_last_shot_s":0.8,"role":"持续点杀与小范围清群，避免无限无停顿射击","reason":"五发组在0、0.15、0.30、0.45、0.60秒发射，末发后休息0.8秒，下组1.40秒起；理想持续直击输出约85.7伤害每秒"},
+    {"id":"heli_missile","label":"AH-64D导弹","kind":"heli","current_key":"missile","source_ammo_id":164,"range_m":160,"interval_s":6,"aim_s":0.65,"projectile_speed_mps":32,"damage":290,"inner_radius_m":1,"outer_radius_m":5,"edge_multiplier":0.2,"burst_shots":1,"role":"保留移动目标追踪验证；普通尸群不自动优先消耗导弹","reason":"原弹药164的HealthAOERadius为0、LaserGuided为true；5米范围和自主追踪均是项目现有规则的设计延续，不能写成原作弹药性能"},
+    {"id":"plane_gun","label":"A-10C机炮扫射","kind":"plane","current_key":"planeGun","source_ammo_id":293,"range_m":240,"interval_s":0.1,"aim_s":0,"projectile_speed_mps":360,"damage":28,"inner_radius_m":0.2,"outer_radius_m":1.8,"edge_multiplier":0.2,"burst_shots":1,"role":"沿玩家拖线进行单次扫射，伤害由实际命中和落点决定","reason":"保留当前间隔和直击伤害，不给整条航线直接扣血；扫射时长决定实际发射次数"},
+    {"id":"plane_bomb","label":"A-10C普通炸弹","kind":"plane","current_key":"bomb","source_ammo_id":287,"range_m":320,"range_semantics":"任务引导参考，不是炸弹可飞行的硬射程","interval_s":6,"aim_s":0,"projectile_speed_mps":52,"damage":400,"inner_radius_m":6,"outer_radius_m":22,"edge_multiplier":0.1,"burst_shots":1,"bombs_per_run":1,"role":"预判尸群位置的单次区域清场；投放后不追踪目标","reason":"按当前模型Mk84挂载对应弹药287；继承水平速度和重力。先每轮一枚，静态外挂不等于已实现备弹消耗；保留6秒武器间隔，但飞行进场和脱离决定完整出动周期"}
+  ],
+  "deferred": [
+    "Hydra弹药17是固定配装内的后续范围清群候选，不加入首轮建议武器列表",
+    "坦克12.7和7.62副武器后续可承担持续补漏；当前模型节点、射界、并发发射和声音尚需验证",
+    "穿甲、方向装甲、爆头强制、穿透多目标、击退、尸体物理、履带碾压及载具受损后置",
+    "射击散布先用可重复随机种子评估，建议初轮半径：主炮0.6米、旋翼机炮0.4米、导弹0.2米、飞机扫射1.2米、普通炸弹3米；均为额外设计值，未接入",
+    "有限弹药、补给、燃料、出动成本和自动区域优先级需下一阶段确认，不改变当前已确认交战规则"
+  ]
+}

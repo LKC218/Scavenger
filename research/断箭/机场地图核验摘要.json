@@ -1,0 +1,232 @@
+{
+  "status": "500米G2与2公里G3均通过",
+  "build": "26273833",
+  "source_header": "UnityFS 6000.3.24f1",
+  "source_files": [
+    {
+      "path": "BrokenArrow_Data/data.unity3d",
+      "bytes": 7183482721,
+      "mtime_ns": 1793646685295635800,
+      "sha256": "7e593b8df225febff6f7f6f515cada6513c2a1334ea5b808e822a0df7bff1d4d"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/aa/catalog.bin",
+      "bytes": 2761957,
+      "mtime_ns": 1793646685309554700,
+      "sha256": "e7b0b6d158b251b896bf09b7547a6e3fd4ca6b2d58764643b2841b5005572709"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/aa/PC/mapsettings_assets_mapsettingsairbase_f28604c0f1829a35d50f99e2b6dcdef2.bundle",
+      "bytes": 9958862,
+      "mtime_ns": 1793646685344667500,
+      "sha256": "18d11c1f9904a62b11c58efcf063253746d2e461849a0b5658fe33932ac90e97"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/aa/PC/mapresources_assets_all_19b860e9a522465bce083978b7044755.bundle",
+      "bytes": 501235603,
+      "mtime_ns": 1793646685343914100,
+      "sha256": "a11721111125dd8a85bf21aaa7bd4e630a4a9fcc62d1a58300d70ddf01f463e7"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/Navigation/Airbase.ng",
+      "bytes": 11765880,
+      "mtime_ns": 1793646685490836200,
+      "sha256": "f595159696f25d64a6e55c18c1556f7f4270a7951fe9b17f69f9b85111d820cc"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/Navigation/Airbase_roads.ng",
+      "bytes": 481248,
+      "mtime_ns": 1793646685491841000,
+      "sha256": "381c76891fbea9fd251bfac8af64a1c2b7bbad89c87cadf6a007201ba8daf557"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/SharedMissions/Airbase_network/meta.json",
+      "bytes": 3915,
+      "mtime_ns": 1793647292339684000,
+      "sha256": "e34287b7316bf9082331fac7fc762bf3908dc686d2c632b01cf76051d3cab630"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/SharedMissions/Airbase_network/Airbase_network.bascr",
+      "bytes": 53427,
+      "mtime_ns": 1793647292772372400,
+      "sha256": "a249bcc2a92e15b9aaf916a2d0bdd9c8e541b4ce705ec327788148cd00120e28"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/SharedMissions/Airbase_Skirmish/meta.json",
+      "bytes": 3864,
+      "mtime_ns": 1793647293080409800,
+      "sha256": "dcda72ba36d7acc408fc45cca12c55ce9a951fbb24ad9203d7224720c4459668"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/SharedMissions/Airbase_Skirmish/Airbase_Skirmish.bascr",
+      "bytes": 21155563,
+      "mtime_ns": 1793646685511158800,
+      "sha256": "5d6272ad2eedfa0b0b065d4b6ee5b55fb7cc576e906c270f9ffe0f331d3d3ce8"
+    },
+    {
+      "path": "GameAssembly.dll",
+      "bytes": 153969664,
+      "mtime_ns": 1793646685588326400,
+      "sha256": "12e7088369539b029a7bf0064062ce030a53b5189e7067420903f47b4281fddf"
+    },
+    {
+      "path": "BrokenArrow_Data/il2cpp_data/Metadata/global-metadata.dat",
+      "bytes": 27528220,
+      "mtime_ns": 1793646685298659900,
+      "sha256": "a4ede1b29664378a2fb9f952f65330a73dbfa115b205065d1831f420540afe01"
+    },
+    {
+      "path": "BrokenArrow_Data/StreamingAssets/aa/PC/units_assets_all_1645fd571438db658efed11f2b078e94.bundle",
+      "bytes": 3353963131,
+      "mtime_ns": 1793646685362880700,
+      "sha256": "0828ceba0de6bd10ba5f10707262cd5b9cd47b807a6ba4925762cff0cee2ec1b"
+    }
+  ],
+  "source_chain": {
+    "scene": "BuildSettings[7] Assets/Scenes/Airbase.unity",
+    "scene_data": "level7 / sharedassets7.assets",
+    "placement": "ResourceManager scenecompressor/airbase/buildings + SceneCompressorBank十浮点TRS",
+    "prefabs": "Addressables正式Assets/Map_Resources精确原型键",
+    "terrain": "实际显示tile_mesh_high_4_bakedClone；禁用TerrainData仅作为旁证",
+    "material": "BloodTerrainController level7:961，三张RGBA权重、12层源底色及作者UV与参数"
+  },
+  "origin_m": [
+    4425,
+    136,
+    4850
+  ],
+  "source_bounds_m": {
+    "x": [
+      3425,
+      5425
+    ],
+    "z": [
+      3850,
+      5850
+    ]
+  },
+  "map_bounds_m": {
+    "x": [
+      -1000,
+      1000
+    ],
+    "z": [
+      -1000,
+      1000
+    ]
+  },
+  "map_transform": "(x-4425, y-136, 4850-z)，不缩放不平铺",
+  "first_gate_sha256": "472d8745565bde7563501cb26a9d52363afc1d24243eeb6d0d25232d02c9c0ea",
+  "first_gate_status": "passed",
+  "layout": {
+    "status": "passed",
+    "instances": 162,
+    "unique_ids": 162,
+    "cross_boundary": 14,
+    "negative_instance_determinants": 0,
+    "matrix_max_error": 2.9693437042510595e-08,
+    "landmarks": [
+      "2218:10",
+      "2175:4"
+    ],
+    "source_distance_m": 2739.5527550437487,
+    "map_distance_m": 2739.5527550437487,
+    "distance_error_m": 0.0,
+    "source_sha256": "7926ea881a7b97b5617e8402b47c0bba7b9b9d2671da98e3e6a5e21433fb7e26",
+    "map_sha256": "3b5f78c3613505845c9f4b4ebea07c6c046dd879af742c0da3d7c98506763bbe",
+    "orientation": "源(x,y,z)映射为(x-4425,y-136,4850-z)，米制不缩放"
+  },
+  "geometry": {
+    "span_m": [
+      2000.0,
+      2000.0
+    ],
+    "height_max_error_m": 0.005733869368059807,
+    "height_samples": 100,
+    "mesh_objects": 242,
+    "triangles": 3639259
+  },
+  "streaming": {
+    "chunks": 256,
+    "chunk_m": 125,
+    "max_seam_error_m": 3.289058804512024e-05,
+    "seam_pairs": 23265
+  },
+  "evidence": {
+    "source_manifest": "local-data\\断箭\\批次\\BA-26273833-011\\输入清单.json",
+    "build": "local-data\\断箭\\批次\\BA-26273833-011\\交付\\2000米\\r02\\构建记录.json",
+    "independent": "local-data\\断箭\\批次\\BA-26273833-011\\交付\\2000米\\r02\\独立回读核验.json",
+    "layout": "local-data\\断箭\\批次\\BA-26273833-011\\交付\\2000米\\r02\\布局独立核验.json",
+    "visual": "local-data\\断箭\\批次\\BA-26273833-011\\交付\\2000米\\r02\\视觉审阅.json"
+  },
+  "limits": [
+    "源数据重建验证，无原游戏画面对照",
+    "图层底色近似，未复刻全部原Shader、天气、破损与微纹理",
+    "原Navigation ng未还原，通行按Demo高度及凸占地重建",
+    "固定翼不包含起降",
+    "运行资源仍为本机独立候选，不迁入public/assets"
+  ],
+  "g3_receipt_sha256": "d47c3eb09f47e3fd14ab71627277b0ceb5f1b905eae2b988b72bf8de2a80830a",
+  "metrics": [
+    {
+      "browser": "chrome",
+      "version": "156.0.8078.80",
+      "window": true,
+      "P95_ms": 2,
+      "P99_ms": 3.5,
+      "max_ms": 8.700000000011642,
+      "duration_s": 180.00109999999998,
+      "cold_ready_s": 1.0832061767578125,
+      "map_transfer_bytes": 64646972,
+      "draw_max": 147,
+      "triangles_max": 1041706,
+      "visible_unit_range": [
+        6,
+        8
+      ],
+      "moving_unit_range": [
+        4,
+        52
+      ],
+      "voices_max": 48,
+      "engine_voices_max": 8,
+      "texture_estimate_bytes_max": 110256304,
+      "shots": 6605,
+      "hits": 6227,
+      "cross_seconds": 90.12930345535278,
+      "ground_rays": 2200,
+      "ground_missing": 0,
+      "evictions": 163
+    },
+    {
+      "browser": "msedge",
+      "version": "156.0.4314.58",
+      "window": true,
+      "P95_ms": 2,
+      "P99_ms": 3.699999999953434,
+      "max_ms": 7.900000000023282,
+      "duration_s": 180.00089999999554,
+      "cold_ready_s": 1.0309350490570068,
+      "map_transfer_bytes": 64646972,
+      "draw_max": 147,
+      "triangles_max": 1041794,
+      "visible_unit_range": [
+        6,
+        8
+      ],
+      "moving_unit_range": [
+        4,
+        52
+      ],
+      "voices_max": 48,
+      "engine_voices_max": 8,
+      "texture_estimate_bytes_max": 110256304,
+      "shots": 6608,
+      "hits": 6230,
+      "cross_seconds": 90.93691086769104,
+      "ground_rays": 2225,
+      "ground_missing": 0,
+      "evictions": 166
+    }
+  ]
+}

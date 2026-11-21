@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "source": {
+    "label": "请填写来源批次与证据",
+    "usage": "本机资料研究"
+  },
+  "models": [
+    {
+      "id": "model:replace_me",
+      "name": "请填写载具名称",
+      "category": "ground",
+      "model_path": "模型.glb",
+      "preview_path": "预览.png",
+      "aliases": [],
+      "tags": [],
+      "extensions": {}
+    }
+  ],
+  "audio": [
+    {
+      "id": "audio:replace_me",
+      "name": "请填写声音名称",
+      "category": "载具发动机",
+      "audio_path": "声音.wav",
+      "kind": "provided_audio",
+      "extensions": {}
+    }
+  ],
+  "bindings": [
+    {
+      "model_id": "model:replace_me",
+      "audio_id": "audio:replace_me",
+      "field": "MoveEvent",
+      "evidence": "请替换为实际确证记录，无依据则删除本关联"
+    }
+  ]
+}

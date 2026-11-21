@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>载具声场 · 音效索引验证</title>
+<link rel="stylesheet" href="界面.css">
+<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+</head>
+<body>
+<header class="masthead">
+ <div><p class="eyebrow">载具声音档案 / 本地验证</p><h1>载具<span>声场</span></h1><p class="subtitle">从载具找到声音，从声音追溯载具。</p></div>
+ <div class="sound-controls"><button id="unlock" class="primary">开启声音</button><label class="volume">总音量 <input id="volume" type="range" min="0" max="1" value="0.35" step="0.01"></label><label><input id="mute" type="checkbox">静音</label><button id="stop">停止全部</button></div>
+</header>
+<section class="overview" aria-label="索引概况"><div id="metrics">正在读取索引…</div><p id="message" role="status" aria-live="polite">选择型号查看绑定；声音和模型均按需加载。</p></section>
+<main class="layout">
+ <aside class="catalog"><div class="tabs" role="tablist" aria-label="查询方向"><button id="vehicle-tab" role="tab" aria-selected="true" aria-controls="catalog-panel">按载具</button><button id="audio-tab" role="tab" aria-selected="false" aria-controls="catalog-panel">按音效</button></div>
+ <div id="catalog-panel" role="tabpanel" aria-labelledby="vehicle-tab"><label class="search-label" for="search">搜索档案</label><input id="search" type="search" placeholder="型号、名称或武器" autocomplete="off"><div class="filters"><label>分类<select id="category"><option value="all">全部分类</option><option value="air">空中</option><option value="ground">地面</option></select></label><label>引用状态<select id="status"><option value="all">全部状态</option><option value="confirmed">引用完整</option><option value="partial">部分映射</option><option value="unresolved">无配置引用</option></select></label></div><p id="result-count" class="muted"></p><nav id="results" aria-label="查询结果"></nav></div></aside>
+ <div class="content"><section id="detail" aria-label="当前档案"><p>正在加载…</p></section>
+ <section class="stage-panel" aria-labelledby="stage-heading"><div class="section-title"><div><p class="eyebrow">独立 Three.js 样例</p><h2 id="stage-heading">听见声音的位置</h2></div><div class="sample-shortcuts"><button data-sample="US_A10">A-10</button><button data-sample="US_AH64D">AH-64D</button><button data-sample="US_M1A2">M1A2</button></div></div>
+ <p class="muted">主动加载真实静态模型后，拖动旋转视角；点击地面设置命中点。场景按包围盒归一化，射击点为可调示意位置。</p>
+ <div id="viewport"><div id="stage-placeholder"><span class="crosshair">＋</span><p>选择三款样例之一，点击“加载三维样例”。</p><small>模型未加载 · 声音未下载</small></div></div>
+ <div class="stage-toolbar"><button id="load-model">加载三维样例</button><span id="model-state" role="status">尚未加载</span><span class="legend"><i class="dot body-dot"></i>车体 <i class="dot muzzle-dot"></i>射击点 <i class="dot impact-dot"></i>命中点</span></div>
+ <div class="selection"><label>武器<select id="weapon"></select></label><label>弹药<select id="ammunition"></select></label></div>
+ <div class="actions" aria-label="动作声音"><button data-action="move">运动片段</button><button data-action="shot">射击片段</button><button data-action="impact">命中</button><button data-action="interception">拦截</button><button data-action="death">毁伤</button></div>
+ <p id="action-state" class="muted" role="status">选择配置后显示动作可用状态。</p>
+ <details class="tuning"><summary>调整示意射击点与验证回退</summary><div class="anchor-controls"><label>左右<input id="anchor-x" type="range" min="-10" max="10" step="0.1" value="0"></label><label>高度<input id="anchor-y" type="range" min="0" max="8" step="0.1" value="1.4"></label><label>前后<input id="anchor-z" type="range" min="-10" max="10" step="0.1" value="-4"></label></div><label><input id="missing-preset" type="checkbox">模拟弹药预设对象缺失，检查武器回退</label><p class="muted">默认使用当前配置的弹药预设。空字段保持为空；模拟对象缺失时可能返回未解析路径，不会替配。</p></details>
+ <div class="runtime"><span id="runtime-state">缓存 0 · 播放 0</span><button id="clear-cache">停止并清空缓存</button></div>
+ </section></div>
+</main>
+<footer><p>来源：正式音效库 V1。全部为有限时长事件渲染，循环关闭；当前示例不复现原游戏混音、连续射击时序或程序动画。</p><p><a href="数据/音频资源.json">音频资源</a><a href="数据/载具绑定.json">载具绑定</a><a href="数据/播放规则.json">播放规则</a><a href="README.md">使用说明</a></p></footer>
+<script type="module" src="页面.mjs"></script>
+</body>
+</html>

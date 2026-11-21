@@ -1,0 +1,1666 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GTA6 风格 × 生化爆发黄黑 UI/UX 交互原型 · V001</title>
+<style>
+:root{
+  --font-sans:"Bahnschrift","DIN Alternate","HarmonyOS Sans SC","Microsoft YaHei UI","Microsoft YaHei",sans-serif;
+  --font-mono:"Cascadia Mono","Consolas","JetBrains Mono","Microsoft YaHei UI",monospace;
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+
+  /* 90% 深炭黑曜石基底与无框表面 */
+  --bg-obsidian:#0c0d10;
+  --bg-stage:#111319;
+  --bg-surface:rgba(19,21,27,0.92);
+  --bg-surface-solid:#16181f;
+  --bg-slot:rgba(33,36,44,0.88);
+  --bg-hover:rgba(56,60,72,0.68);
+  --line-hair:rgba(255,255,255,0.12);
+  --line-mid:rgba(255,255,255,0.24);
+  --stroke-halo:rgba(8,9,12,0.94);
+
+  /* 文字阶梯 */
+  --text-white:#f4f5f7;
+  --text-sub:#a7adb9;
+  --text-muted:#6c7280;
+  --text-ink:#0b0c10;
+
+  /* 7% 主题核心：生化警戒金黄梯度（参考图标质感） */
+  --bio-yellow:#ffd23f;
+  --bio-amber:#f59e2d;
+  --bio-grad:linear-gradient(180deg,#ffd84d 0%,#f59e2d 100%);
+  --bio-yellow-soft:rgba(255,210,63,0.18);
+
+  /* 3% 零冲突 7 维扩展状态色 */
+  --st-cyan:#2ee6b8;      /* 导航 / 安全 / 我方地面 */
+  --st-cyan-soft:rgba(46,230,184,0.18);
+  --st-sky:#5ac8ff;       /* 旋翼直升机 30m */
+  --st-violet:#a78bfa;    /* 固定翼 100m / 主线阶段 */
+  --st-crimson:#ff4757;   /* 尸群红区 / 禁入报错 / 危险 */
+  --st-crimson-soft:rgba(255,71,87,0.20);
+  --st-toxic:#9ef01a;     /* 生化辐射 / 毒雾 / 变异体 */
+  --st-toxic-soft:rgba(158,240,26,0.18);
+  --st-emerald:#34d399;   /* 资源点数 / 补给 / 医疗 */
+  --st-steel:#60a5fa;     /* 寻路准备 / 冷却队列 */
+  --st-copper:#fb8c00;    /* 中度警戒 / 压制 */
+  --st-locked:#5a6270;    /* 未解锁 / 禁用 */
+
+  /* GTA6 灵魂反色选定渐变 */
+  --select-bar:linear-gradient(90deg,#ffffff 0%,rgba(255,255,255,0.88) 38%,rgba(255,255,255,0.20) 100%);
+  --shadow-float:0 14px 36px rgba(0,0,0,0.58);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg-obsidian);color:var(--text-white);font-family:var(--font-sans);font-size:13px;line-height:1.45;user-select:none}
+button,input,select{font-family:inherit;color:inherit}
+[hidden]{display:none!important}
+.tabular{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.halo-text{text-shadow:0 1px 0 var(--stroke-halo),0 -1px 0 var(--stroke-halo),1px 0 0 var(--stroke-halo),-1px 0 0 var(--stroke-halo),0 2px 6px rgba(0,0,0,0.75)}
+
+/* ====== 顶部超薄导航栏（复刻图1） ====== */
+.gta-topbar{
+  position:fixed;left:0;right:0;top:0;height:52px;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 22px;
+  background:linear-gradient(180deg,rgba(10,11,15,0.92) 0%,rgba(10,11,15,0.68) 78%,transparent 100%);
+  pointer-events:auto;
+}
+.top-left{display:flex;align-items:center;gap:14px;min-width:190px}
+.top-clock{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--text-white);letter-spacing:0.4px}
+.bio-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:2px;
+  background:var(--bio-yellow-soft);border-left:2px solid var(--bio-yellow);
+  font-size:11px;font-weight:700;color:var(--bio-yellow);letter-spacing:0.6px;
+}
+.top-tabs{display:flex;align-items:center;gap:6px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.top-tabs::-webkit-scrollbar{display:none}
+.top-tab-btn{
+  position:relative;border:0;background:transparent;color:var(--text-sub);
+  padding:8px 14px;font-size:14px;font-weight:700;letter-spacing:0.6px;cursor:pointer;white-space:nowrap;
+  transition:color .14s var(--ease-out);
+}
+.top-tab-btn:hover{color:var(--text-white)}
+.top-tab-btn.active{color:var(--text-white)}
+.top-tab-btn.active::after{
+  content:"";position:absolute;left:10px;right:10px;bottom:2px;height:2px;
+  background:var(--bio-yellow);box-shadow:0 0 10px rgba(255,210,63,0.65);
+}
+.key-chip{
+  display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 5px;
+  border-radius:3px;background:#e9ecf2;color:var(--text-ink);
+  font-family:var(--font-mono);font-size:10px;font-weight:800;line-height:1;
+}
+.key-chip--dark{background:rgba(255,255,255,0.14);color:var(--text-white);border:1px solid var(--line-mid)}
+.top-right{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:190px}
+.resource-wallet{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:15px;font-weight:800;color:var(--text-white)}
+.wallet-ring{
+  position:relative;width:24px;height:24px;border-radius:50%;background:#13151b;
+  display:grid;place-items:center;color:var(--st-emerald);
+}
+.wallet-ring svg.ring-svg{position:absolute;inset:-2px;width:28px;height:28px;transform:rotate(-90deg)}
+
+/* ====== 全屏视图容器 ====== */
+.view-screen{position:fixed;inset:0;width:100vw;height:100dvh;overflow:hidden}
+.view-screen[hidden]{display:none!important}
+
+/* ====== 无框顶边亮线浮卡（复刻图1 / 图10） ====== */
+.gta-card{
+  position:relative;background:var(--bg-surface);box-shadow:var(--shadow-float);
+  color:var(--text-white);border:none;
+}
+.gta-card::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--card-accent,var(--bio-yellow))}
+.gta-card[data-tone="cyan"]::before{background:var(--st-cyan)}
+.gta-card[data-tone="crimson"]::before{background:var(--st-crimson)}
+.gta-card[data-tone="toxic"]::before{background:var(--st-toxic)}
+.gta-card[data-tone="emerald"]::before{background:var(--st-emerald)}
+
+/* ====== 左白→右渐隐反色列表（复刻图3 / 图8 / 图9 / 图12） ====== */
+.gta-menu-list{display:flex;flex-direction:column;margin:0;padding:0;list-style:none}
+.gta-menu-item{
+  position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 14px;border:none;border-bottom:1px solid var(--line-hair);
+  background:transparent;color:var(--text-sub);text-align:left;cursor:pointer;font-size:13.5px;font-weight:600;
+  transition:color .12s,background .12s;
+}
+.gta-menu-item:hover:not(.active):not(:disabled){color:var(--text-white);background:rgba(255,255,255,0.06)}
+.gta-menu-item.active{background:var(--select-bar);color:var(--text-ink);font-weight:800;border-bottom-color:transparent}
+.gta-menu-item.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--bio-yellow)}
+.gta-menu-item .dot{width:7px;height:7px;border-radius:50%;background:var(--bio-yellow);flex:0 0 auto}
+.gta-menu-item .diamond{width:6px;height:6px;background:var(--bio-yellow);transform:rotate(45deg);flex:0 0 auto}
+.gta-menu-item:disabled{opacity:.38;cursor:not-allowed}
+
+/* ====== 无框右下键位提示列（复刻图1 / 图9 / 图12） ====== */
+.prompt-stack{display:flex;flex-direction:column;align-items:flex-end;gap:7px;pointer-events:none}
+.prompt-row{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--text-white);pointer-events:auto;cursor:pointer}
+.prompt-row.muted{opacity:.42}
+.prompt-row:hover:not(.muted){color:var(--bio-yellow)}
+
+/* ====== 通用按钮矩阵与交互控件（UI Kit） ====== */
+.ui-btn{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:34px;padding:7px 14px;border:1px solid var(--line-mid);border-radius:2px;
+  background:var(--bg-slot);color:var(--text-white);font-size:12.5px;font-weight:700;letter-spacing:.3px;
+  cursor:pointer;white-space:nowrap;transition:transform .1s,background .14s,border-color .14s,color .14s;
+}
+.ui-btn:hover:not(:disabled){background:var(--bg-hover);border-color:#ffffff}
+.ui-btn:active:not(:disabled){transform:translateY(1px)}
+.ui-btn:focus-visible{outline:2px solid var(--bio-yellow);outline-offset:2px}
+.ui-btn:disabled{opacity:.35;cursor:not-allowed}
+.ui-btn--bio{border-color:transparent;background:var(--bio-grad);color:var(--text-ink)}
+.ui-btn--bio:hover:not(:disabled){filter:brightness(1.07)}
+.ui-btn--invert{border-color:#ffffff;background:#ffffff;color:var(--text-ink)}
+.ui-btn--invert:hover:not(:disabled){background:#e6e8ee}
+.ui-btn--ghost{background:transparent;border-color:var(--line-hair);color:var(--text-sub)}
+.ui-btn--danger{border-color:var(--st-crimson);background:var(--st-crimson-soft);color:var(--st-crimson)}
+.ui-btn--danger:hover:not(:disabled){background:var(--st-crimson);color:#ffffff}
+.ui-btn--toxic{border-color:var(--st-toxic);background:var(--st-toxic-soft);color:var(--st-toxic)}
+.ui-btn--cyan{border-color:var(--st-cyan);background:var(--st-cyan-soft);color:var(--st-cyan)}
+.ui-btn--sm{min-height:26px;padding:4px 10px;font-size:11.5px}
+
+/* 图12 同款极简胶囊 Toggle */
+.gta-toggle{
+  position:relative;width:38px;height:20px;border-radius:999px;border:1.5px solid currentColor;
+  background:transparent;cursor:pointer;padding:0;flex:0 0 auto;transition:background .15s,border-color .15s;
+}
+.gta-toggle::after{
+  content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;
+  background:currentColor;transition:transform .16s var(--ease-out);
+}
+.gta-toggle[aria-checked="true"]{background:var(--bio-yellow);border-color:var(--bio-yellow);color:var(--text-ink)}
+.gta-toggle[aria-checked="true"]::after{transform:translateX(18px)}
+
+.gta-seg{display:inline-flex;padding:2px;background:rgba(12,13,18,0.8);border:1px solid var(--line-hair);border-radius:2px;gap:2px}
+.gta-seg button{border:0;background:transparent;color:var(--text-sub);padding:4px 10px;font-size:11.5px;font-weight:700;cursor:pointer;border-radius:2px}
+.gta-seg button.active{background:#ffffff;color:var(--text-ink)}
+
+/* ====== 视图 1：图 1 战术大地图 ====== */
+#map-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.map-left-rail{
+  position:absolute;left:16px;top:74px;z-index:25;width:44px;
+  display:flex;flex-direction:column;background:var(--bg-surface);box-shadow:var(--shadow-float);padding:4px 0;
+}
+.rail-btn{
+  position:relative;height:40px;width:100%;border:0;background:transparent;color:var(--text-sub);
+  display:grid;place-items:center;cursor:pointer;transition:color .12s,background .12s;
+}
+.rail-btn:hover{color:var(--text-white);background:rgba(255,255,255,0.08)}
+.rail-btn.active{background:#ffffff;color:var(--text-ink)}
+.rail-btn.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--bio-yellow)}
+.rail-btn .pip{position:absolute;top:6px;right:6px;width:5px;height:5px;background:var(--bio-yellow);transform:rotate(45deg)}
+
+/* 图8 左侧半透明任务抽屉 */
+.map-drawer{
+  position:absolute;left:68px;top:74px;bottom:64px;width:270px;z-index:22;
+  background:rgba(16,18,24,0.88);backdrop-filter:blur(10px);border-right:1px solid var(--line-hair);
+  padding:16px 12px;display:flex;flex-direction:column;gap:10px;
+}
+.map-drawer h2{margin:0 4px 4px;font-size:20px;font-weight:800;letter-spacing:1px}
+.map-zone-tag{
+  position:absolute;left:22px;bottom:18px;z-index:20;
+  padding:6px 16px;border-radius:4px;background:rgba(16,138,76,0.92);color:#ffffff;font-size:13px;font-weight:700;
+  box-shadow:0 4px 14px rgba(0,0,0,0.45);
+}
+.map-poi-layer{position:absolute;inset:0;z-index:15;pointer-events:none}
+.poi-pin{
+  position:absolute;transform:translate(-50%,-50%);pointer-events:auto;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.poi-reticle{
+  position:relative;width:36px;height:36px;display:grid;place-items:center;
+}
+.poi-reticle .core{
+  width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  border:1.5px solid #0c0d10;color:#0c0d10;box-shadow:0 2px 10px rgba(0,0,0,0.5);
+}
+.poi-pin.is-selected .poi-reticle::after{
+  content:"";position:absolute;inset:-2px;border-radius:50%;
+  border:2px dashed #ffffff;animation:spin-slow 16s linear infinite;
+}
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+.poi-dist{font-family:var(--font-mono);font-size:11px;font-weight:700;color:#ffffff}
+.map-bubble{
+  position:absolute;z-index:24;width:316px;padding:14px 16px;pointer-events:auto;
+}
+.map-bubble h3{margin:0 0 6px;font-size:18px;font-weight:800}
+.map-bubble-sub{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:8px}
+.map-bubble p{margin:0;font-size:12.5px;color:var(--text-sub);line-height:1.55}
+.map-bubble-kv{
+  margin-top:12px;padding-top:9px;border-top:1px solid var(--line-hair);
+  display:flex;justify-content:space-between;font-size:12px;
+}
+.map-bubble-actions{position:absolute;left:0;top:calc(100% + 8px);display:flex;flex-direction:column;gap:5px}
+
+/* ====== 视图 2：实机战斗 HUD（图4/5/6/11 + 线框幽灵） ====== */
+#battle-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#battle-ring-svg{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
+#battle-labels{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.ground-mark{
+  position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;
+  display:inline-flex;align-items:center;gap:5px;padding:2px 6px;white-space:nowrap;
+  font-size:12px;font-weight:700;color:var(--text-white);
+}
+.ground-mark svg{width:15px;height:15px;fill:currentColor}
+.ground-mark.is-selected{color:var(--bio-yellow)}
+
+/* 图11 左上双段式状态条 */
+.hud-bars{position:absolute;left:22px;top:64px;z-index:30;display:flex;flex-direction:column;gap:8px}
+.seg-bar-row{display:flex;align-items:center;gap:8px}
+.seg-bar-icon{
+  width:26px;height:26px;border-radius:50%;background:#1a1c23;border:2px solid #090a0d;
+  display:grid;place-items:center;flex:0 0 auto;box-shadow:0 2px 8px rgba(0,0,0,0.45);
+}
+.seg-bar-track{
+  position:relative;width:154px;height:12px;background:rgba(14,15,20,0.85);
+  border:1.5px solid #090a0d;display:flex;overflow:hidden;
+}
+.seg-bar-main{height:100%;transition:width .25s var(--ease-out)}
+.seg-bar-bonus{height:100%;border-left:2px solid #ffffff;opacity:0.86;transition:width .25s var(--ease-out)}
+
+/* 图11 右上警戒星 */
+.hud-wanted{position:absolute;right:22px;top:64px;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.stars-row{display:inline-flex;gap:5px;padding:5px 9px;background:rgba(14,16,21,0.78)}
+.star-btn{border:0;background:transparent;padding:0;cursor:pointer;width:20px;height:20px;display:grid;place-items:center}
+
+/* 图4 左下双层拼合小地图 */
+.minimap-pod{position:absolute;left:22px;bottom:20px;z-index:30;width:236px;display:flex;flex-direction:column;gap:6px}
+.minimap-banner{
+  position:relative;display:flex;align-items:stretch;justify-content:space-between;
+  background:rgba(16,18,24,0.92);border:1px solid var(--line-hair);border-radius:5px;overflow:visible;
+}
+.minimap-banner-copy{padding:7px 11px;display:flex;flex-direction:column;justify-content:center}
+.minimap-banner-copy strong{font-size:14px;font-weight:800}
+.minimap-banner-copy span{font-family:var(--font-mono);font-size:11.5px;color:var(--text-sub)}
+.minimap-banner-action{
+  width:52px;background:var(--st-cyan);color:#09100e;display:grid;place-items:center;border-radius:0 4px 4px 0;
+}
+.minimap-banner-pin{
+  position:absolute;right:19px;bottom:-9px;width:14px;height:14px;border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);background:var(--st-cyan);border:2px solid #0c0d10;display:grid;place-items:center;
+}
+.minimap-banner-pin::after{content:"";width:4px;height:4px;border-radius:50%;background:#0c0d10}
+.minimap-box{
+  position:relative;height:132px;border-radius:6px;overflow:hidden;
+  border:1.5px solid rgba(255,255,255,0.28);background:#1b2029;box-shadow:var(--shadow-float);
+}
+#minimap-canvas{width:100%;height:100%;display:block}
+.minimap-north{
+  position:absolute;right:7px;bottom:7px;width:17px;height:17px;border-radius:50%;
+  background:#0c0d10;color:#ffffff;font-family:var(--font-mono);font-size:9px;font-weight:800;
+  display:grid;place-items:center;border:1px solid rgba(255,255,255,0.45);
+}
+
+/* 图6 右下角单位/载具状态卡 */
+.vehicle-card-pod{position:absolute;right:22px;bottom:20px;z-index:30;width:270px;padding:10px 14px}
+.vc-pager{position:absolute;right:0;top:-22px;display:inline-flex;align-items:center;gap:5px}
+.vc-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.34)}
+.vc-dot.active{background:#ffffff}
+.vc-watermark{position:absolute;right:12px;top:10px;font-size:20px;font-weight:900;font-style:italic;color:rgba(255,255,255,0.08);letter-spacing:1px}
+
+/* 图5 8 槽矩形方格轮盘 */
+.wheel-overlay{
+  position:absolute;inset:0;z-index:45;background:rgba(10,11,15,0.58);backdrop-filter:blur(8px);
+  display:grid;place-items:center;
+}
+.wheel-ring{position:relative;width:540px;height:440px}
+.wheel-center{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  text-align:center;width:190px;pointer-events:none;
+}
+.wheel-center strong{display:block;font-size:17px;font-weight:800}
+.wheel-center span{display:block;margin-top:3px;font-size:12px;color:var(--text-sub)}
+.wheel-slot{
+  position:absolute;width:118px;height:74px;transform:translate(-50%,-50%);
+  background:rgba(30,33,40,0.88);border:1.5px solid rgba(255,255,255,0.16);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  cursor:pointer;padding:0;overflow:hidden;transition:border-color .12s,transform .12s;
+}
+.wheel-slot:hover,.wheel-slot.active{border-color:#ffffff;transform:translate(-50%,-50%) scale(1.04)}
+.wheel-slot .slot-bar{
+  position:absolute;left:0;right:0;bottom:0;height:19px;background:rgba(0,0,0,0.45);
+  color:var(--text-white);font-size:11px;font-weight:700;display:grid;place-items:center;
+}
+.wheel-slot.active .slot-bar{background:#ffffff;color:var(--text-ink)}
+.wheel-slot .slot-badge{
+  position:absolute;right:5px;top:5px;width:16px;height:16px;border-radius:50%;
+  background:#0d0e12;color:var(--bio-yellow);font-size:10px;display:grid;place-items:center;
+}
+
+/* 图11 命中反馈十字动画 */
+.hit-marker{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);z-index:42;pointer-events:none;opacity:0}
+.hit-marker.pop{animation:hit-pop .42s var(--ease-out)}
+@keyframes hit-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+
+/* ====== 视图 3：图 2 军械与载具资产检视台 ====== */
+.armory-bg{
+  background:radial-gradient(circle at 56% 48%,#1c202c 0%,#101218 55%,#090a0d 100%);
+  padding:66px 32px 26px;display:grid;grid-template-columns:280px minmax(0,1fr) 290px;grid-template-rows:minmax(0,1fr) auto;gap:18px;
+}
+.armory-header h2{margin:0;font-size:26px;font-weight:800;letter-spacing:.5px}
+.armory-header small{display:block;font-size:15px;color:var(--text-sub);font-weight:600}
+.armory-stage{
+  grid-column:2;grid-row:1;position:relative;display:grid;place-items:center;cursor:grab;
+}
+.armory-stage svg{width:min(620px,90%);height:auto;filter:drop-shadow(0 28px 36px rgba(0,0,0,0.75));transition:transform .16s var(--ease-out)}
+.armory-thumbs{grid-column:1/3;grid-row:2;display:flex;flex-direction:column;gap:8px;align-self:end}
+.thumb-strip{display:flex;gap:10px;align-items:stretch}
+.thumb-card{
+  position:relative;width:146px;height:80px;background:rgba(24,27,34,0.85);border:1.5px solid rgba(255,255,255,0.16);
+  display:grid;place-items:center;cursor:pointer;padding:8px;
+}
+.thumb-card.active{border:2px solid #ffffff;background:rgba(36,40,50,0.95)}
+.thumb-card .dot-bio{position:absolute;left:7px;top:7px;width:8px;height:8px;border-radius:50%;background:var(--bio-yellow)}
+.thumb-card .lock-tag{position:absolute;right:6px;bottom:6px;font-size:11px;color:var(--text-muted);background:#0c0d10cc;padding:1px 5px}
+.armory-specs{grid-column:3;grid-row:1/3;align-self:end;display:flex;flex-direction:column;gap:12px}
+.spec-panel{position:relative;background:rgba(16,18,24,0.94);padding:16px 18px;border-top:2px solid var(--bio-yellow);box-shadow:var(--shadow-float)}
+.stat-line-row{margin:11px 0}
+.stat-line-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.stat-track{position:relative;height:2px;background:rgba(255,255,255,0.18)}
+.stat-fill{position:relative;height:100%;background:#ffffff;transition:width .25s var(--ease-out)}
+.stat-fill::after{content:"";position:absolute;right:0;top:-4px;width:2px;height:10px;background:#ffffff}
+
+/* ====== 视图 4：图 9 二分暂停页 + 图 12 叠层设置浮窗 ====== */
+.pause-backdrop-scene{
+  position:absolute;inset:0;
+  background:radial-gradient(circle at 65% 45%,#3c2a1b 0%,#1d2028 45%,#0b0c10 100%);
+  filter:blur(14px) brightness(0.72);transform:scale(1.06);
+}
+.pause-left-rail{
+  position:absolute;left:0;top:52px;bottom:34px;width:300px;z-index:20;
+  background:rgba(15,17,22,0.84);backdrop-filter:blur(12px);border-right:1px solid var(--line-hair);
+  padding:28px 20px;display:flex;flex-direction:column;gap:24px;
+}
+.pause-logo{
+  font-size:52px;font-weight:900;line-height:1;letter-spacing:-2px;color:transparent;
+  -webkit-text-stroke:1.8px var(--bio-yellow);margin:0 6px;
+}
+.pause-right-chapter{position:absolute;right:40px;top:92px;z-index:20;text-align:right;width:320px}
+.pause-right-chapter .ch-title{font-size:30px;font-weight:900;color:var(--bio-yellow);letter-spacing:1.2px;margin:4px 0 18px}
+.pause-bottom-bar{
+  position:absolute;left:0;right:0;bottom:0;height:36px;z-index:25;background:#07080a;
+  display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;
+}
+
+/* 图12 叠层设置面板 */
+.settings-float{
+  position:absolute;left:28px;top:76px;width:360px;z-index:30;
+  background:rgba(19,22,30,0.90);backdrop-filter:blur(12px);box-shadow:var(--shadow-float);
+  padding:12px 14px 14px;border-top:2px solid var(--bio-yellow);
+}
+.settings-icon-tabs{display:flex;align-items:center;justify-content:space-between;gap:4px;padding-bottom:10px;border-bottom:1px solid var(--line-hair)}
+.set-tab-ico{
+  width:42px;height:28px;border:0;background:transparent;color:var(--text-sub);cursor:pointer;display:grid;place-items:center;border-radius:2px;
+}
+.set-tab-ico.active{background:#ffffff;color:var(--text-ink);clip-path:polygon(4px 0,100% 0,100% 100%,0 100%,0 4px)}
+.set-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;
+  border-bottom:1px solid var(--line-hair);cursor:pointer;
+}
+.set-row.active{background:var(--select-bar);color:var(--text-ink)}
+.set-row.active small{color:#3c4048;display:block;font-weight:700}
+
+/* ====== 视图 5：通用 UI 套件（UI Kit）与多状态色 ====== */
+.kit-scroll{
+  position:absolute;inset:52px 0 0 0;overflow-y:auto;padding:24px 30px 64px;
+  background:radial-gradient(900px 420px at 50% 0%,rgba(255,210,63,0.06),transparent 65%),var(--bg-obsidian);
+}
+.kit-wrap{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(390px,1fr));gap:18px}
+.kit-panel{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.kit-panel h3{margin:0;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+.kit-swatch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.kit-swatch{padding:9px;background:var(--bg-slot);border:1px solid var(--line-hair);text-align:left;cursor:pointer}
+.kit-swatch i{display:block;height:24px;margin-bottom:6px}
+.kit-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+
+/* ====== 模态弹窗（Modal）与 Toast 横幅 ====== */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:80;background:rgba(7,8,11,0.72);backdrop-filter:blur(10px);
+  display:grid;place-items:center;padding:20px;
+}
+.modal-box{width:min(460px,100%);padding:22px 24px}
+.modal-hazard-stripe{
+  height:6px;margin:-20px -24px 16px;
+  background:repeating-linear-gradient(-45deg,var(--bio-yellow),var(--bio-yellow) 10px,#121318 10px,#121318 20px);
+}
+.modal-box[data-tone="crimson"] .modal-hazard-stripe{
+  background:repeating-linear-gradient(-45deg,var(--st-crimson),var(--st-crimson) 10px,#121318 10px,#121318 20px);
+}
+.modal-box h3{margin:0 0 8px;font-size:20px;font-weight:800}
+.modal-box p{margin:0 0 16px;font-size:13px;color:var(--text-sub);line-height:1.6}
+.modal-input{
+  width:100%;padding:9px 11px;margin-bottom:16px;background:#0d0e13;border:1px solid var(--line-mid);
+  color:#ffffff;font-size:13px;outline:none;
+}
+.modal-input:focus{border-color:var(--bio-yellow)}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px}
+
+.toast-stack{position:fixed;right:22px;top:64px;z-index:90;display:flex;flex-direction:column;gap:8px;width:320px;pointer-events:none}
+.toast-item{
+  padding:11px 14px;background:var(--bg-surface-solid);box-shadow:var(--shadow-float);
+  border-left:3px solid var(--bio-yellow);pointer-events:auto;
+  animation:toast-in .2s var(--ease-out);
+}
+@keyframes toast-in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.toast-item strong{display:block;font-size:12.5px}
+.toast-item span{display:block;font-size:11.5px;color:var(--text-sub);margin-top:2px}
+</style>
+</head>
+<body>
+
+<!-- 顶部超薄 GTA6 导航条 -->
+<header class="gta-topbar">
+  <div class="top-left">
+    <span class="top-clock" id="top-clock">02:54 PM</span>
+    <span class="bio-pill" id="bio-badge">☣ 生化警戒 IV 级</span>
+  </div>
+
+  <nav class="top-tabs" aria-label="原型视图切换">
+    <span class="key-chip">Q</span>
+    <button type="button" class="top-tab-btn active" data-view="map">战术大地图</button>
+    <button type="button" class="top-tab-btn" data-view="hud">实机战斗 HUD</button>
+    <button type="button" class="top-tab-btn" data-view="armory">军械与资产检视</button>
+    <button type="button" class="top-tab-btn" data-view="pause">暂停与叠层设置</button>
+    <button type="button" class="top-tab-btn" data-view="kit">通用 UI 套件</button>
+    <span class="key-chip">E</span>
+  </nav>
+
+  <div class="top-right">
+    <button type="button" class="ui-btn ui-btn--sm ui-btn--ghost" id="btn-nav-mode">引导：标准战术</button>
+    <div class="resource-wallet" title="后勤指挥点数（含绿环上限进度）">
+      <span>⚡586</span>
+      <span class="wallet-ring" id="wallet-ring">
+        <svg class="ring-svg" viewBox="0 0 28 28"><circle cx="14" cy="14" r="12" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="2.5"/><circle cx="14" cy="14" r="12" fill="none" stroke="#34d399" stroke-width="2.5" stroke-dasharray="75.4" stroke-dashoffset="22"/></svg>
+      </span>
+    </div>
+  </div>
+</header>
+
+<!-- ====== 视图 1：图 1 战术大地图 ＋ 图 7/8/10 ====== -->
+<section class="view-screen" id="view-map" aria-label="战术大地图视图">
+  <canvas id="map-canvas"></canvas>
+
+  <aside class="map-left-rail" aria-label="地图功能图标轨"></aside>
+
+  <aside class="map-drawer" id="map-drawer" aria-label="行动与事件列表">
+    <h2>行动简报</h2>
+    <ul class="gta-menu-list" id="map-mission-list"></ul>
+    <div style="margin-top:auto;padding-top:10px;border-top:1px solid var(--line-hair);font-size:11.5px;color:var(--text-sub)">
+      点击地图标点可切换 4 段弧形圈定框与浮出卡，或按左侧图标收起抽屉。
+    </div>
+  </aside>
+
+  <div class="map-poi-layer" id="map-poi-layer"></div>
+  <div class="gta-card map-bubble" id="map-bubble" data-tone="yellow"></div>
+
+  <div class="map-zone-tag">Airbase · 太阳带主跑道</div>
+
+  <div class="prompt-stack" style="position:absolute;right:22px;bottom:20px;z-index:25">
+    <div class="prompt-row halo-text" id="map-recenter-btn">重新居中 <span class="key-chip">C</span></div>
+    <div class="prompt-row halo-text muted">2D 全岛矢量视图 <span class="key-chip key-chip--dark">V</span></div>
+    <div class="prompt-row halo-text" id="map-toggle-drawer">开关任务抽屉 <span class="key-chip">TAB</span></div>
+    <div class="prompt-row halo-text" id="map-set-wp">设置战术航点 <span class="key-chip">右键</span></div>
+  </div>
+</section>
+
+<!-- ====== 视图 2：实机战斗 HUD（图4小地图＋图5轮盘＋图6浮卡＋图11状态条＋线框幽灵） ====== -->
+<section class="view-screen" id="view-hud" hidden aria-label="实机战斗 HUD 视图">
+  <canvas id="battle-canvas"></canvas>
+  <svg id="battle-ring-svg" aria-hidden="true"></svg>
+  <div id="battle-labels"></div>
+
+  <!-- 图11 左上双段式状态条 -->
+  <div class="hud-bars" id="hud-bars"></div>
+
+  <!-- 图11 右上5阶警戒星 ＋ 测试演示快捷键 -->
+  <div class="hud-wanted">
+    <div class="stars-row" id="wanted-stars" title="点击切换5阶防化警戒星状态"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+      <button type="button" class="ui-btn ui-btn--sm ui-btn--bio" id="btn-open-wheel">呼出战术轮盘 <span class="key-chip">TAB</span></button>
+      <button type="button" class="ui-btn ui-btn--sm" data-hit="basic">命中白</button>
+      <button type="button" class="ui-btn ui-btn--sm" data-hit="suppress">压制黄</button>
+      <button type="button" class="ui-btn ui-btn--sm ui-btn--danger" data-hit="fatal">击毁红</button>
+    </div>
+  </div>
+
+  <!-- 图4 左下双层拼合小地图 -->
+  <div class="minimap-pod" id="hud-minimap-pod">
+    <div class="minimap-banner">
+      <div class="minimap-banner-copy">
+        <strong id="mm-cmd-title">推进至东跑道</strong>
+        <span id="mm-cmd-sub">084 m · 预计 07s</span>
+      </div>
+      <div class="minimap-banner-action" id="mm-cmd-arrow"></div>
+      <div class="minimap-banner-pin"></div>
+    </div>
+    <div class="minimap-box">
+      <canvas id="minimap-canvas" width="236" height="132"></canvas>
+      <span class="minimap-north">N</span>
+    </div>
+  </div>
+
+  <!-- 图6 右下载具状态浮窗 -->
+  <div class="gta-card vehicle-card-pod" id="hud-vehicle-card" data-tone="cyan">
+    <div class="vc-pager">
+      <span class="vc-dot active"></span><span class="vc-dot"></span><span class="vc-dot"></span>
+      <span class="key-chip">F</span>
+    </div>
+    <div class="vc-watermark" id="vc-watermark">US-ARMOR</div>
+    <div style="font-size:11.5px;color:var(--text-sub)" id="vc-brand">主战装甲 · 地面通道</div>
+    <div style="font-size:16px;font-weight:800;margin:2px 0 8px" id="vc-name">M1A2 铁砧 01</div>
+    <div style="display:flex;justify-content:space-between;padding-top:7px;border-top:1px solid var(--line-hair);font-size:12px">
+      <span style="color:var(--text-sub)">作战权限</span>
+      <span style="color:var(--st-emerald);font-weight:700" id="vc-auth">已就绪 · 移动中</span>
+    </div>
+  </div>
+
+  <!-- 图11 命中反馈十字 -->
+  <svg class="hit-marker" id="hit-marker" width="54" height="54" viewBox="0 0 54 54">
+    <path d="M10 10 L21 21 M44 10 L33 21 M10 44 L21 33 M44 44 L33 33" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+  </svg>
+
+  <!-- 图5 8槽矩形方格轮盘 -->
+  <div class="wheel-overlay" id="wheel-overlay" hidden>
+    <div class="wheel-ring" id="wheel-ring">
+      <div class="wheel-center">
+        <strong id="wheel-title">战术支援指令</strong>
+        <span id="wheel-sub">移动鼠标选择并点击生效</span>
+      </div>
+    </div>
+    <div class="prompt-stack" style="position:absolute;right:24px;bottom:22px">
+      <div class="prompt-row halo-text" id="wheel-close-btn">关闭轮盘 <span class="key-chip">ESC</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 视图 3：图 2 军械与前线资产检视台 ====== -->
+<section class="view-screen armory-bg" id="view-armory" hidden aria-label="军械与资产检视台">
+  <div class="armory-header">
+    <small id="arm-cat">前线装甲资产 /</small>
+    <h2 id="arm-title">M1A2 艾布拉姆斯</h2>
+    <div class="gta-seg" id="arm-tabs" style="margin:12px 0 14px">
+      <button type="button" class="active" data-group="ground">地面装甲</button>
+      <button type="button" data-group="air">空中支援</button>
+      <button type="button" data-group="bio">防化特种</button>
+    </div>
+    <ul class="gta-menu-list" id="arm-menu"></ul>
+  </div>
+
+  <div class="armory-stage" id="arm-stage" title="拖动鼠标可轻微视差预览模型">
+    <div id="arm-svg-host"></div>
+  </div>
+
+  <div class="armory-thumbs">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;max-width:614px">
+      <div>
+        <span style="color:var(--st-emerald);font-family:var(--font-mono);font-weight:800;font-size:17px" id="arm-cost">⚡ 350</span>
+        <span style="color:var(--text-muted);text-decoration:line-through;margin-left:6px;font-family:var(--font-mono)" id="arm-old-cost">⚡ 500</span>
+        <div style="font-size:18px;font-weight:800;margin-top:2px" id="arm-subname">铁砧主战改型 · 256 运行档</div>
+      </div>
+      <span class="mono" style="color:var(--text-sub)" id="arm-page">1 / 4</span>
+    </div>
+    <div class="thumb-strip" id="arm-thumb-strip"></div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sub)">
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--bio-yellow);display:inline-block"></span> 生化战备优先配装 · 减免 30% 指挥点消耗
+    </div>
+  </div>
+
+  <div class="armory-specs">
+    <div class="spec-panel" id="arm-spec-panel"></div>
+    <div class="prompt-stack" style="margin-top:6px">
+      <div class="prompt-row halo-text" id="arm-deploy-btn">确认编入部队 <span class="key-chip">ENTER</span></div>
+      <div class="prompt-row halo-text" id="arm-back-btn">返回战术地图 <span class="key-chip">ESC</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 视图 4：图 9 二分暂停页 + 图 12 叠层设置面板 ====== -->
+<section class="view-screen" id="view-pause" hidden aria-label="暂停与叠层设置">
+  <div class="pause-backdrop-scene"></div>
+
+  <div style="position:absolute;right:22px;top:64px;z-index:35;display:flex;gap:8px">
+    <button type="button" class="ui-btn ui-btn--sm ui-btn--invert" id="btn-mode-pause">图 9 二分暂停菜单</button>
+    <button type="button" class="ui-btn ui-btn--sm" id="btn-mode-overlays">图 12 叠层设置浮窗</button>
+  </div>
+
+  <!-- 子视图 A：二分暂停菜单 -->
+  <div id="sub-pause-menu">
+    <aside class="pause-left-rail">
+      <div class="pause-logo">SC·☣</div>
+      <ul class="gta-menu-list" id="pause-menu-list"></ul>
+    </aside>
+    <div class="pause-right-chapter">
+      <div class="mono" style="font-size:12px;color:var(--text-sub);letter-spacing:1.4px">WAVE 01 · AIRBASE</div>
+      <div class="ch-title">BIOHAZARD BREACH</div>
+      <ul class="gta-menu-list" style="text-align:right">
+        <li class="gta-menu-item" style="justify-content:flex-end" id="btn-retry-cp">从最近检查点恢复</li>
+        <li class="gta-menu-item" style="justify-content:flex-end" id="btn-restart-mission">重新开始防线演训</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 子视图 B：图 12 OVERLAYS 叠层设置浮窗 -->
+  <div class="settings-float" id="sub-overlays-panel" hidden>
+    <div class="settings-icon-tabs" id="set-icon-tabs"></div>
+    <div style="padding:12px 2px 8px;font-size:20px;font-weight:900;letter-spacing:0.6px" id="set-section-title">HUD 与叠层体验</div>
+    <div id="set-rows-mount"></div>
+    <div style="padding-top:12px;font-size:12px;color:var(--text-sub)" id="set-desc-line">切换战术引导强度、生化警戒滤镜与低分辨率像素对照模式。</div>
+  </div>
+
+  <div class="pause-bottom-bar">
+    <span style="color:var(--text-muted)">Scavenger 网页端三维战术演训 · 运行规范预览态</span>
+    <div style="display:flex;gap:14px;align-items:center">
+      <span>确认选择 <span class="key-chip">ENTER</span></span>
+      <span>返回战场 <span class="key-chip">ESC</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 视图 5：通用 UI 套件（UI Kit）与多状态色 ====== -->
+<section class="view-screen" id="view-kit" hidden aria-label="通用 UI 套件试验场">
+  <div class="kit-scroll">
+    <div class="kit-wrap">
+      <!-- 1. 生化黄黑 8 维状态色 -->
+      <div class="gta-card kit-panel" style="grid-column:1/-1">
+        <h3><span>01 生化黄黑基底 × 零撞色多状态色板</span><span class="mono" style="font-size:11px;color:var(--bio-yellow)">点击任意色卡复制 HEX</span></h3>
+        <div class="kit-swatch-grid" id="kit-swatch-mount"></div>
+      </div>
+
+      <!-- 2. 按钮矩阵与加载态 -->
+      <div class="gta-card kit-panel">
+        <h3><span>02 通用按钮矩阵与交互反馈</span><span class="mono" style="font-size:11px;color:var(--text-sub)">BUTTON MATRIX</span></h3>
+        <div class="kit-row">
+          <button type="button" class="ui-btn ui-btn--bio">生化主执行</button>
+          <button type="button" class="ui-btn ui-btn--invert">纯白反色焦点</button>
+          <button type="button" class="ui-btn">标准暗底钮</button>
+          <button type="button" class="ui-btn ui-btn--ghost">幽灵辅助</button>
+        </div>
+        <div class="kit-row">
+          <button type="button" class="ui-btn ui-btn--cyan">地面/航路</button>
+          <button type="button" class="ui-btn ui-btn--toxic">辐射/生化洗消</button>
+          <button type="button" class="ui-btn ui-btn--danger">危险/清空队列</button>
+          <button type="button" class="ui-btn" disabled>禁用态</button>
+        </div>
+        <div class="kit-row" style="margin-top:4px">
+          <div class="gta-seg" id="kit-seg-demo">
+            <button type="button" class="active">标准战术</button>
+            <button type="button">极简沉浸</button>
+            <button type="button">640px 性能</button>
+          </div>
+          <label style="display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sub)">
+            <span>警戒滤镜</span>
+            <button type="button" class="gta-toggle" id="kit-toggle-demo" role="switch" aria-checked="true"></button>
+          </label>
+        </div>
+      </div>
+
+      <!-- 3. 模态确认弹窗实时触发 -->
+      <div class="gta-card kit-panel" data-tone="crimson">
+        <h3><span>03 模态确认弹窗（Modal Dialogs）</span><span class="mono" style="font-size:11px;color:var(--st-crimson)">MODAL SYSTEM</span></h3>
+        <p style="margin:0;font-size:12.5px;color:var(--text-sub)">模态遮罩层开启高斯模糊压暗背景，顶部嵌入生化警戒斜杠带，支持键盘 <span class="key-chip">ESC</span> 快速撤回。</p>
+        <div class="kit-row">
+          <button type="button" class="ui-btn ui-btn--bio" data-open-modal="confirm">标准战术确认弹窗</button>
+          <button type="button" class="ui-btn ui-btn--danger" data-open-modal="danger">生化封锁高危弹窗</button>
+          <button type="button" class="ui-btn" data-open-modal="form">编队命名输入弹窗</button>
+        </div>
+      </div>
+
+      <!-- 4. Toast 非阻塞通知队列 -->
+      <div class="gta-card kit-panel" data-tone="cyan">
+        <h3><span>04 非阻塞警报横幅（Toast Alerts）</span><span class="mono" style="font-size:11px;color:var(--st-cyan)">4-STATE TOAST</span></h3>
+        <p style="margin:0;font-size:12.5px;color:var(--text-sub)">点击下方按钮向屏幕右上角队列推送多状态通知条（自动定时消隐）。</p>
+        <div class="kit-row">
+          <button type="button" class="ui-btn ui-btn--bio" data-toast="yellow">推送 · 生化警戒黄</button>
+          <button type="button" class="ui-btn ui-btn--cyan" data-toast="cyan">推送 · 安全航路青</button>
+          <button type="button" class="ui-btn ui-btn--danger" data-toast="crimson">推送 · 尸潮破防红</button>
+          <button type="button" class="ui-btn ui-btn--toxic" data-toast="toxic">推送 · 辐射泄漏绿</button>
+        </div>
+      </div>
+
+      <!-- 5. 表单输入、下拉、刻度滑块与加载条 -->
+      <div class="gta-card kit-panel" data-tone="yellow">
+        <h3><span>05 表单控件、刻度滑块与进度反馈</span><span class="mono" style="font-size:11px;color:var(--bio-yellow)">INPUT &amp; PROGRESS</span></h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <input type="text" class="modal-input" style="margin:0" value="铁砧装甲先锋团" aria-label="示例输入">
+          <select class="modal-input" style="margin:0" aria-label="示例下拉">
+            <option>640px 像素化对比</option>
+            <option selected>原生 DPR 高清</option>
+            <option>极简沉浸模式</option>
+          </select>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+            <span>主炮装填与热能加载</span><b class="mono" id="kit-slider-val" style="color:var(--bio-yellow)">72%</b>
+          </div>
+          <input type="range" id="kit-slider" min="0" max="100" value="72" style="width:100%;accent-color:var(--bio-yellow)">
+        </div>
+        <div class="stat-track" style="height:3px"><div class="stat-fill" id="kit-progress-bar" style="width:72%;background:var(--st-cyan)"></div></div>
+      </div>
+
+      <!-- 6. 载具剪影与图11状态标记对照 -->
+      <div class="gta-card kit-panel" data-tone="emerald" style="grid-column:1/-1">
+        <h3><span>06 空地军事负空间剪影（evenodd）与生化状态标徽</span><span class="mono" style="font-size:11px;color:var(--st-emerald)">VECTOR ASSETS</span></h3>
+        <div class="kit-row" id="kit-svg-gallery" style="gap:18px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 模态确认弹窗宿主 -->
+<div class="modal-backdrop" id="modal-backdrop" hidden>
+  <div class="gta-card modal-box" id="modal-box" role="dialog" aria-modal="true">
+    <div class="modal-hazard-stripe"></div>
+    <h3 id="modal-title">确认执行战术重置？</h3>
+    <p id="modal-desc">所有当前演训编队将返回集结点，正在排队的航路将被清空。</p>
+    <input type="text" class="modal-input" id="modal-input" placeholder="输入自定义编队呼号（例如：铁砧先锋）" hidden>
+    <div class="modal-actions">
+      <button type="button" class="ui-btn ui-btn--ghost" id="modal-cancel">取消 <span class="key-chip key-chip--dark">ESC</span></button>
+      <button type="button" class="ui-btn ui-btn--bio" id="modal-ok">确认执行 <span class="key-chip">ENTER</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- 右上 Toast 队列 -->
+<div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const SILHOUETTES = {
+    tank: 'M3 13 L5 11.5 L8 11.5 L9.5 8.5 L14.5 8.5 L15.8 10.2 L18.5 10.2 L18.5 9.8 L20.2 9.8 L20.2 10.2 L23 10.2 L23 11.4 L15.8 11.4 L15.5 12.2 L19.5 12.2 L21 14 L19.2 17.2 L4 17.2 L2.2 14.5 Z M6 14.5h2.2v1.4H6Z M10.4 14.5h2.2v1.4H10.4Z M14.8 14.5h2.2v1.4H14.8Z',
+    supply: 'M3 6.5 L15.8 6.5 L15.8 11 L16.6 11 L16.6 8 L19.5 8 L21.4 11.5 L21.4 15.5 L19.6 17.8 L3.6 17.8 L2.2 15.5 L2.2 13 L3 13 Z M17.4 9.2h1.7l1.1 2.3H17.4Z M8.4 8.2H10.4V10H12.2V12H10.4V13.8H8.4V12H6.6V10H8.4Z M5 15.2h2.5v1.3H5Z M11 15.2h2.5v1.3H11Z M16.2 15.2h2.2v1.3H16.2Z',
+    heli: 'M3 6.2H21V7.6H13V9.6H11V7.6H3Z M2 10.2L4.2 10.2L5.2 12.2L10.2 12.2L11.5 9.6L15.6 9.6L17.8 11.5L20.5 12.5L21.8 13.8L20.2 14.8L16.2 15L14.5 16.5H10L9.2 15L4.5 13.8L3.2 15L2 14.2Z M12.2 10.6H14.8L16.4 12.1H12.2Z',
+    plane: 'M12 1.8L13.5 5.2L13.6 9.5L22.2 10.2V13.2L13.5 13L13.4 15.2L14.4 15.6V17.8H13.1L13 19L16.8 19.6V21.6L12.7 21L12 22.2L11.3 21L7.2 21.6V19.6L11 19L10.9 17.8H9.6V15.6L10.6 15.2L10.5 13L1.8 13.2V10.2L10.4 9.5L10.5 5.2Z M11.4 5.4h1.2v3H11.4Z',
+    biohazard: 'M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0 M12 3.2a5.2 5.2 0 0 1 4.4 7.9a3.4 3.4 0 0 0-3.3-1.4a3.2 3.2 0 0 0-2.2 0a3.4 3.4 0 0 0-3.3 1.4A5.2 5.2 0 0 1 12 3.2Z M4.5 16.2a5.2 5.2 0 0 1 4.4-7.8a3.4 3.4 0 0 0 .4 3.6a3.4 3.4 0 0 0 1.2 1.9a3.4 3.4 0 0 0 2.9 2.2A5.2 5.2 0 0 1 4.5 16.2Z M19.5 16.2a5.2 5.2 0 0 1-8.9-.1a3.4 3.4 0 0 0 2.9-2.2a3.4 3.4 0 0 0 1.2-1.9a3.4 3.4 0 0 0 .4-3.6A5.2 5.2 0 0 1 19.5 16.2Z',
+    radiation: 'M12 12m-1.8 0a1.8 1.8 0 1 0 3.6 0a1.8 1.8 0 1 0-3.6 0 M12 3a9 9 0 0 0-7.8 4.5l4.4 2.5a4 4 0 0 1 6.8 0l4.4-2.5A9 9 0 0 0 12 3Z M4.2 16.5A9 9 0 0 0 12 21v-5a4 4 0 0 1-3.4-2Z M19.8 16.5l-4.4-2.5A4 4 0 0 1 12 16v5a9 9 0 0 0 7.8-4.5Z',
+  };
+
+  function makeIcon(path, size = 18, stroke = false) {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', size);
+    svg.setAttribute('height', size);
+    svg.setAttribute('aria-hidden', 'true');
+    const p = document.createElementNS(SVG_NS, 'path');
+    p.setAttribute('d', path);
+    if (stroke) {
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', 'currentColor');
+      p.setAttribute('stroke-width', '2');
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('stroke-linejoin', 'round');
+    } else {
+      p.setAttribute('fill', 'currentColor');
+      p.setAttribute('fill-rule', 'evenodd');
+    }
+    svg.append(p);
+    return svg;
+  }
+
+  /* ====== Toast 队列 ====== */
+  const toastStack = document.getElementById('toast-stack');
+  const TOAST_PRESETS = {
+    yellow: { title: '☣ 生化警戒升级', desc: '东北跑道检测到高密度尸群聚集，已标记高危空投区。', color: '#ffd23f' },
+    cyan: { title: '航路已规划就绪', desc: '铁砧 01 与游隼 02 已接收空地混编机动指令。', color: '#2ee6b8' },
+    crimson: { title: '警报 · 防线外围遭突破', desc: '3 号机库外围障碍区不可通行，地面单位已原地停稳。', color: '#ff4757' },
+    toxic: { title: '☢ 辐射毒雾扩散预警', desc: '南侧湿地出现毒蚀变异群，建议调度 A-10C 空中清场。', color: '#9ef01a' },
+  };
+  function pushToast(tone = 'yellow', custom = null) {
+    const cfg = custom ?? TOAST_PRESETS[tone] ?? TOAST_PRESETS.yellow;
+    const el = document.createElement('div');
+    el.className = 'toast-item';
+    el.style.borderLeftColor = cfg.color;
+    el.innerHTML = `<strong style="color:${cfg.color}">${cfg.title}</strong><span>${cfg.desc}</span>`;
+    toastStack.prepend(el);
+    setTimeout(() => el.remove(), 3400);
+  }
+
+  /* ====== 顶部 5 视图切换 + 引导模式切换 ====== */
+  const VIEW_ORDER = ['map', 'hud', 'armory', 'pause', 'kit'];
+  let activeView = 'map';
+  let minimalHud = false;
+
+  function switchView(name) {
+    activeView = name;
+    for (const v of VIEW_ORDER) {
+      document.getElementById(`view-${v}`).hidden = v !== name;
+    }
+    document.querySelectorAll('.top-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+    if (name === 'map') drawMapCanvas();
+    if (name === 'hud') resizeHud();
+  }
+  document.querySelectorAll('.top-tab-btn').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
+
+  const navModeBtn = document.getElementById('btn-nav-mode');
+  function toggleNavMode() {
+    minimalHud = !minimalHud;
+    navModeBtn.textContent = minimalHud ? '引导：极简沉浸' : '引导：标准战术';
+    document.getElementById('hud-bars').style.opacity = minimalHud ? '0.28' : '1';
+    document.getElementById('hud-vehicle-card').style.display = minimalHud ? 'none' : '';
+    pushToast(minimalHud ? 'yellow' : 'cyan', {
+      title: minimalHud ? 'VGC 极简沉浸模式已开启' : '标准战术引导模式已恢复',
+      desc: minimalHud ? '弱化外围 HUD 读数，视野交还战场实景。' : '完整展示双层小地图、航路与载具状态浮卡。',
+      color: minimalHud ? '#ffd23f' : '#2ee6b8',
+    });
+  }
+  navModeBtn.addEventListener('click', toggleNavMode);
+
+  /* ====== 视图 1：图 1 战术大地图 ====== */
+  const mapCanvas = document.getElementById('map-canvas');
+  const mapCtx = mapCanvas.getContext('2d');
+  const RAIL_ITEMS = [
+    { id: 'overview', path: 'M12 3l8 16-8-3.5L4 19Z', dot: false },
+    { id: 'map', path: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2Z', dot: true },
+    { id: 'supply', path: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6', dot: false },
+    { id: 'units', path: SILHOUETTES.tank, dot: true, fill: true },
+    { id: 'air', path: SILHOUETTES.plane, dot: false, fill: true },
+    { id: 'bio', path: SILHOUETTES.biohazard, dot: true, fill: true },
+    { id: 'armory', path: 'M3 10h12l3-2h3v4h-4l-2 4h-3l1-4H7l-1 3H3Z', dot: false },
+    { id: 'settings', path: 'M4 7h16M4 12h16M4 17h16', dot: false },
+  ];
+  const POIS = [
+    {
+      id: 'poi-repair', x: 0.49, y: 0.56, tone: 'yellow', dist: '0.70 km', color: '#ffd23f',
+      icon: SILHOUETTES.tank, title: '前线装甲维修站', sub: '+☣ 在尸潮推进前完成整备',
+      desc: '这辆 M1A2 反应装甲已有轻微剥落。在下一波尸潮抵达东跑道前，于野战改装坞补充弹药并重启热成像。',
+      k: '地区态势', v: '二级警戒 · 可通行',
+    },
+    {
+      id: 'poi-outbreak', x: 0.67, y: 0.38, tone: 'crimson', dist: '1.42 km', color: '#ff4757',
+      icon: SILHOUETTES.biohazard, title: '东北机库沦陷核心', sub: '✕ 极高危尸群聚集红区',
+      desc: '地面重甲禁止直接驶入该封闭建筑群，建议调用 100m 固定翼 A-10C 执行斜切扫射与普通航弹轰炸。',
+      k: '威胁评级', v: '极高 · 禁止地面停靠',
+    },
+    {
+      id: 'poi-toxic', x: 0.42, y: 0.72, tone: 'toxic', dist: '0.96 km', color: '#9ef01a',
+      icon: SILHOUETTES.radiation, title: '南侧辐射泄漏湿地', sub: '☢ 持续毒蚀污染区',
+      desc: '生化工兵检测到酸蚀气溶胶浓度超标，30m 武装直升机可越过毒雾空域执行悬停警戒。',
+      k: '污染等级', v: '剧毒 · 空中可越',
+    },
+    {
+      id: 'poi-evac', x: 0.37, y: 0.51, tone: 'cyan', dist: '0.32 km', color: '#2ee6b8',
+      icon: SILHOUETTES.heli, title: '西侧防空补给坪', sub: '✓ 我方安全集结区',
+      desc: '补给车驼鹿 01 已就位，向周边 40 米内友军自动补充穿甲弹与火箭巢备弹。',
+      k: '区域控制', v: '我方控制 · 安全',
+    },
+  ];
+  const MAP_MISSIONS = [
+    { id: 'poi-repair', label: '整备 M1A2 并封锁主跑道', tone: 'yellow', active: true },
+    { id: 'poi-outbreak', label: '呼叫 A-10C 轰炸机库红区', tone: 'crimson', active: false },
+    { id: 'poi-toxic', label: '侦察南侧辐射毒蚀扩散源', tone: 'toxic', active: false },
+    { id: 'poi-evac', label: '守卫西侧防空补给通道', tone: 'cyan', active: false },
+  ];
+  let selectedPoi = POIS[0];
+  let activeRail = 'map';
+
+  const railHost = document.querySelector('.map-left-rail');
+  for (const item of RAIL_ITEMS) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `rail-btn${item.id === activeRail ? ' active' : ''}`;
+    btn.append(makeIcon(item.path, 18, !item.fill));
+    if (item.dot) {
+      const pip = document.createElement('span');
+      pip.className = 'pip';
+      btn.append(pip);
+    }
+    btn.addEventListener('click', () => {
+      activeRail = item.id;
+      railHost.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (item.id === 'armory') switchView('armory');
+      else if (item.id === 'settings') { switchView('pause'); setPauseSubMode('overlays'); }
+      else document.getElementById('map-drawer').hidden = !document.getElementById('map-drawer').hidden;
+    });
+    railHost.append(btn);
+  }
+
+  function renderMapOverlay() {
+    const list = document.getElementById('map-mission-list');
+    list.replaceChildren();
+    for (const m of MAP_MISSIONS) {
+      const li = document.createElement('li');
+      li.className = `gta-menu-item${selectedPoi.id === m.id ? ' active' : ''}`;
+      const colMap = { yellow: '#ffd23f', crimson: '#ff4757', toxic: '#9ef01a', cyan: '#2ee6b8' };
+      li.innerHTML = `<span style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:${colMap[m.tone]}"></span>${m.label}</span><span class="diamond"></span>`;
+      li.addEventListener('click', () => {
+        selectedPoi = POIS.find(p => p.id === m.id) ?? POIS[0];
+        renderMapOverlay();
+      });
+      list.append(li);
+    }
+
+    const layer = document.getElementById('map-poi-layer');
+    layer.replaceChildren();
+    for (const p of POIS) {
+      const el = document.createElement('div');
+      el.className = `poi-pin${selectedPoi.id === p.id ? ' is-selected' : ''}`;
+      el.style.left = `${p.x * 100}%`;
+      el.style.top = `${p.y * 100}%`;
+      const ret = document.createElement('div');
+      ret.className = 'poi-reticle';
+      const core = document.createElement('div');
+      core.className = 'core';
+      core.style.background = p.color;
+      core.append(makeIcon(p.icon, 14, false));
+      ret.append(core);
+      const dist = document.createElement('span');
+      dist.className = 'poi-dist halo-text';
+      dist.textContent = p.dist;
+      el.append(ret, dist);
+      el.addEventListener('click', () => { selectedPoi = p; renderMapOverlay(); });
+      layer.append(el);
+    }
+
+    const bubble = document.getElementById('map-bubble');
+    bubble.dataset.tone = selectedPoi.tone;
+    bubble.style.left = `${Math.min(68, selectedPoi.x * 100 + 3.5)}%`;
+    bubble.style.top = `${Math.max(15, selectedPoi.y * 100 - 15)}%`;
+    bubble.innerHTML = `
+      <h3>${selectedPoi.title}</h3>
+      <div class="map-bubble-sub" style="color:${selectedPoi.color}">${selectedPoi.sub}</div>
+      <p>${selectedPoi.desc}</p>
+      <div class="map-bubble-kv"><span style="color:var(--text-sub)">${selectedPoi.k}</span><b>${selectedPoi.v}</b></div>
+      <div class="map-bubble-actions">
+        <div class="prompt-row halo-text" onclick="window.__goHud()"><span class="key-chip">F</span> 切入实机战斗指挥</div>
+        <div class="prompt-row halo-text" onclick="window.__toast('yellow')"><span class="key-chip">RMB</span> 锁定为优先打击点</div>
+      </div>
+    `;
+  }
+  window.__goHud = () => switchView('hud');
+  window.__toast = t => pushToast(t);
+
+  function drawMapCanvas() {
+    const w = mapCanvas.width = window.innerWidth;
+    const h = mapCanvas.height = window.innerHeight;
+    mapCtx.fillStyle = '#256c89';
+    mapCtx.fillRect(0, 0, w, h);
+
+    // 海湾浅滩纹理
+    mapCtx.fillStyle = 'rgba(84,185,204,0.22)';
+    mapCtx.beginPath();
+    mapCtx.ellipse(w * 0.28, h * 0.22, w * 0.14, h * 0.05, -0.3, 0, Math.PI * 2);
+    mapCtx.fill();
+
+    // 机场半岛主体（复刻图1半岛斜向构图）
+    mapCtx.fillStyle = '#c8be9d';
+    mapCtx.beginPath();
+    mapCtx.moveTo(w * 0.23, h * 0.72);
+    mapCtx.lineTo(w * 0.45, h * 0.42);
+    mapCtx.lineTo(w * 0.78, h * 0.06);
+    mapCtx.lineTo(w * 0.87, h * 0.16);
+    mapCtx.lineTo(w * 0.61, h * 0.56);
+    mapCtx.lineTo(w * 0.34, h * 0.78);
+    mapCtx.closePath();
+    mapCtx.fill();
+
+    mapCtx.fillStyle = '#8b9296';
+    mapCtx.beginPath();
+    mapCtx.moveTo(w * 0.27, h * 0.70);
+    mapCtx.lineTo(w * 0.77, h * 0.10);
+    mapCtx.lineTo(w * 0.82, h * 0.16);
+    mapCtx.lineTo(w * 0.33, h * 0.74);
+    mapCtx.closePath();
+    mapCtx.fill();
+
+    // 主跑道与跨海大桥
+    mapCtx.strokeStyle = '#efe2b6';
+    mapCtx.lineWidth = 4;
+    mapCtx.beginPath();
+    mapCtx.moveTo(w * 0.06, h * 0.94);
+    mapCtx.lineTo(w * 0.83, h * 0.08);
+    mapCtx.stroke();
+
+    // 图1 右上同款生化沦陷红区边界
+    mapCtx.fillStyle = 'rgba(255,71,87,0.20)';
+    mapCtx.strokeStyle = '#ff4757';
+    mapCtx.lineWidth = 2;
+    mapCtx.beginPath();
+    mapCtx.moveTo(w * 0.39, h * 0.22);
+    mapCtx.lineTo(w * 0.62, h * 0.05);
+    mapCtx.lineTo(w * 0.92, h * 0.08);
+    mapCtx.lineTo(w * 0.75, h * 0.58);
+    mapCtx.lineTo(w * 0.57, h * 0.70);
+    mapCtx.closePath();
+    mapCtx.fill();
+    mapCtx.stroke();
+
+    mapCtx.fillStyle = 'rgba(255,71,87,0.45)';
+    mapCtx.beginPath();
+    mapCtx.ellipse(w * 0.67, h * 0.38, 42, 26, 0, 0, Math.PI * 2);
+    mapCtx.fill();
+
+    // 毒蚀荧光绿扩散圈
+    mapCtx.fillStyle = 'rgba(158,240,26,0.22)';
+    mapCtx.strokeStyle = '#9ef01a';
+    mapCtx.setLineDash([6, 4]);
+    mapCtx.beginPath();
+    mapCtx.ellipse(w * 0.42, h * 0.72, 46, 30, 0.2, 0, Math.PI * 2);
+    mapCtx.fill();
+    mapCtx.stroke();
+    mapCtx.setLineDash([]);
+  }
+  document.getElementById('map-toggle-drawer').addEventListener('click', () => {
+    const d = document.getElementById('map-drawer');
+    d.hidden = !d.hidden;
+  });
+  document.getElementById('map-recenter-btn').addEventListener('click', () => pushToast('cyan', { title: '视角已居中', desc: '已对齐 Airbase 太阳带跑道核心战区。', color: '#2ee6b8' }));
+  document.getElementById('map-set-wp').addEventListener('click', () => pushToast('yellow', { title: '航路目标已设定', desc: `已在「${selectedPoi.title}」放置电光青指挥信标。`, color: '#ffd23f' }));
+  renderMapOverlay();
+
+  /* ====== 视图 2：实机战斗 HUD + 空地贴地与线框幽灵 ====== */
+  const battleCanvas = document.getElementById('battle-canvas');
+  const bCtx = battleCanvas.getContext('2d');
+  const battleRingSvg = document.getElementById('battle-ring-svg');
+  const battleLabels = document.getElementById('battle-labels');
+  const mmCanvas = document.getElementById('minimap-canvas');
+  const mmCtx = mmCanvas.getContext('2d');
+  document.getElementById('mm-cmd-arrow').append(makeIcon('M7 17v-5a3 3 0 0 1 3-3h6 M13 5l4 4-4 4', 22, true));
+
+  // 图11 状态条
+  const HUD_BARS_DATA = [
+    { icon: 'M12 21s-7-4.5-9.2-9C1.1 8.4 3.4 4.5 7 4.5c2 0 3.7 1 5 2.6 1.3-1.6 3-2.6 5-2.6 3.6 0 5.9 3.9 4.2 7.5C19 16.5 12 21 12 21Z', col: '#ff5e8a', main: 62, bonus: 22 },
+    { icon: 'M13 2L4 14h7l-1 8 9-12h-7Z', col: '#2ee6b8', main: 76, bonus: 14 },
+    { icon: 'M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6Z M12 12m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0-5 0', col: '#a78bfa', main: 54, bonus: 18 },
+  ];
+  const hudBarsHost = document.getElementById('hud-bars');
+  for (const b of HUD_BARS_DATA) {
+    const row = document.createElement('div');
+    row.className = 'seg-bar-row';
+    const ico = document.createElement('div');
+    ico.className = 'seg-bar-icon';
+    ico.style.color = b.col;
+    ico.append(makeIcon(b.icon, 14, false));
+    const track = document.createElement('div');
+    track.className = 'seg-bar-track';
+    const m = document.createElement('div');
+    m.className = 'seg-bar-main';
+    m.style.width = `${b.main}%`;
+    m.style.background = b.col;
+    const bn = document.createElement('div');
+    bn.className = 'seg-bar-bonus';
+    bn.style.width = `${b.bonus}%`;
+    bn.style.background = '#ffffff';
+    track.append(m, bn);
+    row.append(ico, track);
+    hudBarsHost.append(row);
+  }
+
+  // 图11 5 阶警戒星
+  let wantedLevel = 3;
+  const starsHost = document.getElementById('wanted-stars');
+  function renderStars() {
+    starsHost.replaceChildren();
+    for (let i = 1; i <= 5; i++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'star-btn';
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('width', '18');
+      svg.setAttribute('height', '18');
+      const p = document.createElementNS(SVG_NS, 'path');
+      p.setAttribute('d', 'M12 2l2.9 6.2 6.8.8-5 4.7 1.3 6.7-6-3.4-6 3.4 1.3-6.7-5-4.7 6.8-.8Z');
+      p.setAttribute('stroke', '#0b0c10');
+      p.setAttribute('stroke-width', '1.8');
+      p.setAttribute('fill', i <= wantedLevel ? (wantedLevel >= 5 ? '#ff4757' : '#ffffff') : 'rgba(255,255,255,0.22)');
+      svg.append(p);
+      btn.append(svg);
+      btn.addEventListener('click', () => { wantedLevel = wantedLevel === i ? i - 1 : i; renderStars(); });
+      starsHost.append(btn);
+    }
+  }
+  renderStars();
+
+  // 三色阶命中十字
+  document.querySelectorAll('[data-hit]').forEach(btn => btn.addEventListener('click', () => {
+    const hm = document.getElementById('hit-marker');
+    const colMap = { basic: '#ffffff', suppress: '#ffd23f', fatal: '#ff4757' };
+    hm.style.color = colMap[btn.dataset.hit];
+    hm.classList.remove('pop');
+    void hm.offsetWidth;
+    hm.classList.add('pop');
+  }));
+
+  // 图5 8 槽矩形轮盘
+  const WHEEL_ITEMS = [
+    { name: '精准空袭', sub: '呼叫 A-10C GAU-8 扫射', tag: '☣' },
+    { name: '重炮齐射', sub: '对红区坐标倾泻高爆弹', tag: '!' },
+    { name: '紧急医疗', sub: '恢复防线周边耐久值', tag: '+' },
+    { name: '生化洗消', sub: '中和毒蚀辐射区污染', tag: '☢' },
+    { name: '横队展开', sub: '地面装甲列阵防突破', tag: '═' },
+    { name: '全军突击', sub: '允许移动射击追击', tag: '»' },
+    { name: '电磁脉冲', sub: '短暂压制特种变异体', tag: '⚡' },
+    { name: '撤离信号', sub: '召回滞留前线单位', tag: '⌂' },
+  ];
+  const wheelOverlay = document.getElementById('wheel-overlay');
+  const wheelRing = document.getElementById('wheel-ring');
+  WHEEL_ITEMS.forEach((item, idx) => {
+    const ang = (idx / WHEEL_ITEMS.length) * Math.PI * 2 - Math.PI / 2;
+    const sx = 270 + Math.cos(ang) * 185;
+    const sy = 220 + Math.sin(ang) * 145;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `wheel-slot${idx === 0 ? ' active' : ''}`;
+    btn.style.left = `${sx}px`;
+    btn.style.top = `${sy}px`;
+    btn.innerHTML = `<span class="slot-badge">${item.tag}</span><span style="font-size:18px;color:var(--bio-yellow)">${item.tag}</span><span class="slot-bar">${item.name}</span>`;
+    btn.addEventListener('pointerenter', () => {
+      wheelRing.querySelectorAll('.wheel-slot').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('wheel-title').textContent = item.name;
+      document.getElementById('wheel-sub').textContent = item.sub;
+    });
+    btn.addEventListener('click', () => {
+      wheelOverlay.hidden = true;
+      pushToast('yellow', { title: `已下达指令：${item.name}`, desc: item.sub, color: '#ffd23f' });
+    });
+    wheelRing.append(btn);
+  });
+  document.getElementById('btn-open-wheel').addEventListener('click', () => { wheelOverlay.hidden = !wheelOverlay.hidden; });
+  document.getElementById('wheel-close-btn').addEventListener('click', () => { wheelOverlay.hidden = true; });
+
+  // 实机战场空地单位演示（采用新色板）
+  const hudUnits = [
+    { id: 'u1', name: '铁砧 01', kind: 'tank', x: -34, z: 14, y: 0, yaw: 0.9, tx: 26, tz: -6, sel: true, col: '#2ee6b8' },
+    { id: 'u2', name: '驼鹿 01', kind: 'supply', x: -50, z: 30, y: 0, yaw: 0.3, tx: null, tz: null, sel: false, col: '#2ee6b8' },
+    { id: 'u3', name: '游隼 02', kind: 'heli', x: 36, z: 22, y: 30, yaw: -0.9, tx: -4, tz: -14, sel: true, col: '#5ac8ff' },
+    { id: 'u4', name: '雷霆 01', kind: 'plane', x: 30, z: -26, y: 100, yaw: 0, phase: 0, sel: true, col: '#a78bfa' },
+  ];
+  const hudDom = new Map();
+  for (const u of hudUnits) {
+    const g = document.createElementNS(SVG_NS, 'g');
+    const rOut = document.createElementNS(SVG_NS, 'ellipse');
+    const rIn = document.createElementNS(SVG_NS, 'ellipse');
+    rOut.setAttribute('fill', 'none');
+    rIn.setAttribute('fill', 'none');
+    g.append(rOut, rIn);
+    battleRingSvg.append(g);
+
+    const mark = document.createElement('div');
+    mark.className = `ground-mark halo-text${u.sel ? ' is-selected' : ''}`;
+    mark.append(makeIcon(SILHOUETTES[u.kind], 15, false));
+    const span = document.createElement('span');
+    span.textContent = u.name;
+    mark.append(span);
+    mark.addEventListener('click', () => {
+      hudUnits.forEach(item => { item.sel = item.id === u.id; });
+      document.getElementById('vc-name').textContent = `${u.kind === 'tank' ? 'M1A2' : u.kind === 'supply' ? 'M548' : u.kind === 'heli' ? 'AH-64D' : 'A-10C'} · ${u.name}`;
+      document.getElementById('vc-brand').textContent = u.kind === 'plane' ? '固定翼高空通道 · 100m' : u.kind === 'heli' ? '旋翼空中通道 · 30m' : '地面重甲通道';
+      document.getElementById('hud-vehicle-card').dataset.tone = u.kind === 'plane' ? 'violet' : u.kind === 'heli' ? 'cyan' : 'cyan';
+    });
+    battleLabels.append(mark);
+    hudDom.set(u.id, { g, rOut, rIn, mark });
+  }
+
+  function resizeHud() {
+    battleCanvas.width = window.innerWidth;
+    battleCanvas.height = window.innerHeight;
+    battleRingSvg.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`);
+  }
+  function projHud(wx, wy, wz) {
+    const w = battleCanvas.width;
+    const h = battleCanvas.height;
+    const ppm = h / 190;
+    return { x: w * 0.5 + wx * ppm, y: h * 0.5 + wz * 0.74 * ppm - wy * 0.67 * ppm, ppm };
+  }
+
+  let rightPreview = null;
+  battleCanvas.addEventListener('contextmenu', e => e.preventDefault());
+  battleCanvas.addEventListener('pointerdown', e => {
+    if (e.button === 2) {
+      const h = battleCanvas.height;
+      const ppm = h / 190;
+      const wx = (e.clientX - battleCanvas.width * 0.5) / ppm;
+      const wz = (e.clientY - h * 0.5) / (ppm * 0.74);
+      rightPreview = { x: wx, z: wz };
+    }
+  });
+  battleCanvas.addEventListener('pointermove', e => {
+    if (!rightPreview) return;
+    const h = battleCanvas.height;
+    const ppm = h / 190;
+    rightPreview.x = (e.clientX - battleCanvas.width * 0.5) / ppm;
+    rightPreview.z = (e.clientY - h * 0.5) / (ppm * 0.74);
+  });
+  window.addEventListener('pointerup', e => {
+    if (e.button === 2 && rightPreview) {
+      for (const u of hudUnits) {
+        if (u.sel && u.kind !== 'plane') { u.tx = rightPreview.x; u.tz = rightPreview.z; }
+      }
+      document.getElementById('mm-cmd-title').textContent = '已下达混编航路';
+      document.getElementById('mm-cmd-sub').textContent = `${Math.round(Math.hypot(rightPreview.x, rightPreview.z))} m · 执行中`;
+      rightPreview = null;
+    }
+  });
+
+  function drawHudFrame(now) {
+    if (activeView === 'hud') {
+      const w = battleCanvas.width;
+      const h = battleCanvas.height;
+      bCtx.fillStyle = '#181c22';
+      bCtx.fillRect(0, 0, w, h);
+
+      // 跑道与网格
+      bCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+      bCtx.lineWidth = 1;
+      for (let gx = -160; gx <= 160; gx += 16) {
+        const p0 = projHud(gx, 0, -120);
+        const p1 = projHud(gx, 0, 120);
+        bCtx.beginPath(); bCtx.moveTo(p0.x, p0.y); bCtx.lineTo(p1.x, p1.y); bCtx.stroke();
+      }
+      for (let gz = -120; gz <= 120; gz += 16) {
+        const p0 = projHud(-160, 0, gz);
+        const p1 = projHud(160, 0, gz);
+        bCtx.beginPath(); bCtx.moveTo(p0.x, p0.y); bCtx.lineTo(p1.x, p1.y); bCtx.stroke();
+      }
+
+      // 固定翼 100m 盘旋动画（居于视野安全区，避免进入顶栏）
+      const plane = hudUnits[3];
+      plane.phase -= 0.015;
+      plane.x = 18 + Math.cos(plane.phase) * 26;
+      plane.z = 16 + Math.sin(plane.phase) * 26;
+
+      for (const u of hudUnits) {
+        const gp = projHud(u.x, 0, u.z);
+        const dom = hudDom.get(u.id);
+        dom.mark.classList.toggle('is-selected', u.sel);
+        dom.mark.style.color = u.sel ? '#ffd23f' : u.col;
+        dom.mark.style.transform = `translate3d(${gp.x}px,${gp.y + (u.kind === 'plane' ? 10 : 22)}px,0) translate(-50%,0)`;
+
+        // 地面双环（固定翼严格移除地面双环）
+        if (u.kind === 'plane') {
+          dom.g.style.display = 'none';
+          // 高空盘旋圆轨
+          bCtx.strokeStyle = 'rgba(167,139,250,0.72)';
+          bCtx.lineWidth = 1.6;
+          bCtx.setLineDash([7, 5]);
+          bCtx.beginPath();
+          for (let i = 0; i <= 36; i++) {
+            const a = (i / 36) * Math.PI * 2;
+            const pt = projHud(18 + Math.cos(a) * 26, 100, 16 + Math.sin(a) * 26);
+            i ? bCtx.lineTo(pt.x, pt.y) : bCtx.moveTo(pt.x, pt.y);
+          }
+          bCtx.stroke();
+          bCtx.setLineDash([]);
+        } else {
+          dom.g.style.display = '';
+          const rx = 5 * gp.ppm;
+          const ry = rx * 0.74;
+          dom.rOut.setAttribute('cx', gp.x); dom.rOut.setAttribute('cy', gp.y);
+          dom.rOut.setAttribute('rx', rx); dom.rOut.setAttribute('ry', ry);
+          dom.rOut.setAttribute('stroke', u.sel ? '#ffffff' : u.col);
+          dom.rOut.setAttribute('stroke-width', u.sel ? '2.4' : '1.5');
+          dom.rIn.setAttribute('cx', gp.x); dom.rIn.setAttribute('cy', gp.y);
+          dom.rIn.setAttribute('rx', rx * 0.76); dom.rIn.setAttribute('ry', ry * 0.76);
+          dom.rIn.setAttribute('stroke', u.sel ? '#ffd23f' : u.col);
+          dom.rIn.setAttribute('stroke-width', '1.1');
+        }
+
+        // 线框幽灵航路
+        const target = rightPreview && u.sel && u.kind !== 'plane' ? rightPreview : (u.tx !== null ? { x: u.tx, z: u.tz } : null);
+        if (target) {
+          const tp = projHud(target.x, 0, target.z);
+          bCtx.strokeStyle = '#08090c';
+          bCtx.lineWidth = 4.2;
+          bCtx.beginPath(); bCtx.moveTo(gp.x, gp.y); bCtx.lineTo(tp.x, tp.y); bCtx.stroke();
+          bCtx.strokeStyle = u.kind === 'heli' ? '#5ac8ff' : '#2ee6b8';
+          bCtx.lineWidth = 2;
+          bCtx.beginPath(); bCtx.moveTo(gp.x, gp.y); bCtx.lineTo(tp.x, tp.y); bCtx.stroke();
+
+          // 终点 1:1 线框幽灵
+          const ap = projHud(target.x, u.y, target.z);
+          if (u.y > 0) {
+            bCtx.setLineDash([4, 4]);
+            bCtx.beginPath(); bCtx.moveTo(tp.x, tp.y); bCtx.lineTo(ap.x, ap.y); bCtx.stroke();
+            bCtx.setLineDash([]);
+          }
+          bCtx.strokeRect(ap.x - 12, ap.y - 18, 24, 36);
+        }
+
+        // 空中垂直虚线与地面十字锚点 + 高空四角锁定框
+        const ap = projHud(u.x, u.y, u.z);
+        if (u.y > 0) {
+          bCtx.strokeStyle = u.sel ? '#ffd23f' : u.col;
+          bCtx.lineWidth = 1.4;
+          bCtx.setLineDash([4, 4]);
+          bCtx.beginPath(); bCtx.moveTo(gp.x, gp.y); bCtx.lineTo(ap.x, ap.y); bCtx.stroke();
+          bCtx.setLineDash([]);
+          bCtx.beginPath();
+          bCtx.moveTo(gp.x - 5, gp.y); bCtx.lineTo(gp.x + 5, gp.y);
+          bCtx.moveTo(gp.x, gp.y - 4); bCtx.lineTo(gp.x, gp.y + 4);
+          bCtx.stroke();
+        }
+        bCtx.fillStyle = u.col;
+        bCtx.fillRect(ap.x - 10, ap.y - 6, 20, 12);
+        if (u.sel && u.y > 0) {
+          bCtx.strokeStyle = '#ffffff';
+          bCtx.lineWidth = 2;
+          const bx = ap.x, by = ap.y, hw = 18, hh = 14, c = 6;
+          bCtx.beginPath();
+          bCtx.moveTo(bx - hw, by - hh + c); bCtx.lineTo(bx - hw, by - hh); bCtx.lineTo(bx - hw + c, by - hh);
+          bCtx.moveTo(bx + hw - c, by - hh); bCtx.lineTo(bx + hw, by - hh); bCtx.lineTo(bx + hw, by - hh + c);
+          bCtx.moveTo(bx - hw, by + hh - c); bCtx.lineTo(bx - hw, by + hh); bCtx.lineTo(bx - hw + c, by + hh);
+          bCtx.moveTo(bx + hw - c, by + hh); bCtx.lineTo(bx + hw, by + hh); bCtx.lineTo(bx + hw, by + hh - c);
+          bCtx.stroke();
+        }
+      }
+
+      // 同步左下小地图
+      mmCtx.fillStyle = '#1b212a';
+      mmCtx.fillRect(0, 0, 236, 132);
+      mmCtx.strokeStyle = 'rgba(255,255,255,0.12)';
+      mmCtx.strokeRect(14, 14, 208, 104);
+      mmCtx.strokeStyle = '#2ee6b8';
+      mmCtx.lineWidth = 3;
+      mmCtx.beginPath(); mmCtx.moveTo(76, 86); mmCtx.lineTo(132, 86); mmCtx.lineTo(164, 52); mmCtx.stroke();
+      for (const u of hudUnits) {
+        mmCtx.fillStyle = u.sel ? '#ffd23f' : u.col;
+        mmCtx.beginPath(); mmCtx.arc(118 + u.x * 1.1, 66 + u.z * 0.9, 4, 0, Math.PI * 2); mmCtx.fill();
+      }
+    }
+    requestAnimationFrame(drawHudFrame);
+  }
+  requestAnimationFrame(drawHudFrame);
+
+  /* ====== 视图 3：图 2 军械与资产检视台 ====== */
+  const ARMORY_LIST = [
+    { id: 'm1a2', cat: '地面重甲 /', title: 'M1A2 艾布拉姆斯', sub: '铁砧主战改型 · 256 运行档', price: '⚡ 350', old: '⚡ 500', icon: SILHOUETTES.tank, stats: [['穿甲火力', 9.2], ['装甲抗蚀', 8.8], ['机动航速', 5.6], ['火控射程', 7.5]] },
+    { id: 'ah64d', cat: '空中旋翼 /', title: 'AH-64D 阿帕奇', sub: '游隼 30m 巡航 · 256 运行档', price: '⚡ 420', old: '⚡ 600', icon: SILHOUETTES.heli, stats: [['穿甲火力', 8.1], ['装甲抗蚀', 5.4], ['机动航速', 8.4], ['火控射程', 8.2]] },
+    { id: 'a10c', cat: '高空固定翼 /', title: 'A-10C 疣猪', sub: '雷霆 100m 盘旋支援 · 512 细节档', price: '⚡ 680', old: '⚡ 850', icon: SILHOUETTES.plane, stats: [['穿甲火力', 9.8], ['装甲抗蚀', 6.5], ['机动航速', 9.6], ['火控射程', 9.4]] },
+    { id: 'm548', cat: '后勤支援 /', title: 'M548 弹药补给车', sub: '驼鹿生化洗消车（待解锁）', price: '⚡ 240', old: '⚡ 300', locked: true, icon: SILHOUETTES.supply, stats: [['洗消效率', 8.6], ['装甲抗蚀', 4.5], ['机动航速', 6.1], ['补给半径', 9.0]] },
+  ];
+  let armIdx = 0;
+  function renderArmory() {
+    const cur = ARMORY_LIST[armIdx];
+    document.getElementById('arm-cat').textContent = cur.cat;
+    document.getElementById('arm-title').textContent = cur.title;
+    document.getElementById('arm-subname').textContent = cur.sub;
+    document.getElementById('arm-cost').textContent = cur.price;
+    document.getElementById('arm-old-cost').textContent = cur.old;
+    document.getElementById('arm-page').textContent = `${armIdx + 1} / ${ARMORY_LIST.length}`;
+
+    const menu = document.getElementById('arm-menu');
+    menu.replaceChildren();
+    ARMORY_LIST.forEach((it, idx) => {
+      const li = document.createElement('li');
+      li.className = `gta-menu-item${idx === armIdx ? ' active' : ''}`;
+      li.innerHTML = `<span style="display:flex;align-items:center;gap:8px"><span class="dot"></span>${it.title}</span>`;
+      li.addEventListener('click', () => { armIdx = idx; renderArmory(); });
+      menu.append(li);
+    });
+
+    const host = document.getElementById('arm-svg-host');
+    host.replaceChildren();
+    const bigSvg = makeIcon(cur.icon, 340, false);
+    bigSvg.style.color = '#d8dde6';
+    host.append(bigSvg);
+
+    const strip = document.getElementById('arm-thumb-strip');
+    strip.replaceChildren();
+    ARMORY_LIST.forEach((it, idx) => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = `thumb-card${idx === armIdx ? ' active' : ''}`;
+      if (idx === 0) card.innerHTML += '<span class="dot-bio"></span>';
+      const ic = makeIcon(it.icon, 56, false);
+      ic.style.color = it.locked ? '#5a6270' : '#e6e9ef';
+      card.append(ic);
+      if (it.locked) {
+        const lk = document.createElement('span');
+        lk.className = 'lock-tag';
+        lk.textContent = '🔒 锁定';
+        card.append(lk);
+      }
+      card.addEventListener('click', () => { armIdx = idx; renderArmory(); });
+      strip.append(card);
+    });
+
+    const spec = document.getElementById('arm-spec-panel');
+    spec.innerHTML = `
+      <div style="font-size:16px;font-weight:800">${cur.title}</div>
+      <div style="font-size:12px;color:var(--text-sub);margin-bottom:10px">${cur.sub}</div>
+      ${cur.stats.map(([n, v]) => `
+        <div class="stat-line-row">
+          <div class="stat-line-head"><span>${n}</span><b class="mono">${v.toFixed(1)}</b></div>
+          <div class="stat-track"><div class="stat-fill" style="width:${v * 10}%"></div></div>
+        </div>
+      `).join('')}
+      <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--line-hair);display:flex;justify-content:space-between;color:var(--text-muted);font-size:11.5px">
+        <span>改装槽位</span><span class="mono">反应甲 · 破片 · 热像</span>
+      </div>
+    `;
+  }
+  renderArmory();
+  document.getElementById('arm-stage').addEventListener('pointermove', e => {
+    const svg = document.querySelector('#arm-svg-host svg');
+    if (!svg) return;
+    const rx = (e.clientX / window.innerWidth - 0.5) * 14;
+    const ry = (e.clientY / window.innerHeight - 0.5) * -10;
+    svg.style.transform = `perspective(700px) rotateY(${rx}deg) rotateX(${ry}deg)`;
+  });
+  document.getElementById('arm-deploy-btn').addEventListener('click', () => pushToast('emerald', { title: '已加入出战序列', desc: `${ARMORY_LIST[armIdx].title} 编组确认成功。`, color: '#34d399' }));
+  document.getElementById('arm-back-btn').addEventListener('click', () => switchView('map'));
+
+  /* ====== 视图 4：图 9 二分暂停 + 图 12 叠层设置 ====== */
+  const PAUSE_ITEMS = ['战术大地图', '防线演训态势', '军械与补给', '战区指南', '摄影观察模式', '系统设置'];
+  let pauseIdx = 0;
+  function renderPauseMenu() {
+    const ul = document.getElementById('pause-menu-list');
+    ul.replaceChildren();
+    PAUSE_ITEMS.forEach((name, idx) => {
+      const li = document.createElement('li');
+      li.className = `gta-menu-item${idx === pauseIdx ? ' active' : ''}`;
+      li.innerHTML = `<span>${name}</span>${idx === 2 ? '<span class="dot"></span>' : ''}`;
+      li.addEventListener('click', () => {
+        pauseIdx = idx;
+        renderPauseMenu();
+        if (idx === 5) setPauseSubMode('overlays');
+      });
+      ul.append(li);
+    });
+  }
+  renderPauseMenu();
+
+  const OVERLAY_TABS = ['M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6Z', 'M3 12h18M12 3v18', 'M12 3a9 9 0 1 0 9 9', 'M4 6h16v12H4Z'];
+  const SETTINGS_ROWS = [
+    { name: 'VGC 导航引导模式', val: '标准战术', toggle: true, on: true, desc: '开启完整线框幽灵路线与距时读数；关闭则进入极简沉浸观察态。' },
+    { name: '生化辐射警报滤镜', val: '开启', toggle: true, on: true, desc: '在地图毒蚀边界激活荧光绿轮廓与防化报警闪烁。' },
+    { name: '画面暗角强度', val: '15%', toggle: false, desc: '调整屏幕边缘压暗深度，聚焦战场中心视区。' },
+    { name: '3D 渲染分辨率', val: '原生高清', toggle: false, desc: '可切换为 640px 像素化对比档，外围 HUD 始终保持原生锐利。' },
+  ];
+  let setTabIdx = 0;
+  let setRowIdx = 0;
+  function renderSettingsFloat() {
+    const tabs = document.getElementById('set-icon-tabs');
+    tabs.replaceChildren();
+    const q = document.createElement('span'); q.className = 'key-chip key-chip--dark'; q.textContent = 'Q';
+    tabs.append(q);
+    OVERLAY_TABS.forEach((p, idx) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `set-tab-ico${idx === setTabIdx ? ' active' : ''}`;
+      b.append(makeIcon(p, 16, true));
+      b.addEventListener('click', () => { setTabIdx = idx; renderSettingsFloat(); });
+      tabs.append(b);
+    });
+    const e = document.createElement('span'); e.className = 'key-chip key-chip--dark'; e.textContent = 'E';
+    tabs.append(e);
+
+    const mount = document.getElementById('set-rows-mount');
+    mount.replaceChildren();
+    SETTINGS_ROWS.forEach((r, idx) => {
+      const row = document.createElement('div');
+      row.className = `set-row${idx === setRowIdx ? ' active' : ''}`;
+      const left = document.createElement('div');
+      left.innerHTML = `<div style="font-weight:700">${r.name}</div>${idx === setRowIdx ? `<small>${r.val}</small>` : ''}`;
+      row.append(left);
+      if (r.toggle) {
+        const tg = document.createElement('button');
+        tg.type = 'button';
+        tg.className = 'gta-toggle';
+        tg.setAttribute('aria-checked', String(r.on));
+        tg.addEventListener('click', ev => {
+          ev.stopPropagation();
+          r.on = !r.on;
+          r.val = r.on ? '开启' : '关闭';
+          if (idx === 0) toggleNavMode();
+          renderSettingsFloat();
+        });
+        row.append(tg);
+      } else {
+        const v = document.createElement('span');
+        v.className = 'mono';
+        v.style.fontWeight = '700';
+        v.textContent = r.val;
+        row.append(v);
+      }
+      row.addEventListener('click', () => {
+        setRowIdx = idx;
+        document.getElementById('set-desc-line').textContent = r.desc;
+        renderSettingsFloat();
+      });
+      mount.append(row);
+    });
+  }
+  renderSettingsFloat();
+
+  function setPauseSubMode(mode) {
+    document.getElementById('sub-pause-menu').hidden = mode !== 'pause';
+    document.getElementById('sub-overlays-panel').hidden = mode !== 'overlays';
+    document.getElementById('btn-mode-pause').classList.toggle('ui-btn--invert', mode === 'pause');
+    document.getElementById('btn-mode-overlays').classList.toggle('ui-btn--invert', mode === 'overlays');
+  }
+  document.getElementById('btn-mode-pause').addEventListener('click', () => setPauseSubMode('pause'));
+  document.getElementById('btn-mode-overlays').addEventListener('click', () => setPauseSubMode('overlays'));
+
+  /* ====== 视图 5：通用 UI 套件与弹窗 ====== */
+  const KIT_COLORS = [
+    ['主题生化金黄', '#ffd23f', '主顶边线 / 焦点 / 章节大字'],
+    ['琥珀警告橙', '#f59e2d', '渐变终色 / 生化图标渐变'],
+    ['电光薄荷青', '#2ee6b8', '导航路线 / 我方地面 / 安全'],
+    ['血警绯红', '#ff4757', '尸群红区 / 禁行报错 / 高危'],
+    ['毒蚀荧光绿', '#9ef01a', '辐射 / 毒雾 / 变异体污染'],
+    ['生机翠绿', '#34d399', '指挥资源环 / 医疗补给'],
+    ['冰川天蓝', '#5ac8ff', '旋翼直升机 30m 通道'],
+    ['雷达靛紫', '#a78bfa', '固定翼 100m / 主线进度'],
+    ['冷静钢蓝', '#60a5fa', '寻路准备 / 队列等待'],
+    ['深炭曜石底', '#0c0d10', '全屏暗场 / 无框浮层基座'],
+  ];
+  const swMount = document.getElementById('kit-swatch-mount');
+  for (const [name, hex, note] of KIT_COLORS) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'kit-swatch';
+    b.innerHTML = `<i style="background:${hex}"></i><div style="display:flex;justify-content:space-between"><strong>${name}</strong><span class="mono" style="color:${hex}">${hex}</span></div><small style="color:var(--text-muted);font-size:11px">${note}</small>`;
+    b.addEventListener('click', () => {
+      navigator.clipboard?.writeText(hex).catch(() => {});
+      pushToast('cyan', { title: `已复制色值 ${hex}`, desc: `${name}：${note}`, color: hex });
+    });
+    swMount.append(b);
+  }
+
+  const gallery = document.getElementById('kit-svg-gallery');
+  for (const [label, key, col] of [
+    ['主战坦克 (evenodd)', 'tank', '#2ee6b8'],
+    ['补给车 (evenodd)', 'supply', '#34d399'],
+    ['武装直升机 (evenodd)', 'heli', '#5ac8ff'],
+    ['固定翼攻击机 (evenodd)', 'plane', '#a78bfa'],
+    ['生化爆发标志', 'biohazard', '#ffd23f'],
+    ['辐射污染标志', 'radiation', '#f59e2d'],
+  ]) {
+    const box = document.createElement('div');
+    box.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-slot);border:1px solid var(--line-hair)';
+    const svg = makeIcon(SILHOUETTES[key], 28, false);
+    svg.style.color = col;
+    box.append(svg);
+    const cp = document.createElement('div');
+    cp.innerHTML = `<strong style="display:block;font-size:12.5px">${label}</strong><span class="mono" style="font-size:11px;color:${col}">${col}</span>`;
+    box.append(cp);
+    gallery.append(box);
+  }
+
+  document.getElementById('kit-seg-demo').addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    document.querySelectorAll('#kit-seg-demo button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+  document.getElementById('kit-toggle-demo').addEventListener('click', e => {
+    const cur = e.currentTarget.getAttribute('aria-checked') === 'true';
+    e.currentTarget.setAttribute('aria-checked', String(!cur));
+  });
+  document.getElementById('kit-slider').addEventListener('input', e => {
+    const v = `${e.target.value}%`;
+    document.getElementById('kit-slider-val').textContent = v;
+    document.getElementById('kit-progress-bar').style.width = v;
+  });
+  document.querySelectorAll('[data-toast]').forEach(btn => btn.addEventListener('click', () => pushToast(btn.dataset.toast)));
+
+  // 模态弹窗控制
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  const modalBox = document.getElementById('modal-box');
+  const modalTitle = document.getElementById('modal-title');
+  const modalDesc = document.getElementById('modal-desc');
+  const modalInput = document.getElementById('modal-input');
+  const modalOk = document.getElementById('modal-ok');
+
+  function openModal(mode) {
+    modalBackdrop.hidden = false;
+    modalInput.hidden = mode !== 'form';
+    modalBox.dataset.tone = mode === 'danger' ? 'crimson' : 'yellow';
+    if (mode === 'confirm') {
+      modalTitle.textContent = '确认重置当前演训战局？';
+      modalDesc.textContent = '所有己方空地载具将回到初始部署点，已规划的线框幽灵队列将被清空。';
+      modalOk.className = 'ui-btn ui-btn--bio';
+    } else if (mode === 'danger') {
+      modalTitle.textContent = '☣ 高危生化封锁指令确认';
+      modalDesc.textContent = '即将对东北机库红区投放高爆燃烧航弹，该区域地面车辆通行权限将被永久封锁。';
+      modalOk.className = 'ui-btn ui-btn--danger';
+    } else {
+      modalTitle.textContent = '创建自定义战术编队';
+      modalDesc.textContent = '请输入编队呼号，保存后可通过 Alt+数字 快捷调度。';
+      modalOk.className = 'ui-btn ui-btn--invert';
+      setTimeout(() => modalInput.focus(), 20);
+    }
+  }
+  document.querySelectorAll('[data-open-modal]').forEach(btn => btn.addEventListener('click', () => openModal(btn.dataset.openModal)));
+  document.getElementById('modal-cancel').addEventListener('click', () => { modalBackdrop.hidden = true; });
+  modalOk.addEventListener('click', () => {
+    modalBackdrop.hidden = true;
+    pushToast('emerald', { title: '弹窗指令已确认', desc: modalInput.hidden ? modalTitle.textContent : `已创建编队：${modalInput.value || '铁砧先锋'}`, color: '#34d399' });
+  });
+  modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) modalBackdrop.hidden = true; });
+
+  /* ====== 全局键盘导航 ====== */
+  window.addEventListener('keydown', e => {
+    if (document.activeElement?.matches('input,textarea')) {
+      if (e.code === 'Escape') modalBackdrop.hidden = true;
+      return;
+    }
+    if (e.code === 'Escape') {
+      if (!modalBackdrop.hidden) modalBackdrop.hidden = true;
+      else if (!wheelOverlay.hidden) wheelOverlay.hidden = true;
+    } else if (e.code === 'KeyQ') {
+      const idx = (VIEW_ORDER.indexOf(activeView) - 1 + VIEW_ORDER.length) % VIEW_ORDER.length;
+      switchView(VIEW_ORDER[idx]);
+    } else if (e.code === 'KeyE') {
+      const idx = (VIEW_ORDER.indexOf(activeView) + 1) % VIEW_ORDER.length;
+      switchView(VIEW_ORDER[idx]);
+    } else if (e.code === 'Tab' && activeView === 'hud') {
+      e.preventDefault();
+      wheelOverlay.hidden = !wheelOverlay.hidden;
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (activeView === 'map') drawMapCanvas();
+    if (activeView === 'hud') resizeHud();
+  });
+
+  drawMapCanvas();
+})();
+</script>
+</body>
+</html>
