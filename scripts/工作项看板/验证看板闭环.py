@@ -102,10 +102,19 @@ def verify_local_single_mode(tmp_dir: Path) -> None:
     th = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.1}, daemon=True)
     th.start()
     try:
-        # 1. /healthz 与静态资源
+        # 1. /healthz、看板静态资源与 Code SSOT V2.2 /ui/* 单源只读挂载
         st, _, hz = http_json(port, "GET", "/healthz")
         assert st == 200 and hz["service"] == "scavenger-workboard" and hz["port"] == port
-        for static_path in ("/", "/styles.css", "/app.mjs", "/favicon.svg"):
+        for static_path in (
+            "/",
+            "/styles.css",
+            "/app.mjs",
+            "/favicon.svg",
+            "/ui/%E4%BB%A4%E7%89%8C.css",
+            "/ui/%E7%BB%84%E4%BB%B6.css",
+            "/ui/%E4%BA%A4%E4%BA%92%E6%8E%A7%E4%BB%B6.mjs",
+            "/ui/%E5%9B%BE%E6%A0%87%E4%B8%8E%E6%A0%87%E7%BB%98.mjs",
+        ):
             with _OPENER.open(f"http://127.0.0.1:{port}{static_path}", timeout=5.0) as resp:
                 assert resp.status == 200 and len(resp.read()) > 100
 
@@ -507,12 +516,254 @@ def verify_quick_launcher(tmp_dir: Path) -> None:
                 fg_proc.kill()
 
 
+def verify_parent_child_and_migration(tmp_dir: Path) -> None:
+    """校验存量库 parent_id 幂等迁移、2 层父子工作项全链路、防成环/防误报/防误结单与 pull 父兄上下文。"""
+    import sqlite3
+
+    # 1. 模拟不含 parent_id 列的旧版 SQLite 数据库，验证启动自动幂等迁移且旧数据零丢失
+    legacy_db = tmp_dir / "legacy" / "workboard.db"
+    legacy_db.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(legacy_db))
+    conn.executescript(
+        """
+        CREATE TABLE projects (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT NOT NULL UNIQUE, name TEXT NOT NULL,
+            description TEXT NOT NULL DEFAULT '', strict_mode INTEGER NOT NULL DEFAULT 0,
+            next_seq INTEGER NOT NULL DEFAULT 2, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+        );
+        CREATE TABLE modules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, project_id INTEGER NOT NULL, name TEXT NOT NULL,
+            summary TEXT NOT NULL DEFAULT '', scope_desc TEXT NOT NULL DEFAULT '',
+            capabilities TEXT NOT NULL DEFAULT '', redlines TEXT NOT NULL DEFAULT '',
+            entry_paths_json TEXT NOT NULL DEFAULT '[]', verify_cmd TEXT NOT NULL DEFAULT '',
+            color TEXT NOT NULL DEFAULT '#6366f1', created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+        );
+        CREATE TABLE work_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, project_id INTEGER NOT NULL, seq_num INTEGER NOT NULL,
+            item_key TEXT NOT NULL UNIQUE, title TEXT NOT NULL, description_md TEXT NOT NULL DEFAULT '',
+            plan_md TEXT NOT NULL DEFAULT '', state TEXT NOT NULL DEFAULT 'todo', priority TEXT NOT NULL DEFAULT 'medium',
+            module_id INTEGER, owner_id INTEGER, agent_id INTEGER, agent_host TEXT NOT NULL DEFAULT '',
+            agent_branch TEXT NOT NULL DEFAULT '', agent_heartbeat_at TEXT NOT NULL DEFAULT '',
+            scope_paths_json TEXT NOT NULL DEFAULT '[]', blocked_by_json TEXT NOT NULL DEFAULT '[]',
+            sort_order REAL NOT NULL DEFAULT 1000.0, rev INTEGER NOT NULL DEFAULT 1,
+            created_by INTEGER, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+        );
+        INSERT INTO projects(key, name, created_at, updated_at) VALUES ('OLD', '旧库迁移校验', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z');
+        INSERT INTO work_items(project_id, seq_num, item_key, title, created_at, updated_at)
+        VALUES (1, 1, 'OLD-1', '历史存量卡片', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z');
+        """
+    )
+    conn.commit()
+    conn.close()
+
+    migrated_store = BoardStore(legacy_db, seed_workspace=False)
+    migrated_detail = migrated_store.get_item_detail("OLD-1")
+    assert migrated_detail["parent_id"] is None and migrated_detail["sub_total"] == 0 and migrated_detail["title"] == "历史存量卡片"
+
+    # 2. 启动隔离服务，端到端校验父子工作项（以 F-22 跨模块拆单为样本）
+    port = pick_free_port()
+    data_dir = tmp_dir / "pc_srv"
+    store = BoardStore(data_dir / "数据" / "workboard.db", seed_workspace=True)
+    server = WorkboardServer(
+        ("127.0.0.1", port),
+        store=store,
+        data_dir=data_dir,
+        host="127.0.0.1",
+        auth_mode="local_single",
+        control_token="test-ctrl-pc",
+        session_secret=load_or_create_session_secret(data_dir),
+    )
+    th = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.1}, daemon=True)
+    th.start()
+    try:
+        st, _, boot = http_json(port, "GET", "/api/v1/bootstrap")
+        assert st == 200
+        pid = boot["projects"][0]["id"]
+        agent_tok = next(m["api_token"] for m in boot["members"] if m["kind"] == "agent")
+
+        epic_md = tmp_dir / "f22_epic.md"
+        epic_md.write_text(
+            "\n".join([
+                "### 背景与目标",
+                "完成 F-22 固定翼从模型编译、数值基底、音效特效到操作交互的全链路跨模块实装与联调验收。",
+                "",
+                "### 核心变更",
+                "- 统一定义 F-22 固定翼机动作战契约并拆分至各实战模块并行推进。",
+                "- 所有子模块验收后在 8800/play 与 /air-lab 完成整机联调。",
+                "",
+                "### 验收标准",
+                "- [ ] 全部子工作项完成验收，F-22 在 16:9 与 21:9 680p 基线下运行稳定。",
+            ]),
+            encoding="utf-8",
+        )
+        sub_md = tmp_dir / "f22_sub.md"
+        sub_md.write_text(
+            "\n".join([
+                "### 背景与目标",
+                "补齐 F-22 固定翼在本模块下的核心参数与交互能力，严格遵守模块架构红线。",
+                "",
+                "### 核心变更",
+                "- 接入 F-22 型号数据并在对应模块内完成运行闭环。",
+                "- 保持与同父单兄弟模块接口字段完全对齐。",
+                "",
+                "### 验收标准",
+                "- [ ] 模块标准验证命令与全仓结构门禁均通过。",
+            ]),
+            encoding="utf-8",
+        )
+
+        # 2a. 创建统筹父单（--epic 允许暂不填业务源码 --scope 并通过 --check-spec）
+        epic = run_cli(
+            port,
+            "--json",
+            "create",
+            "--title",
+            "[需求] F-22固定翼全链路实装与验收",
+            "--module",
+            "载具战斗与数值基底",
+            "--priority",
+            "high",
+            "--label",
+            "功能需求",
+            "--epic",
+            "--desc-file",
+            str(epic_md),
+            "--check-spec",
+            token=agent_tok,
+        )
+        epic_key = epic["item_key"]
+
+        # 2b. 创建两个跨模块子单，其中 sub2 被 sub1 阻塞
+        sub1 = run_cli(
+            port,
+            "--json",
+            "create",
+            "--title",
+            "[需求] F-22数值基底与飞行弹药配置",
+            "--parent",
+            epic_key,
+            "--module",
+            "载具战斗与数值基底",
+            "--label",
+            "功能需求,数值/规则",
+            "--scope",
+            "src/程序化地图/固定翼底座.mjs",
+            "--desc-file",
+            str(sub_md),
+            "--check-spec",
+            token=agent_tok,
+        )
+        sub1_key = sub1["item_key"]
+        sub2 = run_cli(
+            port,
+            "--json",
+            "create",
+            "--title",
+            "[需求] F-22战术标绘与攻势交互接入",
+            "--parent",
+            epic_key,
+            "--module",
+            "操作交互与战术标绘",
+            "--label",
+            "功能需求,UI/UX",
+            "--blocked-by",
+            sub1_key,
+            "--scope",
+            "src/交互系统/指令与标绘层.mjs",
+            "--desc-file",
+            str(sub_md),
+            "--check-spec",
+            token=agent_tok,
+        )
+        sub2_key = sub2["item_key"]
+        assert sub1["parent_key"] == epic_key and sub2["parent_key"] == epic_key
+        assert sub2["blocked_open_count"] == 1
+
+        # 2c. 校验 2 层结构限制与防环拦截
+        st_grand, _, err_grand = http_json(port, "POST", f"/api/v1/projects/{pid}/items", {
+            "title": "非法孙子单",
+            "parent_key": sub1_key,
+        })
+        assert st_grand == 400 and "2 层结构" in err_grand["message"]
+
+        st_self, _, _ = http_json(port, "PATCH", f"/api/v1/items/{epic_key}", {"parent_key": epic_key})
+        assert st_self == 400
+
+        st_demote, _, err_demote = http_json(port, "POST", f"/api/v1/projects/{pid}/items", {"title": "另一顶层单"})
+        assert st_demote == 201
+        other_top = err_demote["item"]["item_key"]
+        st_nest, _, err_nest = http_json(port, "PATCH", f"/api/v1/items/{epic_key}", {"parent_key": other_top})
+        assert st_nest == 400 and "已包含" in err_nest["message"]
+
+        # 2d. 父单与子单同路径处于 in_progress 不应互相误报冲突
+        st_p1, _, _ = http_json(port, "PATCH", f"/api/v1/items/{epic_key}", {"state": "in_progress", "scope_paths": ["src/程序化地图/固定翼底座.mjs"]})
+        st_s1, _, _ = http_json(port, "PATCH", f"/api/v1/items/{sub1_key}", {"state": "in_progress"})
+        assert st_p1 == 200 and st_s1 == 200
+        st_lst, _, lst_data = http_json(port, "GET", f"/api/v1/projects/{pid}/items")
+        assert st_lst == 200 and len(lst_data["conflict_pairs"]) == 0, f"父子同路径不应报假冲突：{lst_data['conflict_pairs']}"
+
+        # 2e. CLI list --parent / --top-level 与 pull 父兄上下文及上下游阻塞
+        tree_list = run_cli(port, "--json", "list", "--parent", epic_key, token=agent_tok)
+        assert {x["item_key"] for x in tree_list["items"]} == {epic_key, sub1_key, sub2_key}
+        top_list = run_cli(port, "--json", "list", "--top-level", token=agent_tok)
+        assert sub1_key not in {x["item_key"] for x in top_list["items"]} and epic_key in {x["item_key"] for x in top_list["items"]}
+
+        pull_sub1 = run_cli(port, "--json", "pull", sub1_key, token=agent_tok)
+        assert pull_sub1["parent_detail"]["item_key"] == epic_key
+        assert any(s["item_key"] == sub2_key for s in pull_sub1["siblings"])
+        assert any(b["item_key"] == sub2_key for b in pull_sub1["blocks_details"])
+        pull_sub1_txt = run_cli(port, "pull", sub1_key, token=agent_tok)
+        assert "[所属父工作项总目标" in pull_sub1_txt and "[同父兄弟子项" in pull_sub1_txt and "阻塞下游" in pull_sub1_txt
+
+        pull_epic_txt = run_cli(port, "pull", epic_key, token=agent_tok)
+        assert "[子工作项清单 (0/2)]" in pull_epic_txt
+
+        # 2f. 父单防误结单保护（未完成子项拦截 -> 全部子项 done 后放行；以及 --force 显式放行）
+        st_block_done, _, err_done = http_json(port, "POST", f"/api/v1/items/{epic_key}/transition", {"action": "done"})
+        assert st_block_done == 400 and err_done.get("reason_code") == "incomplete_children" and len(err_done.get("incomplete_children") or []) == 2
+
+        run_cli(port, "done", sub1_key, "--note", "子单1通过", token=agent_tok)
+        # sub1 完成后 sub2 的 blocked_open_count 应归零
+        sub2_after = run_cli(port, "--json", "pull", sub2_key, token=agent_tok)
+        assert sub2_after["blocked_open_count"] == 0
+        run_cli(port, "done", sub2_key, "--note", "子单2通过", token=agent_tok)
+
+        epic_done = run_cli(port, "--json", "done", epic_key, "--note", "全部子项验收完成", token=agent_tok)
+        assert epic_done["state"] == "done" and epic_done["sub_done"] == 2 and epic_done["sub_total"] == 2
+
+        # 2g. 验证 --force 强制结单 + update --parent "" 解绑 + --add-blocked-by / --remove-blocked-by + 删除父单保留子单
+        sub_extra = run_cli(port, "--json", "create", "--title", "[任务] 挂在另一顶层单下的子项", "--parent", other_top, "--scope", "scripts/工作项看板/", token=agent_tok)
+        ekey = sub_extra["item_key"]
+        st_no_force, _, _ = http_json(port, "POST", f"/api/v1/items/{other_top}/transition", {"action": "done"})
+        assert st_no_force == 400
+        forced_done = run_cli(port, "--json", "done", other_top, "--force", "--note", "工程师确认强制收口", token=agent_tok)
+        assert forced_done["state"] == "done"
+
+        upd_blk = run_cli(port, "--json", "update", ekey, "--add-blocked-by", sub1_key, token=agent_tok)
+        assert sub1_key in upd_blk["blocked_by"]
+        upd_unblk = run_cli(port, "--json", "update", ekey, "--remove-blocked-by", sub1_key, "--parent", "", token=agent_tok)
+        assert upd_unblk["blocked_by"] == [] and upd_unblk["parent_id"] is None
+
+        # 重新挂回去再删父单，确认子单保留且自动转为顶层工作项
+        run_cli(port, "update", ekey, "--parent", other_top, token=agent_tok)
+        st_del, _, _ = http_json(port, "DELETE", f"/api/v1/items/{other_top}")
+        assert st_del == 200
+        surviving = run_cli(port, "--json", "pull", ekey, token=agent_tok)
+        assert surviving["parent_id"] is None and surviving["item_key"] == ekey
+    finally:
+        server.broker.close_all()
+        server.shutdown()
+        server.server_close()
+
+
 def verify_project_skills_and_frontend() -> None:
-    """校验项目级工作项双技能（create / exec）与前端 5 类统一模板资产完整性。"""
+    """校验项目级工作项双技能（create / exec）与前端 5 类统一模板、父子层级/阻塞控件完整性。"""
     required_files = [
         (ROOT / ".agents/skills/workboard-item-create/SKILL.md", "name: workboard-item-create"),
+        (ROOT / ".agents/skills/workboard-item-create/SKILL.md", "--parent"),
         (ROOT / ".agents/skills/workboard-item-create/references/工作项编写规范与模板.md", "### 5. 游戏资产（`[资产]`）"),
         (ROOT / ".agents/skills/workboard-item-exec/SKILL.md", "name: workboard-item-exec"),
+        (ROOT / ".agents/skills/workboard-item-exec/SKILL.md", "同父兄弟子项"),
         (ROOT / ".agents/skills/workboard-item-exec/references/状态流转与协作规程.md", "plan_review"),
     ]
     for fp, marker in required_files:
@@ -521,21 +772,28 @@ def verify_project_skills_and_frontend() -> None:
         assert marker in content, f"技能文件缺少关键内容 {marker}：{fp}"
 
     app_js = (ROOT / "src/工作项看板/应用.mjs").read_text(encoding="utf-8")
-    for marker in ("ITEM_SPEC_TEMPLATES", "[需求]", "[缺陷]", "[优化]", "[任务]", "[资产]", "workboard-item-exec"):
-        assert marker in app_js, f"看板前端缺少统一规范模板或技能引导：{marker}"
+    index_html = (ROOT / "src/工作项看板/index.html").read_text(encoding="utf-8")
+    styles_css = (ROOT / "src/工作项看板/样式.css").read_text(encoding="utf-8")
+    for marker in ("ITEM_SPEC_TEMPLATES", "[需求]", "[缺陷]", "[优化]", "[任务]", "[资产]", "workboard-item-exec", "sub-items-box", "d-parent", "d-blocker-add", "topLevelOnly", "bindAllUiSelects", "createBrandLogoSvg"):
+        assert marker in app_js, f"看板前端缺少统一规范模板、父子层级或 V2.2 控件：{marker}"
+    assert "/ui/令牌.css" in index_html and "/ui/组件.css" in index_html, "看板 index.html 必须同源引入 /ui/令牌.css 与 /ui/组件.css"
+    assert "<select" not in index_html.lower() and "<select" not in app_js.lower(), "看板界面严禁使用浏览器原生 <select>，必须全部消费 .ui-select"
+    assert "flex-shrink: 0;" in styles_css, "看板样式必须保留 .card flex-shrink: 0 防止多卡列压扁标题"
 
 
 def main() -> int:
     t0 = time.monotonic()
     with tempfile.TemporaryDirectory(prefix="workboard-test-single-") as d1:
         verify_local_single_mode(Path(d1))
+    with tempfile.TemporaryDirectory(prefix="workboard-test-parent-") as d_pc:
+        verify_parent_child_and_migration(Path(d_pc))
     with tempfile.TemporaryDirectory(prefix="workboard-test-lan-") as d2:
         verify_lan_pin_mode(Path(d2))
     with tempfile.TemporaryDirectory(prefix="workboard-test-launcher-") as d3:
         verify_quick_launcher(Path(d3))
     verify_project_skills_and_frontend()
     elapsed = round(time.monotonic() - t0, 2)
-    print(f"[通过] 本地工作项看板自动化闭环验证全部通过（9 大项，含单人免登/局域网PIN/Agent Token/乐观锁409/路径冲突/SHA256附件/SSE/CLI/快捷启动脚本/统一编写规范与项目级Skills，耗时 {elapsed}s）。")
+    print(f"[通过] 本地工作项看板自动化闭环验证全部通过（10 大项，含存量迁移/2层父子工作项/父兄上下文/防误结单/前置阻塞/单人免登/局域网PIN/Agent Token/乐观锁409/路径冲突/SHA256附件/SSE/CLI/快捷启动脚本/统一编写规范与项目级Skills，耗时 {elapsed}s）。")
     return 0
 
 
