@@ -139,9 +139,9 @@ Scavenger/
 ├─ docs/                             # 正式策划、三大核心规范、实施计划、界面预研沙盒与 README 展示图
 ├─ reports/                          # 离线自包含 HTML 验证报告、性能基准与每日开发看板
 ├─ research/                         # 来源台账、观察记录与核验元数据（不作为运行时依赖）
-├─ public/assets/                    # 已单独确认入库的共享静态运行时资产（如爆炸 8×8 体积云图集）
+├─ public/assets/                    # 内置可玩运行资产包（9km 地图 B4、129 车 V3/兵牌、精简 Three.js、61 个原样音效、爆炸贴图）
 ├─ .agents/skills/                   # 项目级 AI 协作技能（workboard-item-*、daily-dev-log）
-└─ local-data/  (Git 忽略)           # 本机第三方工具、大体积模型/音效/地图包、原始快照与运行缓存
+└─ local-data/  (Git 忽略)           # 本机原始大体积提取批次、离线重编工程、研发资料库与运行缓存
 ```
 
 完整源码与工具索引见 [docs/apps-code-map.md](docs/apps-code-map.md)。
@@ -164,7 +164,7 @@ python -X utf8 -B scripts/启动主服务.py play --open
 python -X utf8 -B scripts/工作项看板/启动看板服务.py --open
 ```
 
-> **运行前提说明**：项目大体积模型、`.scvmap` 地图包、`.scvveh` 载具归档、音效与 Three.js 本地依赖均保存在 `.gitignore` 忽略的 `local-data/` 目录中。**仅克隆 Git 源码不包含这些大体积本地资产**，新机器接入与资源包导入方式请先阅读 [多人协作方案](docs/多人协作方案.md)（含 [离线可视化页](reports/多人协作/多人协作方案.html)）。
+> **开箱即玩说明**：仓库 `public/assets/` 已内置完整可玩运行时资产（9km 地图 B4 单包归档、129 车 V3 流式归档与兵牌、精简 Three.js 0.187.0、61 个实战与载具原样音频及爆炸体积云图集，总计约 `161 MiB`）。仅需 **Python 3.11+**（零 `npm install`、零构建），`git clone` 后直接运行上方命令即可完整体验 `/`、`/armory`、`/play`、`/editor`、`/settings`、`/ui-spec` 与 `/dev/battlefield`；主服务默认优先读取 `local-data/` 研发产物，缺失时自动回退 `public/assets/`（可用 `--assets-source public` 强制纯净模式）。若需参与离线大地图/载具重编或访问研发资料库（`/dev/library/`、`/dev/audio/`），再参阅 [多人协作方案](docs/多人协作方案.md)（含 [离线可视化页](reports/多人协作/多人协作方案.html)）。
 
 ### 2. 日常结构门禁与验收命令
 

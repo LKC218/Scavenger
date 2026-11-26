@@ -21,15 +21,15 @@
 
 | 入口 | 职责 | 说明落点 |
 | --- | --- | --- |
-| [启动工作任务看板.cmd](../启动工作任务看板.cmd)、[数据库.py](../scripts/工作项看板/数据库.py)、[启动看板服务.py](../scripts/工作项看板/启动看板服务.py)、[看板工具.py](../scripts/工作项看板/看板工具.py)、[验证看板闭环.py](../scripts/工作项看板/验证看板闭环.py) | 专属端口 `18800` 独立看板服务与根目录一键快捷启动脚本（双击前台留窗 + 自动开浏览器 + `[O]/[L]/[R]/[Q]` 单键面板 + 关窗优雅停服 + 后台接管/前台保护；SQLite WAL、乐观锁 `rev`、SSE 实时同步、SHA-256 附件、单人/局域网双鉴权、作用域路径冲突雷达与 AI Agent CLI） | [看板服务说明](../scripts/工作项看板/README.md)、[实施计划](研发协作/本地工作项看板-实施计划.md) |
-| [index.html](../src/工作项看板/index.html)、[样式.css](../src/工作项看板/样式.css)、[应用.mjs](../src/工作项看板/应用.mjs) | Plane 风格暗色协作前端（8 列人机闸门拖拽看板、新建工作项 5 类统一模板与字数计、列表视图、右侧抽屉与 `Ctrl+V` 贴图、模块上下文包与 Agent 冲突雷达） | [看板前端说明](../src/工作项看板/README.md) |
+| [启动工作任务看板.cmd](../启动工作任务看板.cmd)、[数据库.py](../scripts/工作项看板/数据库.py)、[启动看板服务.py](../scripts/工作项看板/启动看板服务.py)、[看板工具.py](../scripts/工作项看板/看板工具.py)、[验证看板闭环.py](../scripts/工作项看板/验证看板闭环.py) | 专属端口 `18800` 独立看板服务与根目录一键快捷启动脚本（双击前台留窗 + 自动开浏览器 + `[O]/[L]/[R]/[Q]` 单键面板 + 关窗优雅停服 + 后台接管/前台保护；SQLite WAL、2 层父子工作项与未完成子项结单保护、乐观锁 `rev`、SSE 实时同步、SHA-256 附件、单人/局域网双鉴权、作用域路径冲突雷达与 AI Agent CLI） | [看板服务说明](../scripts/工作项看板/README.md)、[实施计划](研发协作/本地工作项看板-实施计划.md) |
+| [index.html](../src/工作项看板/index.html)、[样式.css](../src/工作项看板/样式.css)、[应用.mjs](../src/工作项看板/应用.mjs) | Plane 风格暗色协作前端（8 列人机闸门拖拽看板、父子工作项进度条/面包屑/子项拆分与前置阻塞可视化、新建工作项 5 类统一模板与字数计、列表视图、右侧抽屉与 `Ctrl+V` 贴图、模块上下文包与 Agent 冲突雷达） | [看板前端说明](../src/工作项看板/README.md) |
 | [workboard-item-create](../.agents/skills/workboard-item-create/SKILL.md)、[workboard-item-exec](../.agents/skills/workboard-item-exec/SKILL.md) | 项目级工作项双技能：统一 5 类编写规范（`[需求]/[缺陷]/[优化]/[任务]/[资产]`）、`--dry-run`/`lint` 机械校验建单，以及 `pull → plan_review → in_progress → qa_wait → done` 多 Agent 执行闭环 | [工作项编写规范与模板](../.agents/skills/workboard-item-create/references/工作项编写规范与模板.md)、[状态流转与协作规程](../.agents/skills/workboard-item-exec/references/状态流转与协作规程.md) |
 
 ## 正式统一主入口与全局 UI/UX 规范（127.0.0.1:8800 · Code SSOT V2.2）
 
 | 入口 | 职责 | 说明落点 |
 | --- | --- | --- |
-| [启动Scavenger.cmd](../启动Scavenger.cmd)、[启动主服务.py](../scripts/启动主服务.py) | **全项目唯一入口与主服务**（`127.0.0.1:8800`，挂载 `/`、`/armory`、`/settings`、`/play`、`/editor`、`/air-lab`、`/ui-spec`、`/ui/*`、`/public/assets/` 及 `/dev/*`（含 `/dev/air-audio`）、Range/Gzip 资产分发；双击默认前台常驻留窗并在关闭窗口或 Ctrl+C 时自动停止释放端口，自动接管后台/旧版实例并保护已有前台窗口，支持 `start`/`stop`/`restart`/`status`/`menu`/`logs` 与外部占口只诊断保护） | [单端口整合与正式开发规范](单端口整合与正式开发规范-实施计划.md) |
+| [启动Scavenger.cmd](../启动Scavenger.cmd)、[启动主服务.py](../scripts/启动主服务.py)、[同步可玩运行资产.py](../scripts/同步可玩运行资产.py) | **全项目唯一入口、主服务与可玩资产同步工具**（`127.0.0.1:8800`，挂载 `/`、`/armory`、`/settings`、`/play`、`/editor`、`/air-lab`、`/ui-spec`、`/ui/*`、`/public/assets/` 及 `/dev/*`（含 `/dev/air-audio`）、Range/Gzip 资产分发；支持 `local-data/` 优先与 `public/assets/` 自动双轨回退及 `--assets-source auto\|local\|public`，开箱即玩；双击默认前台常驻留窗并在关闭窗口或 Ctrl+C 时自动停止释放端口，自动接管后台/旧版实例并保护已有前台窗口，支持 `start`/`stop`/`restart`/`status`/`menu`/`logs` 与外部占口只诊断保护） | [单端口整合与正式开发规范](单端口整合与正式开发规范-实施计划.md) |
 | [验证主服务全链路.py](../scripts/验证主服务全链路.py) | Chrome / Edge 双浏览器全链路验收（4A 大厅 + 4B 129 车 3D 武器库 + 4C 9km 实战 + 编辑器 + `/ui-spec` + `/dev/*`） | [单端口整合与正式开发规范](单端口整合与正式开发规范-实施计划.md) |
 | [验证一键启动脚本.py](../scripts/验证一键启动脚本.py) | 动态隔离端口验证 `启动Scavenger.cmd` 与 `启动主服务.py` 的批处理编码换行、前台常驻接管、关闭窗口信号即停服释放端口、防代理探测、内部关停鉴权、热更新检测、外部占口只诊断不强杀及日志滚动 | [脚本维护说明](../scripts/脚本维护说明.md#正式单端口主服务与全链路验收) |
 | [index.html](../src/主入口/index.html)、[主入口.css](../src/主入口/主入口.css)、[武器库沙盘环境.mjs](../src/主入口/武器库沙盘环境.mjs)、[主入口.mjs](../src/主入口/主入口.mjs) | 正式游戏统一前端总壳（`/` 4A 作战大厅含去重主控、3×2 编队与默认展开研发工作台、`/armory` 4B 129 车 680p `full` 全景武器库支持 `?unit=<slug>` 深链及固定翼直跳 `/air-lab`、`/settings` 系统设置与 6 槽编队持久化） | [主入口说明](../src/主入口/README.md) |

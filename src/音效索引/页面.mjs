@@ -196,7 +196,11 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) { sto
 try {
   const [assets, bindings, rules] = await Promise.all(['音频资源', '载具绑定', '播放规则'].map(async name => {
     const response = await fetch(new URL(`数据/${name}.json`, baseUrl));
-    if (!response.ok) throw new Error(`索引读取失败：${name}`);
+    if (!response.ok) {
+      const err = new Error(`索引读取失败：${name}`);
+      err.status = response.status;
+      throw err;
+    }
     return response.json();
   }));
   catalog = new AudioCatalog(assets, bindings, rules);
@@ -204,4 +208,19 @@ try {
   setVehicle(catalog.vehicles.find(v => v.model_id === 'US_A10'));
   renderResults();
   message('索引已加载。选择型号或切换“按音效”查询；声音与三维模型按需读取。');
-} catch (error) { message(error.message, true); $('#detail').textContent = '索引未加载，请使用项目提供的本地启动脚本。'; }
+} catch (error) {
+  let isPureMode = error?.status === 404;
+  if (!isPureMode) {
+    try {
+      const hz = await fetch('/healthz', {cache: 'no-store'}).then(r => r.ok ? r.json() : null);
+      isPureMode = Boolean(hz && (hz.assets_source === 'public' || hz.effective_assets?.audio === 'public'));
+    } catch {}
+  }
+  if (isPureMode) {
+    message('当前为纯净仓库模式（未挂载本地研发音效索引库）；9km 实战与 129 车武器库音效可正常播放。', false);
+    $('#detail').innerHTML = '<div class="empty"><h3>纯净仓库模式（研发音效索引库未挂载）</h3><p>本页面面向本机完整研发批次（<code>local-data/断箭/.../音效索引库</code>）；全新克隆仓库已内置 61 个原样实战与 129 车引擎循环音频，不影响正式玩法。</p><p><a href="/">返回大厅</a> · <a href="/armory">前往武器库</a> · <a href="/play">进入 9km 实战</a></p></div>';
+  } else {
+    message(error.message, true);
+    $('#detail').textContent = '索引未加载，请确认 127.0.0.1:8800 主服务已启动。';
+  }
+}

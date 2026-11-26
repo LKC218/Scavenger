@@ -66,6 +66,11 @@ VEH_REPORT_DIR = ROOT / "reports" / "程序化载具"
 FORMAL_VEH_MODEL_DIR = ROOT / "local-data" / "资源库" / "当前资源" / "模型"
 AUDIO_BATCH_DIR = ROOT / "local-data" / "断箭" / "批次" / "BA-26273833-004" / "音效索引库"
 PUBLIC_ASSETS_DIR = ROOT / "public" / "assets"
+PUBLIC_THREE_DIR = PUBLIC_ASSETS_DIR / "vendor" / "three"
+PUBLIC_MAP_B4_DIR = PUBLIC_ASSETS_DIR / "map-b4"
+PUBLIC_VEH_DIR = PUBLIC_ASSETS_DIR / "vehicles-v3"
+PUBLIC_AUDIO_DIR = PUBLIC_ASSETS_DIR / "audio"
+VALID_ASSETS_SOURCES = ("auto", "local", "public")
 
 ROUTE_ALIASES: dict[str, str] = {
     "home": "/",
@@ -217,9 +222,58 @@ def get_gzipped_bytes(file_path: Path, mtime_ns: int) -> bytes:
     return data
 
 
-def _resolve_three_dir() -> Path:
-    pin = json.loads((ROOT / "local-data/tools/three/当前版本.json").read_text("utf-8"))
-    return (ROOT / "local-data/tools/three" / pin["version"]).resolve()
+def normalize_assets_source(raw: str | None = None) -> str:
+    val = (raw or os.environ.get("SCAVENGER_ASSETS_SOURCE") or "auto").strip().lower()
+    return val if val in VALID_ASSETS_SOURCES else "auto"
+
+
+def _pick_asset_dir(local_dir: Path, public_dir: Path, assets_source: str) -> Path | None:
+    if assets_source == "public":
+        return public_dir if public_dir.is_dir() else None
+    if assets_source == "local":
+        return local_dir if local_dir.is_dir() else None
+    if local_dir.is_dir():
+        return local_dir
+    if public_dir.is_dir():
+        return public_dir
+    return None
+
+
+def _pick_asset_file(local_file: Path, public_file: Path, assets_source: str) -> Path | None:
+    if assets_source == "public":
+        return public_file if public_file.is_file() else None
+    if assets_source == "local":
+        return local_file if local_file.is_file() else None
+    if local_file.is_file():
+        return local_file
+    if public_file.is_file():
+        return public_file
+    return None
+
+
+def _resolve_three_dir(assets_source: str = "auto") -> tuple[Path, str]:
+    candidates: list[tuple[str, Path]] = []
+    if assets_source != "public":
+        candidates.append(("local", ROOT / "local-data" / "tools" / "three"))
+    if assets_source != "local":
+        candidates.append(("public", PUBLIC_THREE_DIR))
+
+    for source_name, base_dir in candidates:
+        pin_file = base_dir / "当前版本.json"
+        if not pin_file.is_file():
+            continue
+        try:
+            pin = json.loads(pin_file.read_text("utf-8"))
+            ver_dir = (base_dir / str(pin["version"])).resolve()
+            if ver_dir.is_dir():
+                return ver_dir, source_name
+        except Exception:
+            continue
+
+    raise FileNotFoundError(
+        f"未找到 Three.js 运行库（assets_source={assets_source}）。"
+        "请确认 public/assets/vendor/three/ 完整存在，或运行 python -X utf8 -B scripts/同步可玩运行资产.py。"
+    )
 
 
 def runtime_state_file(port: int) -> Path:
@@ -323,11 +377,42 @@ class UnifiedServer(ThreadingHTTPServer):
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
         super().server_bind()
 
-    def __init__(self, server_address, handler_cls, verbose: bool = False, run_mode: str = "background"):
+    def __init__(
+        self,
+        server_address,
+        handler_cls,
+        verbose: bool = False,
+        run_mode: str = "background",
+        assets_source: str = "auto",
+    ):
         super().__init__(server_address, handler_cls)
         self.verbose = verbose
         self.run_mode = run_mode
-        self.three_dir = _resolve_three_dir()
+        self.assets_source = normalize_assets_source(assets_source)
+        self.three_dir, three_origin = _resolve_three_dir(self.assets_source)
+        map_origin = (
+            "local"
+            if (self.assets_source != "public" and (MAP_DATA_DIR / "B4-单包归档").is_dir())
+            else ("public" if PUBLIC_MAP_B4_DIR.is_dir() else "missing")
+        )
+        self.effective_assets = {
+            "three": three_origin,
+            "map_b4": map_origin,
+            "vehicles_v3": (
+                "local"
+                if (self.assets_source != "public" and (VEH_DATA_DIR / "V3-归档打包").is_dir())
+                else ("public" if (PUBLIC_VEH_DIR / "v3").is_dir() else "missing")
+            ),
+            "audio": (
+                "local"
+                if (
+                    self.assets_source != "public"
+                    and (ROOT / "local-data" / "资源库" / "当前版本.json").is_file()
+                    and (VEH_DATA_DIR / "V2-全库编译" / "meta").is_dir()
+                )
+                else ("public" if (PUBLIC_AUDIO_DIR / "runtime-audio-manifest.json").is_file() else "missing")
+            ),
+        }
         self.started_at = time.time()
         self.started_monotonic = time.monotonic()
         self.script_sha256 = compute_script_sha256()
@@ -337,6 +422,45 @@ class UnifiedServer(ThreadingHTTPServer):
         self._lib_ctx = None
         self._audio_routes = None
         self._vehicle_audio_map = None
+        self._public_audio_manifest = None
+
+    def _get_public_audio_manifest_locked(self) -> dict | None:
+        if self._public_audio_manifest is not None:
+            return self._public_audio_manifest
+        mf = PUBLIC_AUDIO_DIR / "runtime-audio-manifest.json"
+        if not mf.is_file():
+            return None
+        try:
+            data = json.loads(mf.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                self._public_audio_manifest = data
+                return data
+        except Exception:
+            return None
+        return None
+
+    def resolve_media_path(self, raw_path: str) -> Path | None:
+        if self.assets_source != "public":
+            try:
+                ctx = self.get_library_ctx()
+                rec = ctx["routes"].get(raw_path)
+                if rec:
+                    p = Path(rec["path"]).resolve()
+                    if p.is_relative_to((ROOT / "local-data").resolve()) and p.is_file():
+                        return p
+            except Exception:
+                if self.assets_source == "local":
+                    return None
+        if self.assets_source != "local":
+            with self._ctx_lock:
+                manifest = self._get_public_audio_manifest_locked()
+            if isinstance(manifest, dict):
+                rel = (manifest.get("media_routes") or {}).get(raw_path)
+                if isinstance(rel, str):
+                    p = safe_under(PUBLIC_AUDIO_DIR, rel)
+                    if p and p.is_file():
+                        return p
+        return None
 
     def _get_library_ctx_locked(self):
         if self._lib_ctx is not None:
@@ -363,73 +487,89 @@ class UnifiedServer(ThreadingHTTPServer):
             return self._get_library_ctx_locked()
 
     def get_vehicle_audio_map(self, slugs_filter: set[str] | None = None) -> dict:
-        """从正式统一资源库索引与129车meta只读生成轻量载具循环音效映射。"""
+        """从正式统一资源库索引与129车meta只读生成轻量载具循环音效映射；无 local-data 时自动回退至 public/assets/audio 清单。"""
         with self._ctx_lock:
-            ctx = self._get_library_ctx_locked()
-            rev = ctx.get("revision")
-            if self._vehicle_audio_map is None or self._vehicle_audio_map.get("revision") != rev:
-                catalog = ctx["catalog"]
-                routes = ctx["routes"]
-                loop_by_model: dict[str, tuple[dict, str]] = {}
-                for a in catalog.get("audio", []):
-                    if a.get("kind") != "derived_loop":
-                        continue
-                    is_v2 = (a.get("extensions") or {}).get("loop_version") == "v2"
-                    if a.get("url") not in routes:
-                        continue
-                    for b in a.get("bindings", []):
-                        if b.get("field") != "MoveEvent":
-                            continue
-                        mid = b.get("model_id")
-                        if not mid:
-                            continue
-                        prev = loop_by_model.get(mid)
-                        if prev is None or (is_v2 and (prev[0].get("extensions") or {}).get("loop_version") != "v2"):
-                            loop_by_model[mid] = (a, b.get("evidence", ""))
+            payload = None
+            if self.assets_source != "public":
+                try:
+                    ctx = self._get_library_ctx_locked()
+                    rev = ctx.get("revision")
+                    meta_dir = VEH_DATA_DIR / "V2-全库编译" / "meta"
+                    if meta_dir.is_dir():
+                        if self._vehicle_audio_map is None or self._vehicle_audio_map.get("revision") != rev:
+                            catalog = ctx["catalog"]
+                            routes = ctx["routes"]
+                            loop_by_model: dict[str, tuple[dict, str]] = {}
+                            for a in catalog.get("audio", []):
+                                if a.get("kind") != "derived_loop":
+                                    continue
+                                is_v2 = (a.get("extensions") or {}).get("loop_version") == "v2"
+                                if a.get("url") not in routes:
+                                    continue
+                                for b in a.get("bindings", []):
+                                    if b.get("field") != "MoveEvent":
+                                        continue
+                                    mid = b.get("model_id")
+                                    if not mid:
+                                        continue
+                                    prev = loop_by_model.get(mid)
+                                    if prev is None or (is_v2 and (prev[0].get("extensions") or {}).get("loop_version") != "v2"):
+                                        loop_by_model[mid] = (a, b.get("evidence", ""))
 
-                meta_dir = VEH_DATA_DIR / "V2-全库编译" / "meta"
-                vehicles: dict[str, dict] = {}
-                unique_audio_ids: set[str] = set()
-                for mp in sorted(meta_dir.glob("*.json")):
-                    mj = json.loads(mp.read_text(encoding="utf-8"))
-                    slug = mj.get("slug") or mp.stem
-                    mid = mj.get("id") or ("model:" + slug)
-                    hit = loop_by_model.get(mid) or loop_by_model.get("model:" + slug)
-                    if not hit:
-                        continue
-                    a, evidence = hit
-                    chk = a.get("check") or {}
-                    unique_audio_ids.add(a["id"])
-                    vehicles[slug] = {
-                        "slug": slug,
-                        "model_id": mid,
-                        "role": mj.get("role", "ground"),
-                        "audio_id": a["id"],
-                        "url": a["url"],
-                        "sha256": a["sha256"],
-                        "bytes": a["bytes"],
-                        "duration_seconds": chk.get("duration_seconds", 6.38),
-                        "sample_rate": chk.get("sample_rate", 48000),
-                        "channels": chk.get("channels", 1),
-                        "source_audio_id": a.get("source_audio_id", ""),
-                        "source_name": (a.get("aliases") or [a.get("name", "")])[0],
-                        "evidence": evidence,
-                    }
-                self._vehicle_audio_map = {
-                    "schema_version": 1,
-                    "revision": rev,
-                    "asset_library_revision": catalog.get("asset_library_revision", 1),
-                    "total_vehicles": len(vehicles),
-                    "unique_loops": len(unique_audio_ids),
-                    "vehicles": vehicles,
-                }
-            payload = self._vehicle_audio_map
+                            vehicles: dict[str, dict] = {}
+                            unique_audio_ids: set[str] = set()
+                            for mp in sorted(meta_dir.glob("*.json")):
+                                mj = json.loads(mp.read_text(encoding="utf-8"))
+                                slug = mj.get("slug") or mp.stem
+                                mid = mj.get("id") or ("model:" + slug)
+                                hit = loop_by_model.get(mid) or loop_by_model.get("model:" + slug)
+                                if not hit:
+                                    continue
+                                a, evidence = hit
+                                chk = a.get("check") or {}
+                                unique_audio_ids.add(a["id"])
+                                vehicles[slug] = {
+                                    "slug": slug,
+                                    "model_id": mid,
+                                    "role": mj.get("role", "ground"),
+                                    "audio_id": a["id"],
+                                    "url": a["url"],
+                                    "sha256": a["sha256"],
+                                    "bytes": a["bytes"],
+                                    "duration_seconds": chk.get("duration_seconds", 6.38),
+                                    "sample_rate": chk.get("sample_rate", 48000),
+                                    "channels": chk.get("channels", 1),
+                                    "source_audio_id": a.get("source_audio_id", ""),
+                                    "source_name": (a.get("aliases") or [a.get("name", "")])[0],
+                                    "evidence": evidence,
+                                }
+                            self._vehicle_audio_map = {
+                                "schema_version": 1,
+                                "revision": rev,
+                                "asset_library_revision": catalog.get("asset_library_revision", 1),
+                                "total_vehicles": len(vehicles),
+                                "unique_loops": len(unique_audio_ids),
+                                "vehicles": vehicles,
+                            }
+                        payload = self._vehicle_audio_map
+                except Exception:
+                    if self.assets_source == "local":
+                        raise
+            if payload is None and self.assets_source != "local":
+                manifest = self._get_public_audio_manifest_locked()
+                if isinstance(manifest, dict) and isinstance(manifest.get("vehicle_audio_map"), dict):
+                    payload = manifest["vehicle_audio_map"]
+            if payload is None:
+                raise FileNotFoundError("未找到载具循环音效映射（local-data 与 public/assets/audio 均不可用）")
         if not slugs_filter:
             return payload
         filtered = {k: v for k, v in payload["vehicles"].items() if k in slugs_filter}
         return {**payload, "filtered_vehicles": len(filtered), "vehicles": filtered}
 
     def get_audio_route(self, rel_key: str) -> Path | None:
+        if self.assets_source == "public":
+            p = safe_under(AUDIO_APP_DIR, rel_key)
+            return p if (p and p.is_file()) else None
         with self._ctx_lock:
             if self._audio_routes is None:
                 routes: dict[str, Path] = {}
@@ -597,37 +737,47 @@ class UnifiedHandler(SimpleHTTPRequestHandler):
             return self.server.get_audio_route(raw_path[len("/dev/audio/") :])
 
         # 6. 共享库与源代码树
+        assets_src = self.server.assets_source
         if raw_path == "/compressed-loader.mjs":
             return ROOT / "src/资源加载/压缩模型加载.mjs"
         if raw_path in HERO_VEHICLES_MAP:
-            return HERO_VEHICLES_MAP[raw_path]
+            return _pick_asset_file(
+                HERO_VEHICLES_MAP[raw_path],
+                PUBLIC_VEH_DIR / "heroes" / Path(raw_path).name,
+                assets_src,
+            )
         if raw_path.startswith("/vendor/"):
             return safe_under(self.server.three_dir, raw_path[len("/vendor/") :])
         if raw_path.startswith("/src/"):
             return safe_under(ROOT / "src", raw_path[len("/src/") :])
 
-        # 7. 地图、载具与研究报告底层资产映射
+        # 7. 地图、载具与研究报告底层资产映射（local-data 优先，缺失自动回退 public/assets）
         if raw_path.startswith("/b0/"):
-            return safe_under(MAP_DATA_DIR / "B0-基线冻结", raw_path[4:])
+            return None if assets_src == "public" else safe_under(MAP_DATA_DIR / "B0-基线冻结", raw_path[4:])
         if raw_path.startswith("/b1/"):
-            return safe_under(MAP_DATA_DIR / "B1-地形与道路", raw_path[4:])
+            return None if assets_src == "public" else safe_under(MAP_DATA_DIR / "B1-地形与道路", raw_path[4:])
         if raw_path.startswith("/b2/"):
-            return safe_under(MAP_DATA_DIR / "B2-植被与草丛", raw_path[4:])
+            return None if assets_src == "public" else safe_under(MAP_DATA_DIR / "B2-植被与草丛", raw_path[4:])
         if raw_path.startswith("/b3/"):
-            return safe_under(MAP_DATA_DIR / "B3-建筑与编辑器", raw_path[4:])
+            return None if assets_src == "public" else safe_under(MAP_DATA_DIR / "B3-建筑与编辑器", raw_path[4:])
         if raw_path.startswith("/b4/"):
-            return safe_under(MAP_DATA_DIR / "B4-单包归档", raw_path[4:])
+            base = _pick_asset_dir(MAP_DATA_DIR / "B4-单包归档", PUBLIC_MAP_B4_DIR, assets_src)
+            return safe_under(base, raw_path[4:]) if base else None
 
         if raw_path.startswith("/v0/"):
-            return safe_under(VEH_DATA_DIR / "V0-基线与规则", raw_path[4:])
+            base = _pick_asset_dir(VEH_DATA_DIR / "V0-基线与规则", PUBLIC_VEH_DIR / "v0", assets_src)
+            return safe_under(base, raw_path[4:]) if base else None
         if raw_path.startswith("/v2/"):
-            return safe_under(VEH_DATA_DIR / "V2-全库编译", raw_path[4:])
+            base = _pick_asset_dir(VEH_DATA_DIR / "V2-全库编译", PUBLIC_VEH_DIR / "v2", assets_src)
+            return safe_under(base, raw_path[4:]) if base else None
         if raw_path.startswith("/v3/"):
-            return safe_under(VEH_DATA_DIR / "V3-归档打包", raw_path[4:])
+            base = _pick_asset_dir(VEH_DATA_DIR / "V3-归档打包", PUBLIC_VEH_DIR / "v3", assets_src)
+            return safe_under(base, raw_path[4:]) if base else None
         if raw_path.startswith("/portraits/"):
-            return safe_under(VEH_PORTRAIT_DIR, raw_path[11:])
+            base = _pick_asset_dir(VEH_PORTRAIT_DIR, PUBLIC_VEH_DIR / "portraits", assets_src)
+            return safe_under(base, raw_path[11:]) if base else None
         if raw_path.startswith("/orig/"):
-            return safe_under(VEH_TMP_ORIG_DIR, raw_path[6:])
+            return None if assets_src == "public" else safe_under(VEH_TMP_ORIG_DIR, raw_path[6:])
         if raw_path.startswith("/reports/"):
             return safe_under(VEH_REPORT_DIR, raw_path[9:])
         if raw_path.startswith("/assets/"):
@@ -636,15 +786,7 @@ class UnifiedHandler(SimpleHTTPRequestHandler):
             return safe_under(PUBLIC_ASSETS_DIR, raw_path[len("/public/assets/"):])
 
         if raw_path.startswith("/media/"):
-            try:
-                ctx = self.server.get_library_ctx()
-                rec = ctx["routes"].get(raw_path)
-                if rec:
-                    p = Path(rec["path"]).resolve()
-                    if p.is_relative_to((ROOT / "local-data").resolve()) and p.is_file():
-                        return p
-            except Exception:
-                return None
+            return self.server.resolve_media_path(raw_path)
 
         return None
 
@@ -726,6 +868,8 @@ class UnifiedHandler(SimpleHTTPRequestHandler):
                 "version": "V1.0",
                 "launcher_version": LAUNCHER_VERSION,
                 "mode": self.server.run_mode,
+                "assets_source": self.server.assets_source,
+                "effective_assets": self.server.effective_assets,
                 "port": self.server.server_port,
                 "pid": os.getpid(),
                 "started_at": self.server.started_at,
@@ -750,11 +894,22 @@ class UnifiedHandler(SimpleHTTPRequestHandler):
             return
 
         if raw_path == "/api/catalog":
+            if self.server.assets_source == "public":
+                self._send_json({
+                    "ok": False,
+                    "degraded": True,
+                    "error": "当前为纯净仓库资产模式（未挂载 local-data/资源库），研发资产库视图不可用；主菜单、武器库、9km 实战与地图编辑器可正常使用。",
+                }, status=503, send_body=send_body)
+                return
             try:
                 ctx = self.server.get_library_ctx()
                 self._send_json(ctx["catalog"], send_body=send_body)
             except Exception as exc:
-                self._send_json({"ok": False, "error": str(exc)}, status=500, send_body=send_body)
+                self._send_json({
+                    "ok": False,
+                    "degraded": True,
+                    "error": f"本机未配置完整研发资料库（{exc}）；主菜单、武器库、9km 实战与地图编辑器仍可通过 public/assets 正常运行。",
+                }, status=503, send_body=send_body)
             return
 
         if raw_path == "/api/vehicle-audio-map":
@@ -769,6 +924,13 @@ class UnifiedHandler(SimpleHTTPRequestHandler):
             return
 
         if raw_path == "/api/search":
+            if self.server.assets_source == "public":
+                self._send_json({
+                    "ok": False,
+                    "degraded": True,
+                    "error": "当前为纯净仓库资产模式（未挂载 local-data/资源库），研发资产检索不可用。",
+                }, status=503, send_body=send_body)
+                return
             try:
                 ctx = self.server.get_library_ctx()
                 params = parse_qs(parsed.query)
@@ -781,7 +943,7 @@ class UnifiedHandler(SimpleHTTPRequestHandler):
                 res = ctx["query_fn"](ctx["catalog"], ctx["routes"], val("q", ""), qtype, val("id"), val("related_to"), val("status"), limit, offset, False)
                 self._send_json(res, send_body=send_body)
             except Exception as exc:
-                self._send_json({"ok": False, "error": str(exc)}, status=400, send_body=send_body)
+                self._send_json({"ok": False, "degraded": True, "error": str(exc)}, status=400, send_body=send_body)
             return
 
         if raw_path == "/favicon.svg":
@@ -1311,7 +1473,7 @@ def stop_service(port: int) -> dict:
         return _stop_service_impl(port)
 
 
-def _start_background_impl(port: int, verbose: bool = False) -> dict:
+def _start_background_impl(port: int, verbose: bool = False, assets_source: str = "auto") -> dict:
     pids = find_listening_pids(port)
     if pids or is_port_open(DEFAULT_HOST, port, timeout=0.15):
         owners = [inspect_process(p) for p in pids]
@@ -1338,6 +1500,8 @@ def _start_background_impl(port: int, verbose: bool = False) -> dict:
         str(port),
         "--run-mode",
         "background",
+        "--assets-source",
+        normalize_assets_source(assets_source),
     ]
     if verbose:
         cmd.append("--verbose")
@@ -1400,10 +1564,12 @@ def ensure_running(
     auto_restart_stale: bool = True,
     force_restart: bool = False,
     verbose: bool = False,
+    assets_source: str = "auto",
 ) -> dict:
     """确保指定端口运行着最新代码的 Scavenger 主服务，并按需打开指定页面路由。"""
     route_path = resolve_route_path(route)
     url = f"http://{DEFAULT_HOST}:{port}{route_path}"
+    assets_src = normalize_assets_source(assets_source)
 
     with launcher_mutex(port):
         current_sha = compute_script_sha256()
@@ -1417,18 +1583,25 @@ def ensure_running(
 
         if is_own_service_healthz(healthz, port):
             stale = is_stale_instance(healthz, state, current_sha)
-            if force_restart or (auto_restart_stale and stale):
+            remote_assets_source = healthz.get("assets_source") if isinstance(healthz, dict) else None
+            assets_changed = remote_assets_source is not None and remote_assets_source != assets_src
+            if force_restart or assets_changed or (auto_restart_stale and stale):
                 stop_res = _stop_service_impl(port)
                 if not stop_res.get("ok"):
                     return stop_res
-                start_res = _start_background_impl(port, verbose=verbose)
+                start_res = _start_background_impl(port, verbose=verbose, assets_source=assets_src)
                 if not start_res.get("ok"):
                     return start_res
                 healthz = start_res["healthz"]
                 action_taken = "restarted"
-                restarted_reason = "force" if force_restart else "code_updated"
+                if force_restart:
+                    restarted_reason = "force"
+                elif assets_changed:
+                    restarted_reason = f"assets_source_changed:{remote_assets_source}->{assets_src}"
+                else:
+                    restarted_reason = "code_updated"
         elif not port_open:
-            start_res = _start_background_impl(port, verbose=verbose)
+            start_res = _start_background_impl(port, verbose=verbose, assets_source=assets_src)
             if not start_res.get("ok"):
                 return start_res
             healthz = start_res["healthz"]
@@ -1460,7 +1633,7 @@ def ensure_running(
             stop_res = _stop_service_impl(port)
             if not stop_res.get("ok"):
                 return stop_res
-            start_res = _start_background_impl(port, verbose=verbose)
+            start_res = _start_background_impl(port, verbose=verbose, assets_source=assets_src)
             if not start_res.get("ok"):
                 return start_res
             healthz = start_res["healthz"]
@@ -1560,12 +1733,23 @@ def format_failure_message(result: dict) -> str:
     return "\n".join(lines)
 
 
-def create_server(port: int = DEFAULT_PORT, verbose: bool = False, run_mode: str = "background") -> UnifiedServer:
+def create_server(
+    port: int = DEFAULT_PORT,
+    verbose: bool = False,
+    run_mode: str = "background",
+    assets_source: str = "auto",
+) -> UnifiedServer:
     """创建并独占绑定 127.0.0.1:<port> 的主服务实例。"""
     if is_port_open(DEFAULT_HOST, port, timeout=0.15):
         raise OSError(f"端口 {DEFAULT_HOST}:{port} 已被占用，请确认无重复主服务实例")
     try:
-        return UnifiedServer((DEFAULT_HOST, port), UnifiedHandler, verbose=verbose, run_mode=run_mode)
+        return UnifiedServer(
+            (DEFAULT_HOST, port),
+            UnifiedHandler,
+            verbose=verbose,
+            run_mode=run_mode,
+            assets_source=assets_source,
+        )
     except OSError as exc:
         raise OSError(f"绑定端口 {DEFAULT_HOST}:{port} 失败：{exc}") from exc
 
@@ -1631,10 +1815,21 @@ def uninstall_console_close_handler(handle: dict | None) -> None:
             pass
 
 
-def print_foreground_panel(port: int, pid: int, target_url: str, verbose: bool) -> None:
+def print_foreground_panel(
+    port: int,
+    pid: int,
+    target_url: str,
+    verbose: bool,
+    assets_source: str = "auto",
+    effective_assets: dict | None = None,
+) -> None:
     """在前台控制台输出简洁明了的常驻运行状态板。"""
     base = f"http://{DEFAULT_HOST}:{port}"
     log_mode = "开启（打印 HTTP 请求流水）" if verbose else "简洁（排障可加 --verbose）"
+    eff_desc = ""
+    if isinstance(effective_assets, dict) and effective_assets:
+        vals = set(effective_assets.values())
+        eff_desc = f"（实际生效：{next(iter(vals)) if len(vals) == 1 else effective_assets}）"
     lines = [
         "",
         "============================================================",
@@ -1647,6 +1842,7 @@ def print_foreground_panel(port: int, pid: int, target_url: str, verbose: bool) 
         f"  地图编辑 : {base}/editor",
         f"  固定翼台 : {base}/air-lab",
         f"  UI 规范  : {base}/ui-spec",
+        f"  资产来源 : {assets_source}{eff_desc}",
         f"  日志输出 : {log_mode}",
         "------------------------------------------------------------",
         f"  [提示] 关闭此控制台窗口或按 Ctrl+C 即停止服务并释放 {port} 端口。",
@@ -1675,14 +1871,16 @@ def run_foreground_service(
     takeover: bool = False,
     verbose: bool = False,
     as_json: bool = False,
+    assets_source: str = "auto",
 ) -> int:
     """在前台运行常驻主服务（关闭窗口或中断时自动释放端口与状态文件）。"""
     route_path = resolve_route_path(route)
     url = f"http://{DEFAULT_HOST}:{port}{route_path}"
+    assets_src = normalize_assets_source(assets_source)
 
     if run_mode == "background":
         try:
-            server = create_server(port=port, verbose=verbose, run_mode="background")
+            server = create_server(port=port, verbose=verbose, run_mode="background", assets_source=assets_src)
         except OSError as exc:
             print(f"[启动失败] {exc}", file=sys.stderr, flush=True)
             return 1
@@ -1725,6 +1923,8 @@ def run_foreground_service(
 
         if is_own_service_healthz(healthz, port):
             stale = is_stale_instance(healthz, state, current_sha)
+            remote_assets_source = healthz.get("assets_source") if isinstance(healthz, dict) else None
+            assets_changed = remote_assets_source is not None and remote_assets_source != assets_src
             remote_mode = (
                 (healthz.get("mode") if isinstance(healthz, dict) else None)
                 or (state.get("mode") if isinstance(state, dict) else None)
@@ -1735,11 +1935,16 @@ def run_foreground_service(
                 or (state.get("pid") if isinstance(state, dict) else None)
                 or (pids[0] if pids else None)
             )
-            if remote_mode == "foreground" and not stale and not takeover:
+            if remote_mode == "foreground" and not stale and not assets_changed and not takeover:
                 reuse_pid = remote_pid
             else:
                 if not as_json:
-                    reason_text = "旧版/已更新" if stale else "后台无窗"
+                    if stale:
+                        reason_text = "旧版/已更新"
+                    elif assets_changed:
+                        reason_text = f"资产源变更({remote_assets_source}->{assets_src})"
+                    else:
+                        reason_text = "后台无窗"
                     print(f"[提示] 检测到{reason_text} Scavenger 实例（PID: {remote_pid}），正在接管为当前窗口前台常驻...", flush=True)
                 stop_res = _stop_service_impl(port)
                 if not stop_res.get("ok"):
@@ -1767,7 +1972,7 @@ def run_foreground_service(
 
         if reuse_pid is None:
             try:
-                server = create_server(port=port, verbose=verbose, run_mode="foreground")
+                server = create_server(port=port, verbose=verbose, run_mode="foreground", assets_source=assets_src)
             except OSError as exc:
                 print(f"[启动失败] {exc}", file=sys.stderr, flush=True)
                 return 1
@@ -1799,7 +2004,14 @@ def run_foreground_service(
     ctrl_handle = install_console_close_handler(server, stopped_event)
 
     if panel and not as_json:
-        print_foreground_panel(server.server_port, os.getpid(), url, verbose)
+        print_foreground_panel(
+            server.server_port,
+            os.getpid(),
+            url,
+            verbose,
+            assets_source=server.assets_source,
+            effective_assets=server.effective_assets,
+        )
     else:
         print(json.dumps({
             "service": "scavenger-unified-server",
@@ -1979,6 +2191,12 @@ def main() -> int:
     parser.add_argument("--route", default="/", help="指定打开的路由或别名（默认 /）")
     parser.add_argument("--lines", type=int, default=30, help="查看日志的末尾行数（默认 30）")
     parser.add_argument("--no-auto-restart", action="store_true", help="禁用检测到脚本变更时自动平滑重启")
+    parser.add_argument(
+        "--assets-source",
+        choices=list(VALID_ASSETS_SOURCES),
+        default=normalize_assets_source(),
+        help="资产加载源：auto（默认，local-data 优先并自动回退 public/assets）、local、public（纯净仓库模式）",
+    )
     parser.add_argument("--json", action="store_true", help="以单行 JSON 格式输出结果")
     parser.add_argument("--verbose", action="store_true", help="输出 HTTP 请求日志")
     args = parser.parse_args()
@@ -2029,6 +2247,7 @@ def main() -> int:
                 auto_restart_stale=not args.no_auto_restart,
                 force_restart=(action == "restart"),
                 verbose=args.verbose,
+                assets_source=args.assets_source,
             )
         except Exception as exc:
             res = {"ok": False, "error": "launcher_exception", "port": args.port, "message": str(exc)}
@@ -2047,6 +2266,7 @@ def main() -> int:
         takeover=bool(args.takeover),
         verbose=args.verbose,
         as_json=args.json,
+        assets_source=args.assets_source,
     )
 
 

@@ -801,7 +801,12 @@ async function refresh(){
   setSync('正在同步索引');
   try{
     const response=await fetch('/api/catalog',{cache:'no-store'});
-    if(!response.ok)throw new Error('读取失败');
+    if(!response.ok){
+      const payload=await response.json().catch(()=>null);
+      const err=new Error(payload?.error||'读取失败');
+      err.degraded=Boolean(payload?.degraded);
+      throw err;
+    }
     state.catalog=await response.json();
     $('global-notice').textContent=`${state.catalog.summary.models}个模型入口 · ${state.catalog.summary.audio}项声音 · ${state.catalog.summary.unassigned_audio}项声音尚未关联模型`;
     renderModelFilters();
@@ -829,11 +834,15 @@ async function refresh(){
     setSync(`${state.catalog.status==='candidate'?'候选 · 基于':''}索引 V${state.catalog.revision} · 已同步`);
     $('global-notice').textContent=`${state.catalog.summary.models}个模型入口 · ${state.catalog.summary.audio}项声音 · ${state.catalog.summary.unassigned_audio}项声音尚未关联模型`;
   }catch(error){
-    setSync('索引读取失败',true);
-    toast('前线资产库暂时无法读取，请确认本地服务已启动后刷新。',true);
+    const isDegraded=Boolean(error?.degraded);
+    setSync(isDegraded?'纯净仓库模式（未挂载研发库）':'索引读取失败',!isDegraded);
+    toast(isDegraded?(error.message||'当前为纯净仓库模式，研发资料库未挂载；主菜单、武器库与 9km 实战可正常使用。'):'前线资产库暂时无法读取，请确认 127.0.0.1:8800 主服务已启动后刷新。',!isDegraded);
     if(!state.catalog){
-      $('model-list').innerHTML='<div class="empty"><strong>索引读取失败</strong>确认8767服务已启动，再点击右上角刷新。</div>';
-      $('audio-list').innerHTML='<div class="empty"><strong>索引读取失败</strong>确认8767服务已启动，再点击右上角刷新。</div>';
+      const emptyHtml=isDegraded
+        ? `<div class="empty"><strong>纯净仓库模式（研发资料库未挂载）</strong>${esc(error.message||'本机未配置 local-data/资源库，研发资产库不可用；游戏主菜单、129 车武器库与 9km 实战仍可正常使用。')}<p style="margin-top:10px"><a href="/">返回大厅</a> · <a href="/armory">前往武器库</a> · <a href="/play">进入 9km 实战</a></p></div>`
+        : '<div class="empty"><strong>索引读取失败</strong>请确认 127.0.0.1:8800 主服务已启动，再点击右上角刷新。</div>';
+      $('model-list').innerHTML=emptyHtml;
+      $('audio-list').innerHTML=emptyHtml;
       $('model-count').textContent='0';
       $('audio-count').textContent='0';
     }

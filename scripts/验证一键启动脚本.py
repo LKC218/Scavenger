@@ -9,6 +9,7 @@ import sys
 import time
 from pathlib import Path
 from urllib.error import HTTPError
+from urllib.parse import quote
 from urllib.request import ProxyHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -87,10 +88,16 @@ def cleanup_test_artifacts(port: int) -> None:
             pass
 
 
-def http_get(url: str, timeout: float = 5.0) -> tuple[int, bytes]:
-    req = Request(url, headers={"Cache-Control": "no-cache", "Connection": "close"})
-    with _NO_PROXY_OPENER.open(req, timeout=timeout) as resp:
-        return int(getattr(resp, "status", 200)), resp.read()
+def http_get(url: str, timeout: float = 5.0, headers: dict[str, str] | None = None) -> tuple[int, bytes]:
+    req_headers = {"Cache-Control": "no-cache", "Connection": "close"}
+    if headers:
+        req_headers.update(headers)
+    req = Request(url, headers=req_headers)
+    try:
+        with _NO_PROXY_OPENER.open(req, timeout=timeout) as resp:
+            return int(getattr(resp, "status", 200)), resp.read()
+    except HTTPError as err:
+        return int(err.code), err.read()
 
 
 def http_post(url: str, headers: dict[str, str] | None = None, timeout: float = 5.0) -> tuple[int, str]:
@@ -112,11 +119,13 @@ def main() -> int:
     foreign_port = alloc_free_port()
     cmd_port = alloc_free_port()
     fg_port = alloc_free_port()
-    while len({test_port, stale_port, foreign_port, cmd_port, fg_port, 8800}) < 6:
+    pure_port = alloc_free_port()
+    while len({test_port, stale_port, foreign_port, cmd_port, fg_port, pure_port, 8800}) < 7:
         stale_port = alloc_free_port()
         foreign_port = alloc_free_port()
         cmd_port = alloc_free_port()
         fg_port = alloc_free_port()
+        pure_port = alloc_free_port()
 
     foreign_proc = None
     stale_proc = None
@@ -497,6 +506,68 @@ def main() -> int:
                 "fg_exit": fg_proc.returncode,
             },
         )
+
+        # 12. 纯净仓库模式（--assets-source public）双轨热切换、Range 206、音频清单与 local-data 严格隔离核验
+        cleanup_test_artifacts(pure_port)
+        p_auto = run_server_cli(["start", "--port", str(pure_port), "--assets-source", "auto", "--json"])
+        auto_json = json.loads(p_auto.stdout.strip())
+        p_pub = run_server_cli(["start", "--port", str(pure_port), "--assets-source", "public", "--json"])
+        pub_json = json.loads(p_pub.stdout.strip())
+        pub_hz = pub_json.get("healthz") or {}
+        eff_assets = pub_hz.get("effective_assets") or {}
+
+        pure_base = f"http://127.0.0.1:{pure_port}"
+        st_b4, b4_chunk = http_get(f"{pure_base}/b4/startup-base.scvmap", headers={"Range": "bytes=0-1023"})
+        st_v3, v3_chunk = http_get(f"{pure_base}/v3/vehicles-detail.scvveh", headers={"Range": "bytes=0-1023"})
+        st_vmap, vmap_raw = http_get(f"{pure_base}/api/vehicle-audio-map")
+        vmap_obj = json.loads(vmap_raw.decode("utf-8")) if st_vmap == 200 else {}
+        audio_mf_path = ROOT / "public" / "assets" / "audio" / "runtime-audio-manifest.json"
+        audio_mf = json.loads(audio_mf_path.read_text(encoding="utf-8")) if audio_mf_path.is_file() else {}
+        sample_audio_urls = sorted((audio_mf.get("media_routes") or {}).keys())[:5]
+        sample_audio_ok = bool(sample_audio_urls) and all(
+            http_get(f"{pure_base}{u}")[0] == 200 for u in sample_audio_urls
+        )
+        st_cat, cat_raw = http_get(f"{pure_base}/api/catalog")
+        cat_obj = json.loads(cat_raw.decode("utf-8")) if cat_raw else {}
+        st_dev_audio, _ = http_get(f"{pure_base}{quote('/dev/audio/数据/音频资源.json', safe='/')}")
+        p_pure_stop = run_server_cli(["stop", "--port", str(pure_port), "--json"])
+
+        pure_ok = (
+            p_auto.returncode == 0
+            and p_pub.returncode == 0
+            and pub_json.get("action") == "restarted"
+            and pub_json.get("restarted_reason") == "assets_source_changed:auto->public"
+            and pub_json.get("pid") != auto_json.get("pid")
+            and pub_hz.get("assets_source") == "public"
+            and all(eff_assets.get(k) == "public" for k in ("three", "map_b4", "vehicles_v3", "audio"))
+            and st_b4 == 206
+            and len(b4_chunk) == 1024
+            and st_v3 == 206
+            and len(v3_chunk) == 1024
+            and st_vmap == 200
+            and int(vmap_obj.get("total_vehicles", 0)) >= 100
+            and sample_audio_ok
+            and st_cat == 503
+            and cat_obj.get("degraded") is True
+            and st_dev_audio == 404
+            and p_pure_stop.returncode == 0
+        )
+        record(
+            "12-纯净仓库模式双轨切换与Range及隔离核验",
+            pure_ok,
+            {
+                "pid_auto": auto_json.get("pid"),
+                "pid_public": pub_json.get("pid"),
+                "reason": pub_json.get("restarted_reason"),
+                "effective_assets": eff_assets,
+                "b4_range": (st_b4, len(b4_chunk)),
+                "v3_range": (st_v3, len(v3_chunk)),
+                "audio_vehicles": vmap_obj.get("total_vehicles"),
+                "sample_audio_ok": sample_audio_ok,
+                "catalog_degraded": (st_cat, cat_obj.get("degraded")),
+                "dev_audio_isolated_status": st_dev_audio,
+            },
+        )
     finally:
         if foreign_proc is not None and foreign_proc.poll() is None:
             foreign_proc.terminate()
@@ -512,7 +583,7 @@ def main() -> int:
                 fg_proc.wait(timeout=3)
             except subprocess.TimeoutExpired:
                 fg_proc.kill()
-        for p in (test_port, stale_port, foreign_port, cmd_port, fg_port):
+        for p in (test_port, stale_port, foreign_port, cmd_port, fg_port, pure_port):
             cleanup_test_artifacts(p)
         tmp_panel = main_srv.RUNTIME_DIR / f"fg-panel-{fg_port}.tmp"
         if tmp_panel.exists():
