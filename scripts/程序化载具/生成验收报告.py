@@ -233,7 +233,7 @@ def main() -> None:
   <div class="sub">
     批次编号：<code>{BATCH_ID}</code> · 生成时间：<code>{now_iso()}</code> ·
     渲染基线：<code>stylized-680p-v1 (1208×680 / 1588×680)</code> ·
-    独立在线对比预览入口：<code>http://127.0.0.1:{DEFAULT_PORT}/showcase</code> 与 <code>/battlefield</code>（本页为离线自包含交付报告）
+    现役在线入口：<code>http://127.0.0.1:8800/armory</code>（新版 129 车全景沙盘武器库）与 <code>/dev/battlefield</code>（本页为离线自包含交付报告）
   </div>
 
   <section class="kpi-grid">
@@ -383,7 +383,7 @@ def main() -> None:
 ## 三、人工验收边界与后续收口说明
 
 1. 4 款既有待修参考件（`US_m1288_base`、`US_LAV_AT-M_body`、`US_AC130J`、`US_AC130U`）严格保留 `partial` 状态，未因程序化编译通过而升级。
-2. 技术与自动化视觉通过不代替工程师主观外观验收；请通过独立预览服务 `http://127.0.0.1:{DEFAULT_PORT}/showcase` 拉帘抽检最差 Top 15 及核心主力车型，确认通过后再另行执行 `revision 8` 正式库升级与旧载荷退役。
+2. 技术与自动化视觉通过不代替工程师主观外观验收；原 V5 单车展示台已正式移除，请统一通过主服务 `http://127.0.0.1:8800/armory` 检视 129 车新版全景沙盘武器库（`http://127.0.0.1:8800/dev/battlefield` 检视混编场），确认通过后再另行执行 `revision 8` 正式库升级与旧载荷退役。
 """
     (REPORT_DIR / "程序化载具优化与视觉验收报告-V001.md").write_text(md_doc, encoding="utf-8")
     print(f"[验收报告] 已生成离线 HTML 与 Markdown 报告: {html_path.relative_to(ROOT).as_posix()}")

@@ -1,4 +1,8 @@
-"""程序化载具优化与流式渲染（V001）一键全自动总控流水线（V0 → V5）。"""
+"""程序化载具优化与流式渲染（V001）离线编译与归档流水线（V0 → V3）。
+
+浏览器全链路验收（含 129 车 4B 武器库 `/armory` 与 `/dev/battlefield`）请统一使用：
+`python -X utf8 -B scripts/验证主服务全链路.py`
+"""
 from __future__ import annotations
 
 import argparse
@@ -9,7 +13,7 @@ from pathlib import Path
 
 from 公共配置 import BATCH_ID, ROOT, V1_DIR, V2_DIR, V3_DIR
 
-STAGES = ["V0", "V1", "V2", "V3", "V5"]
+STAGES = ["V0", "V1", "V2", "V3"]
 
 
 def run_step(title: str, cmd: list[str]) -> None:
@@ -23,7 +27,7 @@ def run_step(title: str, cmd: list[str]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--from-stage", choices=STAGES, default="V0")
-    parser.add_argument("--to-stage", choices=STAGES, default="V5")
+    parser.add_argument("--to-stage", choices=STAGES, default="V3")
     args = parser.parse_args()
 
     i0 = STAGES.index(args.from_stage)
@@ -44,11 +48,9 @@ def main() -> None:
     if "V3" in selected:
         run_step("V3 分层Range归档与二进制索引打包", [py, "-X", "utf8", "-B", "scripts/程序化载具/打包载具归档.py", "--src", str(V2_DIR), "--out", str(V3_DIR)])
         run_step("V3 HTTP 206 Range逐条回读核验", [py, "-X", "utf8", "-B", "scripts/程序化载具/验证归档回读.py", "--dir", str(V3_DIR)])
-    if "V5" in selected:
-        run_step("V5 Chrome/Edge 双浏览器全矩阵实测", [py, "-X", "utf8", "-B", "scripts/程序化载具/验证V5全矩阵.py"])
-        run_step("V5 生成离线验收报告", [py, "-X", "utf8", "-B", "scripts/程序化载具/生成验收报告.py"])
 
     print(f"\n[运行全流程] 选定阶段 {selected} 全部执行完成！")
+    print("提示：现役 129 车武器库（/armory）与混编场（/dev/battlefield）全链路验证请运行：python -X utf8 -B scripts/验证主服务全链路.py")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""V1/V4/V5 独立只读回环预览与 Range 归档服务（默认绑定 127.0.0.1:8822）。"""
+"""V1–V3 离线编译与回读脚本专用临时只读 Range 回环服务（正式武器库与混编场已统一挂载至 127.0.0.1:8800）。"""
 from __future__ import annotations
 
 import argparse
@@ -23,7 +23,6 @@ from 公共配置 import (
     V1_DIR,
     V2_DIR,
     V3_DIR,
-    V5_DIR,
 )
 
 RANGE_RE = re.compile(r"^bytes=(\d+)-(\d*)$")
@@ -81,8 +80,6 @@ class ProceduralVehicleHTTPHandler(SimpleHTTPRequestHandler):
             return safe_under(V2_DIR, raw_path[len("/v2/") :])
         if raw_path.startswith("/v3/"):
             return safe_under(V3_DIR, raw_path[len("/v3/") :])
-        if raw_path.startswith("/v5/"):
-            return safe_under(V5_DIR, raw_path[len("/v5/") :])
         if raw_path.startswith("/reports/"):
             return safe_under(REPORT_DIR, raw_path[len("/reports/") :])
         if raw_path.startswith("/assets/"):

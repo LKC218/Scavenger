@@ -10,7 +10,7 @@
 - /ui-spec     : Code SSOT V2.2 全局 UI/UX 活体规范台
 - /ui/*        : 全局唯一 UI/UX 样式、标绘与交互控件单源
 - /dev/*       : 载具混编演训(/dev/battlefield)、前线资产库(/dev/library/)、音效索引(/dev/audio/)、空战音效试听(/dev/air-audio)
-- /b0..b4/* /v0..v5/* /vendor/* /vehicles/* /media/* : 底层资产 HTTP 206 Range / Gzip / ETag 只读分发
+- /b0..b4/* /v0..v3/* /portraits/* /vendor/* /vehicles/* /media/* : 底层资产 HTTP 206 Range / Gzip / ETag 只读分发
 """
 from __future__ import annotations
 
@@ -624,8 +624,6 @@ class UnifiedHandler(SimpleHTTPRequestHandler):
             return safe_under(VEH_DATA_DIR / "V2-全库编译", raw_path[4:])
         if raw_path.startswith("/v3/"):
             return safe_under(VEH_DATA_DIR / "V3-归档打包", raw_path[4:])
-        if raw_path.startswith("/v5/"):
-            return safe_under(VEH_DATA_DIR / "V5-全矩阵验证", raw_path[4:])
         if raw_path.startswith("/portraits/"):
             return safe_under(VEH_PORTRAIT_DIR, raw_path[11:])
         if raw_path.startswith("/orig/"):
