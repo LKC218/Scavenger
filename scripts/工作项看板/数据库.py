@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import re
 import secrets
 import sqlite3
 import threading
@@ -21,24 +22,24 @@ from typing import Any
 
 
 STATES: list[dict[str, Any]] = [
-    {"key": "backlog", "label": "待规划", "group": "backlog", "color": "#7b849b", "gate": False},
-    {"key": "todo", "label": "待开始", "group": "unstarted", "color": "#5b8def", "gate": False},
-    {"key": "plan_review", "label": "方案待审", "group": "started", "color": "#e5a93c", "gate": True},
-    {"key": "in_progress", "label": "进行中", "group": "started", "color": "#3b82f6", "gate": False},
-    {"key": "qa_wait", "label": "待测试", "group": "started", "color": "#a855f7", "gate": True},
-    {"key": "testing", "label": "测试中", "group": "started", "color": "#14b8a6", "gate": False},
-    {"key": "rejected", "label": "不通过", "group": "started", "color": "#ef4444", "gate": False},
-    {"key": "done", "label": "已完成", "group": "completed", "color": "#22c55e", "gate": False},
+    {"key": "backlog", "label": "待规划", "group": "backlog", "color": "#838896", "gate": False},
+    {"key": "todo", "label": "待开始", "group": "unstarted", "color": "#68c8ff", "gate": False},
+    {"key": "plan_review", "label": "方案待审", "group": "started", "color": "#ffb800", "gate": True},
+    {"key": "in_progress", "label": "进行中", "group": "started", "color": "#38e5c0", "gate": False},
+    {"key": "qa_wait", "label": "待测试", "group": "started", "color": "#b197fc", "gate": True},
+    {"key": "testing", "label": "测试中", "group": "started", "color": "#68c8ff", "gate": False},
+    {"key": "rejected", "label": "不通过", "group": "started", "color": "#ff5266", "gate": False},
+    {"key": "done", "label": "已完成", "group": "completed", "color": "#3cd69f", "gate": False},
 ]
 VALID_STATE_KEYS = {s["key"] for s in STATES}
 ACTIVE_CONFLICT_STATES = {"plan_review", "in_progress"}
 
 PRIORITIES: list[dict[str, str]] = [
-    {"key": "urgent", "label": "紧急", "color": "#ef4444"},
-    {"key": "high", "label": "高", "color": "#f97316"},
-    {"key": "medium", "label": "中", "color": "#eab308"},
-    {"key": "low", "label": "低", "color": "#38bdf8"},
-    {"key": "none", "label": "无", "color": "#64748b"},
+    {"key": "urgent", "label": "紧急", "color": "#ff5266"},
+    {"key": "high", "label": "高", "color": "#ffb800"},
+    {"key": "medium", "label": "中", "color": "#f0d372"},
+    {"key": "low", "label": "低", "color": "#68c8ff"},
+    {"key": "none", "label": "无", "color": "#838896"},
 ]
 VALID_PRIORITY_KEYS = {p["key"] for p in PRIORITIES}
 
@@ -308,6 +309,9 @@ def compute_scope_conflicts(items: list[dict[str, Any]]) -> tuple[dict[int, list
         a = active[i]
         for j in range(i + 1, len(active)):
             b = active[j]
+            # 直接父子工作项之间不互相触发路径重叠冲突误报
+            if a.get("parent_id") == b["id"] or b.get("parent_id") == a["id"]:
+                continue
             overlaps: list[dict[str, str]] = []
             for pa in a["scope_paths"]:
                 for pb in b["scope_paths"]:
@@ -397,6 +401,7 @@ CREATE TABLE IF NOT EXISTS work_items (
     plan_md TEXT NOT NULL DEFAULT '',
     state TEXT NOT NULL DEFAULT 'todo',
     priority TEXT NOT NULL DEFAULT 'medium',
+    parent_id INTEGER REFERENCES work_items(id) ON DELETE SET NULL,
     module_id INTEGER REFERENCES modules(id) ON DELETE SET NULL,
     owner_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
     agent_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
@@ -498,10 +503,14 @@ class BoardStore:
     def _init_db(self, *, seed_workspace: bool) -> None:
         with self._tx() as conn:
             conn.executescript(SCHEMA_SQL)
-            # 幂等轻量迁移：为存量库补齐 modules.category 字段
-            cols = {r["name"] for r in conn.execute("PRAGMA table_info(modules)").fetchall()}
-            if "category" not in cols:
+            # 幂等轻量迁移：为存量库补齐 modules.category 与 work_items.parent_id 字段
+            mod_cols = {r["name"] for r in conn.execute("PRAGMA table_info(modules)").fetchall()}
+            if "category" not in mod_cols:
                 conn.execute("ALTER TABLE modules ADD COLUMN category TEXT NOT NULL DEFAULT '未分类'")
+            item_cols = {r["name"] for r in conn.execute("PRAGMA table_info(work_items)").fetchall()}
+            if "parent_id" not in item_cols:
+                conn.execute("ALTER TABLE work_items ADD COLUMN parent_id INTEGER REFERENCES work_items(id) ON DELETE SET NULL")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_items_parent ON work_items(project_id, parent_id)")
             if seed_workspace:
                 row = conn.execute("SELECT COUNT(*) AS c FROM projects").fetchone()
                 if row["c"] == 0:
@@ -950,6 +959,37 @@ class BoardStore:
 
     # ---------- 工作项 CRUD、状态流转与冲突检测 ----------
 
+    def _resolve_parent_id(
+        self,
+        conn: sqlite3.Connection,
+        project_id: int,
+        raw_parent_ref: Any,
+        *,
+        self_item_id: int | None = None,
+    ) -> int | None:
+        if raw_parent_ref in (None, "", 0, "0"):
+            return None
+        if isinstance(raw_parent_ref, int) or (isinstance(raw_parent_ref, str) and raw_parent_ref.strip().isdigit()):
+            prow = conn.execute("SELECT id, project_id, item_key, parent_id FROM work_items WHERE id = ?", (int(str(raw_parent_ref).strip()),)).fetchone()
+        else:
+            prow = conn.execute(
+                "SELECT id, project_id, item_key, parent_id FROM work_items WHERE UPPER(item_key) = UPPER(?)",
+                (str(raw_parent_ref).strip(),),
+            ).fetchone()
+        if not prow:
+            raise ValidationError(f"父工作项不存在：{raw_parent_ref}")
+        if int(prow["project_id"]) != int(project_id):
+            raise ValidationError(f"父工作项 {prow['item_key']} 与当前工作项不属于同一项目")
+        if self_item_id is not None and int(prow["id"]) == int(self_item_id):
+            raise ValidationError("工作项不能将自己设为父工作项")
+        if prow["parent_id"] is not None:
+            raise ValidationError(f"{prow['item_key']} 本身已是子工作项，看板限定 2 层结构（父工作项 → 子工作项），请关联至顶层父工作项")
+        if self_item_id is not None:
+            child_cnt = conn.execute("SELECT COUNT(*) AS c FROM work_items WHERE parent_id = ?", (self_item_id,)).fetchone()["c"]
+            if child_cnt > 0:
+                raise ValidationError(f"当前工作项已包含 {child_cnt} 个子工作项，不可再挂载为其他工作项的子项（限定 2 层结构）")
+        return int(prow["id"])
+
     def _hydrate_items(self, conn: sqlite3.Connection, rows: list[sqlite3.Row]) -> list[dict[str, Any]]:
         if not rows:
             return []
@@ -972,8 +1012,61 @@ class BoardStore:
         for cr in conn.execute(f"SELECT work_item_id, COUNT(*) AS c FROM comments WHERE work_item_id IN ({ph}) GROUP BY work_item_id", ids).fetchall():
             cmt_counts[cr["work_item_id"]] = cr["c"]
 
+        # 批量加载父工作项摘要与子工作项完成度统计
+        parent_ids = sorted({int(r["parent_id"]) for r in rows if r["parent_id"]})
+        parent_map: dict[int, dict[str, Any]] = {}
+        if parent_ids:
+            pph = ",".join("?" for _ in parent_ids)
+            for pr in conn.execute(
+                f"SELECT id, item_key, title, state FROM work_items WHERE id IN ({pph})",
+                parent_ids,
+            ).fetchall():
+                parent_map[int(pr["id"])] = {
+                    "id": pr["id"],
+                    "item_key": pr["item_key"],
+                    "title": pr["title"],
+                    "state": pr["state"],
+                }
+
+        sub_stats: dict[int, tuple[int, int]] = {}
+        for sr in conn.execute(
+            f"""SELECT parent_id,
+                       COUNT(*) AS total,
+                       SUM(CASE WHEN state = 'done' THEN 1 ELSE 0 END) AS done_c
+                FROM work_items
+                WHERE parent_id IN ({ph})
+                GROUP BY parent_id""",
+            ids,
+        ).fetchall():
+            sub_stats[int(sr["parent_id"])] = (int(sr["total"]), int(sr["done_c"] or 0))
+
+        # 批量统计未完成前置阻塞依赖数（用于在看板卡片上直接标出阻塞微胶囊）
+        parsed_blockers: dict[int, list[str]] = {}
+        all_blocker_keys: set[str] = set()
+        for r in rows:
+            blks = json.loads(r["blocked_by_json"] or "[]")
+            parsed_blockers[r["id"]] = blks
+            for k in blks:
+                if str(k).strip():
+                    all_blocker_keys.add(str(k).strip().upper())
+
+        blocker_state_map: dict[str, str] = {}
+        if all_blocker_keys:
+            bkeys = sorted(all_blocker_keys)
+            bph = ",".join("?" for _ in bkeys)
+            for br in conn.execute(
+                f"SELECT UPPER(item_key) AS k, state FROM work_items WHERE UPPER(item_key) IN ({bph})",
+                bkeys,
+            ).fetchall():
+                blocker_state_map[br["k"]] = br["state"]
+
         result: list[dict[str, Any]] = []
         for r in rows:
+            pid_val = int(r["parent_id"]) if r["parent_id"] else None
+            pinfo = parent_map.get(pid_val) if pid_val else None
+            st_total, st_done = sub_stats.get(r["id"], (0, 0))
+            blks = parsed_blockers.get(r["id"], [])
+            blocked_open = sum(1 for k in blks if blocker_state_map.get(str(k).upper(), "open") != "done")
             result.append({
                 "id": r["id"],
                 "project_id": r["project_id"],
@@ -984,6 +1077,12 @@ class BoardStore:
                 "plan_md": r["plan_md"],
                 "state": r["state"],
                 "priority": r["priority"],
+                "parent_id": pid_val,
+                "parent_key": pinfo["item_key"] if pinfo else "",
+                "parent_title": pinfo["title"] if pinfo else "",
+                "parent_state": pinfo["state"] if pinfo else "",
+                "sub_total": st_total,
+                "sub_done": st_done,
                 "module_id": r["module_id"],
                 "owner_id": r["owner_id"],
                 "agent_id": r["agent_id"],
@@ -991,7 +1090,8 @@ class BoardStore:
                 "agent_branch": r["agent_branch"],
                 "agent_heartbeat_at": r["agent_heartbeat_at"],
                 "scope_paths": json.loads(r["scope_paths_json"] or "[]"),
-                "blocked_by": json.loads(r["blocked_by_json"] or "[]"),
+                "blocked_by": blks,
+                "blocked_open_count": blocked_open,
                 "labels": label_map.get(r["id"], []),
                 "label_ids": [lb["id"] for lb in label_map.get(r["id"], [])],
                 "attachment_count": att_counts.get(r["id"], 0),
@@ -1029,11 +1129,17 @@ class BoardStore:
         with self._ro() as conn:
             row = self._find_item_row(conn, item_ref)
             item = self._hydrate_items(conn, [row])[0]
-            # 计算同项目冲突
-            all_rows = conn.execute("SELECT * FROM work_items WHERE project_id = ?", (item["project_id"],)).fetchall()
+            # 计算同项目冲突与模块映射
+            all_rows = conn.execute(
+                "SELECT * FROM work_items WHERE project_id = ? ORDER BY sort_order ASC, id ASC",
+                (item["project_id"],),
+            ).fetchall()
             all_items = self._hydrate_items(conn, all_rows)
             by_item, _ = compute_scope_conflicts(all_items)
             item["conflicts"] = by_item.get(item["id"], [])
+
+            mod_rows = conn.execute("SELECT id, name, color, category FROM modules WHERE project_id = ?", (item["project_id"],)).fetchall()
+            mod_meta = {int(mr["id"]): {"name": mr["name"], "color": mr["color"], "category": mr["category"]} for mr in mod_rows}
 
             # 模块上下文包
             item["module_context"] = None
@@ -1042,13 +1148,62 @@ class BoardStore:
                 if mrow:
                     item["module_context"] = self._module_row_to_dict(mrow)
 
-            # 前置依赖摘要
+            # 父工作项详情（若为子单，向抽屉与 Agent pull 透出父单总目标）
+            item["parent_detail"] = None
+            if item["parent_id"]:
+                p_match = next((x for x in all_items if x["id"] == item["parent_id"]), None)
+                if p_match:
+                    item["parent_detail"] = {
+                        "id": p_match["id"],
+                        "item_key": p_match["item_key"],
+                        "title": p_match["title"],
+                        "state": p_match["state"],
+                        "priority": p_match["priority"],
+                        "sub_total": p_match["sub_total"],
+                        "sub_done": p_match["sub_done"],
+                        "description_md": p_match["description_md"],
+                    }
+
+            # 子工作项列表（若为父单）与同父兄弟子项（若为子单，供并行 Agent 对齐接口与路径边界）
+            def _brief_rel(x: dict[str, Any]) -> dict[str, Any]:
+                mm = mod_meta.get(x["module_id"]) if x.get("module_id") else None
+                return {
+                    "id": x["id"],
+                    "item_key": x["item_key"],
+                    "title": x["title"],
+                    "state": x["state"],
+                    "priority": x["priority"],
+                    "module_id": x["module_id"],
+                    "module_name": mm["name"] if mm else "",
+                    "module_color": mm["color"] if mm else "#64748b",
+                    "agent_id": x["agent_id"],
+                    "scope_paths": x["scope_paths"],
+                    "blocked_by": x["blocked_by"],
+                    "blocked_open_count": x["blocked_open_count"],
+                    "has_conflict": bool(by_item.get(x["id"])),
+                }
+
+            item["children"] = [_brief_rel(x) for x in all_items if x.get("parent_id") == item["id"]]
+            item["siblings"] = (
+                [_brief_rel(x) for x in all_items if x.get("parent_id") == item["parent_id"] and x["id"] != item["id"]]
+                if item["parent_id"]
+                else []
+            )
+
+            # 前置依赖摘要与下游被阻塞摘要
             blocked_details = []
             for key in item["blocked_by"]:
                 brow = conn.execute("SELECT id, item_key, title, state, owner_id FROM work_items WHERE UPPER(item_key) = UPPER(?)", (str(key),)).fetchone()
                 if brow:
                     blocked_details.append({"id": brow["id"], "item_key": brow["item_key"], "title": brow["title"], "state": brow["state"]})
             item["blocked_by_details"] = blocked_details
+
+            my_key_up = item["item_key"].upper()
+            item["blocks_details"] = [
+                {"id": x["id"], "item_key": x["item_key"], "title": x["title"], "state": x["state"]}
+                for x in all_items
+                if x["id"] != item["id"] and any(str(k).upper() == my_key_up for k in (x.get("blocked_by") or []))
+            ]
 
             # 评论
             cmts = conn.execute(
@@ -1122,13 +1277,15 @@ class BoardStore:
                 owner_id = actor_id
             agent_id = data.get("agent_id")
             module_id = data.get("module_id")
+            raw_parent = data.get("parent_id") if "parent_id" in data else data.get("parent_key")
+            parent_id = self._resolve_parent_id(conn, project_id, raw_parent)
 
             cur = conn.execute(
                 """INSERT INTO work_items(
                        project_id, seq_num, item_key, title, description_md, plan_md, state, priority,
-                       module_id, owner_id, agent_id, agent_host, agent_branch, agent_heartbeat_at,
+                       parent_id, module_id, owner_id, agent_id, agent_host, agent_branch, agent_heartbeat_at,
                        scope_paths_json, blocked_by_json, sort_order, rev, created_by, created_at, updated_at
-                   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)""",
+                   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)""",
                 (
                     project_id,
                     seq_num,
@@ -1138,6 +1295,7 @@ class BoardStore:
                     (data.get("plan_md") or "").strip(),
                     state,
                     priority,
+                    parent_id,
                     int(module_id) if module_id else None,
                     int(owner_id) if owner_id else None,
                     int(agent_id) if agent_id else None,
@@ -1155,7 +1313,7 @@ class BoardStore:
             wid = int(cur.lastrowid)
             for lid in data.get("label_ids") or []:
                 conn.execute("INSERT OR IGNORE INTO work_item_labels(work_item_id, label_id) VALUES (?, ?)", (wid, int(lid)))
-            seq = self._append_event(conn, project_id, wid, actor_id, "item_created", {"item_key": item_key, "state": state})
+            seq = self._append_event(conn, project_id, wid, actor_id, "item_created", {"item_key": item_key, "state": state, "parent_id": parent_id})
         return self.get_item_detail(wid), seq
 
     def update_item(self, item_ref: int | str, data: dict[str, Any], actor_id: int | None) -> tuple[dict[str, Any], int]:
@@ -1184,11 +1342,37 @@ class BoardStore:
             if proj["strict_mode"] and new_state == "rejected" and current["state"] != "rejected" and not reason:
                 raise ValidationError("项目已开启严格模式：拖入「不通过」必须填写打回原因")
 
+            # 父工作项防误结单保护：存在未完成子项时默认拦截，显式传 force=True 放行
+            if new_state == "done" and current["state"] != "done" and not bool(data.get("force")):
+                open_children = conn.execute(
+                    "SELECT item_key, title, state FROM work_items WHERE parent_id = ? AND state != 'done' ORDER BY sort_order ASC, id ASC",
+                    (current["id"],),
+                ).fetchall()
+                if open_children:
+                    preview_keys = ", ".join(r["item_key"] for r in open_children[:5])
+                    more = f" 等 {len(open_children)} 项" if len(open_children) > 5 else ""
+                    raise ValidationError(
+                        f"父工作项 {current['item_key']} 尚有 {len(open_children)} 个未完成子项（{preview_keys}{more}），请先完成子项或确认后强制结单",
+                        payload={
+                            "reason_code": "incomplete_children",
+                            "incomplete_children": [
+                                {"item_key": r["item_key"], "title": r["title"], "state": r["state"]}
+                                for r in open_children
+                            ],
+                        },
+                    )
+
             scope_paths = normalize_scope_paths(data["scope_paths"]) if "scope_paths" in data else current["scope_paths"]
             if "blocked_by" in data:
                 blocked_by = [str(k).strip().upper() for k in (data.get("blocked_by") or []) if str(k).strip() and str(k).strip().upper() != current["item_key"]]
             else:
                 blocked_by = current["blocked_by"]
+
+            if "parent_id" in data or "parent_key" in data:
+                raw_parent = data.get("parent_id") if "parent_id" in data else data.get("parent_key")
+                parent_id = self._resolve_parent_id(conn, current["project_id"], raw_parent, self_item_id=current["id"])
+            else:
+                parent_id = current["parent_id"]
 
             def _opt_int(key: str, fallback: int | None) -> int | None:
                 if key not in data:
@@ -1201,7 +1385,7 @@ class BoardStore:
             conn.execute(
                 """UPDATE work_items
                    SET title = ?, description_md = ?, plan_md = ?, state = ?, priority = ?,
-                       module_id = ?, owner_id = ?, agent_id = ?, agent_host = ?, agent_branch = ?,
+                       parent_id = ?, module_id = ?, owner_id = ?, agent_id = ?, agent_host = ?, agent_branch = ?,
                        agent_heartbeat_at = ?, scope_paths_json = ?, blocked_by_json = ?,
                        sort_order = ?, rev = ?, updated_at = ?
                    WHERE id = ?""",
@@ -1211,6 +1395,7 @@ class BoardStore:
                     (data.get("plan_md") if "plan_md" in data else current["plan_md"]).strip(),
                     new_state,
                     priority,
+                    parent_id,
                     _opt_int("module_id", current["module_id"]),
                     _opt_int("owner_id", current["owner_id"]),
                     _opt_int("agent_id", current["agent_id"]),
@@ -1301,6 +1486,8 @@ class BoardStore:
             patch["reason"] = note
         elif act == "done":
             patch["state"] = "done"
+            if data.get("force"):
+                patch["force"] = True
         else:
             raise ValidationError(f"不支持的流转动作：{action}")
 

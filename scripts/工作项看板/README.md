@@ -43,16 +43,21 @@ python -X utf8 -B scripts/工作项看板/验证看板闭环.py
 # 查看项目与成员元数据
 python -X utf8 -B scripts/工作项看板/看板工具.py meta
 
-# 拉取单据完整需求、附件、模块上下文包与冲突提示
+# 拉取单据完整需求、附件、模块上下文包、父兄上下文与冲突提示
 python -X utf8 -B scripts/工作项看板/看板工具.py pull SCAV-1
 
-# 新建工作项（支持规范模板文件、标签、依赖、外置排查线索与 --dry-run 门禁预演）
+# 新建统筹父单（--epic）与分模块子工作项（--parent + --blocked-by）
+python -X utf8 -B scripts/工作项看板/看板工具.py create --title "[需求] F-22固定翼全链路实装与验收" --module "载具战斗与数值基底" --priority high --label "功能需求" --epic --desc-file tmp/epic.md --check-spec
+python -X utf8 -B scripts/工作项看板/看板工具.py create --title "[需求] F-22数值基底与飞行弹药配置" --parent SCAV-1 --module "载具战斗与数值基底" --label "功能需求,数值/规则" --scope "src/程序化地图/固定翼底座.mjs" --desc-file tmp/sub1.md --check-spec
+python -X utf8 -B scripts/工作项看板/看板工具.py list --parent SCAV-1
+
+# 新建单条工作项（支持规范模板文件、标签、依赖、外置排查线索与 --dry-run 门禁预演）
 python -X utf8 -B scripts/工作项看板/看板工具.py create --title "[缺陷] 21:9画幅下固定翼投弹圈偏移" --module "操作交互与战术标绘" --priority high --label "缺陷修复,UI/UX" --scope "src/交互系统/" --desc-file tmp/item.md --dry-run
 python -X utf8 -B scripts/工作项看板/看板工具.py create --title "[缺陷] 21:9画幅下固定翼投弹圈偏移" --module "操作交互与战术标绘" --priority high --label "缺陷修复,UI/UX" --scope "src/交互系统/" --desc-file tmp/item.md --comment "源码线索..." --check-spec
 
-# 存量工作项只读规范体检与增量更新
+# 存量工作项只读规范体检与增量更新（含父子关联与阻塞依赖增删）
 python -X utf8 -B scripts/工作项看板/看板工具.py lint --all
-python -X utf8 -B scripts/工作项看板/看板工具.py update SCAV-1 --add-label "需评审" --add-scope "src/交互系统/契约与仲裁.mjs"
+python -X utf8 -B scripts/工作项看板/看板工具.py update SCAV-2 --parent SCAV-1 --add-blocked-by SCAV-1 --add-label "需评审" --add-scope "src/交互系统/契约与仲裁.mjs"
 
 # 认领 -> 提交方案待审 -> 批准开工 -> 汇报心跳 -> 提交测试 -> 结单
 python -X utf8 -B scripts/工作项看板/看板工具.py claim SCAV-1 --agent "Claude-主程" --branch "feat/scav-1"
