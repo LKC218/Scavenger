@@ -1,0 +1,218 @@
+{
+  "date": "2026-11-23",
+  "timezone": "Asia/Shanghai (UTC+8)",
+  "mode": "curated",
+  "generated_at": "2026-11-24 02:20:00 +0800",
+  "headline": "全天 5 条主线协同推进：写实爆炸升级至 V3.0 并完成 8×8 体积云烘焙，固定翼落地 Shift 队列与 GAU-8 4:1 混装，18 个原作丧尸战斗音效交付，武器库材质与 V4 开发日志看板正式收口立规。",
+  "kpis": {
+    "goals_achieved": 2,
+    "goals_total": 5,
+    "pending_actions": 4,
+    "repo_files": 35,
+    "git_dirty": 154
+  },
+  "goals": [
+    {
+      "id": "goal-vfx-explosion-v3",
+      "title": "写实爆炸特效 V3.0 升级（P1+P0+P2）与 A-10C 样板精细打磨",
+      "category": "材质与表现",
+      "status": "in_progress",
+      "status_label": "V3.0 已过 19 项验证 · 尾焰烟气裂片待修",
+      "summary": "对标《Defilade》重构爆炸特效管线：离线烘焙 8×8 多通道体积云图集替代 12 面体，消除科幻穹顶与热路径 GC；完成 A-10C 扫射横向交错覆面，并定位池 5 丝带条状分裂的数学根因。",
+      "highlights": [
+        "离线烘焙 8×8（1024×1024）多通道体积云图集",
+        "GAU-8 单轮扫射约 40 处交错着弹点，19 项实机验证全通",
+        "23:03 精准定位导弹尾焰裁剪与池 5 丝带条状分裂根因"
+      ],
+      "metrics": [
+        { "label": "实机与截图体检", "before": "-", "after": "19 项 / 21 张全通过" },
+        { "label": "体积云图集规格", "before": "12 面体硬棱角", "after": "8×8 (1024×1024)" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "7581a648", "start": "11:46", "end": "23:03", "label": "V3.0 规划 + 体积云烘焙 + A-10 打磨 + 根因诊断" }
+      ],
+      "files": [
+        "docs/地图与载具/写实爆炸特效升级-实施计划.md",
+        "scripts/程序化地图/烘焙爆炸体积云图集.py",
+        "public/assets/vfx-explosion/smoke_vol_heat_thick.png",
+        "public/assets/vfx-explosion/smoke_vol_normal_alpha.png",
+        "src/程序化地图/固定翼调试模式.mjs",
+        "src/程序化地图/场景运行.mjs"
+      ],
+      "verification": "19 项实机验证与 21 张截图像素体检零报错通过；23:03 提出的尾焰/烟气裂片问题已完成根因分析待确认修复。"
+    },
+    {
+      "id": "goal-fixedwing-v24-shift",
+      "title": "固定翼 V2.4 Shift 多点打击队列与 GAU-8 4:1 Combat Mix 实装",
+      "category": "玩法与规范",
+      "status": "waiting_accept",
+      "status_label": "Chrome 四态实机通过 · 待验收收口",
+      "summary": "结合《Defilade》1080P 拆解制定 V2.4 计划，落地 Shift 多点打击全队列可视化；将 GAU-8 30mm 重构为现实 4:1 混装弹链，区分 API/HEI 差异着弹并支持调试页四态实时切换。",
+      "highlights": [
+        "对标《Defilade》1080P 拆解 4 项视觉与交互方案",
+        "实现 4:1 Combat Mix（1 高亮曳光 + 4 暗金属气痕）",
+        "修复 setTracerColorMode 对无曳光模式的白名单遗漏"
+      ],
+      "metrics": [
+        { "label": "曳光弹混装比例", "before": "全脉冲曳光", "after": "4:1 现实弹链" },
+        { "label": "调试页四态对比", "before": "-", "after": "Chrome 真机全通过" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "903f632e", "start": "00:20", "end": "02:38", "label": "V2.4 方案拆解与实施规划" },
+        { "tool": "Antigravity", "id": "68151cc7", "start": "02:40", "end": "11:55", "label": "Shift 队列与 4:1 Combat Mix 实装" }
+      ],
+      "files": [
+        "src/交互系统/契约与仲裁.mjs",
+        "src/交互系统/入口接入.mjs",
+        "src/交互系统/指令与标绘层.mjs",
+        "scripts/交互系统/验证交互规则.mjs",
+        "src/程序化地图/固定翼调试模式.mjs",
+        "docs/地图与载具/固定翼通用底座与A-10C完整设计卡.md"
+      ],
+      "verification": "交互规则单测与 Chrome 真机四态对比验证全部通过，清理任务 V001-68151cc7 待工程师实机验收后收口。"
+    },
+    {
+      "id": "goal-zombie-audio-delivery",
+      "title": "Steam 构建 26627577 全 18 个原作丧尸战斗音效提取与交付",
+      "category": "资产提取",
+      "status": "waiting_accept",
+      "status_label": "技术回读通过 · 听感待验收",
+      "summary": "跨零点完成 18 个已定位原作丧尸战斗与角色音效事件交付（新提 10 个、复用校验 8 个），并补充 Walker/Runner 共 6 组移动参数试样，按 PCM 内容去重产出 23 个 48kHz WAV。",
+      "highlights": [
+        "全部 23 个 WAV 独立回读：48kHz 双声道 PCM16 无削波",
+        "补齐 Walker 与 Runner 各 3 组移动与地表参数试样",
+        "生成逐条试听目录与完整事件/GUID 核验清单"
+      ],
+      "metrics": [
+        { "label": "战斗音效事件交付", "before": "仅 8 个历史事件", "after": "18 事件 / 23 WAV" },
+        { "label": "音频技术校验", "before": "-", "after": "SHA-256 100% 一致" }
+      ],
+      "sessions": [
+        { "tool": "Codex", "id": "01a2023f", "start": "00:06", "end": "00:11", "label": "丧尸战斗音效全量交付与核验" }
+      ],
+      "files": [
+        "scripts/断箭/提取原作丧尸战斗音效.py",
+        "scripts/断箭/音效提取说明.md",
+        "local-data/断箭/批次/BA-26627577-002/README.md",
+        "local-data/断箭/批次/BA-26627577-002/事件与试听清单.json",
+        "local-data/断箭/批次/BA-26627577-002/交付核验.json"
+      ],
+      "verification": "全部 WAV 已通过独立回读与非静音/无削波技术核验；听感、循环点与动画触发时机待工程师验收。"
+    },
+    {
+      "id": "goal-devlog-v4-pipeline",
+      "title": "每日开发日志 V4 离线看板重构、规范命名立规与结构门禁接入",
+      "category": "工程基建",
+      "status": "done",
+      "status_label": "V4 已验收 · 门禁已接入",
+      "summary": "完成跨工具（Antigravity+Codex）北京时间工作快照采集与 V1→V4 深炭双金三列看板迭代；按反馈取消定时任务改为按需生成，并立规按月归档命名与全仓结构自动校验。",
+      "highlights": [
+        "V4 看板支持三列泳道、精力分布与抽屉详情交互",
+        "锁定 每日开发看板.html + 数据/YYYY-MM/ 唯一规范",
+        "接入 scripts/检查项目结构.py 自动校验与 daily-dev-log 技能"
+      ],
+      "metrics": [
+        { "label": "看板架构迭代", "before": "零散会话记录", "after": "V4 离线单文件看板" },
+        { "label": "跨工具快照覆盖", "before": "-", "after": "Antigravity + Codex" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "de2469c2", "start": "00:23", "end": "19:49", "label": "日志系统落地 -> V4 看板 -> 命名规范与门禁" }
+      ],
+      "files": [
+        "scripts/生成每日工作快照.py",
+        "scripts/生成每日工作日志页面.py",
+        "scripts/检查项目结构.py",
+        "reports/开发日志/每日开发看板.html",
+        "reports/开发日志/数据/2026-11/2026-11-22-开发日志.json"
+      ],
+      "verification": "V4 看板已获工程师确认通过，命名规范与结构门禁已接入 scripts/检查项目结构.py。"
+    },
+    {
+      "id": "goal-armory-material-close",
+      "title": "武器库沙盘升级与风格化材质全局接入正式验收收口",
+      "category": "材质与表现",
+      "status": "done",
+      "status_label": "工程师验收通过 · 已清理收口",
+      "summary": "工程师实机确认武器库与风格化材质全局接入完全通过；随即彻底清空会话沙盒内 3 个临时验收脚本、7 张对比截图及 3 个验证目录，并关闭全部 3 个关联清理任务。",
+      "highlights": [
+        "沙盒临时测试产物清零（SCRATCH_REMAINING: 0）",
+        "关闭 V001-3fec72f9 / V002-14fcc1c7 / V001-14fcc1c7",
+        "同步完成最终全仓项目结构校验"
+      ],
+      "metrics": [
+        { "label": "临时验收产物残留", "before": "3 脚本 + 7 图 + 3 目录", "after": "0 残留" },
+        { "label": "清理任务收口", "before": "3 个活跃任务", "after": "全部 closed" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "14fcc1c7", "start": "10:31", "end": "10:36", "label": "验收确认与沙盒清理收口" }
+      ],
+      "files": [],
+      "verification": "工程师确认完全通过，沙盒临时产物已清空且 3 个关联清理任务已关闭。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "act-vfx-ribbon-fix",
+      "type": "decision",
+      "title": "拍板导弹马赫尾焰裁剪与池 5 烟气条状分裂修复开工",
+      "detail": "会话 7581a648 已于 23:03 定位池 5 丝带逐段独立法线等三大数学根因，确认后即可启动修复。",
+      "ref": "会话 7581a648 (23:03 根因诊断)"
+    },
+    {
+      "id": "act-fixedwing-v24-accept",
+      "type": "accept",
+      "title": "实机验收固定翼 Shift 多点队列与 GAU-8 4:1 混装弹链",
+      "detail": "在 /play 核对 Shift 多点打击全队列及 GAU-8 红/绿/混/无曳光四态表现，确认后可关闭 V001-68151cc7。",
+      "ref": "http://127.0.0.1:8800/play"
+    },
+    {
+      "id": "act-zombie-audio-accept",
+      "type": "accept",
+      "title": "试听并验收 18 个原作丧尸战斗音效（BA-26627577-002）",
+      "detail": "打开逐条试听目录核对听感、循环点与动作触发时机，确认后推进音频入库与 Blender 绑定。",
+      "ref": "local-data/断箭/批次/BA-26627577-002/README.md"
+    },
+    {
+      "id": "act-blender-accept",
+      "type": "accept",
+      "title": "检查并验收 15 款原作丧尸 Blender 总场景（V001-r02）",
+      "detail": "打开工程核对 14 款蒙皮角色与 126 个动作，确认通过后通知 Codex 会话执行 accept 收口。",
+      "ref": "local-data/维护清理/验收待确认/d4d53176a06c49b090abda21bc299f7d.json"
+    }
+  ],
+  "cleanup_summary": {
+    "closed_count": 136,
+    "active_count": 86,
+    "waiting_acceptance": [
+      {
+        "asset": "model:BA_ZOM_Runner1",
+        "version": "V001-r03",
+        "task": "断箭丧尸双模型提取-V001-01a1aa48"
+      },
+      {
+        "asset": "model:BA_ZOM_Walker1",
+        "version": "V001-r03",
+        "task": "断箭丧尸双模型提取-V001-01a1aa48"
+      },
+      {
+        "asset": "model:ba-runner-lod2",
+        "version": "V001-GPU96-r03",
+        "task": "原作群尸交付与验收-V001-01a1aa48"
+      },
+      {
+        "asset": "model:ba-walker-lod2",
+        "version": "V001-GPU96-r03",
+        "task": "原作群尸交付与验收-V001-01a1aa48"
+      },
+      {
+        "asset": "scene:broken-arrow-zombie-15-blender",
+        "version": "V001-r02",
+        "task": "断箭原作丧尸Blender场景-V001-01a2023f"
+      }
+    ]
+  },
+  "repo_snapshot": {
+    "commits": 0,
+    "dirty_count": 154
+  }
+}

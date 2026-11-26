@@ -33,9 +33,12 @@ def checked(relative):
     cursor = ROOT
     for part in parts:
         cursor = cursor / part
-        if cursor.exists() or cursor.is_symlink():
+        try:
             info = cursor.lstat()
-            if cursor.is_symlink() or getattr(info, "st_file_attributes", 0) & 0x400:
+        except FileNotFoundError:
+            info = None
+        if info is not None:
+            if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
                 raise ValueError(f"拒绝链接或目录联接：{relative}")
     if not cursor.resolve().is_relative_to(ROOT.resolve()):
         raise ValueError("路径超出项目")
@@ -513,9 +516,284 @@ def inventory():
     print(run + "/首次存量清理审核单.md")
 
 
+REVISION_DIR_RE = re.compile(r"^(?:r\d+|full-r\d+|sample-r\d+|V\d{3}(?:-.*)?)$", re.IGNORECASE)
+SERVICE_TASK_MARKERS = ("服务", "固定", "预览", "路由", "876", "878", "879", "881", "882")
+
+
+def _is_reparse_or_link(path):
+    try:
+        if path.is_symlink():
+            return True
+        info = path.lstat()
+        return bool(getattr(info, "st_file_attributes", 0) & 0x400)
+    except OSError:
+        return True
+
+
+def _bubble_dir_stats(dir_agg, dir_rel_cf, add_bytes, add_files, max_mtime):
+    cur = dir_rel_cf
+    while True:
+        slot = dir_agg.get(cur)
+        if slot is None:
+            dir_agg[cur] = [add_bytes, add_files, max_mtime]
+        else:
+            slot[0] += add_bytes
+            slot[1] += add_files
+            if max_mtime > slot[2]:
+                slot[2] = max_mtime
+        if not cur:
+            break
+        cur = cur.rpartition("/")[0]
+
+
+def _scan_workspace_for_audit(enrolled_cf, big_json_bytes):
+    root_resolved = ROOT.resolve()
+    state_prefix_cf = (STATE.rstrip("/") + "/").casefold()
+    audit_self_cf = (STATE.rstrip("/") + "/自动维护/最近体检结果.json").casefold()
+    index_ver_prefix_cf = "local-data/资源库/索引版本".casefold()
+
+    dir_agg = {}
+    file_agg = {}
+    tmp_unregistered = {}
+    large_json_files = []
+    dir_children = {}
+    top_counts = {"local_data": [0, 0], "tmp": [0, 0]}
+
+    for cur_dir, dirnames, filenames in os.walk(ROOT, followlinks=False):
+        cur_path = Path(cur_dir)
+        rel_dir = "" if cur_path == ROOT else cur_path.relative_to(ROOT).as_posix()
+        rel_dir_cf = rel_dir.casefold()
+
+        kept_dirs = []
+        for name in dirnames:
+            if not rel_dir and name == ".git":
+                continue
+            child = cur_path / name
+            if _is_reparse_or_link(child):
+                continue
+            try:
+                if not child.resolve().is_relative_to(root_resolved):
+                    continue
+            except OSError:
+                continue
+            kept_dirs.append(name)
+        dirnames[:] = kept_dirs
+
+        if rel_dir_cf.startswith("local-data") and not rel_dir_cf.startswith(state_prefix_cf.rstrip("/")) and rel_dir_cf != index_ver_prefix_cf:
+            if kept_dirs:
+                dir_children[rel_dir] = kept_dirs
+
+        cur_bytes, cur_files, cur_mtime = 0, 0, 0.0
+        for fname in filenames:
+            fpath = cur_path / fname
+            if _is_reparse_or_link(fpath):
+                continue
+            try:
+                st = fpath.lstat()
+            except OSError:
+                continue
+            if not stat.S_ISREG(st.st_mode):
+                continue
+            rel_file = fname if not rel_dir else f"{rel_dir}/{fname}"
+            rel_file_cf = rel_file.casefold()
+            if rel_file_cf == audit_self_cf:
+                continue
+            sz, mt = st.st_size, st.st_mtime
+            file_agg[rel_file_cf] = (sz, mt)
+            cur_bytes += sz
+            cur_files += 1
+            if mt > cur_mtime:
+                cur_mtime = mt
+
+            if rel_file_cf.startswith("local-data/"):
+                top_counts["local_data"][0] += sz
+                top_counts["local_data"][1] += 1
+            elif rel_file_cf.startswith("tmp/"):
+                top_counts["tmp"][0] += sz
+                top_counts["tmp"][1] += 1
+                if rel_file_cf not in enrolled_cf:
+                    parts = rel_file.split("/", 2)
+                    if len(parts) >= 3:
+                        tmp_key = f"tmp/{parts[1]}"
+                        slot = tmp_unregistered.get(tmp_key)
+                        if slot is None:
+                            tmp_unregistered[tmp_key] = [sz, 1, mt]
+                        else:
+                            slot[0] += sz
+                            slot[1] += 1
+                            if mt > slot[2]:
+                                slot[2] = mt
+
+            if (
+                fname.casefold().endswith(".json")
+                and sz >= big_json_bytes
+                and (rel_file_cf.startswith("local-data/") or rel_file_cf.startswith("tmp/"))
+                and not rel_file_cf.startswith(state_prefix_cf)
+            ):
+                large_json_files.append({"path": rel_file, "bytes": sz})
+
+        if cur_files > 0:
+            _bubble_dir_stats(dir_agg, rel_dir_cf, cur_bytes, cur_files, cur_mtime)
+
+    root_slot = dir_agg.get("", [0, 0, 0.0])
+    return {
+        "project_bytes": root_slot[0],
+        "project_files": root_slot[1],
+        "local_data_bytes": top_counts["local_data"][0],
+        "local_data_files": top_counts["local_data"][1],
+        "tmp_bytes": top_counts["tmp"][0],
+        "tmp_files": top_counts["tmp"][1],
+        "dir_agg": dir_agg,
+        "file_agg": file_agg,
+        "tmp_unregistered": tmp_unregistered,
+        "large_json_files": large_json_files,
+        "dir_children": dir_children,
+    }
+
+
+def _collect_stale_active_tasks(registry, scan, now, stale_days):
+    dir_agg, file_agg = scan["dir_agg"], scan["file_agg"]
+    stale = []
+    active_total = 0
+    for task_name, task_info in registry.get("tasks", {}).items():
+        if task_info.get("status") != "active":
+            continue
+        active_total += 1
+        total_bytes, total_files, max_mt = 0, 0, 0.0
+        raw_paths = sorted(
+            {raw.replace("\\", "/").rstrip("/").casefold() for raw in task_info.get("paths", []) if raw},
+            key=len,
+        )
+        dedup_paths = []
+        for p_cf in raw_paths:
+            if any(p_cf == prev or p_cf.startswith(prev + "/") for prev in dedup_paths):
+                continue
+            dedup_paths.append(p_cf)
+        for key in dedup_paths:
+            if key in dir_agg:
+                sz, fc, mt = dir_agg[key]
+                total_bytes += sz
+                total_files += fc
+                if mt > max_mt:
+                    max_mt = mt
+            elif key in file_agg:
+                sz, mt = file_agg[key]
+                total_bytes += sz
+                total_files += 1
+                if mt > max_mt:
+                    max_mt = mt
+        ref_ts = max_mt if max_mt > 0 else float(task_info.get("created_at") or 0)
+        if ref_ts <= 0 or (now - ref_ts) < stale_days * DAY:
+            continue
+        text = task_name + " " + str(task_info.get("note", ""))
+        stale.append({
+            "task": task_name,
+            "idle_days": round((now - ref_ts) / DAY, 1),
+            "bytes": total_bytes,
+            "files": total_files,
+            "is_service_like": any(m in text for m in SERVICE_TASK_MARKERS),
+        })
+    stale.sort(key=lambda x: (x["is_service_like"], -x["bytes"], -x["idle_days"]))
+    return active_total, stale
+
+
+def audit(registry, stale_days=7, orphan_mb=50, big_json_mb=50, multi_rev_mb=200, write_report=True):
+    """只读防堆积体检：不修改登记、不移动或删除任何文件。"""
+    now = time.time()
+    orphan_bytes = max(1, int(orphan_mb)) * 1024 * 1024
+    big_json_bytes = max(1, int(big_json_mb)) * 1024 * 1024
+    multi_rev_threshold = max(1, int(multi_rev_mb)) * 1024 * 1024
+
+    enrolled_cf = {
+        row["path"].casefold()
+        for item in registry.get("items", [])
+        if not item.get("suspended")
+        for row in item.get("files", [])
+    }
+    scan = _scan_workspace_for_audit(enrolled_cf, big_json_bytes)
+    active_total, stale_all = _collect_stale_active_tasks(registry, scan, now, stale_days)
+
+    orphan_all = [
+        {"path": p, "bytes": v[0], "files": v[1], "idle_days": round(max(0.0, now - v[2]) / DAY, 1)}
+        for p, v in scan["tmp_unregistered"].items()
+        if v[0] >= orphan_bytes
+    ]
+    orphan_all.sort(key=lambda x: -x["bytes"])
+
+    large_json_all = sorted(scan["large_json_files"], key=lambda x: -x["bytes"])
+
+    multi_rev_all = []
+    for parent_rel, child_names in scan["dir_children"].items():
+        rev_names = sorted(n for n in child_names if REVISION_DIR_RE.match(n))
+        if len(rev_names) < 3:
+            continue
+        rev_bytes = sum(scan["dir_agg"].get(f"{parent_rel}/{n}".casefold(), [0])[0] for n in rev_names)
+        if rev_bytes >= multi_rev_threshold:
+            multi_rev_all.append({
+                "parent": parent_rel,
+                "revision_count": len(rev_names),
+                "revisions": rev_names[:8],
+                "bytes": rev_bytes,
+            })
+    multi_rev_all.sort(key=lambda x: -x["bytes"])
+
+    warnings = []
+    non_service_stale = [x for x in stale_all if not x["is_service_like"]]
+    if non_service_stale:
+        warnings.append(f"存在 {len(non_service_stale)} 个超过 {stale_days} 天未写入的非服务类 active 任务")
+    if orphan_all:
+        orphan_gib = sum(x["bytes"] for x in orphan_all) / (2**30)
+        warnings.append(f"tmp/ 下有 {len(orphan_all)} 个未登记大目录（≥{orphan_mb} MB），合计 {orphan_gib:.2f} GiB")
+    if large_json_all:
+        warnings.append(f"存在 {len(large_json_all)} 个 ≥{big_json_mb} MB 的未压缩 JSON 文件")
+    if multi_rev_all:
+        warnings.append(f"local-data/ 下有 {len(multi_rev_all)} 处含 ≥3 个修订版且 ≥200 MiB 的目录")
+
+    report = {
+        "mode": "只读防堆积体检（未删除任何文件）",
+        "checked_at": now,
+        "thresholds": {"stale_days": stale_days, "orphan_mb": orphan_mb, "big_json_mb": big_json_mb},
+        "summary": {
+            "project_bytes": scan["project_bytes"],
+            "project_files": scan["project_files"],
+            "local_data_bytes": scan["local_data_bytes"],
+            "local_data_files": scan["local_data_files"],
+            "tmp_bytes": scan["tmp_bytes"],
+            "tmp_files": scan["tmp_files"],
+            "active_tasks_total": active_total,
+            "stale_active_count": len(stale_all),
+            "unregistered_tmp_count": len(orphan_all),
+            "large_json_count": len(large_json_all),
+            "multi_revision_count": len(multi_rev_all),
+        },
+        "warnings": warnings,
+        "stale_active_tasks": stale_all[:15],
+        "unregistered_tmp_dirs": orphan_all[:15],
+        "large_json_files": large_json_all[:15],
+        "multi_revision_dirs": multi_rev_all[:10],
+    }
+
+    if write_report:
+        out_rel = STATE + "/自动维护/最近体检结果.json"
+        out_file = checked(out_rel)
+        comparable = {k: v for k, v in report.items() if k != "checked_at"}
+        unchanged = False
+        if out_file.exists():
+            try:
+                prev = {k: v for k, v in read(out_rel).items() if k != "checked_at"}
+                unchanged = (prev == comparable)
+            except (OSError, ValueError):
+                unchanged = False
+        if not unchanged:
+            save(out_rel, report)
+
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return report
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["init", "inventory", "preview", "tick", "protect", "close", "enroll", "quarantine", "restore", "purge", "enable-cache", "enable-auto", "stage", "accept", "status", "repair-receipt"])
+    parser.add_argument("command", choices=["init", "inventory", "preview", "tick", "protect", "close", "enroll", "quarantine", "restore", "purge", "enable-cache", "enable-auto", "stage", "accept", "status", "repair-receipt", "audit"])
     parser.add_argument("--task")
     parser.add_argument("--path", action="append", default=[])
     parser.add_argument("--note")
@@ -527,6 +805,11 @@ def main():
     parser.add_argument("--version")
     parser.add_argument("--replacement", action="append", default=[])
     parser.add_argument("--evidence")
+    parser.add_argument("--stale-days", type=int, default=7)
+    parser.add_argument("--orphan-mb", type=int, default=50)
+    parser.add_argument("--big-json-mb", type=int, default=50)
+    parser.add_argument("--multi-rev-mb", type=int, default=200)
+    parser.add_argument("--no-write", action="store_true", help="只输出体检JSON，不更新最近体检结果.json")
     parser.add_argument(
         "--release-bundle",
         action="store_true",
@@ -541,6 +824,16 @@ def main():
             inventory()
             return
         registry = read(STATE + "/登记.json")
+        if args.command == "audit":
+            audit(
+                registry,
+                stale_days=args.stale_days,
+                orphan_mb=args.orphan_mb,
+                big_json_mb=args.big_json_mb,
+                multi_rev_mb=args.multi_rev_mb,
+                write_report=not args.no_write,
+            )
+            return
         engine = automatic(registry)
         if args.command == 'status':
             engine.status(args.task)

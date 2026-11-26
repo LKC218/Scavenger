@@ -1,0 +1,237 @@
+{
+  "date": "2026-11-24",
+  "timezone": "Asia/Shanghai (UTC+8)",
+  "mode": "curated",
+  "generated_at": "2026-11-25 01:55:00 +0800",
+  "headline": "全天聚焦空战声学与固定翼实战打磨：战场物理声学 V2/V3 试听认可并沉淀规范，修复草地 HDR 发白与盘旋滚转反向，512 贴花与 A-10C 写实气动/RTB 撤离落地，并攻克撤离卡死与兵牌抽发动画。",
+  "kpis": {
+    "goals_achieved": 4,
+    "goals_total": 5,
+    "pending_actions": 4,
+    "repo_files": 25,
+    "git_dirty": 159
+  },
+  "goals": [
+    {
+      "id": "goal-rtb-antifreeze-deck-anim",
+      "title": "固定翼战区撤离防卡死全链路修复与底部兵牌抽发动画实装",
+      "category": "界面与交互",
+      "status": "waiting_accept",
+      "status_label": "19/19 全绿 · 待实机验收",
+      "summary": "定位并根治撤离时镜头跟随死锁与 0 单位检视窗僵死等 4 项叠加根因；同步重构底部兵牌坞为 Keyed 增量协调器，实装「撤离中」角标、抽卡离场与发牌加入动画。",
+      "highlights": [
+        "撤离瞬间自动退出瞄准/轮盘并解除 followUnitId 边界死锁",
+        "全模块屏蔽 evacuated 幽灵指令，0 单位切入深空待命态",
+        "底部兵牌支持撤离中角标、260ms 抽卡离场与 300ms 发牌入位"
+      ],
+      "metrics": [
+        { "label": "Edge 全链路回归", "before": "撤离后镜头死锁", "after": "19/19 全部通过" },
+        { "label": "兵牌动画体系", "before": "整表硬刷新", "after": "Keyed 抽卡/发牌" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "904ac67a", "start": "23:24", "end": "23:45", "label": "撤离卡死诊断、防死锁修复与兵牌动画" }
+      ],
+      "files": [
+        "src/程序化地图/预览入口.html",
+        "src/程序化地图/实战HUD.css",
+        "src/程序化地图/固定翼底座.mjs",
+        "src/程序化地图/固定翼调试模式.mjs",
+        "src/交互系统/战场适配器.mjs",
+        "src/交互系统/指令与标绘层.mjs",
+        "src/程序化地图/战术小地图.mjs",
+        "src/程序化地图/场景运行.mjs"
+      ],
+      "verification": "Edge 无头全链路 E2E 验证 19/19 与结构门禁全绿；23:45 交付待工程师强刷 /play 实机验收。"
+    },
+    {
+      "id": "goal-battlefield-acoustics-v3",
+      "title": "战场物理声学传播 V2/V3 实装与航空声学规范沉淀",
+      "category": "音频与声学",
+      "status": "done",
+      "status_label": "试听认可 · 规范沉淀已收口",
+      "summary": "升级机炮物理声学引擎 V2 并落地单共享 3.6s 卷积、5 档静态声像池、四档声压无断崖衰减、引擎多普勒与重爆超压闪避；获试听认可后沉淀专题规范并关闭 V002/V003 任务。",
+      "highlights": [
+        "瞬态严格 1 Src + 1 Gain，主线程 <0.3ms、音频线程 <8% 单核",
+        "补齐喷气引擎连续多普勒、重爆 engineDuckBus 闪避与航弹呼啸追踪",
+        "沉淀专题规范与项目经验条目，关闭 V002/V003 两轮保护任务"
+      ],
+      "metrics": [
+        { "label": "空战声学门禁", "before": "-", "after": "13/13 全绿通过" },
+        { "label": "瞬态运行期节点", "before": "动态 Filter/Panner", "after": "1 Src + 1 Gain" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "904ac67a", "start": "18:41", "end": "21:28", "label": "声学 V2/V3 实装、试听认可与规范沉淀" }
+      ],
+      "files": [
+        "src/音效索引/机炮物理声学引擎.mjs",
+        "src/音效索引/空战音效对比试听.html",
+        "src/音效索引/README.md",
+        "src/程序化地图/载具空间音效.mjs",
+        "docs/音效与渲染/战场物理声学传播设计经验与性能规范.md",
+        "docs/项目开发经验/项目开发经验.md",
+        "docs/apps-code-map.md"
+      ],
+      "verification": "验证空战声学与火箭音效 13/13 全绿，工程师试听认可并已正式 close V002 与 V003 任务。"
+    },
+    {
+      "id": "goal-grass-decals-a10-rtb",
+      "title": "近景草地 HDR 发白修复、512 双分区弹坑贴花与 A-10C 写实气动/RTB",
+      "category": "材质与表现",
+      "status": "done",
+      "status_label": "17/17 全绿 · 已实机核验",
+      "summary": "接入草地 uLinearOutput 与 Bloom 联动根治双伽马发白；将地面损毁贴花单 DrawCall 扩容至 512 双分区去重池；实装 A-10C 协调转向气动姿态与 T 键战区撤离闭环。",
+      "highlights": [
+        "草地接入 uLinearOutput 联动 680p HDR Bloom，消除双伽马发白",
+        "池 4 贴花单 DC 扩容至 512（192 重弹坑保护 + 320 轻焦痕去重）",
+        "实装 Roll-Lead-Yaw 协调转向与 T 键最近边界爬升撤离（可召回）"
+      ],
+      "metrics": [
+        { "label": "地面损毁贴花池", "before": "128 枚单池", "after": "512 枚 / 1 DC" },
+        { "label": "Edge 全链路回归", "before": "-", "after": "17/17 全部通过" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "904ac67a", "start": "21:50", "end": "23:02", "label": "草地发白诊断、贴花扩容与 A-10C 姿态/撤离" }
+      ],
+      "files": [
+        "src/程序化地图/立体植被与草丛.mjs",
+        "src/程序化地图/写实爆炸特效.mjs",
+        "src/程序化地图/固定翼底座.mjs",
+        "src/程序化地图/预览入口.html",
+        "src/程序化地图/README.md"
+      ],
+      "verification": "Edge 无头全链路回归 17/17 全绿，工程师实机体验后转入撤离兵牌动画细化。"
+    },
+    {
+      "id": "goal-airlab-roll-naming-panel",
+      "title": "固定翼盘旋内倾修正、武器双层命名与独立 AIR LAB 调试控制台",
+      "category": "界面与交互",
+      "status": "done",
+      "status_label": "14/14 全绿 · 已进入下轮",
+      "summary": "修复顺时针盘旋滚转反向 Bug 使机翼严格朝圆心内倾（22°–42°）；命令窗武器改用「真实型号 + 武器大类」双层命名，并将调试控件抽离为独立可拖拽折叠控制台。",
+      "highlights": [
+        "修正盘旋滚转符号反向（实测 rollRad=+0.6879 稳定朝内倾斜）",
+        "4 门对地武器统一 real modelLabel + categoryLabel 双层命名",
+        "抽离独立可拖拽/折叠 AIR LAB 控制台，正常 /play 零 DOM 注入"
+      ],
+      "metrics": [
+        { "label": "Edge 交互门禁", "before": "盘旋外倾 Bug", "after": "14/14 全绿通过" },
+        { "label": "调试台解耦", "before": "混入右下命令盘", "after": "独立浮窗 / 0 侵入" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "904ac67a", "start": "21:21", "end": "21:36", "label": "盘旋内倾、双层命名与独立调试台" }
+      ],
+      "files": [
+        "src/程序化地图/固定翼底座.mjs",
+        "src/程序化地图/固定翼调试模式.mjs",
+        "src/程序化地图/预览入口.html",
+        "scripts/程序化地图/README.md"
+      ],
+      "verification": "node --check、项目结构门禁（3004 条链接）与 Edge 14/14 端到端校验全部通过。"
+    },
+    {
+      "id": "goal-devlog-skill-and-agents",
+      "title": "daily-dev-log 项目技能封装、11-23 日志交付与 AGENTS.md 规范同步",
+      "category": "工程基建",
+      "status": "done",
+      "status_label": "技能已落地 · 11-23 已闭环",
+      "summary": "将每日开发日志采集与 V4 看板编译封装为项目级 daily-dev-log 技能并完成 11-23 日志首跑交付；同步更新 AGENTS.md 正式单端口、Code SSOT V2.2 与防堆积规范。",
+      "highlights": [
+        "沉淀 .agents/skills/daily-dev-log 技能与数据契约编写规范",
+        "首跑交付 2026-11-23 日志 JSON 与看板并关闭 fe488fb0 任务",
+        "同步 AGENTS.md 单端口 8800、三向同源与 ba-source-ssot-v1 规则"
+      ],
+      "metrics": [
+        { "label": "日志技能化交付", "before": "手动串联脚本", "after": "1 条指令端到端" },
+        { "label": "11-23 看板闭环", "before": "-", "after": "校验通过并 closed" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "de2469c2", "start": "01:23", "end": "01:25", "label": "daily-dev-log 项目技能封装" },
+        { "tool": "Antigravity", "id": "fe488fb0", "start": "02:19", "end": "02:21", "label": "生成 2026-11-23 每日开发日志" }
+      ],
+      "files": [
+        ".agents/skills/daily-dev-log/SKILL.md",
+        ".agents/skills/daily-dev-log/references/数据契约与编写规范.md",
+        "reports/报告维护说明.md",
+        "reports/开发日志/数据/2026-11/2026-11-23-开发日志.json",
+        "reports/开发日志/每日开发看板.html",
+        "AGENTS.md"
+      ],
+      "verification": "11-23 日志已通过结构门禁与无头 Chrome 校验并关闭 fe488fb0；de2469c2 封装任务待收口。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "act-rtb-deck-accept",
+      "type": "accept",
+      "title": "实机验收固定翼撤离防卡死与底部兵牌抽发动画",
+      "detail": "在 /play?mode=air-lab&unit=US_A10 与 /play 核对撤离后自由操控及兵牌抽卡/发牌动画，确认后可关闭 904ac67a 关联保护任务。",
+      "ref": "http://127.0.0.1:8800/play?mode=air-lab&unit=US_A10"
+    },
+    {
+      "id": "act-devlog-skill-close",
+      "type": "accept",
+      "title": "确认并收口 daily-dev-log 命名门禁与技能封装保护任务",
+      "detail": "核对 .agents/skills/daily-dev-log 运转无误后，通知对应会话 close de2469c2 两项活跃保护任务。",
+      "ref": ".agents/skills/daily-dev-log/SKILL.md"
+    },
+    {
+      "id": "act-zombie-audio-accept",
+      "type": "accept",
+      "title": "试听并验收 18 个原作丧尸战斗音效（BA-26627577-002）",
+      "detail": "打开逐条试听目录核对听感、循环点与动作触发时机，确认后推进音频入库与 Blender 绑定。",
+      "ref": "local-data/断箭/批次/BA-26627577-002/README.md"
+    },
+    {
+      "id": "act-blender-accept",
+      "type": "accept",
+      "title": "检查并验收 15 款原作丧尸 Blender 总场景（V001-r02）",
+      "detail": "打开工程核对 14 款蒙皮角色与 126 个动作，确认通过后通知 Codex 会话执行 accept 收口。",
+      "ref": "local-data/维护清理/验收待确认/d4d53176a06c49b090abda21bc299f7d.json"
+    }
+  ],
+  "cleanup_summary": {
+    "closed_count": 139,
+    "active_count": 90,
+    "waiting_acceptance": [
+      {
+        "asset": "model:BA_ZOM_Runner1",
+        "version": "V001-r03",
+        "task": "断箭丧尸双模型提取-V001-01a1aa48"
+      },
+      {
+        "asset": "model:BA_ZOM_Walker1",
+        "version": "V001-r03",
+        "task": "断箭丧尸双模型提取-V001-01a1aa48"
+      },
+      {
+        "asset": "model:ba-runner-lod2",
+        "version": "V001-GPU96-r03",
+        "task": "原作群尸交付与验收-V001-01a1aa48"
+      },
+      {
+        "asset": "model:ba-walker-lod2",
+        "version": "V001-GPU96-r03",
+        "task": "原作群尸交付与验收-V001-01a1aa48"
+      },
+      {
+        "asset": "model:horde-simulation-share",
+        "version": "V1.0",
+        "task": "丧尸群体正式版发布V1.0-01a1a529"
+      },
+      {
+        "asset": "prototype:scavenger-defense",
+        "version": "V003",
+        "task": "原型旧版退役方案-V003-01a1aa5e"
+      },
+      {
+        "asset": "scene:broken-arrow-zombie-15-blender",
+        "version": "V001-r02",
+        "task": "断箭原作丧尸Blender场景-V001-01a2023f"
+      }
+    ]
+  },
+  "repo_snapshot": {
+    "commits": 0,
+    "dirty_count": 159
+  }
+}

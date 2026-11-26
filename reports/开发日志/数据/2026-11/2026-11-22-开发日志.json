@@ -1,0 +1,228 @@
+{
+  "date": "2026-11-22",
+  "timezone": "Asia/Shanghai (UTC+8)",
+  "mode": "curated",
+  "generated_at": "2026-11-23 00:45:00 +0800",
+  "headline": "全天 6 条战线并发推进：实战 HUD 与战术小地图完成定型提速，武器库全面接入风格化材质，固定翼底座与数值 SSOT 正式立规，构建 26627577 全部 15 款原作丧尸完成解包与 Blender 合装。",
+  "kpis": {
+    "goals_achieved": 4,
+    "goals_total": 6,
+    "pending_actions": 4,
+    "repo_files": 56,
+    "git_dirty": 145
+  },
+  "goals": [
+    {
+      "id": "goal-hud-minimap",
+      "title": "实战三舱 HUD、Live PiP 实况窗与战术小地图无级缩放定型",
+      "category": "界面与交互",
+      "status": "done",
+      "status_label": "已通过双端验证",
+      "summary": "重构 9km 实战底部三舱 HUD 并清洗全载具为纯军标型号；实装零拷贝 3D 实时小窗（支持一键冻结省电）；打通左下角 9KM↔1KM 锚定滚轮缩放与 M 键大号战术图，并根治矢量地图 Skia 描边卡顿。",
+      "highlights": [
+        "删除旧版 HUD 对比台与废弃路由，结构更干净",
+        "Live PiP 支持球面最短弧跟拍与 0 FPS 静态冻结",
+        "沉淀工程经验文档《实战HUD与战术小地图工程经验.md》"
+      ],
+      "metrics": [
+        { "label": "3KM 矢量构建耗时", "before": "2628.3 ms", "after": "45.2 ms" },
+        { "label": "矢量缓存稳态命中", "before": "每帧卡死 (0 FPS)", "after": "0.13 ms" },
+        { "label": "交互规则与双端回归", "before": "-", "after": "Chrome + Edge 全通过" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "b9029b57", "start": "01:42", "end": "04:31", "label": "交互与 HUD 方案 B 选型" },
+        { "tool": "Antigravity", "id": "b9029b57", "start": "11:37", "end": "16:51", "label": "Live PiP 实况窗 + 小地图缩放提速" }
+      ],
+      "files": [
+        "src/程序化地图/战术小地图.mjs",
+        "src/程序化地图/实时实况镜头.mjs",
+        "src/交互系统/选区与编组.mjs",
+        "src/交互系统/镜头控制.mjs",
+        "src/界面规范/图标与标绘.mjs",
+        "docs/项目开发经验/实战HUD与战术小地图工程经验.md"
+      ],
+      "verification": "规则单测与 Chrome/Edge 双浏览器验证实战HUD及操作交互全通过。"
+    },
+    {
+      "id": "goal-armory-material",
+      "title": "全库风格化材质唯一标准接入与武器库沙盘日光升级",
+      "category": "材质与表现",
+      "status": "waiting_accept",
+      "status_label": "待你实机验收",
+      "summary": "确立 miniature_sand 为全仓唯一载具风格化材质并移除旧多方案对比台；为 /armory 打造沙盘日光与机库夜光双环境 3D 视窗，支持折叠目录全景赏车与部件演示，修复左栏「已编入」标签挤压。",
+      "highlights": [
+        "移除 3 个旧对比 HTML 及 baseline 回退分支",
+        "1.15px 深炭描边 + 镀膜玻璃全局同步至武器库与实战",
+        "修复已入编金色微胶囊竖排折行问题"
+      ],
+      "metrics": [
+        { "label": "全仓结构校验", "before": "-", "after": "770 文件 · 0 错误" },
+        { "label": "双浏览器 /armory 复验", "before": "-", "after": "Chrome + Edge 通过" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "14fcc1c7", "start": "11:44", "end": "14:16", "label": "材质全局接入 + 沙盘武器库升级" }
+      ],
+      "files": [
+        "src/程序化载具/载具风格化材质.mjs",
+        "src/程序化载具/载具流式加载器.mjs",
+        "src/主入口/武器库沙盘环境.mjs",
+        "src/主入口/主入口.mjs",
+        "src/主入口/主入口.css"
+      ],
+      "verification": "全仓结构门禁、一键启动回归及 Chrome/Edge 截图视觉检查通过，待工程师实机确认收口。"
+    },
+    {
+      "id": "goal-launcher-resident",
+      "title": "一键启动脚本重构与关闭黑窗自动释放 8800 端口",
+      "category": "工程基建",
+      "status": "done",
+      "status_label": "已完成并验证",
+      "summary": "重构批处理编码与 Python 3.10+ 自动探针；将双击启动改为前台常驻留窗与简洁中文状态板，通过 Windows 控制台处理器捕获关闭按钮事件，实现「关窗即安全停服并清理状态」。",
+      "highlights": [
+        "修复中文批处理编码与换行兼容性",
+        "捕获 CTRL_CLOSE_EVENT 安全释放 8800 端口",
+        "外部进程占口只诊断不强杀"
+      ],
+      "metrics": [
+        { "label": "隔离启动验证脚本", "before": "-", "after": "11 / 11 项全通过" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "8bb0887e", "start": "12:54", "end": "13:09", "label": "批处理重构与探针" },
+        { "tool": "Antigravity", "id": "8bb0887e", "start": "17:06", "end": "17:20", "label": "常驻留窗与关窗释口改造" }
+      ],
+      "files": [
+        "启动Scavenger.cmd",
+        "scripts/启动主服务.py",
+        "scripts/验证一键启动脚本.py",
+        "docs/单端口整合与正式开发规范-实施计划.md"
+      ],
+      "verification": "11 项动态隔离端口验证（含隐藏控制台 WM_CLOSE 释放端口实测）全部通过。"
+    },
+    {
+      "id": "goal-fixedwing-ssot",
+      "title": "32 架固定翼通用底座、A-10C 样板机与全项目数值 SSOT 立规",
+      "category": "玩法与规范",
+      "status": "in_progress",
+      "status_label": "底座已跑通 · 特效方案待开工",
+      "summary": "完成 32 架固定翼 5 大原型族设计与 A-10C 样板机实装；批量生成 129 车兵牌插画并落地全战风 HUD、可视化射程与 JDAM 连点投弹；建立 brokenarrowstats 1.0x 唯一数值规范并写入结构门禁。",
+      "highlights": [
+        "批量生成 129 辆载具兵牌插画（130 文件）",
+        "按《Ebbtide》风格重做高清细线标绘并恢复引导线",
+        "20:49 完成 Bloom/曳光弹/发射烟雾方案诊断"
+      ],
+      "metrics": [
+        { "label": "A-10C 突击航速", "before": "194 km/h (旧缩水)", "after": "450 km/h (原站 1.0x)" },
+        { "label": "GAU-8 机炮射程", "before": "360 m", "after": "1000 m" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "903f632e", "start": "15:50", "end": "20:52", "label": "固定翼底座 + 全战 HUD + 数值 SSOT + 特效方案" }
+      ],
+      "files": [
+        "docs/地图与载具/固定翼通用底座与A-10C完整设计卡.md",
+        "docs/地图与载具/数值基底与全局倍率规范.md",
+        "src/程序化地图/固定翼底座.mjs",
+        "src/程序化地图/数值基底与倍率规范.mjs",
+        "src/程序化地图/三维战术标绘.mjs",
+        "scripts/程序化载具/生成兵牌插画.py",
+        "AGENTS.md",
+        "scripts/检查项目结构.py"
+      ],
+      "verification": "V2.2 数值规范与 A-10C 调试模式通过 Chrome E2E；HDR Bloom 与曳光弹特效已出方案待确认开工。"
+    },
+    {
+      "id": "goal-zombie-unpack",
+      "title": "Steam 构建 26627577 全 15 款原作丧尸解包与 Blender 总场景合装",
+      "category": "资产提取",
+      "status": "waiting_accept",
+      "status_label": "Blender 工程待验收 · 音效续跑中",
+      "summary": "基于恢复的 Steam 游戏包完成全部 15 款 ZOM_* 原作丧尸只读解包；通过 Unity Skills 采样动作并合装成单份可编辑 Blender 总场景 V001-r02（含 14 骨架、42 网格与 126 个动作）；晚间启动补齐缺口 10 条战斗音效。",
+      "highlights": [
+        "14 款蒙皮角色 + 1 款 Swarm VFX 共 3550 份解包交付",
+        "12,801 帧动作采样与 Unity 蒙皮最大误差 0.0049mm",
+        "总场景已提交 stage 待工程师确认 accept"
+      ],
+      "metrics": [
+        { "label": "Blender 总场景构成", "before": "仅 2 款旧工程", "after": "15 款 · 48 贴图 · 126 动作" },
+        { "label": "蒙皮顶点对齐误差", "before": "-", "after": "最大 0.0049 mm" }
+      ],
+      "sessions": [
+        { "tool": "Codex", "id": "01a2023f", "start": "15:54", "end": "20:53", "label": "主线核对 -> 15 款全量解包 -> Blender 合装 -> 音效提取" }
+      ],
+      "files": [
+        "scripts/断箭/解包原作丧尸.py",
+        "scripts/断箭/组装丧尸Blender场景.py",
+        "scripts/断箭/核验丧尸Blender场景.py",
+        "local-data/断箭/批次/BA-26627577-001/Blender场景-V001-01a2023f/README.md",
+        "local-data/维护清理/验收待确认/d4d53176a06c49b090abda21bc299f7d.json"
+      ],
+      "verification": "Blender 工程独立重开核验通过并已 stage；战斗音效补齐任务于 20:53 启动并跨零点运行。"
+    },
+    {
+      "id": "goal-play-perf-audit",
+      "title": "/play 9km 实战页掉帧根因排查与分级优化方案",
+      "category": "性能优化",
+      "status": "waiting_decision",
+      "status_label": "方案已出 · 待确认开工",
+      "summary": "纯只读完成内置 Webview 复现与原生 Chrome CDP/WebGL2 单因子消融，精准定位冷启动长任务冻结、城区 936 万三角面负载与 HUD 高频强制回流/DOM 泄漏三大根因，已给出 P0/P1/P2 优化路线。",
+      "highlights": [
+        "城区单帧 936 万面 / 213 DC（阴影占 200.7 万面）",
+        "HUD 开启时 2.2 秒触发 360 次回流 + Detached DOM 泄漏",
+        "仅按 F5 隐去 HUD 后原生 Chrome 稳态满帧（max 8.0ms）"
+      ],
+      "metrics": [
+        { "label": "冷启动最长阻塞", "before": "-", "after": "1101 ms（待解耦）" },
+        { "label": "城区单帧实测负载", "before": "-", "after": "936 万面 / 213 DC" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "bde24e5a", "start": "16:29", "end": "16:45", "label": "双环境帧率剖析与单因子消融" }
+      ],
+      "files": [],
+      "verification": "纯只读真机排查完成，未改写源码，待确认 P0/P1/P2 优化优先级后开工。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "act-blender-accept",
+      "type": "accept",
+      "title": "检查并验收 15 款原作丧尸 Blender 总场景（V001-r02）",
+      "detail": "打开工程核对 14 款蒙皮角色与 126 个动作，确认通过后通知 Codex 会话执行 accept 收口。",
+      "ref": "local-data/维护清理/验收待确认/d4d53176a06c49b090abda21bc299f7d.json"
+    },
+    {
+      "id": "act-armory-verify",
+      "type": "accept",
+      "title": "实机体验新版武器库 /armory 并确认收口",
+      "detail": "确认沙盘日光环境、miniature_sand 材质表现及左栏「★ 已编入」标签无误后关闭 V001-14fcc1c7 任务。",
+      "ref": "http://127.0.0.1:8800/armory"
+    },
+    {
+      "id": "act-perf-go",
+      "type": "decision",
+      "title": "拍板 /play 掉帧 P0/P1/P2 优化实施",
+      "detail": "确认是否优先清理 HUD 每帧回流/DOM 泄漏（P0）并削减城区阴影与植被无效三角面。",
+      "ref": "会话 1122｜探索｜实战页掉帧性能排查分析"
+    },
+    {
+      "id": "act-a10-fx",
+      "type": "decision",
+      "title": "拍板 A-10C HDR Bloom、曳光弹与发射烟雾方案",
+      "detail": "确认是否采用 680p 阈值选择性 HDR Bloom + 头亮尾淡曳光条实施方案。",
+      "ref": "会话 1121｜设计｜固定翼载具逐型功能与测试场景"
+    }
+  ],
+  "cleanup_summary": {
+    "closed_count": 9,
+    "active_count": 11,
+    "waiting_acceptance": [
+      {
+        "asset": "scene:broken-arrow-zombie-15-blender",
+        "version": "V001-r02",
+        "task": "断箭原作丧尸Blender场景-V001-01a2023f"
+      }
+    ]
+  },
+  "repo_snapshot": {
+    "commits": 0,
+    "dirty_count": 145
+  }
+}

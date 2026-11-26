@@ -1,0 +1,331 @@
+{
+  "date": "2026-11-25",
+  "timezone": "Asia/Shanghai (UTC+8)",
+  "mode": "curated",
+  "generated_at": "2026-11-26 01:05:00 +0800",
+  "headline": "全天多线推进空战表现与协作基建：落地命令面板与品牌三楔盾、搭建 18800 工作项看板与双 Skills，并交付 SCAV-6 燃油、SCAV-7 热浪与 SCAV-10 自然景深。",
+  "kpis": {
+    "goals_achieved": 6,
+    "goals_total": 8,
+    "pending_actions": 5,
+    "repo_files": 35,
+    "git_dirty": 169
+  },
+  "goals": [
+    {
+      "id": "goal-rclick-noflicker-fw-manual",
+      "title": "右键防黑屏闪烁根治与固定翼纯手操锁定",
+      "category": "界面与交互",
+      "status": "waiting_accept",
+      "status_label": "全量回归通过 · 待实机验收",
+      "summary": "独立离屏 WebGLRenderTarget 隔离实况 PiP 与主帧缓冲并加右键短按门控，根治右键快点黑闪；固定翼锁死纯手操并落地紫框只读徽条与 4 卡机动页。",
+      "highlights": [
+        "实况 PiP 改用独立 pipHdrRt + pipOutRt 离屏管线并重置 FBO 缓存",
+        "右键快点增设 >110ms / >6px 预览门控，12 次快点 65 帧零黑帧",
+        "固定翼强制 manualFireOnly，隐藏 ROE 下拉并统一 4 卡机动页"
+      ],
+      "metrics": [
+        { "label": "右键快点黑帧校验", "before": "偶发黑屏闪烁", "after": "0 黑帧 / 21/21 通过" },
+        { "label": "规则与 HUD 回归", "before": "-", "after": "42/42 · 6/6 全绿" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "cc2cd042", "start": "02:03", "end": "03:33", "label": "右键防黑闪与固定翼纯手操" }
+      ],
+      "files": [
+        "src/程序化地图/实时实况镜头.mjs",
+        "src/程序化地图/预览入口.html",
+        "src/程序化地图/固定翼底座.mjs",
+        "src/程序化地图/固定翼调试模式.mjs",
+        "src/交互系统/入口接入.mjs",
+        "scripts/程序化地图/验证空战声学与火箭音效.py",
+        "scripts/交互系统/验证操作交互.py"
+      ],
+      "verification": "规则单测 42/42、Edge 空战 21/21、HUD 6/6 与交互回归全绿；任务 68083a6a 保持 active 待实机验收。"
+    },
+    {
+      "id": "goal-scav11-wheel-plan-start",
+      "title": "八槽战术轮盘重构方案对齐与多方案对比启动（SCAV-11）",
+      "category": "界面与交互",
+      "status": "in_progress",
+      "status_label": "方案已定 · 跨天实装中",
+      "summary": "对齐 SCAV-11 轮盘与右下命令栏同名指令分歧并定型 Q12-A 甩选方案，完成方案核对任务后于零点前启动四套离线对比预览页制作（实装跨入次日）。",
+      "highlights": [
+        "识别轮盘警戒作用于整组而命令栏仅切主选的分歧，统一执行入口",
+        "定型按住 Space 甩选 + 轻按 Space 点击兼容的 Q12-A 交互方案",
+        "23:52 启动四套多方案对比 HTML 预览制作，源码实装与复测跨入 11-26"
+      ],
+      "metrics": [
+        { "label": "交互方案定型", "before": "3 占位槽 + 口径分歧", "after": "Q12-A 方案定型" },
+        { "label": "方案核对闭环", "before": "-", "after": "c2bad235 已收口" }
+      ],
+      "sessions": [
+        { "tool": "Codex", "id": "01a21364", "start": "23:48", "end": "23:50", "label": "SCAV-11 方案核对与分歧对齐" },
+        { "tool": "Antigravity", "id": "c2bad235", "start": "23:52", "end": "23:59", "label": "启动四套战术轮盘对比预览" }
+      ],
+      "files": [
+        "src/交互系统/入口接入.mjs",
+        "src/交互系统/指令与标绘层.mjs"
+      ],
+      "verification": "SCAV-11 方案核对任务（c2bad235）23:50 已关闭；多方案对比 HTML 与方案 A 实装跨天推进至 11-26。"
+    },
+    {
+      "id": "goal-cmd-panel-scheme-b-motion",
+      "title": "命令面板方案 B、全军等高切页动效与矢量图标重构",
+      "category": "界面与交互",
+      "status": "done",
+      "status_label": "已验收通过 · 方案1已收口",
+      "summary": "沉淀 4 类武器与 26 枚 HUD 程序化矢量图标，将三军命令面板统一为方案 B 横排卡片与等高 156px 切页动效，彻底消除 25px 跳动并获人工验收。",
+      "highlights": [
+        "单源沉淀 WEAPON_ICONS（4 类）与升级版 HUD_ICONS（26 枚）",
+        "固定翼/地面/旋翼攻击与机动页统一横排语法与 156px 等高切页动画",
+        "完成核心源、/ui-spec 与全局规范三向同步并获工程师确认通过"
+      ],
+      "metrics": [
+        { "label": "切页高度稳定性", "before": "25px 上下跳动", "after": "0px 跳动 / 等高 156px" },
+        { "label": "空战与规范校验", "before": "-", "after": "20/20 · 11/11 通过" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "cc2cd042", "start": "01:13", "end": "02:03", "label": "命令面板方案 B 与全军等高动效" }
+      ],
+      "files": [
+        "src/界面规范/图标与标绘.mjs",
+        "src/界面规范/组件.css",
+        "src/界面规范/规范页.mjs",
+        "src/程序化地图/预览入口.html",
+        "docs/全局UI-UX规范.md"
+      ],
+      "verification": "Edge 空战 20/20 与 /ui-spec 11/11 全绿，02:03 获工程师回复通过并关闭方案 1 保护任务。"
+    },
+    {
+      "id": "goal-brand-logo-vector-system",
+      "title": "品牌标识「生化肃清三楔盾」与程序化矢量资产体系落地",
+      "category": "界面与交互",
+      "status": "done",
+      "status_label": "已验收通过 · 任务已收口",
+      "summary": "经两轮创意比选定案「生化肃清三楔盾」并完成四级光学档与同源 favicon 三向落地；同步执行自动维护体检（0 误删），定位 5.09GiB 多代存量待审。",
+      "highlights": [
+        "沉淀 BRAND_LOGO_LAYERS 四级光学档，彻底取代前后端双份硬编码占位",
+        "主服务 8800、规范台与资料库统一接入同源 favicon.svg 与品牌徽标",
+        "运行定时清理维护体检（tick + audit），零误删并摸清 5.09GiB 存量"
+      ],
+      "metrics": [
+        { "label": "双浏览器规范回归", "before": "双份临时占位图标", "after": "Chrome/Edge 12/12" },
+        { "label": "自动维护体检", "before": "-", "after": "0 误删 / 5.09GiB 待审" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "fc51b634", "start": "09:53", "end": "11:41", "label": "品牌三楔盾落地与自动清理体检" }
+      ],
+      "files": [
+        "src/界面规范/图标与标绘.mjs",
+        "src/界面规范/favicon.svg",
+        "src/资料库/favicon.svg",
+        "src/界面规范/规范页.css",
+        "scripts/启动主服务.py",
+        "scripts/界面规范/启动规范路由.py",
+        "scripts/程序化地图/预览服务.py"
+      ],
+      "verification": "结构门禁与 Chrome/Edge 双端 12/12 全绿，工程师验收通过并已关闭 fc51b634 任务。"
+    },
+    {
+      "id": "goal-local-workboard-and-skills",
+      "title": "本地工作项看板（18800）搭建、UI V002 重构与双 Skills 落地",
+      "category": "工程基建",
+      "status": "done",
+      "status_label": "已投产运行 · 9/9 通过",
+      "summary": "建成 18800 本地工作项看板（SQLite WAL + SSE + 13 模块），完成炭黑 UI V002、一键启动脚本与双 Skills，并首单录入 SCAV-13。",
+      "highlights": [
+        "搭建 18800 独立服务、8 列人机闸门、乐观锁与路径防撞，录入 SCAV-1~12",
+        "完成「工作任务看板」炭黑 UI V002、双栏抽屉与根目录一键启动脚本",
+        "沉淀 workboard-item-create / exec 双 Skills，实战零错入库 SCAV-13"
+      ],
+      "metrics": [
+        { "label": "看板闭环自动化", "before": "无本地多Agent看板", "after": "9/9 大项全通过" },
+        { "label": "规范与模块体系", "before": "-", "after": "13 模块 / 8 标签 / 2 技能" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "374d757a", "start": "11:44", "end": "19:39", "label": "18800 看板搭建、UI V002 与双 Skills" },
+        { "tool": "Antigravity", "id": "1ddb473b", "start": "21:07", "end": "21:41", "label": "首单验证 workboard-item-create 录入 SCAV-13" }
+      ],
+      "files": [
+        "启动工作任务看板.cmd",
+        "scripts/工作项看板/启动看板服务.py",
+        "scripts/工作项看板/数据库.py",
+        "scripts/工作项看板/看板工具.py",
+        "scripts/工作项看板/验证看板闭环.py",
+        "src/工作项看板/应用.mjs",
+        ".agents/skills/workboard-item-create/SKILL.md",
+        ".agents/skills/workboard-item-exec/SKILL.md"
+      ],
+      "verification": "验证看板闭环 9/9（10.97s）与结构门禁全绿，18800 看板与双 Skills 已投入晚间多会话实战。"
+    },
+    {
+      "id": "goal-scav6-fw-fuel-planb",
+      "title": "固定翼燃油替代血量与方案 B 制空油量优化（SCAV-6）",
+      "category": "玩法与规范",
+      "status": "done",
+      "status_label": "已人工验收 · SCAV-6 结单",
+      "summary": "在 ba-source-ssot-v1 基底实装 32 机分工况燃油、动态 Bingo 锁返与整备冷却；晚间按方案 B 延长留空并补齐 Air Lab 调试，已验收结单。",
+      "highlights": [
+        "32 架固定翼实战切为分工况燃油条，触 Bingo 自动锁定返航并入整备冷却",
+        "方案 B 延长 5 大原型族制空时长（A-10C 480s）与动态红线 10%–18%",
+        "Air Lab 新增满油/低油/Bingo/冻结 4 调试钮，正常 /play 零侵入"
+      ],
+      "metrics": [
+        { "label": "A-10C 制空与红线", "before": "基准偏短 / 固定 20%", "after": "480s / 动态 10–18%" },
+        { "label": "32 机单测与 HUD", "before": "-", "after": "全绿 / SCAV-6 done" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "1e9f17ef", "start": "19:27", "end": "20:03", "label": "SCAV-6 燃油机制与三端 HUD 首版实装" },
+        { "tool": "Antigravity", "id": "dbc445f0", "start": "20:46", "end": "23:38", "label": "方案 B 制空油量优化与验收结单" }
+      ],
+      "files": [
+        "src/程序化地图/数值基底与倍率规范.mjs",
+        "docs/地图与载具/数值基底与全局倍率规范.md",
+        "src/程序化地图/固定翼底座.mjs",
+        "src/程序化地图/固定翼调试模式.mjs",
+        "src/程序化地图/预览入口.html",
+        "src/程序化地图/实战HUD.css"
+      ],
+      "verification": "32 机 ESM 单测、Chrome HUD 6/6 与 Playwright 实机全绿，23:38 工程师验收结单并关闭 9ea36d2d。"
+    },
+    {
+      "id": "goal-scav7-heat-shimmer",
+      "title": "固定翼喷口热浪扭曲特效实装与近景遮挡修复（SCAV-7）",
+      "category": "材质与表现",
+      "status": "done",
+      "status_label": "已人工验收 · SCAV-7 结单",
+      "summary": "新增独立池 7 屏幕空间热浪折射（128 槽 / 1 DC 零 GC）并派生 5 大机型档案；随后根治 UV 反向、正交深度米制遮挡与 Bloom 解耦，已验收结单。",
+      "highlights": [
+        "实装独立 heatShimmerScene 池 7，128 槽单 DrawCall 零分配推流",
+        "修正截锥 UV 轴向、解析法线与正交相机线性深度米制遮挡穿帮",
+        "热浪渲染与 Bloom 解耦且保持能量守恒，高空 >1800m 自动归零"
+      ],
+      "metrics": [
+        { "label": "热浪池渲染预算", "before": "无喷口热浪特效", "after": "1 DC / 128 槽零GC" },
+        { "label": "爆炸与特效回归", "before": "-", "after": "19/19 全绿 · 结单" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "1e9f17ef", "start": "19:27", "end": "20:03", "label": "SCAV-7 独立池 7 首版实装" },
+        { "tool": "Antigravity", "id": "0c93e894", "start": "21:39", "end": "23:57", "label": "热浪 UV/遮挡/Bloom 解耦修复与结单" }
+      ],
+      "files": [
+        "src/程序化地图/写实爆炸特效.mjs",
+        "src/程序化地图/固定翼底座.mjs",
+        "src/程序化地图/预览入口.html",
+        "scripts/程序化地图/验证写实爆炸特效.py",
+        "scripts/程序化地图/验证空战声学与火箭音效.py"
+      ],
+      "verification": "池 7 单测、验证写实爆炸特效 19/19 与 A-10C/F-15E 实拍均通过，23:57 验收结单并关闭 9c3d8232。"
+    },
+    {
+      "id": "goal-scav10-far-depth-dof",
+      "title": "680p 景深三代迭代与「仅远景 3D 深度自然景深」（SCAV-10）",
+      "category": "材质与表现",
+      "status": "done",
+      "status_label": "V3 已完工 · 次日 00:03 结单",
+      "summary": "围绕 680p 微缩可读性完成三代景深迭代，从双边移轴演进为「仅远景 3D 深度自然景深」，彻底消除近景高楼腰斩与高空战机误伤，已于次日零点验收结单。",
+      "highlights": [
+        "从 V1/V2 屏幕移轴迭代至 V3 正交 3D 线性深度仅远景散焦",
+        "新增前景隔离防渗色，近景建筑与 215m 高空 A-10C 100% 像素锐利",
+        "大视野 span=1500m 与 21:9 画幅自动衰减归 0%，不干扰战术全局"
+      ],
+      "metrics": [
+        { "label": "远景自然散焦方案", "before": "双边移轴腰斩建筑", "after": "Far-Only 3D 零误伤" },
+        { "label": "VFX 与规范回归", "before": "-", "after": "19/19 · 12/12 通过" }
+      ],
+      "sessions": [
+        { "tool": "Antigravity", "id": "1e9f17ef", "start": "19:27", "end": "21:17", "label": "SCAV-10 景深 V1→V2→V3 仅远景深度重构" }
+      ],
+      "files": [
+        "src/程序化地图/渲染基线.mjs",
+        "src/程序化地图/预览入口.html",
+        "src/主入口/index.html",
+        "src/主入口/主入口.mjs",
+        "docs/渲染风格与分辨率基线规范.md"
+      ],
+      "verification": "21:17 完成 V3 实装与 19/19 VFX、12/12 规范及 Chrome 实机回归，次日 00:03 验收结单并关闭 f406835d。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "act-rclick-fw-manual-accept",
+      "type": "accept",
+      "title": "实机验收右键防黑屏闪烁与固定翼纯手操锁定",
+      "detail": "在 /play?mode=air-lab&unit=US_A10 与 /play 复核右键快点零黑闪、只读紫框徽条及 4 卡机动页，确认后可关闭 68083a6a 与 904ac67a 关联保护任务。",
+      "ref": "http://127.0.0.1:8800/play?mode=air-lab&unit=US_A10"
+    },
+    {
+      "id": "act-scav11-and-scav13-next",
+      "type": "accept",
+      "title": "验收跨天 SCAV-11 战术轮盘并排期 SCAV-13 缩放黑闪缺陷",
+      "detail": "在 /play 复核跨天实装完成的 SCAV-11 方案 A 八槽轮盘（qa_wait）；同时 SCAV-13（缩放屏幕短暂黑闪数帧）已入 todo 待认领修复。",
+      "ref": "http://127.0.0.1:18800/"
+    },
+    {
+      "id": "act-workboard-close-and-schtasks",
+      "type": "decision",
+      "title": "收口 18800 看板构建期任务并按需管理员注册每日清理计划任务",
+      "detail": "18800 看板与双 Skills 已投产，可通知对应会话 close 3 项构建期保护任务（保留 80d8bcfe 服务保护）；如需开启每日 04:00 自动回收，需管理员终端运行 定时清理维护.py --install。",
+      "ref": "scripts/维护清理/定时清理维护.py"
+    },
+    {
+      "id": "act-zombie-audio-accept",
+      "type": "accept",
+      "title": "试听并验收 18 个原作丧尸战斗音效（BA-26627577-002）",
+      "detail": "打开逐条试听目录核对听感、循环点与动作触发时机，确认后推进音频入库与 Blender 绑定。",
+      "ref": "local-data/断箭/批次/BA-26627577-002/README.md"
+    },
+    {
+      "id": "act-blender-accept",
+      "type": "accept",
+      "title": "检查并验收 15 款原作丧尸 Blender 总场景（V001-r02）",
+      "detail": "打开工程核对 14 款蒙皮角色与 126 个动作，确认通过后通知 Codex 会话执行 accept 收口。",
+      "ref": "local-data/维护清理/验收待确认/d4d53176a06c49b090abda21bc299f7d.json"
+    }
+  ],
+  "cleanup_summary": {
+    "closed_count": 147,
+    "active_count": 96,
+    "waiting_acceptance": [
+      {
+        "asset": "model:BA_ZOM_Runner1",
+        "version": "V001-r03",
+        "task": "断箭丧尸双模型提取-V001-01a1aa48"
+      },
+      {
+        "asset": "model:BA_ZOM_Walker1",
+        "version": "V001-r03",
+        "task": "断箭丧尸双模型提取-V001-01a1aa48"
+      },
+      {
+        "asset": "model:ba-runner-lod2",
+        "version": "V001-GPU96-r03",
+        "task": "原作群尸交付与验收-V001-01a1aa48"
+      },
+      {
+        "asset": "model:ba-walker-lod2",
+        "version": "V001-GPU96-r03",
+        "task": "原作群尸交付与验收-V001-01a1aa48"
+      },
+      {
+        "asset": "model:horde-simulation-share",
+        "version": "V1.0",
+        "task": "丧尸群体正式版发布V1.0-01a1a529"
+      },
+      {
+        "asset": "prototype:scavenger-defense",
+        "version": "V003",
+        "task": "原型旧版退役方案-V003-01a1aa5e"
+      },
+      {
+        "asset": "scene:broken-arrow-zombie-15-blender",
+        "version": "V001-r02",
+        "task": "断箭原作丧尸Blender场景-V001-01a2023f"
+      }
+    ]
+  },
+  "repo_snapshot": {
+    "commits": 0,
+    "dirty_count": 169
+  }
+}

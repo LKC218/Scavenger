@@ -631,6 +631,37 @@ class AutomaticTests(unittest.TestCase):
         self.tick()
         self.assertTrue(second.exists())
 
+    def test_audit_detects_buildup_without_modifying_files(self):
+        stale_file = self.file('local-data/制作/旧任务/data.bin', b'old-data')
+        old_ts = self.now - 10 * cleaner.DAY
+        os.utime(stale_file, (old_ts, old_ts))
+        self.task(name='过期任务', scope='local-data/制作/旧任务')
+
+        orphan_file = self.file('tmp/未登记大目录/big.bin', b'x' * (2 * 1024 * 1024))
+        big_json = self.file('local-data/测试/trace.json', b'{}' + b' ' * (2 * 1024 * 1024))
+        for rev in ('r01', 'r02', 'r03'):
+            self.file(f'local-data/测试多代/{rev}/chunk.bin', b'y' * (450 * 1024))
+
+        reg_before = cleaner.digest(cleaner.checked(cleaner.STATE + '/登记.json'))
+        out = self.cli(
+            'audit', '--stale-days', '7', '--orphan-mb', '1', '--big-json-mb', '1', '--multi-rev-mb', '1'
+        )
+        data = json.loads(out)
+
+        self.assertEqual(reg_before, cleaner.digest(cleaner.checked(cleaner.STATE + '/登记.json')))
+        self.assertTrue(all(p.exists() for p in (stale_file, orphan_file, big_json)))
+        self.assertEqual([x['task'] for x in data['stale_active_tasks']], ['过期任务'])
+        self.assertEqual([x['path'] for x in data['unregistered_tmp_dirs']], ['tmp/未登记大目录'])
+        self.assertEqual([x['path'] for x in data['large_json_files']], ['local-data/测试/trace.json'])
+        self.assertEqual([x['parent'] for x in data['multi_revision_dirs']], ['local-data/测试多代'])
+
+        report_file = cleaner.checked(cleaner.STATE + '/自动维护/最近体检结果.json')
+        self.assertTrue(report_file.exists())
+        mtime_before = report_file.stat().st_mtime_ns
+        self.now += 60
+        self.cli('audit', '--stale-days', '7', '--orphan-mb', '1', '--big-json-mb', '1', '--multi-rev-mb', '1')
+        self.assertEqual(mtime_before, report_file.stat().st_mtime_ns)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -103,6 +103,24 @@ python -X utf8 -B scripts/维护清理/清理工具.py purge --manifest 回收�
 
 定时预览采用固定位置且状态无变化不重复写入；手动预览独立保存供审批。工具执行锁是排他创建的文件，锁存在则失败退出，不自动解除疑似残留锁。任务登记与清理共用锁；外部任务需按项目协作规则先登记再使用文件。
 
+### 本机系统级定时维护与只读体检（`audit`）
+
+结合[项目轻量化与定时清理规范](../../docs/项目轻量化与定时清理规范.md)，新增两个入口（不修改原有七天保护与授权边界）：
+
+```powershell
+# 只读防堆积体检（检查僵尸active任务、tmp未登记大目录、>=50MB JSON、多代修订目录）
+python -X utf8 -B scripts/维护清理/清理工具.py audit
+python -X utf8 -B scripts/维护清理/清理工具.py audit --no-write
+
+# 立即运行一次「tick + audit」，或注册/查看/卸载 Windows 每日定时计划任务
+python -X utf8 -B scripts/维护清理/定时清理维护.py --run-now
+python -X utf8 -B scripts/维护清理/定时清理维护.py --install --time 04:00
+python -X utf8 -B scripts/维护清理/定时清理维护.py --status
+python -X utf8 -B scripts/维护清理/定时清理维护.py --uninstall
+```
+
+`audit` 严禁删除任何文件或修改 `登记.json`，结果覆写单一文件 `自动维护/最近体检结果.json`（指标无变化不重复写盘）；[定时清理维护.py](定时清理维护.py) 的运行日志写入 `自动维护/定时维护.log` 并在超过 `512 KiB` 时自动滚动截断。
+
 ## 验证
 
 ```powershell
