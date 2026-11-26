@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "id": "model:US_KC130_HarvestHawk",
+  "slug": "US_KC130_HarvestHawk",
+  "name": "KC-130J Harvest Hawk",
+  "category": "air",
+  "role": "fixed_wing",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "dedc199bf5363994b592553514676aec9e3f54197590379a8153c7c25ebbe477",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.8,
+  "baseline_256_bytes": 1543192,
+  "baseline_256_tris": 71013,
+  "original_tris": 124061,
+  "bounds": {
+    "min": [
+      -20.3772,
+      0.1271,
+      -12.3519
+    ],
+    "max": [
+      20.3772,
+      11.7217,
+      17.5902
+    ],
+    "size": [
+      40.7543,
+      11.5946,
+      29.9421
+    ],
+    "center": [
+      0,
+      5.9244,
+      2.6192
+    ],
+    "radius": 25.9416
+  },
+  "labelBounds": {
+    "min": [
+      -20.3772,
+      0.1271,
+      -12.3519
+    ],
+    "max": [
+      20.3772,
+      11.7217,
+      17.5902
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left_1",
+        "pos": [
+          -10.01,
+          3.8046,
+          0.65
+        ]
+      },
+      {
+        "name": "exhaust_left_2",
+        "pos": [
+          -4.57,
+          3.6046,
+          0.27
+        ]
+      },
+      {
+        "name": "exhaust_right_1",
+        "pos": [
+          10.06,
+          3.7146,
+          -0.1
+        ]
+      },
+      {
+        "name": "exhaust_right_2",
+        "pos": [
+          4.57,
+          3.5446,
+          -0.364
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0916,
+    0.0879,
+    0.0907
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 14110,
+      "tris_lod1": 4994,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_KC130_HarvestHawk/lod0.glb",
+      "bytes": 235236,
+      "sha256": "652157018af3e2ec463be76fa2f72b528eb20bb6020d4e068766439191a68c2a",
+      "triangles": 14110,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_c42ab07deb0493_b",
+          "uri": "tex/tex_c42ab07deb0493_b.ktx2",
+          "bytes": 140814,
+          "sha256": "c42ab07deb04932e94d9846f0131a3bfe900face3a413f9166362f66bf10427f",
+          "linear": false
+        },
+        {
+          "key": "tex_6388909b96ea2f_n",
+          "uri": "tex/tex_6388909b96ea2f_n.ktx2",
+          "bytes": 64710,
+          "sha256": "6388909b96ea2f3ed27ca43441c7c93bce756c8b8e6aa6ffafb0808a794bb8c7",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_52e573729a682fd4_g",
+          "uri": "tex/shared_52e573729a682fd4_g.ktx2",
+          "bytes": 20456,
+          "sha256": "68f893b78d15443c2575ed0ffe933c7fadd6d1e61042df8af30d6a73458a0579",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_KC130_HarvestHawk/lod1.glb",
+      "bytes": 89820,
+      "sha256": "9ea69bd8f4e55a13201fc881a29adc03124b740461182ef589a44e1ede7bfc36",
+      "triangles": 4994,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_c42ab07deb0493_b",
+          "uri": "tex/tex_c42ab07deb0493_b.ktx2",
+          "bytes": 140814,
+          "sha256": "c42ab07deb04932e94d9846f0131a3bfe900face3a413f9166362f66bf10427f",
+          "linear": false
+        },
+        {
+          "key": "tex_6388909b96ea2f_n",
+          "uri": "tex/tex_6388909b96ea2f_n.ktx2",
+          "bytes": 64710,
+          "sha256": "6388909b96ea2f3ed27ca43441c7c93bce756c8b8e6aa6ffafb0808a794bb8c7",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_52e573729a682fd4_g",
+          "uri": "tex/shared_52e573729a682fd4_g.ktx2",
+          "bytes": 20456,
+          "sha256": "68f893b78d15443c2575ed0ffe933c7fadd6d1e61042df8af30d6a73458a0579",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_KC130_HarvestHawk/lod2.glb",
+      "bytes": 14144,
+      "sha256": "cfb55c7e51ae6ca2c72e9c5520c56e26a043d9b4ce3f760b98c3c0dc38539da7",
+      "triangles": 1333,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_c42ab07deb0493_b",
+      "uri": "tex/tex_c42ab07deb0493_b.ktx2",
+      "bytes": 140814,
+      "sha256": "c42ab07deb04932e94d9846f0131a3bfe900face3a413f9166362f66bf10427f",
+      "linear": false
+    },
+    {
+      "key": "tex_6388909b96ea2f_n",
+      "uri": "tex/tex_6388909b96ea2f_n.ktx2",
+      "bytes": 64710,
+      "sha256": "6388909b96ea2f3ed27ca43441c7c93bce756c8b8e6aa6ffafb0808a794bb8c7",
+      "linear": true
+    },
+    {
+      "key": "shared_bcb3b634b14a77aa_b",
+      "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+      "bytes": 73563,
+      "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+      "linear": false
+    },
+    {
+      "key": "shared_7b08e70e297c1754_n",
+      "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+      "bytes": 83733,
+      "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+      "linear": true
+    },
+    {
+      "key": "shared_52e573729a682fd4_g",
+      "uri": "tex/shared_52e573729a682fd4_g.ktx2",
+      "bytes": 20456,
+      "sha256": "68f893b78d15443c2575ed0ffe933c7fadd6d1e61042df8af30d6a73458a0579",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 440760,
+    "lod0_lod1_plus_own_tex_bytes": 530580,
+    "lod0_plus_all_tex_bytes": 618512,
+    "shared_tex_bytes": 177752,
+    "own_tex_bytes": 205524,
+    "opaque_draw_calls": 2
+  }
+}

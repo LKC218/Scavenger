@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "id": "model:US_CH53",
+  "slug": "US_CH53",
+  "name": "CH-53E Super Stallion",
+  "category": "air",
+  "role": "rotorcraft",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "4256b758b902cfe294c3f6ba00adf0209ec59e8b194beda2bbe75a4b00b9f296",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.79,
+  "baseline_256_bytes": 1452904,
+  "baseline_256_tris": 51484,
+  "original_tris": 89700,
+  "bounds": {
+    "min": [
+      -11.9837,
+      0.6047,
+      -11.1642
+    ],
+    "max": [
+      11.859,
+      8.7663,
+      17.9195
+    ],
+    "size": [
+      23.8427,
+      8.1616,
+      29.0836
+    ],
+    "center": [
+      -0.0624,
+      4.6855,
+      3.3777
+    ],
+    "radius": 19.2415
+  },
+  "labelBounds": {
+    "min": [
+      -18.8737,
+      0.6047,
+      -18.8547
+    ],
+    "max": [
+      18.8737,
+      8.7663,
+      18.8927
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -1.757,
+          3.4044,
+          0.83
+        ]
+      },
+      {
+        "name": "exhaust_left (1)",
+        "pos": [
+          -0.873,
+          3.7094,
+          4.778
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          1.861,
+          3.4814,
+          0.769
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1728,
+    0.1552,
+    0.1486
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 15671,
+      "tris_lod1": 4670,
+      "drawCalls": 4
+    },
+    {
+      "slot": "main_rotor",
+      "pivot": [
+        0,
+        5.1038,
+        0.019
+      ],
+      "axis": "y",
+      "tris_lod0": 4972,
+      "tris_lod1": 4799,
+      "drawCalls": 1
+    },
+    {
+      "slot": "tail_rotor",
+      "pivot": [
+        -1.2947,
+        6.2891,
+        14.9697
+      ],
+      "axis": "x",
+      "tris_lod0": 1724,
+      "tris_lod1": 1724,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CH53/lod0.glb",
+      "bytes": 425680,
+      "sha256": "f27beacc68e05d11f15ae81b43a2306660f0649c3a3b0e1076ffbc520597e88d",
+      "triangles": 22367,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_e85cc84e9bc223_b",
+          "uri": "tex/tex_e85cc84e9bc223_b.ktx2",
+          "bytes": 221058,
+          "sha256": "e85cc84e9bc22359af9beb878704c564192163ba5c80c6d019a4df0e13a2c305",
+          "linear": false
+        },
+        {
+          "key": "tex_c6a9e67aa2b2c9_n",
+          "uri": "tex/tex_c6a9e67aa2b2c9_n.ktx2",
+          "bytes": 83585,
+          "sha256": "c6a9e67aa2b2c9d991a25dbe0d0dad1add8cfb91c00ba5bb765981d16f2b5e9e",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CH53/lod1.glb",
+      "bytes": 195356,
+      "sha256": "eb68c6c393351b73d7e85c357d4bb918af439cf220e685835d7b97cdadd41dcf",
+      "triangles": 11193,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_e85cc84e9bc223_b",
+          "uri": "tex/tex_e85cc84e9bc223_b.ktx2",
+          "bytes": 221058,
+          "sha256": "e85cc84e9bc22359af9beb878704c564192163ba5c80c6d019a4df0e13a2c305",
+          "linear": false
+        },
+        {
+          "key": "tex_c6a9e67aa2b2c9_n",
+          "uri": "tex/tex_c6a9e67aa2b2c9_n.ktx2",
+          "bytes": 83585,
+          "sha256": "c6a9e67aa2b2c9d991a25dbe0d0dad1add8cfb91c00ba5bb765981d16f2b5e9e",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CH53/lod2.glb",
+      "bytes": 73788,
+      "sha256": "8b67677845c19759bd6e84eb0fdf9cf7d811b46f464735a0ab0bbd16c0628898",
+      "triangles": 6673,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_e85cc84e9bc223_b",
+      "uri": "tex/tex_e85cc84e9bc223_b.ktx2",
+      "bytes": 221058,
+      "sha256": "e85cc84e9bc22359af9beb878704c564192163ba5c80c6d019a4df0e13a2c305",
+      "linear": false
+    },
+    {
+      "key": "tex_c6a9e67aa2b2c9_n",
+      "uri": "tex/tex_c6a9e67aa2b2c9_n.ktx2",
+      "bytes": 83585,
+      "sha256": "c6a9e67aa2b2c9d991a25dbe0d0dad1add8cfb91c00ba5bb765981d16f2b5e9e",
+      "linear": true
+    },
+    {
+      "key": "shared_c1e20da198b3123d_b",
+      "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+      "bytes": 66024,
+      "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+      "linear": false
+    },
+    {
+      "key": "shared_0f54581d4d87e4eb_n",
+      "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+      "bytes": 81853,
+      "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+      "linear": true
+    },
+    {
+      "key": "shared_9f402618efd99b98_b",
+      "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+      "bytes": 67037,
+      "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+      "linear": false
+    },
+    {
+      "key": "shared_b5836749932430e5_n",
+      "uri": "tex/shared_b5836749932430e5_n.ktx2",
+      "bytes": 75298,
+      "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 730323,
+    "lod0_lod1_plus_own_tex_bytes": 925679,
+    "lod0_plus_all_tex_bytes": 1020535,
+    "shared_tex_bytes": 290212,
+    "own_tex_bytes": 304643,
+    "opaque_draw_calls": 5
+  }
+}

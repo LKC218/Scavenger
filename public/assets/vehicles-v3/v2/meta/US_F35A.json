@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "id": "model:US_F35A",
+  "slug": "US_F35A",
+  "name": "F-35A",
+  "category": "air",
+  "role": "fixed_wing",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "2f252340152aeef49ec23250f270f6714adc945d89d73084ce649d3aff6160ac",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.48,
+  "baseline_256_bytes": 504168,
+  "baseline_256_tris": 15787,
+  "original_tris": 22757,
+  "bounds": {
+    "min": [
+      -5.3185,
+      0.9384,
+      -7.1105
+    ],
+    "max": [
+      5.31,
+      4.3828,
+      8.5821
+    ],
+    "size": [
+      10.6285,
+      3.4444,
+      15.6926
+    ],
+    "center": [
+      -0.0043,
+      2.6606,
+      0.7358
+    ],
+    "radius": 9.6318
+  },
+  "labelBounds": {
+    "min": [
+      -5.3185,
+      0.9384,
+      -7.1105
+    ],
+    "max": [
+      5.31,
+      4.3828,
+      8.5821
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          0.02,
+          2.0421,
+          5.61
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1217,
+    0.0911,
+    0.0778
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 13826,
+      "tris_lod1": 1515,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_F35A/lod0.glb",
+      "bytes": 202868,
+      "sha256": "6203d94f41faf82d08259798458d04a3a96331af60617c726da25d7983675671",
+      "triangles": 13826,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_7c0b0fdaad67e5_b",
+          "uri": "tex/tex_7c0b0fdaad67e5_b.ktx2",
+          "bytes": 205490,
+          "sha256": "7c0b0fdaad67e59565d01914ced9444b743e4d5b6ba920a1cd940e60c5844f41",
+          "linear": false
+        },
+        {
+          "key": "tex_2245a051273273_n",
+          "uri": "tex/tex_2245a051273273_n.ktx2",
+          "bytes": 81360,
+          "sha256": "2245a05127327387334d1f63e7d8ae7daed2c8cae72795b85b5279560472b58b",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_F35A/lod1.glb",
+      "bytes": 36028,
+      "sha256": "a55e33b4c5ed8de2a1570c3639f95156008c0aac89936c9486011b74b917cf00",
+      "triangles": 1515,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_7c0b0fdaad67e5_b",
+          "uri": "tex/tex_7c0b0fdaad67e5_b.ktx2",
+          "bytes": 205490,
+          "sha256": "7c0b0fdaad67e59565d01914ced9444b743e4d5b6ba920a1cd940e60c5844f41",
+          "linear": false
+        },
+        {
+          "key": "tex_2245a051273273_n",
+          "uri": "tex/tex_2245a051273273_n.ktx2",
+          "bytes": 81360,
+          "sha256": "2245a05127327387334d1f63e7d8ae7daed2c8cae72795b85b5279560472b58b",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_F35A/lod2.glb",
+      "bytes": 16148,
+      "sha256": "d47fe0bf7cd4545106606799da4f5c5142677686c00e62ca726656e78a12f1f6",
+      "triangles": 1349,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_7c0b0fdaad67e5_b",
+      "uri": "tex/tex_7c0b0fdaad67e5_b.ktx2",
+      "bytes": 205490,
+      "sha256": "7c0b0fdaad67e59565d01914ced9444b743e4d5b6ba920a1cd940e60c5844f41",
+      "linear": false
+    },
+    {
+      "key": "tex_2245a051273273_n",
+      "uri": "tex/tex_2245a051273273_n.ktx2",
+      "bytes": 81360,
+      "sha256": "2245a05127327387334d1f63e7d8ae7daed2c8cae72795b85b5279560472b58b",
+      "linear": true
+    },
+    {
+      "key": "shared_bcb3b634b14a77aa_b",
+      "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+      "bytes": 73563,
+      "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+      "linear": false
+    },
+    {
+      "key": "shared_7b08e70e297c1754_n",
+      "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+      "bytes": 83733,
+      "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 489718,
+    "lod0_lod1_plus_own_tex_bytes": 525746,
+    "lod0_plus_all_tex_bytes": 647014,
+    "shared_tex_bytes": 157296,
+    "own_tex_bytes": 286850,
+    "opaque_draw_calls": 2
+  }
+}

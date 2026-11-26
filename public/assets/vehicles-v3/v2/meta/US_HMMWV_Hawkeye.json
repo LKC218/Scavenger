@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "id": "model:US_HMMWV_Hawkeye",
+  "slug": "US_HMMWV_Hawkeye",
+  "name": "Hawkeye MWS",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "513b8a19dbabd70ef7582646eb7613bfe69a10e697a79d130513cbfd623d215b",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.93,
+  "baseline_256_bytes": 1140304,
+  "baseline_256_tris": 45253,
+  "original_tris": 64811,
+  "bounds": {
+    "min": [
+      -2.0427,
+      0.0013,
+      -2.6701
+    ],
+    "max": [
+      2.0409,
+      2.2405,
+      3.6709
+    ],
+    "size": [
+      4.0837,
+      2.2392,
+      6.341
+    ],
+    "center": [
+      -0.0009,
+      1.1209,
+      0.5004
+    ],
+    "radius": 3.9338
+  },
+  "labelBounds": {
+    "min": [
+      -2.0427,
+      0.0013,
+      -2.6701
+    ],
+    "max": [
+      2.0409,
+      2.2405,
+      3.6709
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.389,
+      0.001,
+      -1.656
+    ],
+    [
+      1.388,
+      0.001,
+      -1.656
+    ],
+    [
+      -1.389,
+      0.001,
+      2.656
+    ],
+    [
+      1.388,
+      0.001,
+      2.656
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": []
+  },
+  "avgLinearColor": [
+    0.1668,
+    0.1492,
+    0.1255
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 21761,
+      "tris_lod1": 5338,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HMMWV_Hawkeye/lod0.glb",
+      "bytes": 364568,
+      "sha256": "1bb5639e81f33d1936ea9163f378bf598caf5e88e1638b7ec873b05c06e15039",
+      "triangles": 21761,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_083ce09d6de070_b",
+          "uri": "tex/tex_083ce09d6de070_b.ktx2",
+          "bytes": 245278,
+          "sha256": "083ce09d6de07084b289e06975401555bf4de80ca0c9890f9f5dd4192cb25090",
+          "linear": false
+        },
+        {
+          "key": "tex_4006ffe06c4b4b_n",
+          "uri": "tex/tex_4006ffe06c4b4b_n.ktx2",
+          "bytes": 77013,
+          "sha256": "4006ffe06c4b4bcaf6a67d54fe8045674556e21f27459d007643aff4bb5011eb",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "tex_7b9a8eab4152b6_b",
+          "uri": "tex/tex_7b9a8eab4152b6_b.ktx2",
+          "bytes": 31632,
+          "sha256": "7b9a8eab4152b6ec95d2b713476eda93998d74532a025fa9eec794326b3f2329",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HMMWV_Hawkeye/lod1.glb",
+      "bytes": 96428,
+      "sha256": "17f898bd9780eaeccec3852f989e84b1da2d6ad210777f4a6e85fdc2aa92fa7e",
+      "triangles": 5338,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_083ce09d6de070_b",
+          "uri": "tex/tex_083ce09d6de070_b.ktx2",
+          "bytes": 245278,
+          "sha256": "083ce09d6de07084b289e06975401555bf4de80ca0c9890f9f5dd4192cb25090",
+          "linear": false
+        },
+        {
+          "key": "tex_4006ffe06c4b4b_n",
+          "uri": "tex/tex_4006ffe06c4b4b_n.ktx2",
+          "bytes": 77013,
+          "sha256": "4006ffe06c4b4bcaf6a67d54fe8045674556e21f27459d007643aff4bb5011eb",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "tex_7b9a8eab4152b6_b",
+          "uri": "tex/tex_7b9a8eab4152b6_b.ktx2",
+          "bytes": 31632,
+          "sha256": "7b9a8eab4152b6ec95d2b713476eda93998d74532a025fa9eec794326b3f2329",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HMMWV_Hawkeye/lod2.glb",
+      "bytes": 12220,
+      "sha256": "03c024a77a6cdca6fcf3a581d350b8568c9ea04066abb3ae26b824fd60e4a873",
+      "triangles": 969,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_083ce09d6de070_b",
+      "uri": "tex/tex_083ce09d6de070_b.ktx2",
+      "bytes": 245278,
+      "sha256": "083ce09d6de07084b289e06975401555bf4de80ca0c9890f9f5dd4192cb25090",
+      "linear": false
+    },
+    {
+      "key": "tex_4006ffe06c4b4b_n",
+      "uri": "tex/tex_4006ffe06c4b4b_n.ktx2",
+      "bytes": 77013,
+      "sha256": "4006ffe06c4b4bcaf6a67d54fe8045674556e21f27459d007643aff4bb5011eb",
+      "linear": true
+    },
+    {
+      "key": "shared_f0f32258dd589cc4_b",
+      "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+      "bytes": 80989,
+      "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+      "linear": false
+    },
+    {
+      "key": "shared_616b9fa4a46d547a_n",
+      "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+      "bytes": 83988,
+      "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+      "linear": true
+    },
+    {
+      "key": "tex_7b9a8eab4152b6_b",
+      "uri": "tex/tex_7b9a8eab4152b6_b.ktx2",
+      "bytes": 31632,
+      "sha256": "7b9a8eab4152b6ec95d2b713476eda93998d74532a025fa9eec794326b3f2329",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 718491,
+    "lod0_lod1_plus_own_tex_bytes": 814919,
+    "lod0_plus_all_tex_bytes": 883468,
+    "shared_tex_bytes": 164977,
+    "own_tex_bytes": 353923,
+    "opaque_draw_calls": 2
+  }
+}

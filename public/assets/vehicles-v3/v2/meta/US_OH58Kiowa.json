@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "id": "model:US_OH58Kiowa",
+  "slug": "US_OH58Kiowa",
+  "name": "OH-58D Kiowa Warrior",
+  "category": "air",
+  "role": "rotorcraft",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "4fe7b132457618691100c4c80bdc37a8e53b83f274d92e1404e0093b2ef247e1",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.91,
+  "baseline_256_bytes": 1182812,
+  "baseline_256_tris": 51018,
+  "original_tris": 56722,
+  "bounds": {
+    "min": [
+      -4.6248,
+      0.0036,
+      -5.0056
+    ],
+    "max": [
+      4.6502,
+      2.7563,
+      6.4019
+    ],
+    "size": [
+      9.2751,
+      2.7527,
+      11.4075
+    ],
+    "center": [
+      0.0127,
+      1.3799,
+      0.6981
+    ],
+    "radius": 7.4789
+  },
+  "labelBounds": {
+    "min": [
+      -7.2199,
+      0.0036,
+      -7.5984
+    ],
+    "max": [
+      7.2453,
+      2.7563,
+      6.8668
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          0.0127,
+          2.0508,
+          1.0878
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1089,
+    0.0828,
+    0.0684
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 13121,
+      "tris_lod1": 2581,
+      "drawCalls": 4
+    },
+    {
+      "slot": "main_rotor",
+      "pivot": [
+        0.0127,
+        2.5498,
+        -0.3658
+      ],
+      "axis": "y",
+      "tris_lod0": 1759,
+      "tris_lod1": 1170,
+      "drawCalls": 1
+    },
+    {
+      "slot": "tail_rotor",
+      "pivot": [
+        -0.0306,
+        1.6814,
+        5.2062
+      ],
+      "axis": "x",
+      "tris_lod0": 514,
+      "tris_lod1": 460,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_OH58Kiowa/lod0.glb",
+      "bytes": 245296,
+      "sha256": "874de51b20ec5970f6735a196c324d59f8796dfa7617546e62c4c7d37f39d7cf",
+      "triangles": 15394,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_eef7bb8582764c_b",
+          "uri": "tex/tex_eef7bb8582764c_b.ktx2",
+          "bytes": 201443,
+          "sha256": "eef7bb8582764cd9ba7b98c7791f60608e46c2cdad45241f01aa14c67fd27ce5",
+          "linear": false
+        },
+        {
+          "key": "tex_ce198e546d073e_n",
+          "uri": "tex/tex_ce198e546d073e_n.ktx2",
+          "bytes": 76738,
+          "sha256": "ce198e546d073e435912a1258aea9736c7add776a6eb2f267ed8f2d58ac6e6c2",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "tex_1de531eb40c548_b",
+          "uri": "tex/tex_1de531eb40c548_b.ktx2",
+          "bytes": 26738,
+          "sha256": "1de531eb40c5487c34ad1e144e2c43d47e0a11d4f0fb854bad7dbafa59080ec2",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_OH58Kiowa/lod1.glb",
+      "bytes": 76572,
+      "sha256": "3fa9925af4053eae9cfe6db26bce82cccbe8660492798b9fd4672b133727cad9",
+      "triangles": 4211,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_eef7bb8582764c_b",
+          "uri": "tex/tex_eef7bb8582764c_b.ktx2",
+          "bytes": 201443,
+          "sha256": "eef7bb8582764cd9ba7b98c7791f60608e46c2cdad45241f01aa14c67fd27ce5",
+          "linear": false
+        },
+        {
+          "key": "tex_ce198e546d073e_n",
+          "uri": "tex/tex_ce198e546d073e_n.ktx2",
+          "bytes": 76738,
+          "sha256": "ce198e546d073e435912a1258aea9736c7add776a6eb2f267ed8f2d58ac6e6c2",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "tex_1de531eb40c548_b",
+          "uri": "tex/tex_1de531eb40c548_b.ktx2",
+          "bytes": 26738,
+          "sha256": "1de531eb40c5487c34ad1e144e2c43d47e0a11d4f0fb854bad7dbafa59080ec2",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_OH58Kiowa/lod2.glb",
+      "bytes": 21828,
+      "sha256": "575f2bc9c9f48ab2828fa50050063a204c714d78499f4c7508cc7f4987b8aede",
+      "triangles": 1905,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_eef7bb8582764c_b",
+      "uri": "tex/tex_eef7bb8582764c_b.ktx2",
+      "bytes": 201443,
+      "sha256": "eef7bb8582764cd9ba7b98c7791f60608e46c2cdad45241f01aa14c67fd27ce5",
+      "linear": false
+    },
+    {
+      "key": "tex_ce198e546d073e_n",
+      "uri": "tex/tex_ce198e546d073e_n.ktx2",
+      "bytes": 76738,
+      "sha256": "ce198e546d073e435912a1258aea9736c7add776a6eb2f267ed8f2d58ac6e6c2",
+      "linear": true
+    },
+    {
+      "key": "shared_e280743eb8e60395_b",
+      "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+      "bytes": 66240,
+      "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+      "linear": false
+    },
+    {
+      "key": "shared_87eaef8ed1fbc611_n",
+      "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+      "bytes": 73449,
+      "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+      "linear": true
+    },
+    {
+      "key": "shared_c1e20da198b3123d_b",
+      "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+      "bytes": 66024,
+      "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+      "linear": false
+    },
+    {
+      "key": "shared_0f54581d4d87e4eb_n",
+      "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+      "bytes": 81853,
+      "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+      "linear": true
+    },
+    {
+      "key": "tex_1de531eb40c548_b",
+      "uri": "tex/tex_1de531eb40c548_b.ktx2",
+      "bytes": 26738,
+      "sha256": "1de531eb40c5487c34ad1e144e2c43d47e0a11d4f0fb854bad7dbafa59080ec2",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 550215,
+    "lod0_lod1_plus_own_tex_bytes": 626787,
+    "lod0_plus_all_tex_bytes": 837781,
+    "shared_tex_bytes": 287566,
+    "own_tex_bytes": 304919,
+    "opaque_draw_calls": 5
+  }
+}

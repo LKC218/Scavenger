@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "model:US_STRYKER_RV",
+  "slug": "US_STRYKER_RV",
+  "name": "Stryker RV",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "33d0fa7ff146adee034b52128698a14b405b36c7b5875e561509256fad856775",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.58,
+  "baseline_256_bytes": 1103168,
+  "baseline_256_tris": 42886,
+  "original_tris": 49522,
+  "bounds": {
+    "min": [
+      -1.4991,
+      0.0071,
+      -3.5789
+    ],
+    "max": [
+      1.4525,
+      3.8204,
+      3.5983
+    ],
+    "size": [
+      2.9517,
+      3.8133,
+      7.1773
+    ],
+    "center": [
+      -0.0233,
+      1.9138,
+      0.0097
+    ],
+    "radius": 4.3234
+  },
+  "labelBounds": {
+    "min": [
+      -1.4991,
+      0.0071,
+      -3.5789
+    ],
+    "max": [
+      1.4525,
+      3.8204,
+      3.5983
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.027,
+      0.007,
+      -2.431
+    ],
+    [
+      0.98,
+      0.007,
+      -2.431
+    ],
+    [
+      -1.027,
+      0.007,
+      2.45
+    ],
+    [
+      0.98,
+      0.007,
+      2.45
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          1.2727,
+          2.1234,
+          -1.3592
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0387,
+    0.0381,
+    0.0354
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 21904,
+      "tris_lod1": 4772,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_RV/lod0.glb",
+      "bytes": 365176,
+      "sha256": "885152af320adf3bccda17fb8fb68f489bc520f27163c3a7865cb475597ac555",
+      "triangles": 21904,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_b159a7f7e1ab7d_b",
+          "uri": "tex/tex_b159a7f7e1ab7d_b.ktx2",
+          "bytes": 197366,
+          "sha256": "b159a7f7e1ab7dbaf68249c090cc01c5d2dd5d88016ef9af71c7748252a51932",
+          "linear": false
+        },
+        {
+          "key": "tex_a41a78d5c65819_n",
+          "uri": "tex/tex_a41a78d5c65819_n.ktx2",
+          "bytes": 79927,
+          "sha256": "a41a78d5c658196b52567080c6000a7f56d551b8b85cf13b9863c52ee803c14f",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_RV/lod1.glb",
+      "bytes": 83132,
+      "sha256": "7c3952f51e16cba7c91b1d8d3d616d09622fa5345b2dcb8c9fa924a781b2ff72",
+      "triangles": 4772,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_b159a7f7e1ab7d_b",
+          "uri": "tex/tex_b159a7f7e1ab7d_b.ktx2",
+          "bytes": 197366,
+          "sha256": "b159a7f7e1ab7dbaf68249c090cc01c5d2dd5d88016ef9af71c7748252a51932",
+          "linear": false
+        },
+        {
+          "key": "tex_a41a78d5c65819_n",
+          "uri": "tex/tex_a41a78d5c65819_n.ktx2",
+          "bytes": 79927,
+          "sha256": "a41a78d5c658196b52567080c6000a7f56d551b8b85cf13b9863c52ee803c14f",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_RV/lod2.glb",
+      "bytes": 10980,
+      "sha256": "d9d106b60a4eeac7e120b176acc3af9aa89cac76315ff6d89bac1131dfdeeb97",
+      "triangles": 977,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_b159a7f7e1ab7d_b",
+      "uri": "tex/tex_b159a7f7e1ab7d_b.ktx2",
+      "bytes": 197366,
+      "sha256": "b159a7f7e1ab7dbaf68249c090cc01c5d2dd5d88016ef9af71c7748252a51932",
+      "linear": false
+    },
+    {
+      "key": "tex_a41a78d5c65819_n",
+      "uri": "tex/tex_a41a78d5c65819_n.ktx2",
+      "bytes": 79927,
+      "sha256": "a41a78d5c658196b52567080c6000a7f56d551b8b85cf13b9863c52ee803c14f",
+      "linear": true
+    },
+    {
+      "key": "shared_9f402618efd99b98_b",
+      "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+      "bytes": 67037,
+      "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+      "linear": false
+    },
+    {
+      "key": "shared_b5836749932430e5_n",
+      "uri": "tex/shared_b5836749932430e5_n.ktx2",
+      "bytes": 75298,
+      "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 642469,
+    "lod0_lod1_plus_own_tex_bytes": 725601,
+    "lod0_plus_all_tex_bytes": 784804,
+    "shared_tex_bytes": 142335,
+    "own_tex_bytes": 277293,
+    "opaque_draw_calls": 2
+  }
+}

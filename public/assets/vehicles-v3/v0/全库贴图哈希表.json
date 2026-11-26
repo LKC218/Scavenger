@@ -1,0 +1,2696 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-19T11:36:47.424443+00:00",
+  "shared_count": 153,
+  "shared_images": {
+    "e7c4aa38fb9e618dc1a4a266d57161026ddde85b5a35e6eb545b8c25b9ceac96": {
+      "sha256": "e7c4aa38fb9e618dc1a4a266d57161026ddde85b5a35e6eb545b8c25b9ceac96",
+      "bytes": 5827928,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AAVP7A1",
+        "model:US_AAVP_Arty"
+      ]
+    },
+    "3128d727a2f26c8d97566e90bfedf1335c8bcbe7e1171da012af0e9f55843cfb": {
+      "sha256": "3128d727a2f26c8d97566e90bfedf1335c8bcbe7e1171da012af0e9f55843cfb",
+      "bytes": 6715660,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AAVP7A1",
+        "model:US_AAVP_Arty"
+      ]
+    },
+    "e54e296c8a442a1985f8aaeefa0fe4c35470e8e2f9e482b78b79af525a6e2745": {
+      "sha256": "e54e296c8a442a1985f8aaeefa0fe4c35470e8e2f9e482b78b79af525a6e2745",
+      "bytes": 3289510,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AAVP7A1",
+        "model:US_AAVP_Arty"
+      ]
+    },
+    "1550a6e7a3e840a9ec0e17272d31ee5c42ad22a057be2e2f0ee7e3617708da94": {
+      "sha256": "1550a6e7a3e840a9ec0e17272d31ee5c42ad22a057be2e2f0ee7e3617708da94",
+      "bytes": 893271,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 18,
+      "vehicles": [
+        "model:US_AAVP7A1",
+        "model:US_AAVP_Arty",
+        "model:US_AMPV",
+        "model:US_AMPV_MCV",
+        "model:US_M1064A3",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M2A2",
+        "model:US_M2A2_BEV",
+        "model:US_M2A3",
+        "model:US_M2A3_BEV",
+        "model:US_M3A2",
+        "model:US_M3A3",
+        "model:US_M548A3",
+        "model:US_M6_Linebacker",
+        "model:US_M7_BFIST",
+        "model:US_M901A3",
+        "model:US_m981_fist"
+      ]
+    },
+    "8561a7274cc35d88536e2fe290a1e2553b2586ec40222f8c33011d7a5614ea84": {
+      "sha256": "8561a7274cc35d88536e2fe290a1e2553b2586ec40222f8c33011d7a5614ea84",
+      "bytes": 898237,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 18,
+      "vehicles": [
+        "model:US_AAVP7A1",
+        "model:US_AAVP_Arty",
+        "model:US_AMPV",
+        "model:US_AMPV_MCV",
+        "model:US_M1064A3",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M2A2",
+        "model:US_M2A2_BEV",
+        "model:US_M2A3",
+        "model:US_M2A3_BEV",
+        "model:US_M3A2",
+        "model:US_M3A3",
+        "model:US_M548A3",
+        "model:US_M6_Linebacker",
+        "model:US_M7_BFIST",
+        "model:US_M901A3",
+        "model:US_m981_fist"
+      ]
+    },
+    "ece80c02112fd8890f3227a11e7b84646e1be533c632796875311321cddcef5c": {
+      "sha256": "ece80c02112fd8890f3227a11e7b84646e1be533c632796875311321cddcef5c",
+      "bytes": 748949,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 18,
+      "vehicles": [
+        "model:US_AAVP7A1",
+        "model:US_AAVP_Arty",
+        "model:US_AMPV",
+        "model:US_AMPV_MCV",
+        "model:US_M1064A3",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M2A2",
+        "model:US_M2A2_BEV",
+        "model:US_M2A3",
+        "model:US_M2A3_BEV",
+        "model:US_M3A2",
+        "model:US_M3A3",
+        "model:US_M548A3",
+        "model:US_M6_Linebacker",
+        "model:US_M7_BFIST",
+        "model:US_M901A3",
+        "model:US_m981_fist"
+      ]
+    },
+    "dca431c99c0eeaf8e29465e48a5637c09de586e66831c0fd9695b9907e73fd97": {
+      "sha256": "dca431c99c0eeaf8e29465e48a5637c09de586e66831c0fd9695b9907e73fd97",
+      "bytes": 939763,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 10,
+      "vehicles": [
+        "model:US_AbramsTUA",
+        "model:US_M10",
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2",
+        "model:US_M1_ABV",
+        "model:US_M60"
+      ]
+    },
+    "edb58dc784ca4bf7e75a0efafdeded14023b568061acafd45243bd7efef570bf": {
+      "sha256": "edb58dc784ca4bf7e75a0efafdeded14023b568061acafd45243bd7efef570bf",
+      "bytes": 840135,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 10,
+      "vehicles": [
+        "model:US_AbramsTUA",
+        "model:US_M10",
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2",
+        "model:US_M1_ABV",
+        "model:US_M60"
+      ]
+    },
+    "90162546e0239db760eaab5666cf0908b5864f18e0ccb7ed05bcb89bd67ab483": {
+      "sha256": "90162546e0239db760eaab5666cf0908b5864f18e0ccb7ed05bcb89bd67ab483",
+      "bytes": 719913,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 10,
+      "vehicles": [
+        "model:US_AbramsTUA",
+        "model:US_M10",
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2",
+        "model:US_M1_ABV",
+        "model:US_M60"
+      ]
+    },
+    "87eaef8ed1fbc61194c939bb96c19f2333fee8a2e9b6ba7b3b6fe55c53fba2b2": {
+      "sha256": "87eaef8ed1fbc61194c939bb96c19f2333fee8a2e9b6ba7b3b6fe55c53fba2b2",
+      "bytes": 849665,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 28,
+      "vehicles": [
+        "model:US_ACV",
+        "model:US_AMPV",
+        "model:US_AbramsTUA",
+        "model:US_CV-22_b",
+        "model:US_IFAV",
+        "model:US_M10",
+        "model:US_M109A6",
+        "model:US_M109a7",
+        "model:US_M1117_M1200",
+        "model:US_M113A3",
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2",
+        "model:US_M1_ABV",
+        "model:US_M551A1",
+        "model:US_M8Thunderbolt",
+        "model:US_M985_Battleship",
+        "model:US_MATV",
+        "model:US_MV-22_b",
+        "model:US_OH58Kiowa",
+        "model:US_RSOV",
+        "model:US_STRYKER_ESV",
+        "model:US_STRYKER_ICV",
+        "model:US_m1288_base",
+        "model:US_stryker_mgs"
+      ]
+    },
+    "d0c4dc800604c8af6bcbd5cdc629dfe8e469ea1fe3bf9f873a1d69206c30a144": {
+      "sha256": "d0c4dc800604c8af6bcbd5cdc629dfe8e469ea1fe3bf9f873a1d69206c30a144",
+      "bytes": 1675943,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 9,
+      "vehicles": [
+        "model:US_ACV",
+        "model:US_AbramsTUA",
+        "model:US_M109a7",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP2",
+        "model:US_MATV",
+        "model:US_STRYKER_ESV",
+        "model:US_STRYKER_ICV",
+        "model:US_m1288_base"
+      ]
+    },
+    "e280743eb8e603955e2fb476c1a6ecc83ade1488d84390e5fc29441c022bc63e": {
+      "sha256": "e280743eb8e603955e2fb476c1a6ecc83ade1488d84390e5fc29441c022bc63e",
+      "bytes": 860867,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 28,
+      "vehicles": [
+        "model:US_ACV",
+        "model:US_AMPV",
+        "model:US_AbramsTUA",
+        "model:US_CV-22_b",
+        "model:US_IFAV",
+        "model:US_M10",
+        "model:US_M109A6",
+        "model:US_M109a7",
+        "model:US_M1117_M1200",
+        "model:US_M113A3",
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2",
+        "model:US_M1_ABV",
+        "model:US_M551A1",
+        "model:US_M8Thunderbolt",
+        "model:US_M985_Battleship",
+        "model:US_MATV",
+        "model:US_MV-22_b",
+        "model:US_OH58Kiowa",
+        "model:US_RSOV",
+        "model:US_STRYKER_ESV",
+        "model:US_STRYKER_ICV",
+        "model:US_m1288_base",
+        "model:US_stryker_mgs"
+      ]
+    },
+    "b5836749932430e50bfa83803f5adbc91cae7e16cf53f28b9fbd60127a41cd25": {
+      "sha256": "b5836749932430e50bfa83803f5adbc91cae7e16cf53f28b9fbd60127a41cd25",
+      "bytes": 1150770,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 31,
+      "vehicles": [
+        "model:US_AbramsTUA",
+        "model:US_CH53",
+        "model:US_CH53K",
+        "model:US_Ch47",
+        "model:US_HMMWV_BASE",
+        "model:US_HMMWV_LRAS3",
+        "model:US_HMMWV_TOW",
+        "model:US_HMMWV_gmv",
+        "model:US_LAV25",
+        "model:US_LAV_AT",
+        "model:US_LAV_L",
+        "model:US_LAV_M",
+        "model:US_LMTV_Warpig",
+        "model:US_M1301_ISV",
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2",
+        "model:US_M901A3",
+        "model:US_MH47",
+        "model:US_MH60M_SOAR",
+        "model:US_STRYKER_ATGM",
+        "model:US_STRYKER_RV",
+        "model:US_STRYKER_SHORAD",
+        "model:US_UH-1Y",
+        "model:US_UH60M",
+        "model:US_m981_fist",
+        "model:US_stryker_mc",
+        "model:US_stryker_mgs"
+      ]
+    },
+    "ccadee8aa502260a91e87c777f34ba6eb0fc44c1f4c61b6631b4a50f4a9ff385": {
+      "sha256": "ccadee8aa502260a91e87c777f34ba6eb0fc44c1f4c61b6631b4a50f4a9ff385",
+      "bytes": 1487871,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 31,
+      "vehicles": [
+        "model:US_AbramsTUA",
+        "model:US_CH53",
+        "model:US_CH53K",
+        "model:US_Ch47",
+        "model:US_HMMWV_BASE",
+        "model:US_HMMWV_LRAS3",
+        "model:US_HMMWV_TOW",
+        "model:US_HMMWV_gmv",
+        "model:US_LAV25",
+        "model:US_LAV_AT",
+        "model:US_LAV_L",
+        "model:US_LAV_M",
+        "model:US_LMTV_Warpig",
+        "model:US_M1301_ISV",
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2",
+        "model:US_M901A3",
+        "model:US_MH47",
+        "model:US_MH60M_SOAR",
+        "model:US_STRYKER_ATGM",
+        "model:US_STRYKER_RV",
+        "model:US_STRYKER_SHORAD",
+        "model:US_UH-1Y",
+        "model:US_UH60M",
+        "model:US_m981_fist",
+        "model:US_stryker_mc",
+        "model:US_stryker_mgs"
+      ]
+    },
+    "9f402618efd99b9859211f5bab68b1deebd1ba9575c529a14c8e4e93ac37b1fc": {
+      "sha256": "9f402618efd99b9859211f5bab68b1deebd1ba9575c529a14c8e4e93ac37b1fc",
+      "bytes": 724658,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 31,
+      "vehicles": [
+        "model:US_AbramsTUA",
+        "model:US_CH53",
+        "model:US_CH53K",
+        "model:US_Ch47",
+        "model:US_HMMWV_BASE",
+        "model:US_HMMWV_LRAS3",
+        "model:US_HMMWV_TOW",
+        "model:US_HMMWV_gmv",
+        "model:US_LAV25",
+        "model:US_LAV_AT",
+        "model:US_LAV_L",
+        "model:US_LAV_M",
+        "model:US_LMTV_Warpig",
+        "model:US_M1301_ISV",
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2",
+        "model:US_M901A3",
+        "model:US_MH47",
+        "model:US_MH60M_SOAR",
+        "model:US_STRYKER_ATGM",
+        "model:US_STRYKER_RV",
+        "model:US_STRYKER_SHORAD",
+        "model:US_UH-1Y",
+        "model:US_UH60M",
+        "model:US_m981_fist",
+        "model:US_stryker_mc",
+        "model:US_stryker_mgs"
+      ]
+    },
+    "7a0f1ac191ccbb5374f7b4ab520b483ef1b19c37e22d385b9cb2be9ed024ea90": {
+      "sha256": "7a0f1ac191ccbb5374f7b4ab520b483ef1b19c37e22d385b9cb2be9ed024ea90",
+      "bytes": 5410476,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AMPV",
+        "model:US_AMPV_MCV"
+      ]
+    },
+    "25fd657c69e4eae16bfc27a51ba0c402bf9b87d9f5b23dc3be592f4f6dec8aa3": {
+      "sha256": "25fd657c69e4eae16bfc27a51ba0c402bf9b87d9f5b23dc3be592f4f6dec8aa3",
+      "bytes": 6768037,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AMPV",
+        "model:US_AMPV_MCV"
+      ]
+    },
+    "9604964f2540bc2438cc60810de3cd2b30e5e6fae86b6e55899eb902d2f2932a": {
+      "sha256": "9604964f2540bc2438cc60810de3cd2b30e5e6fae86b6e55899eb902d2f2932a",
+      "bytes": 2927674,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AMPV",
+        "model:US_AMPV_MCV"
+      ]
+    },
+    "616b9fa4a46d547a1a597db802759595230100a6d61607fc28f58c08c7881852": {
+      "sha256": "616b9fa4a46d547a1a597db802759595230100a6d61607fc28f58c08c7881852",
+      "bytes": 1315732,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 28,
+      "vehicles": [
+        "model:US_AMPV",
+        "model:US_AMPV_MCV",
+        "model:US_CRAM",
+        "model:US_HEMTT",
+        "model:US_HIMARS",
+        "model:US_HMMWV_Avenger",
+        "model:US_HMMWV_BASE",
+        "model:US_HMMWV_Hawkeye",
+        "model:US_HMMWV_LRAS3",
+        "model:US_HMMWV_TOW",
+        "model:US_HMMWV_gmv",
+        "model:US_LMTV_Brutus",
+        "model:US_LMTV_MML",
+        "model:US_LMTV_SLAMRAAM",
+        "model:US_M1064A3",
+        "model:US_M1117_M1200",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M270_A1",
+        "model:US_M270_A2",
+        "model:US_M548A3",
+        "model:US_M985_Battleship",
+        "model:US_MTV",
+        "model:US_PATRIOT_PAC2",
+        "model:US_PATRIOT_PAC3",
+        "model:US_PATRIOT_PAC3MSE",
+        "model:US_PLS",
+        "model:US_stryker_mc"
+      ]
+    },
+    "f0f32258dd589cc4c99a2639c63497186d44b3f6ece23bbd5941af1f58d51334": {
+      "sha256": "f0f32258dd589cc4c99a2639c63497186d44b3f6ece23bbd5941af1f58d51334",
+      "bytes": 3747154,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 28,
+      "vehicles": [
+        "model:US_AMPV",
+        "model:US_AMPV_MCV",
+        "model:US_CRAM",
+        "model:US_HEMTT",
+        "model:US_HIMARS",
+        "model:US_HMMWV_Avenger",
+        "model:US_HMMWV_BASE",
+        "model:US_HMMWV_Hawkeye",
+        "model:US_HMMWV_LRAS3",
+        "model:US_HMMWV_TOW",
+        "model:US_HMMWV_gmv",
+        "model:US_LMTV_Brutus",
+        "model:US_LMTV_MML",
+        "model:US_LMTV_SLAMRAAM",
+        "model:US_M1064A3",
+        "model:US_M1117_M1200",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M270_A1",
+        "model:US_M270_A2",
+        "model:US_M548A3",
+        "model:US_M985_Battleship",
+        "model:US_MTV",
+        "model:US_PATRIOT_PAC2",
+        "model:US_PATRIOT_PAC3",
+        "model:US_PATRIOT_PAC3MSE",
+        "model:US_PLS",
+        "model:US_stryker_mc"
+      ]
+    },
+    "b6de4e5daeecfdf86fdfabf5dfc2bab7a7a55191f1bfa9b7f1f2f2d200fadcd8": {
+      "sha256": "b6de4e5daeecfdf86fdfabf5dfc2bab7a7a55191f1bfa9b7f1f2f2d200fadcd8",
+      "bytes": 1532246,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 19,
+      "vehicles": [
+        "model:US_AMPV",
+        "model:US_CV-22_b",
+        "model:US_IFAV",
+        "model:US_M10",
+        "model:US_M109A6",
+        "model:US_M1117_M1200",
+        "model:US_M113A3",
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2SEP",
+        "model:US_M1_ABV",
+        "model:US_M551A1",
+        "model:US_M8Thunderbolt",
+        "model:US_M985_Battleship",
+        "model:US_MV-22_b",
+        "model:US_OH58Kiowa",
+        "model:US_RSOV",
+        "model:US_stryker_mgs"
+      ]
+    },
+    "5f447fba9eab017154203edb27cdca0f334a1eacf560f2b4559d75b65b00ea59": {
+      "sha256": "5f447fba9eab017154203edb27cdca0f334a1eacf560f2b4559d75b65b00ea59",
+      "bytes": 3910464,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_HEMTT",
+        "model:US_LVSR",
+        "model:US_PLS"
+      ]
+    },
+    "3fe067f18364ae34ee88b127aa60394f7da4a51f048817f93c8ed319cb2c1431": {
+      "sha256": "3fe067f18364ae34ee88b127aa60394f7da4a51f048817f93c8ed319cb2c1431",
+      "bytes": 5702246,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_HEMTT",
+        "model:US_LVSR",
+        "model:US_PLS"
+      ]
+    },
+    "cef67a0e03cebb383b88903a6aab1ec64d26925f0b5c78fe3741905d089fc749": {
+      "sha256": "cef67a0e03cebb383b88903a6aab1ec64d26925f0b5c78fe3741905d089fc749",
+      "bytes": 2379117,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_HEMTT",
+        "model:US_LVSR",
+        "model:US_PLS"
+      ]
+    },
+    "f3061f20cd5c1c5c9183d344a15f8b13de603baf5ce27606d7fd55351076876a": {
+      "sha256": "f3061f20cd5c1c5c9183d344a15f8b13de603baf5ce27606d7fd55351076876a",
+      "bytes": 6236029,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_HEMTT",
+        "model:US_LVSR",
+        "model:US_PLS"
+      ]
+    },
+    "d6665feb816d4301d125172ef73fbce4a60c90ac88128543ab6a3359702430b5": {
+      "sha256": "d6665feb816d4301d125172ef73fbce4a60c90ac88128543ab6a3359702430b5",
+      "bytes": 4144364,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_HEMTT",
+        "model:US_LVSR",
+        "model:US_PLS"
+      ]
+    },
+    "27f04ca0bcd57a8d40be248bc24a586dae014b7f809be62f801f75b28dbc05d3": {
+      "sha256": "27f04ca0bcd57a8d40be248bc24a586dae014b7f809be62f801f75b28dbc05d3",
+      "bytes": 5953657,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_HEMTT",
+        "model:US_LVSR",
+        "model:US_PLS"
+      ]
+    },
+    "bb46acf371466274ae83bfd1be28f35ae5fc667bbb1970ef63c81369e64e6116": {
+      "sha256": "bb46acf371466274ae83bfd1be28f35ae5fc667bbb1970ef63c81369e64e6116",
+      "bytes": 2807194,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_HEMTT",
+        "model:US_LVSR",
+        "model:US_PLS"
+      ]
+    },
+    "8ad4f3b96fa7de027c71afa3ca817a695b5e4cbf5738bf89eacd38937d6ab5bd": {
+      "sha256": "8ad4f3b96fa7de027c71afa3ca817a695b5e4cbf5738bf89eacd38937d6ab5bd",
+      "bytes": 5795066,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 7,
+      "vehicles": [
+        "model:US_HMMWV_gmv",
+        "model:US_IFAV",
+        "model:US_LAV_AD",
+        "model:US_LAV_M",
+        "model:US_LMTV",
+        "model:US_LVSR",
+        "model:US_MTVR"
+      ]
+    },
+    "61b3c467f28447421e74c0924b0a0b85230a41e9e7348ff898474e2ae7e3cf85": {
+      "sha256": "61b3c467f28447421e74c0924b0a0b85230a41e9e7348ff898474e2ae7e3cf85",
+      "bytes": 2785853,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 7,
+      "vehicles": [
+        "model:US_HMMWV_gmv",
+        "model:US_IFAV",
+        "model:US_LAV_AD",
+        "model:US_LAV_M",
+        "model:US_LMTV",
+        "model:US_LVSR",
+        "model:US_MTVR"
+      ]
+    },
+    "5c59eab6d30176e3b00de36943396f1c6a5ecad6f4d721848616926c1be69238": {
+      "sha256": "5c59eab6d30176e3b00de36943396f1c6a5ecad6f4d721848616926c1be69238",
+      "bytes": 5274675,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LAV25",
+        "model:US_LAV_AD"
+      ]
+    },
+    "5a4e7f0ff26caab7997e6cef4797f47c79c566abf8ec333e1d465d9da953ae50": {
+      "sha256": "5a4e7f0ff26caab7997e6cef4797f47c79c566abf8ec333e1d465d9da953ae50",
+      "bytes": 6484112,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LAV25",
+        "model:US_LAV_AD"
+      ]
+    },
+    "3a8a70b295e9a7483e05ebf74d698fd871bbd50bd731e9de89188f86163d4753": {
+      "sha256": "3a8a70b295e9a7483e05ebf74d698fd871bbd50bd731e9de89188f86163d4753",
+      "bytes": 3086918,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LAV25",
+        "model:US_LAV_AD"
+      ]
+    },
+    "9edf435bc4e2c577a90d7f4e5cb75357169452103fa13babda712f8ae6b32dc0": {
+      "sha256": "9edf435bc4e2c577a90d7f4e5cb75357169452103fa13babda712f8ae6b32dc0",
+      "bytes": 5190289,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LAV_AT",
+        "model:US_LAV_L"
+      ]
+    },
+    "1040e40c78598dac1d3c556c05ff950fa7089ca5a25391bf41af0d7571742f9b": {
+      "sha256": "1040e40c78598dac1d3c556c05ff950fa7089ca5a25391bf41af0d7571742f9b",
+      "bytes": 6456046,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LAV_AT",
+        "model:US_LAV_L"
+      ]
+    },
+    "c4f2a3c3117953d8820d67545a5ee840faef1c941d684e2ee23d8729c972f872": {
+      "sha256": "c4f2a3c3117953d8820d67545a5ee840faef1c941d684e2ee23d8729c972f872",
+      "bytes": 2673701,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LAV_AT",
+        "model:US_LAV_L"
+      ]
+    },
+    "75c8edf1097451c2640c7d52ddf4b1abb2661cadf238cc892e9320c405f8d6a5": {
+      "sha256": "75c8edf1097451c2640c7d52ddf4b1abb2661cadf238cc892e9320c405f8d6a5",
+      "bytes": 113272,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 11,
+      "vehicles": [
+        "model:US_AH-1W Super_Cobra",
+        "model:US_LAV_AT",
+        "model:US_M2A2",
+        "model:US_M2A2_BEV",
+        "model:US_M2A3",
+        "model:US_M2A3_BEV",
+        "model:US_M3A2",
+        "model:US_M3A3",
+        "model:US_M901A3",
+        "model:US_M985_Battleship",
+        "model:US_STRYKER_ATGM"
+      ]
+    },
+    "4fc10a361fa6d2a43c37c14315d63469927d051a1846fdba98301cf47b80cd00": {
+      "sha256": "4fc10a361fa6d2a43c37c14315d63469927d051a1846fdba98301cf47b80cd00",
+      "bytes": 1103765,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 11,
+      "vehicles": [
+        "model:US_AH-1W Super_Cobra",
+        "model:US_LAV_AT",
+        "model:US_M2A2",
+        "model:US_M2A2_BEV",
+        "model:US_M2A3",
+        "model:US_M2A3_BEV",
+        "model:US_M3A2",
+        "model:US_M3A3",
+        "model:US_M901A3",
+        "model:US_M985_Battleship",
+        "model:US_STRYKER_ATGM"
+      ]
+    },
+    "798c6f4eb5ee81b87b189b7073c0951ef5853dea67617fab3b80648bd60ee0e1": {
+      "sha256": "798c6f4eb5ee81b87b189b7073c0951ef5853dea67617fab3b80648bd60ee0e1",
+      "bytes": 456233,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 11,
+      "vehicles": [
+        "model:US_AH-1W Super_Cobra",
+        "model:US_LAV_AT",
+        "model:US_M2A2",
+        "model:US_M2A2_BEV",
+        "model:US_M2A3",
+        "model:US_M2A3_BEV",
+        "model:US_M3A2",
+        "model:US_M3A3",
+        "model:US_M901A3",
+        "model:US_M985_Battleship",
+        "model:US_STRYKER_ATGM"
+      ]
+    },
+    "83fdf054472b4c0005dbe18a24d81ec308ef552fc52c5316489fc2646d2500c0": {
+      "sha256": "83fdf054472b4c0005dbe18a24d81ec308ef552fc52c5316489fc2646d2500c0",
+      "bytes": 278942,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LAV_M",
+        "model:US_stryker_mc"
+      ]
+    },
+    "374783c39e82a6535a20c00f3485e47468267ec58fc227b429c9a79768dfcd90": {
+      "sha256": "374783c39e82a6535a20c00f3485e47468267ec58fc227b429c9a79768dfcd90",
+      "bytes": 382674,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LAV_M",
+        "model:US_stryker_mc"
+      ]
+    },
+    "b0e37aaaa80e1de15409a671a242e270b1b846ffde73b108840ad3fb5b7f1fe0": {
+      "sha256": "b0e37aaaa80e1de15409a671a242e270b1b846ffde73b108840ad3fb5b7f1fe0",
+      "bytes": 152477,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LAV_M",
+        "model:US_stryker_mc"
+      ]
+    },
+    "3bf5751cb98803cf3d7b752b2651bb59e9fbd336ed5aa615129a853bc39167dc": {
+      "sha256": "3bf5751cb98803cf3d7b752b2651bb59e9fbd336ed5aa615129a853bc39167dc",
+      "bytes": 225100,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 11,
+      "vehicles": [
+        "model:US_AV8B_Plus",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_FA18C",
+        "model:US_FA18D",
+        "model:US_LMTV_SLAMRAAM"
+      ]
+    },
+    "381fecf98b7461d35a8bafb73ba3cfa0acd0cf58293f8fed8749c6a9387bcfb2": {
+      "sha256": "381fecf98b7461d35a8bafb73ba3cfa0acd0cf58293f8fed8749c6a9387bcfb2",
+      "bytes": 277321,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 11,
+      "vehicles": [
+        "model:US_AV8B_Plus",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_FA18C",
+        "model:US_FA18D",
+        "model:US_LMTV_SLAMRAAM"
+      ]
+    },
+    "6fae4f9b36abebb49936ffeb88c2c3e4187558df117b5375ad987de096e1b335": {
+      "sha256": "6fae4f9b36abebb49936ffeb88c2c3e4187558df117b5375ad987de096e1b335",
+      "bytes": 137806,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 11,
+      "vehicles": [
+        "model:US_AV8B_Plus",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_FA18C",
+        "model:US_FA18D",
+        "model:US_LMTV_SLAMRAAM"
+      ]
+    },
+    "87e37f0b1f5826031cebe532fb797a6f1d445a8d5bd50336a2e3f46a4326d5f8": {
+      "sha256": "87e37f0b1f5826031cebe532fb797a6f1d445a8d5bd50336a2e3f46a4326d5f8",
+      "bytes": 124031,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 12,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_AV8B_Plus",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_FA18C",
+        "model:US_FA18D",
+        "model:US_LMTV_SLAMRAAM"
+      ]
+    },
+    "83e840986db044fa6a6e07ea80af5eac7d537c875c4600fdb084bea04f2e349e": {
+      "sha256": "83e840986db044fa6a6e07ea80af5eac7d537c875c4600fdb084bea04f2e349e",
+      "bytes": 300353,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 12,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_AV8B_Plus",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_FA18C",
+        "model:US_FA18D",
+        "model:US_LMTV_SLAMRAAM"
+      ]
+    },
+    "ba154671784a3b963e5e652d1ddb4e2e481419813e267a9ca39a0f53f6d627e5": {
+      "sha256": "ba154671784a3b963e5e652d1ddb4e2e481419813e267a9ca39a0f53f6d627e5",
+      "bytes": 128798,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 12,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_AV8B_Plus",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_FA18C",
+        "model:US_FA18D",
+        "model:US_LMTV_SLAMRAAM"
+      ]
+    },
+    "4b95a9f5edd0119241d23815ce3081ad1324616043a54fe8ebd09d4b3fcfb95a": {
+      "sha256": "4b95a9f5edd0119241d23815ce3081ad1324616043a54fe8ebd09d4b3fcfb95a",
+      "bytes": 1572938,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_LMTV_Warpig",
+        "model:US_RSOV",
+        "model:US_m1288_base"
+      ]
+    },
+    "19e4aa69084fa9288db5ec424e507b6636175c1111732ef484bfb67de74e6f92": {
+      "sha256": "19e4aa69084fa9288db5ec424e507b6636175c1111732ef484bfb67de74e6f92",
+      "bytes": 2725223,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_LMTV_Warpig",
+        "model:US_RSOV",
+        "model:US_m1288_base"
+      ]
+    },
+    "fd497ae6bb49e42598492c6760afd4479d685ff953040053cc07a493a0d3fc93": {
+      "sha256": "fd497ae6bb49e42598492c6760afd4479d685ff953040053cc07a493a0d3fc93",
+      "bytes": 418164,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_LVSR",
+        "model:US_PLS"
+      ]
+    },
+    "bf2edfee769aa446f7f532fa4b0e21ad667faa0c9fb557859b1c90d8f5dbad7c": {
+      "sha256": "bf2edfee769aa446f7f532fa4b0e21ad667faa0c9fb557859b1c90d8f5dbad7c",
+      "bytes": 4978105,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 5,
+      "vehicles": [
+        "model:US_M1064A3",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M901A3",
+        "model:US_m981_fist"
+      ]
+    },
+    "eaf0b345440a59b1c26a60c539fe1f6827527162f1cf39ccf9c39a3e17fbe9c9": {
+      "sha256": "eaf0b345440a59b1c26a60c539fe1f6827527162f1cf39ccf9c39a3e17fbe9c9",
+      "bytes": 6329145,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 5,
+      "vehicles": [
+        "model:US_M1064A3",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M901A3",
+        "model:US_m981_fist"
+      ]
+    },
+    "9248905dd14ee58a44618d74af48d974f761fcb1ae55f940994f3635d207c2e6": {
+      "sha256": "9248905dd14ee58a44618d74af48d974f761fcb1ae55f940994f3635d207c2e6",
+      "bytes": 2653512,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 5,
+      "vehicles": [
+        "model:US_M1064A3",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M901A3",
+        "model:US_m981_fist"
+      ]
+    },
+    "0db84aed047469c0509efff3717d1f01bc48570d519b7a68ef0fc43dfe167281": {
+      "sha256": "0db84aed047469c0509efff3717d1f01bc48570d519b7a68ef0fc43dfe167281",
+      "bytes": 941739,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 5,
+      "vehicles": [
+        "model:US_M1064A3",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M901A3",
+        "model:US_m981_fist"
+      ]
+    },
+    "c107a96ff5c205f8206fb5b76beb35e4ee5017534a2511ba90789aac0c4c4b40": {
+      "sha256": "c107a96ff5c205f8206fb5b76beb35e4ee5017534a2511ba90789aac0c4c4b40",
+      "bytes": 1292029,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 5,
+      "vehicles": [
+        "model:US_M1064A3",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M901A3",
+        "model:US_m981_fist"
+      ]
+    },
+    "13ef2f494ff48ff440003950a4a899e7439dfba49ae48c8abb38eb2366afb95d": {
+      "sha256": "13ef2f494ff48ff440003950a4a899e7439dfba49ae48c8abb38eb2366afb95d",
+      "bytes": 2878648,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 5,
+      "vehicles": [
+        "model:US_M1064A3",
+        "model:US_M113A3",
+        "model:US_M163_PIVADS",
+        "model:US_M901A3",
+        "model:US_m981_fist"
+      ]
+    },
+    "55b42aacadd28f2c58358fa25dd790568d6ae670bbcf0ddedab0a73232dca49d": {
+      "sha256": "55b42aacadd28f2c58358fa25dd790568d6ae670bbcf0ddedab0a73232dca49d",
+      "bytes": 832628,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_M109A6",
+        "model:US_M270_A1",
+        "model:US_M270_A2"
+      ]
+    },
+    "bd9b5ef997abec6b864fad3c616b139d4a8485944c92d67c41a94c83f22baf03": {
+      "sha256": "bd9b5ef997abec6b864fad3c616b139d4a8485944c92d67c41a94c83f22baf03",
+      "bytes": 871584,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_M109A6",
+        "model:US_M270_A1",
+        "model:US_M270_A2"
+      ]
+    },
+    "742e3ac6efd16e20a37a2b9af0f525e77767a02e4e45d4033482fe881218d6bd": {
+      "sha256": "742e3ac6efd16e20a37a2b9af0f525e77767a02e4e45d4033482fe881218d6bd",
+      "bytes": 736140,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_M109A6",
+        "model:US_M270_A1",
+        "model:US_M270_A2"
+      ]
+    },
+    "76a6da3d4867703d5ccc7299291001d8ebc9f0b505f361d680ae1c23b15c6560": {
+      "sha256": "76a6da3d4867703d5ccc7299291001d8ebc9f0b505f361d680ae1c23b15c6560",
+      "bytes": 1532625,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M109a7",
+        "model:US_M8Thunderbolt"
+      ]
+    },
+    "86a6f142f0a5d6bf8596ac77eccd2b52f416c8a0b69a2cc97f73da47e5d15b3b": {
+      "sha256": "86a6f142f0a5d6bf8596ac77eccd2b52f416c8a0b69a2cc97f73da47e5d15b3b",
+      "bytes": 746128,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M109a7",
+        "model:US_M8Thunderbolt"
+      ]
+    },
+    "4cb8567702e64068721fbc92adf7688bcf669ea910b1d87fa1dddadf1228c8fe": {
+      "sha256": "4cb8567702e64068721fbc92adf7688bcf669ea910b1d87fa1dddadf1228c8fe",
+      "bytes": 5574762,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 6,
+      "vehicles": [
+        "model:US_M1A1FEP",
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2"
+      ]
+    },
+    "95e6e569bdcb22f1f4d24dcd80740349aa96541d10e6f95eda6d8a4400c4ca53": {
+      "sha256": "95e6e569bdcb22f1f4d24dcd80740349aa96541d10e6f95eda6d8a4400c4ca53",
+      "bytes": 6597499,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 5,
+      "vehicles": [
+        "model:US_M1A1HC",
+        "model:US_M1A2",
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2"
+      ]
+    },
+    "921554b296a21ef40e8862a97032da54b5d0070e242b91244c241d391399048e": {
+      "sha256": "921554b296a21ef40e8862a97032da54b5d0070e242b91244c241d391399048e",
+      "bytes": 2982943,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_M1A2C",
+        "model:US_M1A2SEP",
+        "model:US_M1A2SEP2"
+      ]
+    },
+    "ad3f52274d1a09bbe7ebf3db819ab898371f0a6eb18afece11edbdbba3efc712": {
+      "sha256": "ad3f52274d1a09bbe7ebf3db819ab898371f0a6eb18afece11edbdbba3efc712",
+      "bytes": 3943588,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M270_A1",
+        "model:US_M270_A2"
+      ]
+    },
+    "b015483da3cab0aed6f059a145776ca80e86b3401c29b7cb5001c03d1240a12d": {
+      "sha256": "b015483da3cab0aed6f059a145776ca80e86b3401c29b7cb5001c03d1240a12d",
+      "bytes": 5637243,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M270_A1",
+        "model:US_M270_A2"
+      ]
+    },
+    "be15302a4023545a13dd191345f1b0c0f343d416fbb28194587960deee6afdf5": {
+      "sha256": "be15302a4023545a13dd191345f1b0c0f343d416fbb28194587960deee6afdf5",
+      "bytes": 2361292,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M270_A1",
+        "model:US_M270_A2"
+      ]
+    },
+    "77dd96eca6b3588cbbb496a2bbd241905b82d9e7560f63c49abfe1f0cfc1c029": {
+      "sha256": "77dd96eca6b3588cbbb496a2bbd241905b82d9e7560f63c49abfe1f0cfc1c029",
+      "bytes": 5910858,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M270_A1",
+        "model:US_M270_A2"
+      ]
+    },
+    "a74871c290b6f0488c1db7d949ab828b105659d627ed6815e869137c9a7dbdaa": {
+      "sha256": "a74871c290b6f0488c1db7d949ab828b105659d627ed6815e869137c9a7dbdaa",
+      "bytes": 5468735,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 4,
+      "vehicles": [
+        "model:US_M2A2",
+        "model:US_M2A2_BEV",
+        "model:US_M2A3",
+        "model:US_M2A3_BEV"
+      ]
+    },
+    "d45485bf50d8026fc396158a24b500f7b75ef8c7e093b69a6d5c23c6c22d34f1": {
+      "sha256": "d45485bf50d8026fc396158a24b500f7b75ef8c7e093b69a6d5c23c6c22d34f1",
+      "bytes": 6864541,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 4,
+      "vehicles": [
+        "model:US_M2A2",
+        "model:US_M2A2_BEV",
+        "model:US_M2A3",
+        "model:US_M2A3_BEV"
+      ]
+    },
+    "3f426a3d3ce7f1b4402b6dd2e782f0cdf6bd23ab4fe9de36f848417c6bd60851": {
+      "sha256": "3f426a3d3ce7f1b4402b6dd2e782f0cdf6bd23ab4fe9de36f848417c6bd60851",
+      "bytes": 3486067,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 4,
+      "vehicles": [
+        "model:US_M2A2",
+        "model:US_M2A2_BEV",
+        "model:US_M2A3",
+        "model:US_M2A3_BEV"
+      ]
+    },
+    "8641ae584233c9539d9028930ca0964b0f102c16e75749563d5da9606b0efa2f": {
+      "sha256": "8641ae584233c9539d9028930ca0964b0f102c16e75749563d5da9606b0efa2f",
+      "bytes": 838662,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 4,
+      "vehicles": [
+        "model:US_M2A2_BEV",
+        "model:US_M2A3_BEV",
+        "model:US_M3A2",
+        "model:US_M3A3"
+      ]
+    },
+    "454b5143a951c427a0d274421aedb333e7cfeec21793af1049c0fbfa31cad0a8": {
+      "sha256": "454b5143a951c427a0d274421aedb333e7cfeec21793af1049c0fbfa31cad0a8",
+      "bytes": 1343709,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 4,
+      "vehicles": [
+        "model:US_M2A2_BEV",
+        "model:US_M2A3_BEV",
+        "model:US_M3A2",
+        "model:US_M3A3"
+      ]
+    },
+    "da45abfa8ff4f8402d48ef464afea99ca3e4630277ec63137235bd5ec5689b4b": {
+      "sha256": "da45abfa8ff4f8402d48ef464afea99ca3e4630277ec63137235bd5ec5689b4b",
+      "bytes": 734732,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 4,
+      "vehicles": [
+        "model:US_M2A2_BEV",
+        "model:US_M2A3_BEV",
+        "model:US_M3A2",
+        "model:US_M3A3"
+      ]
+    },
+    "f88db8bdd65ee10e7b891a6ce6615e2c522671f37b1a3b536ec1ee8e8fb7291b": {
+      "sha256": "f88db8bdd65ee10e7b891a6ce6615e2c522671f37b1a3b536ec1ee8e8fb7291b",
+      "bytes": 5395362,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M3A2",
+        "model:US_M3A3"
+      ]
+    },
+    "bc34f79c42e9414ffd52a8b975180e21b66b2caccfb82531c7a98a0a1d50b316": {
+      "sha256": "bc34f79c42e9414ffd52a8b975180e21b66b2caccfb82531c7a98a0a1d50b316",
+      "bytes": 6810625,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M3A2",
+        "model:US_M3A3"
+      ]
+    },
+    "08a726e54386cdd28ecdde7c7f90be60822b669b0b66a4cf3fdc51fe4402f8b2": {
+      "sha256": "08a726e54386cdd28ecdde7c7f90be60822b669b0b66a4cf3fdc51fe4402f8b2",
+      "bytes": 2809191,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M3A2",
+        "model:US_M3A3"
+      ]
+    },
+    "e3d4c335a375084ead845b9a8c782fb5f3a50721cf0f56d7cedaddc37f997ab8": {
+      "sha256": "e3d4c335a375084ead845b9a8c782fb5f3a50721cf0f56d7cedaddc37f997ab8",
+      "bytes": 6603474,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M3A2",
+        "model:US_M3A3"
+      ]
+    },
+    "32c752d0861027140b1f8c3c7bf5957a9f6d6c3f61cc18e5241a8f03023869bc": {
+      "sha256": "32c752d0861027140b1f8c3c7bf5957a9f6d6c3f61cc18e5241a8f03023869bc",
+      "bytes": 3937708,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M3A2",
+        "model:US_M3A3"
+      ]
+    },
+    "a1f638fee5c0b18a4adbf0eab983b1838fd0ab19c2d28f6f171311216d89b82d": {
+      "sha256": "a1f638fee5c0b18a4adbf0eab983b1838fd0ab19c2d28f6f171311216d89b82d",
+      "bytes": 1329403,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_M3A2",
+        "model:US_M3A3"
+      ]
+    },
+    "566068e969cfabf6198f74e002823da4b07adf1e35397641529994b28f2ff037": {
+      "sha256": "566068e969cfabf6198f74e002823da4b07adf1e35397641529994b28f2ff037",
+      "bytes": 1016785,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_PATRIOT_PAC2",
+        "model:US_PATRIOT_PAC3",
+        "model:US_PATRIOT_PAC3MSE"
+      ]
+    },
+    "be31497849b9e3f4ce50ebd797a0e7fa5e84a72fceb556dc648c944a234c156f": {
+      "sha256": "be31497849b9e3f4ce50ebd797a0e7fa5e84a72fceb556dc648c944a234c156f",
+      "bytes": 1655483,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_PATRIOT_PAC2",
+        "model:US_PATRIOT_PAC3",
+        "model:US_PATRIOT_PAC3MSE"
+      ]
+    },
+    "17e4ba06a7082209c81e8309c640b44000b579b80caad9e106e8221c977850b1": {
+      "sha256": "17e4ba06a7082209c81e8309c640b44000b579b80caad9e106e8221c977850b1",
+      "bytes": 2690096,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_PATRIOT_PAC2",
+        "model:US_PATRIOT_PAC3",
+        "model:US_PATRIOT_PAC3MSE"
+      ]
+    },
+    "2099555635ab95820ece0e5202ac86085ba901f994b10ed33842b87680749a06": {
+      "sha256": "2099555635ab95820ece0e5202ac86085ba901f994b10ed33842b87680749a06",
+      "bytes": 1148251,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_PATRIOT_PAC2",
+        "model:US_PATRIOT_PAC3",
+        "model:US_PATRIOT_PAC3MSE"
+      ]
+    },
+    "b27a08c10e3875c75340390c1b7f3c2af19b40cc4bd0496e530a3f52e24699a2": {
+      "sha256": "b27a08c10e3875c75340390c1b7f3c2af19b40cc4bd0496e530a3f52e24699a2",
+      "bytes": 4176780,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_PATRIOT_PAC2",
+        "model:US_PATRIOT_PAC3",
+        "model:US_PATRIOT_PAC3MSE"
+      ]
+    },
+    "7f41603e38326734822f8dfe369b198ac394a92ed729e1188177bcf13fc669cf": {
+      "sha256": "7f41603e38326734822f8dfe369b198ac394a92ed729e1188177bcf13fc669cf",
+      "bytes": 5787515,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_PATRIOT_PAC2",
+        "model:US_PATRIOT_PAC3",
+        "model:US_PATRIOT_PAC3MSE"
+      ]
+    },
+    "b21fe70dcd7ba3ce46d8979cfad047a1a5bf2e39f43a3d825ba739cd886ef94c": {
+      "sha256": "b21fe70dcd7ba3ce46d8979cfad047a1a5bf2e39f43a3d825ba739cd886ef94c",
+      "bytes": 2537189,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_PATRIOT_PAC2",
+        "model:US_PATRIOT_PAC3",
+        "model:US_PATRIOT_PAC3MSE"
+      ]
+    },
+    "f05fea8e7795796a66cee4a3f3e99a60bf8666ef97e7fdeac83df9e4997f85f9": {
+      "sha256": "f05fea8e7795796a66cee4a3f3e99a60bf8666ef97e7fdeac83df9e4997f85f9",
+      "bytes": 5375537,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_STRYKER_ESV",
+        "model:US_STRYKER_ICV"
+      ]
+    },
+    "463cfb1c716b790b73400c9e4568fed5153d3c59429f4ba8838ebd622194d819": {
+      "sha256": "463cfb1c716b790b73400c9e4568fed5153d3c59429f4ba8838ebd622194d819",
+      "bytes": 6355193,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_STRYKER_ESV",
+        "model:US_STRYKER_ICV"
+      ]
+    },
+    "333e0c1d7da03566f042ff1cb3262bf731a24c47043d04938178cffc253688fe": {
+      "sha256": "333e0c1d7da03566f042ff1cb3262bf731a24c47043d04938178cffc253688fe",
+      "bytes": 2563204,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_STRYKER_ESV",
+        "model:US_STRYKER_ICV"
+      ]
+    },
+    "e5419b9588e1a467fa166ac3e7d559107666085808e28744ff87b4e753cd6ccc": {
+      "sha256": "e5419b9588e1a467fa166ac3e7d559107666085808e28744ff87b4e753cd6ccc",
+      "bytes": 447224,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AV8B_Plus"
+      ]
+    },
+    "575b095cc441bc821beb3ba609a6cd4861d607fe73c611e7ae712a32baef5b8c": {
+      "sha256": "575b095cc441bc821beb3ba609a6cd4861d607fe73c611e7ae712a32baef5b8c",
+      "bytes": 329091,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AV8B_Plus"
+      ]
+    },
+    "d6c2e3297482eeff6867e60eca16ef59fb35e63e80f98c12bb62de43a5ec362a": {
+      "sha256": "d6c2e3297482eeff6867e60eca16ef59fb35e63e80f98c12bb62de43a5ec362a",
+      "bytes": 220122,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AV8B_Plus"
+      ]
+    },
+    "45aa9d9f3c0a590878e78afddd4cb1ae103c78cb188c892b82be5b8e6ac1c98f": {
+      "sha256": "45aa9d9f3c0a590878e78afddd4cb1ae103c78cb188c892b82be5b8e6ac1c98f",
+      "bytes": 345059,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 8,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AV8B_NightAttack",
+        "model:US_AV8B_Plus",
+        "model:US_EA6B_Prowler",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_FA18C",
+        "model:US_FA18D"
+      ]
+    },
+    "8cbd68b3360378d2b501b13efce3fe5c07028767a5f7809e2a72d3ac2cb6c113": {
+      "sha256": "8cbd68b3360378d2b501b13efce3fe5c07028767a5f7809e2a72d3ac2cb6c113",
+      "bytes": 1080187,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 8,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AV8B_NightAttack",
+        "model:US_AV8B_Plus",
+        "model:US_EA6B_Prowler",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_FA18C",
+        "model:US_FA18D"
+      ]
+    },
+    "426ed13f95e73d284c561fde559890770dfc40679f40e48826c938ffa1f326f6": {
+      "sha256": "426ed13f95e73d284c561fde559890770dfc40679f40e48826c938ffa1f326f6",
+      "bytes": 461597,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 8,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AV8B_NightAttack",
+        "model:US_AV8B_Plus",
+        "model:US_EA6B_Prowler",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_FA18C",
+        "model:US_FA18D"
+      ]
+    },
+    "ba36d8b9dd68c597eacd25b7e225a0c3a65bce245eb066ef2624ba51af65771f": {
+      "sha256": "ba36d8b9dd68c597eacd25b7e225a0c3a65bce245eb066ef2624ba51af65771f",
+      "bytes": 331125,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 10,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AH-1Z Viper",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_FA18C",
+        "model:US_FA18D"
+      ]
+    },
+    "2ead2169eddb1f2a02ce37701b9090f832929d266bb9355ba7351816d917fa87": {
+      "sha256": "2ead2169eddb1f2a02ce37701b9090f832929d266bb9355ba7351816d917fa87",
+      "bytes": 324621,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 10,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AH-1Z Viper",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_FA18C",
+        "model:US_FA18D"
+      ]
+    },
+    "9f4a205dd0b17d2e4d2d6e820783b7b0aac43c6b610ebd7a167c61b4041a5d5a": {
+      "sha256": "9f4a205dd0b17d2e4d2d6e820783b7b0aac43c6b610ebd7a167c61b4041a5d5a",
+      "bytes": 232960,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 10,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AH-1Z Viper",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_FA18C",
+        "model:US_FA18D"
+      ]
+    },
+    "7b08e70e297c17548c837131e530bbbf81fbc25d30da19bad4c65e56bb777d6b": {
+      "sha256": "7b08e70e297c17548c837131e530bbbf81fbc25d30da19bad4c65e56bb777d6b",
+      "bytes": 1533583,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 26,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AC130J",
+        "model:US_AC130U",
+        "model:US_AC130_Base",
+        "model:US_AV8B_NightAttack",
+        "model:US_AV8B_Plus",
+        "model:US_B1B",
+        "model:US_B2",
+        "model:US_B52H",
+        "model:US_C130_SuperHercules",
+        "model:US_C17_GLOBEMASTER",
+        "model:US_EA6B_Prowler",
+        "model:US_F117",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_F35A",
+        "model:US_F35B",
+        "model:US_FA18C",
+        "model:US_FA18D",
+        "model:US_KC130_HarvestHawk",
+        "model:US_MC130H"
+      ]
+    },
+    "d77f96e2faac347b940e44850519e8bb36837836435b7ae7373987597c6103a9": {
+      "sha256": "d77f96e2faac347b940e44850519e8bb36837836435b7ae7373987597c6103a9",
+      "bytes": 1249244,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 26,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AC130J",
+        "model:US_AC130U",
+        "model:US_AC130_Base",
+        "model:US_AV8B_NightAttack",
+        "model:US_AV8B_Plus",
+        "model:US_B1B",
+        "model:US_B2",
+        "model:US_B52H",
+        "model:US_C130_SuperHercules",
+        "model:US_C17_GLOBEMASTER",
+        "model:US_EA6B_Prowler",
+        "model:US_F117",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_F35A",
+        "model:US_F35B",
+        "model:US_FA18C",
+        "model:US_FA18D",
+        "model:US_KC130_HarvestHawk",
+        "model:US_MC130H"
+      ]
+    },
+    "bcb3b634b14a77aa216c1bed17bf7a7ac3b5a4c3dec48ed20014827f9800f4d5": {
+      "sha256": "bcb3b634b14a77aa216c1bed17bf7a7ac3b5a4c3dec48ed20014827f9800f4d5",
+      "bytes": 618875,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 26,
+      "vehicles": [
+        "model:US_A10",
+        "model:US_AC130J",
+        "model:US_AC130U",
+        "model:US_AC130_Base",
+        "model:US_AV8B_NightAttack",
+        "model:US_AV8B_Plus",
+        "model:US_B1B",
+        "model:US_B2",
+        "model:US_B52H",
+        "model:US_C130_SuperHercules",
+        "model:US_C17_GLOBEMASTER",
+        "model:US_EA6B_Prowler",
+        "model:US_F117",
+        "model:US_F15C",
+        "model:US_F15E",
+        "model:US_F15EX",
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70",
+        "model:US_F22",
+        "model:US_F35A",
+        "model:US_F35B",
+        "model:US_FA18C",
+        "model:US_FA18D",
+        "model:US_KC130_HarvestHawk",
+        "model:US_MC130H"
+      ]
+    },
+    "7bf6612d1d76a13afb2931283d406732153c9daa57ab4eb464464145e52dfd2d": {
+      "sha256": "7bf6612d1d76a13afb2931283d406732153c9daa57ab4eb464464145e52dfd2d",
+      "bytes": 1449842,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AC130J",
+        "model:US_AC130U"
+      ]
+    },
+    "3c1dbf1db087060e0f24393818c1fc68875dc640eef9714d6ea13c25eb9b6f3a": {
+      "sha256": "3c1dbf1db087060e0f24393818c1fc68875dc640eef9714d6ea13c25eb9b6f3a",
+      "bytes": 1330316,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AC130J",
+        "model:US_AC130U"
+      ]
+    },
+    "e68e01ea74bed4d9e046aeddb799ea7d8d93720fab00b53d5db69459cdfd04de": {
+      "sha256": "e68e01ea74bed4d9e046aeddb799ea7d8d93720fab00b53d5db69459cdfd04de",
+      "bytes": 616952,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_AH-1W Super_Cobra",
+        "model:US_AH64D",
+        "model:US_AH64L"
+      ]
+    },
+    "c6be577102d65539844794d76f51537e98765bc135fb0e80a639edfc5159421c": {
+      "sha256": "c6be577102d65539844794d76f51537e98765bc135fb0e80a639edfc5159421c",
+      "bytes": 865885,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_AH-1W Super_Cobra",
+        "model:US_AH64D",
+        "model:US_AH64L"
+      ]
+    },
+    "9710e28c57f2425a52f9ad459802db787c203cfc5a8256fc85f13f6d3200cc9a": {
+      "sha256": "9710e28c57f2425a52f9ad459802db787c203cfc5a8256fc85f13f6d3200cc9a",
+      "bytes": 629296,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_AH-1W Super_Cobra",
+        "model:US_AH64D",
+        "model:US_AH64L"
+      ]
+    },
+    "0f54581d4d87e4eb23cafdfce5c3270b6c724679448e70420a6496336ec68cbc": {
+      "sha256": "0f54581d4d87e4eb23cafdfce5c3270b6c724679448e70420a6496336ec68cbc",
+      "bytes": 1508189,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 20,
+      "vehicles": [
+        "model:US_AH-1W Super_Cobra",
+        "model:US_AH-1Z Viper",
+        "model:US_AH6",
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L",
+        "model:US_CH53",
+        "model:US_CH53K",
+        "model:US_CV-22_b",
+        "model:US_Ch47",
+        "model:US_MH47",
+        "model:US_MH6",
+        "model:US_MH60M_IDAP",
+        "model:US_MH60M_SOAR",
+        "model:US_MH60X",
+        "model:US_MV-22_b",
+        "model:US_OH58Kiowa",
+        "model:US_RAH66",
+        "model:US_UH-1Y",
+        "model:US_UH60M"
+      ]
+    },
+    "cb4d791a4a9d657c598d1460a87a59d4acbc6456f154832885c35f4189950ac0": {
+      "sha256": "cb4d791a4a9d657c598d1460a87a59d4acbc6456f154832885c35f4189950ac0",
+      "bytes": 1023736,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 20,
+      "vehicles": [
+        "model:US_AH-1W Super_Cobra",
+        "model:US_AH-1Z Viper",
+        "model:US_AH6",
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L",
+        "model:US_CH53",
+        "model:US_CH53K",
+        "model:US_CV-22_b",
+        "model:US_Ch47",
+        "model:US_MH47",
+        "model:US_MH6",
+        "model:US_MH60M_IDAP",
+        "model:US_MH60M_SOAR",
+        "model:US_MH60X",
+        "model:US_MV-22_b",
+        "model:US_OH58Kiowa",
+        "model:US_RAH66",
+        "model:US_UH-1Y",
+        "model:US_UH60M"
+      ]
+    },
+    "c1e20da198b3123dcc41c535aa187c6c2fe45ad0de5bee7fc3239c519ff41efb": {
+      "sha256": "c1e20da198b3123dcc41c535aa187c6c2fe45ad0de5bee7fc3239c519ff41efb",
+      "bytes": 688487,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 20,
+      "vehicles": [
+        "model:US_AH-1W Super_Cobra",
+        "model:US_AH-1Z Viper",
+        "model:US_AH6",
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L",
+        "model:US_CH53",
+        "model:US_CH53K",
+        "model:US_CV-22_b",
+        "model:US_Ch47",
+        "model:US_MH47",
+        "model:US_MH6",
+        "model:US_MH60M_IDAP",
+        "model:US_MH60M_SOAR",
+        "model:US_MH60X",
+        "model:US_MV-22_b",
+        "model:US_OH58Kiowa",
+        "model:US_RAH66",
+        "model:US_UH-1Y",
+        "model:US_UH60M"
+      ]
+    },
+    "255b94a3c9121207893cd4bdd1f3bc8e324af308f02925205c21eeda8e22da97": {
+      "sha256": "255b94a3c9121207893cd4bdd1f3bc8e324af308f02925205c21eeda8e22da97",
+      "bytes": 103968,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 7,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L",
+        "model:US_MH60M_IDAP",
+        "model:US_MQ1B",
+        "model:US_MQ1C"
+      ]
+    },
+    "dda9003e85da3a6732f2b107595d8f1cee11d5e379eb6e66d78b7f62c274dca0": {
+      "sha256": "dda9003e85da3a6732f2b107595d8f1cee11d5e379eb6e66d78b7f62c274dca0",
+      "bytes": 165820,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 7,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L",
+        "model:US_MH60M_IDAP",
+        "model:US_MQ1B",
+        "model:US_MQ1C"
+      ]
+    },
+    "1fd3cb5f93bdef6066d18ff698993360a1628e12df6d3c29f99044484868b6ae": {
+      "sha256": "1fd3cb5f93bdef6066d18ff698993360a1628e12df6d3c29f99044484868b6ae",
+      "bytes": 124962,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 7,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L",
+        "model:US_MH60M_IDAP",
+        "model:US_MQ1B",
+        "model:US_MQ1C"
+      ]
+    },
+    "ba23ea57fa991256a41140df96939a3f3e2d1f30a225ac45266c5e48689fe0b1": {
+      "sha256": "ba23ea57fa991256a41140df96939a3f3e2d1f30a225ac45266c5e48689fe0b1",
+      "bytes": 674377,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 6,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L",
+        "model:US_MQ1B",
+        "model:US_MQ1C"
+      ]
+    },
+    "39dedbe2bfb65ce4939f43c722fd3fa7b5900b6b54d3b09ef1d363e46f026cfe": {
+      "sha256": "39dedbe2bfb65ce4939f43c722fd3fa7b5900b6b54d3b09ef1d363e46f026cfe",
+      "bytes": 1164923,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 6,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L",
+        "model:US_MQ1B",
+        "model:US_MQ1C"
+      ]
+    },
+    "caa6c6a4c5fe1adc134cf22ea1dd051c073e68d8627be41138acf7e63bda6795": {
+      "sha256": "caa6c6a4c5fe1adc134cf22ea1dd051c073e68d8627be41138acf7e63bda6795",
+      "bytes": 743840,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 6,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L",
+        "model:US_MQ1B",
+        "model:US_MQ1C"
+      ]
+    },
+    "236bd7c79d750fbbe71688b741930985a79cd3a1bbd27ebbbd83cd2ca8ae4dfd": {
+      "sha256": "236bd7c79d750fbbe71688b741930985a79cd3a1bbd27ebbbd83cd2ca8ae4dfd",
+      "bytes": 635357,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_RAH66"
+      ]
+    },
+    "712f4f1c9e52cfa8d10fa41afa610144bb756e75526c644a43373fdedeaf383f": {
+      "sha256": "712f4f1c9e52cfa8d10fa41afa610144bb756e75526c644a43373fdedeaf383f",
+      "bytes": 608757,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_RAH66"
+      ]
+    },
+    "ccb54912a497e588e53eec51173601990b887ee8c5a2fdfe0bad81ac0271aec4": {
+      "sha256": "ccb54912a497e588e53eec51173601990b887ee8c5a2fdfe0bad81ac0271aec4",
+      "bytes": 426448,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AH-1Z Viper",
+        "model:US_RAH66"
+      ]
+    },
+    "da1cd9b21d33e3280ca8fac63dd557d41709718e1d8ca43fb882bd5e5332184f": {
+      "sha256": "da1cd9b21d33e3280ca8fac63dd557d41709718e1d8ca43fb882bd5e5332184f",
+      "bytes": 3304379,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AH6",
+        "model:US_MH6"
+      ]
+    },
+    "5cc64ea72686c8f2e07fbb7d04431c0981142f1f27f15573479d2e3d307ac3b0": {
+      "sha256": "5cc64ea72686c8f2e07fbb7d04431c0981142f1f27f15573479d2e3d307ac3b0",
+      "bytes": 5211826,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AH6",
+        "model:US_MH6"
+      ]
+    },
+    "c4f251b2852da6945f7ce330fef0cdfa851967010d38d4ea869f4d12a49ee37a": {
+      "sha256": "c4f251b2852da6945f7ce330fef0cdfa851967010d38d4ea869f4d12a49ee37a",
+      "bytes": 2177260,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AH6",
+        "model:US_MH6"
+      ]
+    },
+    "f240e9568ac8a9478e8549ae4ea80205fbfd94b81dff7c576c86939c95a609f4": {
+      "sha256": "f240e9568ac8a9478e8549ae4ea80205fbfd94b81dff7c576c86939c95a609f4",
+      "bytes": 2901035,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L"
+      ]
+    },
+    "4241a31919bac4d0e9d7795374229e8b0598843b6d55ca43a5dc336e8a43192f": {
+      "sha256": "4241a31919bac4d0e9d7795374229e8b0598843b6d55ca43a5dc336e8a43192f",
+      "bytes": 4527151,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_AH64D",
+        "model:US_AH64E",
+        "model:US_AH64L"
+      ]
+    },
+    "f81a66fddc9f51b00a0d6f52e4533b97e21eb3c1007c77ede5623391fd46438e": {
+      "sha256": "f81a66fddc9f51b00a0d6f52e4533b97e21eb3c1007c77ede5623391fd46438e",
+      "bytes": 1264956,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AH64D",
+        "model:US_AH64E"
+      ]
+    },
+    "3af32a2a6d051c1d3875ec60c4c00da5915dd9e13ff1c87c2f8a98781ff983a7": {
+      "sha256": "3af32a2a6d051c1d3875ec60c4c00da5915dd9e13ff1c87c2f8a98781ff983a7",
+      "bytes": 2386105,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AV8B_NightAttack",
+        "model:US_AV8B_Plus"
+      ]
+    },
+    "f0b9d6a79760464185e8d48ee326f775da5a4db5b4b77700fe4dc9b2653cb182": {
+      "sha256": "f0b9d6a79760464185e8d48ee326f775da5a4db5b4b77700fe4dc9b2653cb182",
+      "bytes": 4789519,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AV8B_NightAttack",
+        "model:US_AV8B_Plus"
+      ]
+    },
+    "3f5382ec7f21bb0d41ff808b4ba5b1f7e93d9d40a248718d7f5cb9343771a51c": {
+      "sha256": "3f5382ec7f21bb0d41ff808b4ba5b1f7e93d9d40a248718d7f5cb9343771a51c",
+      "bytes": 1310353,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AV8B_NightAttack",
+        "model:US_AV8B_Plus"
+      ]
+    },
+    "675b36a216cc0609ec8d16cac921deed717ed71cde1166d864f44f667005f730": {
+      "sha256": "675b36a216cc0609ec8d16cac921deed717ed71cde1166d864f44f667005f730",
+      "bytes": 239410,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AV8B_Plus",
+        "model:US_F16CJ"
+      ]
+    },
+    "56a0ac5f32d3ce72a49ba587f5ee75fca79d1cc1c190d0b009e010fa99cbd381": {
+      "sha256": "56a0ac5f32d3ce72a49ba587f5ee75fca79d1cc1c190d0b009e010fa99cbd381",
+      "bytes": 795043,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AV8B_Plus",
+        "model:US_F16CJ"
+      ]
+    },
+    "2a64fcebbf9558ae4a5eb20b92635052246a0ab4a2939846456961bf16839025": {
+      "sha256": "2a64fcebbf9558ae4a5eb20b92635052246a0ab4a2939846456961bf16839025",
+      "bytes": 268194,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_AV8B_Plus",
+        "model:US_F16CJ"
+      ]
+    },
+    "386b413cfc858486b1d6a65eef3d7c9d5da7002a47d2240bc583a0c6e4dcf4c7": {
+      "sha256": "386b413cfc858486b1d6a65eef3d7c9d5da7002a47d2240bc583a0c6e4dcf4c7",
+      "bytes": 2247991,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_C130_SuperHercules",
+        "model:US_KC130_HarvestHawk",
+        "model:US_MC130H"
+      ]
+    },
+    "0c52a87fcbfab6160de03fc13dedf03c30422e0ff899d4549e6dbc8beb1aabf8": {
+      "sha256": "0c52a87fcbfab6160de03fc13dedf03c30422e0ff899d4549e6dbc8beb1aabf8",
+      "bytes": 4896248,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_C130_SuperHercules",
+        "model:US_KC130_HarvestHawk",
+        "model:US_MC130H"
+      ]
+    },
+    "52e573729a682fd47dac899af9b0d8a3539ec6b1605b8a429e14b581f7d7b11d": {
+      "sha256": "52e573729a682fd47dac899af9b0d8a3539ec6b1605b8a429e14b581f7d7b11d",
+      "bytes": 1239556,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_C130_SuperHercules",
+        "model:US_KC130_HarvestHawk",
+        "model:US_MC130H"
+      ]
+    },
+    "25fe390b1aadf91cd1a9acff5ffc3f0976908136c32e99b32a3999347d3c5175": {
+      "sha256": "25fe390b1aadf91cd1a9acff5ffc3f0976908136c32e99b32a3999347d3c5175",
+      "bytes": 2716663,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_CV-22_b",
+        "model:US_MV-22_b"
+      ]
+    },
+    "36e8735215e54f419a40e83889b9d25697df4531ec4098691d5fd691db5eca5e": {
+      "sha256": "36e8735215e54f419a40e83889b9d25697df4531ec4098691d5fd691db5eca5e",
+      "bytes": 4590692,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_CV-22_b",
+        "model:US_MV-22_b"
+      ]
+    },
+    "b3a516223c17f485e5fb3b66b266b24775860a25b42e92cc0a5ea80573a576f2": {
+      "sha256": "b3a516223c17f485e5fb3b66b266b24775860a25b42e92cc0a5ea80573a576f2",
+      "bytes": 1859893,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_CV-22_b",
+        "model:US_MV-22_b"
+      ]
+    },
+    "935000c1fba0677bd4a5dd8a387d9980dc9ed2995f03455fa4b05aa7bc6195ad": {
+      "sha256": "935000c1fba0677bd4a5dd8a387d9980dc9ed2995f03455fa4b05aa7bc6195ad",
+      "bytes": 355422,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_EA6B_Prowler",
+        "model:US_F16CJ"
+      ]
+    },
+    "4692a4e65f68e47d212f388fdb0fc210db6871658a8b27f48673ae9da92d066a": {
+      "sha256": "4692a4e65f68e47d212f388fdb0fc210db6871658a8b27f48673ae9da92d066a",
+      "bytes": 681427,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_EA6B_Prowler",
+        "model:US_F16CJ"
+      ]
+    },
+    "7294f4ed89062b93e7541c100189b21cdd3be76136379494555aa887d6ac6caf": {
+      "sha256": "7294f4ed89062b93e7541c100189b21cdd3be76136379494555aa887d6ac6caf",
+      "bytes": 382081,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_EA6B_Prowler",
+        "model:US_F16CJ"
+      ]
+    },
+    "72759e1ae4fe50003aa9f28caddd29be2151f31f17d87ebcc6eed3859d186505": {
+      "sha256": "72759e1ae4fe50003aa9f28caddd29be2151f31f17d87ebcc6eed3859d186505",
+      "bytes": 690120,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 4,
+      "vehicles": [
+        "model:US_EA6B_Prowler",
+        "model:US_F15C",
+        "model:US_F15EX",
+        "model:US_FA18C"
+      ]
+    },
+    "da12e2bfd32b9ea55a8f213ad3c2deffc45502c4d0f186beab5f40b3ff57f72b": {
+      "sha256": "da12e2bfd32b9ea55a8f213ad3c2deffc45502c4d0f186beab5f40b3ff57f72b",
+      "bytes": 400300,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 4,
+      "vehicles": [
+        "model:US_EA6B_Prowler",
+        "model:US_F15C",
+        "model:US_F15EX",
+        "model:US_FA18C"
+      ]
+    },
+    "2eefffbb70722197b053f5f06733251c1c9b1a288eb41fd62012a1f81a7379fe": {
+      "sha256": "2eefffbb70722197b053f5f06733251c1c9b1a288eb41fd62012a1f81a7379fe",
+      "bytes": 127918,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 4,
+      "vehicles": [
+        "model:US_EA6B_Prowler",
+        "model:US_F15C",
+        "model:US_F15EX",
+        "model:US_FA18C"
+      ]
+    },
+    "ad8a627fc96daf54da55356f5f4cb23b31995546ec709553a099f238cfb66524": {
+      "sha256": "ad8a627fc96daf54da55356f5f4cb23b31995546ec709553a099f238cfb66524",
+      "bytes": 3401570,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70"
+      ]
+    },
+    "f14e1fe33058d98699a3ad20c149a5225c584fdcd967c9006161af34d5e5340d": {
+      "sha256": "f14e1fe33058d98699a3ad20c149a5225c584fdcd967c9006161af34d5e5340d",
+      "bytes": 5825451,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70"
+      ]
+    },
+    "688060be8c85ccfc76accf07acb65a07e2491886ddd2749ae87e385c073e019f": {
+      "sha256": "688060be8c85ccfc76accf07acb65a07e2491886ddd2749ae87e385c073e019f",
+      "bytes": 2351787,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 3,
+      "vehicles": [
+        "model:US_F16CJ",
+        "model:US_F16block52",
+        "model:US_F16block70"
+      ]
+    },
+    "36de1708713f656b6956575d9c76b3ec3b4cec0fb4da38e3864f087974f4f8b5": {
+      "sha256": "36de1708713f656b6956575d9c76b3ec3b4cec0fb4da38e3864f087974f4f8b5",
+      "bytes": 675966,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_FA18D",
+        "model:US_MQ9"
+      ]
+    },
+    "7dc133cb1b9ef6740d3884175e11827da9ac0ea1a446d7d19a78027def0f9d94": {
+      "sha256": "7dc133cb1b9ef6740d3884175e11827da9ac0ea1a446d7d19a78027def0f9d94",
+      "bytes": 829414,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_FA18D",
+        "model:US_MQ9"
+      ]
+    },
+    "11f7b44d8db34b8e0160530c3a041f886cc5f7ef2a84ab27d263d92548461e36": {
+      "sha256": "11f7b44d8db34b8e0160530c3a041f886cc5f7ef2a84ab27d263d92548461e36",
+      "bytes": 289420,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_FA18D",
+        "model:US_MQ9"
+      ]
+    },
+    "c12b1e6d6623423624c2f54e05ffc0972f54a877be0fbf23c6cceb7d3b1cf1e5": {
+      "sha256": "c12b1e6d6623423624c2f54e05ffc0972f54a877be0fbf23c6cceb7d3b1cf1e5",
+      "bytes": 3821136,
+      "mime": "image/png",
+      "usages": [
+        "normal"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_MH60M_SOAR",
+        "model:US_UH60M"
+      ]
+    },
+    "b7e72586c8e39c274b79e0c67c6599dc78b011840863107490cd93001659c508": {
+      "sha256": "b7e72586c8e39c274b79e0c67c6599dc78b011840863107490cd93001659c508",
+      "bytes": 4365266,
+      "mime": "image/png",
+      "usages": [
+        "metallicRoughness",
+        "occlusion"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_MH60M_SOAR",
+        "model:US_UH60M"
+      ]
+    },
+    "ca1fe85e251655defe8e2c1695293155f3def80e906be8efc4edc1a83380a37f": {
+      "sha256": "ca1fe85e251655defe8e2c1695293155f3def80e906be8efc4edc1a83380a37f",
+      "bytes": 1672995,
+      "mime": "image/png",
+      "usages": [
+        "baseColor"
+      ],
+      "vehicle_count": 2,
+      "vehicles": [
+        "model:US_MH60M_SOAR",
+        "model:US_UH60M"
+      ]
+    }
+  }
+}

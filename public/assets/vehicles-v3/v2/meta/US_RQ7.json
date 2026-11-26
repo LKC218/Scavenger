@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "id": "model:US_RQ7",
+  "slug": "US_RQ7",
+  "name": "RQ-7 Shadow",
+  "category": "air",
+  "role": "uav",
+  "size_tier": "small",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "01035fb68f928b17fbfdfd3de0b950f13a8a9bf958d6a4e89efbeea15deaec32",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.32,
+  "baseline_256_bytes": 233948,
+  "baseline_256_tris": 7601,
+  "original_tris": 7901,
+  "bounds": {
+    "min": [
+      -2.0723,
+      0.0041,
+      -0.9857
+    ],
+    "max": [
+      2.0723,
+      0.9451,
+      2.4146
+    ],
+    "size": [
+      4.1446,
+      0.941,
+      3.4003
+    ],
+    "center": [
+      0,
+      0.4746,
+      0.7145
+    ],
+    "radius": 2.7215
+  },
+  "labelBounds": {
+    "min": [
+      -2.0723,
+      0.0041,
+      -0.9857
+    ],
+    "max": [
+      2.0723,
+      0.9451,
+      2.4146
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": []
+  },
+  "avgLinearColor": [
+    0.1744,
+    0.1935,
+    0.2018
+  ],
+  "opaqueMaterialsCount": 1,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 7901,
+      "tris_lod1": 720,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RQ7/lod0.glb",
+      "bytes": 120876,
+      "sha256": "01487c8ac52f0a997941dcf00897420ce5aa1c203a71b824fb8aaab74785063f",
+      "triangles": 7901,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_1fe8d31c1bc06d_b",
+          "uri": "tex/tex_1fe8d31c1bc06d_b.ktx2",
+          "bytes": 69680,
+          "sha256": "1fe8d31c1bc06d798689354830bcce53cef92ec696967c62e40be92c16d89eb4",
+          "linear": false
+        },
+        {
+          "key": "tex_b9e61cbb2feb74_n",
+          "uri": "tex/tex_b9e61cbb2feb74_n.ktx2",
+          "bytes": 72558,
+          "sha256": "b9e61cbb2feb74e864670551113aab3944a20e4a78f201d50f1da8dfdee94648",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RQ7/lod1.glb",
+      "bytes": 15116,
+      "sha256": "e0f234202e6c1f4124037b86a701997ac303b4dde855ce23a0b3f90c6454baa2",
+      "triangles": 720,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_1fe8d31c1bc06d_b",
+          "uri": "tex/tex_1fe8d31c1bc06d_b.ktx2",
+          "bytes": 69680,
+          "sha256": "1fe8d31c1bc06d798689354830bcce53cef92ec696967c62e40be92c16d89eb4",
+          "linear": false
+        },
+        {
+          "key": "tex_b9e61cbb2feb74_n",
+          "uri": "tex/tex_b9e61cbb2feb74_n.ktx2",
+          "bytes": 72558,
+          "sha256": "b9e61cbb2feb74e864670551113aab3944a20e4a78f201d50f1da8dfdee94648",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RQ7/lod2.glb",
+      "bytes": 11720,
+      "sha256": "039c65c8d01bfd0c89be2ea50e5c507b8e7522c851de927d106d9716ef797124",
+      "triangles": 720,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_1fe8d31c1bc06d_b",
+      "uri": "tex/tex_1fe8d31c1bc06d_b.ktx2",
+      "bytes": 69680,
+      "sha256": "1fe8d31c1bc06d798689354830bcce53cef92ec696967c62e40be92c16d89eb4",
+      "linear": false
+    },
+    {
+      "key": "tex_b9e61cbb2feb74_n",
+      "uri": "tex/tex_b9e61cbb2feb74_n.ktx2",
+      "bytes": 72558,
+      "sha256": "b9e61cbb2feb74e864670551113aab3944a20e4a78f201d50f1da8dfdee94648",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 263114,
+    "lod0_lod1_plus_own_tex_bytes": 278230,
+    "lod0_plus_all_tex_bytes": 263114,
+    "shared_tex_bytes": 0,
+    "own_tex_bytes": 142238,
+    "opaque_draw_calls": 1
+  }
+}

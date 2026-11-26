@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "id": "model:US_LAV_AT-M_body",
+  "slug": "US_LAV_AT-M_body",
+  "name": "US_LAV_AT-M_body",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "small",
+  "quality_status": "partial",
+  "is_partial": true,
+  "source_sha256": "b63dbe888e6064d6adf14c2018dc590488da974f5aecb8255c13c0b05d820aa8",
+  "used_golden_assembly": false,
+  "retry_level": 2,
+  "elapsed_sec": 0.7,
+  "baseline_256_bytes": 405104,
+  "baseline_256_tris": 13133,
+  "original_tris": 16057,
+  "bounds": {
+    "min": [
+      -1.5578,
+      0.0077,
+      -3.449
+    ],
+    "max": [
+      1.2244,
+      2.0329,
+      2.921
+    ],
+    "size": [
+      2.7822,
+      2.0252,
+      6.37
+    ],
+    "center": [
+      -0.1667,
+      1.0203,
+      -0.264
+    ],
+    "radius": 3.62
+  },
+  "labelBounds": {
+    "min": [
+      -1.5578,
+      0.0077,
+      -3.449
+    ],
+    "max": [
+      1.2244,
+      2.0329,
+      2.921
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.113,
+      0.008,
+      -2.43
+    ],
+    [
+      0.779,
+      0.008,
+      -2.43
+    ],
+    [
+      -1.113,
+      0.008,
+      1.902
+    ],
+    [
+      0.779,
+      0.008,
+      1.902
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          1.033,
+          1.7438,
+          0.5023
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0689,
+    0.0623,
+    0.0431
+  ],
+  "opaqueMaterialsCount": 1,
+  "hasGlassMaterial": false,
+  "hasNormalMap": false,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 16057,
+      "tris_lod1": 2400,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LAV_AT-M_body/lod0.glb",
+      "bytes": 240504,
+      "sha256": "b54ae57b3a6dbcfc379a543ff44bc85161755dcd8f43704183488ea47bfccc56",
+      "triangles": 16057,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_02f954e538870d_b",
+          "uri": "tex/tex_02f954e538870d_b.ktx2",
+          "bytes": 48051,
+          "sha256": "02f954e538870d01805647c4b48e119068ada1a4acc8839b28437de16c3d0217",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LAV_AT-M_body/lod1.glb",
+      "bytes": 41888,
+      "sha256": "684645c14cc5ce71162ea6a96b8e467f3949d4cdc89a12063eeddbcd2d5740c0",
+      "triangles": 2400,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_02f954e538870d_b",
+          "uri": "tex/tex_02f954e538870d_b.ktx2",
+          "bytes": 48051,
+          "sha256": "02f954e538870d01805647c4b48e119068ada1a4acc8839b28437de16c3d0217",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LAV_AT-M_body/lod2.glb",
+      "bytes": 12168,
+      "sha256": "0b5eca73d9d54e5bcc2ff928b8614c02db2ad74625d4ac439eb70bbfb342132b",
+      "triangles": 972,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_02f954e538870d_b",
+      "uri": "tex/tex_02f954e538870d_b.ktx2",
+      "bytes": 48051,
+      "sha256": "02f954e538870d01805647c4b48e119068ada1a4acc8839b28437de16c3d0217",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 288555,
+    "lod0_lod1_plus_own_tex_bytes": 330443,
+    "lod0_plus_all_tex_bytes": 288555,
+    "shared_tex_bytes": 0,
+    "own_tex_bytes": 48051,
+    "opaque_draw_calls": 1
+  }
+}

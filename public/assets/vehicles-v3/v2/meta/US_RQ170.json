@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "id": "model:US_RQ170",
+  "slug": "US_RQ170",
+  "name": "RQ-170 Sentinel",
+  "category": "air",
+  "role": "uav",
+  "size_tier": "small",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "7474ba84381c9c9c62da80fe6297d808c40ea6af61a9695f6c66296b99c2a1aa",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.26,
+  "baseline_256_bytes": 92244,
+  "baseline_256_tris": 2162,
+  "original_tris": 3758,
+  "bounds": {
+    "min": [
+      -5.984,
+      0.4456,
+      -2.1216
+    ],
+    "max": [
+      6.006,
+      1.3848,
+      2.3822
+    ],
+    "size": [
+      11.9901,
+      0.9392,
+      4.5038
+    ],
+    "center": [
+      0.011,
+      0.9152,
+      0.1303
+    ],
+    "radius": 6.4212
+  },
+  "labelBounds": {
+    "min": [
+      -5.984,
+      0.4456,
+      -2.1216
+    ],
+    "max": [
+      6.006,
+      1.3848,
+      2.3822
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": []
+  },
+  "avgLinearColor": [
+    0.1016,
+    0.1247,
+    0.1371
+  ],
+  "opaqueMaterialsCount": 1,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 3758,
+      "tris_lod1": 2377,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RQ170/lod0.glb",
+      "bytes": 46648,
+      "sha256": "5278a1ec20e976695974a149434a5ce5a2af6ad6234e225cdb195a3bf5802728",
+      "triangles": 3758,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_32a9fafd26086d_b",
+          "uri": "tex/tex_32a9fafd26086d_b.ktx2",
+          "bytes": 55966,
+          "sha256": "32a9fafd26086d7d44d911d9fead62a134f57c77f9611969221eaf4fdc61ca7d",
+          "linear": false
+        },
+        {
+          "key": "tex_7999b822773dc5_n",
+          "uri": "tex/tex_7999b822773dc5_n.ktx2",
+          "bytes": 67477,
+          "sha256": "7999b822773dc5b40eb82f11fb1a956e96589cc60a22ebe836b0795737aa23c6",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RQ170/lod1.glb",
+      "bytes": 26076,
+      "sha256": "7d3ad898af66279269928ab2e23c18b13c93b63952f919df039ecaf65a642b50",
+      "triangles": 2377,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_32a9fafd26086d_b",
+          "uri": "tex/tex_32a9fafd26086d_b.ktx2",
+          "bytes": 55966,
+          "sha256": "32a9fafd26086d7d44d911d9fead62a134f57c77f9611969221eaf4fdc61ca7d",
+          "linear": false
+        },
+        {
+          "key": "tex_7999b822773dc5_n",
+          "uri": "tex/tex_7999b822773dc5_n.ktx2",
+          "bytes": 67477,
+          "sha256": "7999b822773dc5b40eb82f11fb1a956e96589cc60a22ebe836b0795737aa23c6",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RQ170/lod2.glb",
+      "bytes": 12532,
+      "sha256": "70d316538d202299cf24f8d246a1f47053dc3df01a224abfd2446ed122497f75",
+      "triangles": 1346,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_32a9fafd26086d_b",
+      "uri": "tex/tex_32a9fafd26086d_b.ktx2",
+      "bytes": 55966,
+      "sha256": "32a9fafd26086d7d44d911d9fead62a134f57c77f9611969221eaf4fdc61ca7d",
+      "linear": false
+    },
+    {
+      "key": "tex_7999b822773dc5_n",
+      "uri": "tex/tex_7999b822773dc5_n.ktx2",
+      "bytes": 67477,
+      "sha256": "7999b822773dc5b40eb82f11fb1a956e96589cc60a22ebe836b0795737aa23c6",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 170091,
+    "lod0_lod1_plus_own_tex_bytes": 196167,
+    "lod0_plus_all_tex_bytes": 170091,
+    "shared_tex_bytes": 0,
+    "own_tex_bytes": 123443,
+    "opaque_draw_calls": 1
+  }
+}

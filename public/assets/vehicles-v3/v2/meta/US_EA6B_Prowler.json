@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "id": "model:US_EA6B_Prowler",
+  "slug": "US_EA6B_Prowler",
+  "name": "EA-6B Prowler",
+  "category": "air",
+  "role": "fixed_wing",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "963ae70bcaaec1460958dc7b168c8b27c2df7d81f14196f75e4fa82933f14a8d",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.94,
+  "baseline_256_bytes": 1571196,
+  "baseline_256_tris": 58824,
+  "original_tris": 94488,
+  "bounds": {
+    "min": [
+      -7.9894,
+      0.7974,
+      -8.2541
+    ],
+    "max": [
+      7.9905,
+      5.9856,
+      10.0779
+    ],
+    "size": [
+      15.9799,
+      5.1881,
+      18.332
+    ],
+    "center": [
+      0.0006,
+      3.3915,
+      0.9119
+    ],
+    "radius": 12.4332
+  },
+  "labelBounds": {
+    "min": [
+      -7.9894,
+      0.7974,
+      -8.2541
+    ],
+    "max": [
+      7.9905,
+      5.9856,
+      10.0779
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -0.893,
+          2.3172,
+          1.4891
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          0.891,
+          2.3272,
+          1.4991
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1582,
+    0.1284,
+    0.1134
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 14827,
+      "tris_lod1": 4174,
+      "drawCalls": 4
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_EA6B_Prowler/lod0.glb",
+      "bytes": 225660,
+      "sha256": "18d578da1b43b72286d7303084c8822518e903c17272b127e7d7470fc07792a7",
+      "triangles": 14827,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_b1437e539e8324_b",
+          "uri": "tex/tex_b1437e539e8324_b.ktx2",
+          "bytes": 174652,
+          "sha256": "b1437e539e83245d24a4c8055ae8e9e39ed880e26af846e5b6753f1e277c0a45",
+          "linear": false
+        },
+        {
+          "key": "tex_22507a9a94a9d8_n",
+          "uri": "tex/tex_22507a9a94a9d8_n.ktx2",
+          "bytes": 63221,
+          "sha256": "22507a9a94a9d8994237fdde5b0f21e8d092e98adbfb0799ea24644eacdba761",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_7294f4ed89062b93_b",
+          "uri": "tex/shared_7294f4ed89062b93_b.ktx2",
+          "bytes": 37911,
+          "sha256": "68243eec3d8b5c587cf5a550cbc7a211588d85ba1eccd20e70abcc8c92ec55aa",
+          "linear": false
+        },
+        {
+          "key": "shared_935000c1fba0677b_n",
+          "uri": "tex/shared_935000c1fba0677b_n.ktx2",
+          "bytes": 13079,
+          "sha256": "fefd6bf38f3ebcd085f89d6d5277e46bfbc1e49b2c5843912b785fc39e911a6c",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_EA6B_Prowler/lod1.glb",
+      "bytes": 83668,
+      "sha256": "b7f78f8636e41a0752150901d11edb52f916d836045d5f5f84ac64afc67d0945",
+      "triangles": 4174,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_b1437e539e8324_b",
+          "uri": "tex/tex_b1437e539e8324_b.ktx2",
+          "bytes": 174652,
+          "sha256": "b1437e539e83245d24a4c8055ae8e9e39ed880e26af846e5b6753f1e277c0a45",
+          "linear": false
+        },
+        {
+          "key": "tex_22507a9a94a9d8_n",
+          "uri": "tex/tex_22507a9a94a9d8_n.ktx2",
+          "bytes": 63221,
+          "sha256": "22507a9a94a9d8994237fdde5b0f21e8d092e98adbfb0799ea24644eacdba761",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_7294f4ed89062b93_b",
+          "uri": "tex/shared_7294f4ed89062b93_b.ktx2",
+          "bytes": 37911,
+          "sha256": "68243eec3d8b5c587cf5a550cbc7a211588d85ba1eccd20e70abcc8c92ec55aa",
+          "linear": false
+        },
+        {
+          "key": "shared_935000c1fba0677b_n",
+          "uri": "tex/shared_935000c1fba0677b_n.ktx2",
+          "bytes": 13079,
+          "sha256": "fefd6bf38f3ebcd085f89d6d5277e46bfbc1e49b2c5843912b785fc39e911a6c",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_EA6B_Prowler/lod2.glb",
+      "bytes": 16504,
+      "sha256": "86718a19895eff9dd9c4ee5783bac67eead6de0cc951a9802b8ab9486a23e65a",
+      "triangles": 1326,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_b1437e539e8324_b",
+      "uri": "tex/tex_b1437e539e8324_b.ktx2",
+      "bytes": 174652,
+      "sha256": "b1437e539e83245d24a4c8055ae8e9e39ed880e26af846e5b6753f1e277c0a45",
+      "linear": false
+    },
+    {
+      "key": "tex_22507a9a94a9d8_n",
+      "uri": "tex/tex_22507a9a94a9d8_n.ktx2",
+      "bytes": 63221,
+      "sha256": "22507a9a94a9d8994237fdde5b0f21e8d092e98adbfb0799ea24644eacdba761",
+      "linear": true
+    },
+    {
+      "key": "shared_bcb3b634b14a77aa_b",
+      "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+      "bytes": 73563,
+      "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+      "linear": false
+    },
+    {
+      "key": "shared_7b08e70e297c1754_n",
+      "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+      "bytes": 83733,
+      "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+      "linear": true
+    },
+    {
+      "key": "shared_7294f4ed89062b93_b",
+      "uri": "tex/shared_7294f4ed89062b93_b.ktx2",
+      "bytes": 37911,
+      "sha256": "68243eec3d8b5c587cf5a550cbc7a211588d85ba1eccd20e70abcc8c92ec55aa",
+      "linear": false
+    },
+    {
+      "key": "shared_935000c1fba0677b_n",
+      "uri": "tex/shared_935000c1fba0677b_n.ktx2",
+      "bytes": 13079,
+      "sha256": "fefd6bf38f3ebcd085f89d6d5277e46bfbc1e49b2c5843912b785fc39e911a6c",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 463533,
+    "lod0_lod1_plus_own_tex_bytes": 547201,
+    "lod0_plus_all_tex_bytes": 671819,
+    "shared_tex_bytes": 208286,
+    "own_tex_bytes": 237873,
+    "opaque_draw_calls": 3
+  }
+}

@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "model:US_LAV_L",
+  "slug": "US_LAV_L",
+  "name": "LAV-L",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "8279de6ec9cfcee7de40449302e02b9a1cc7693e607406f2bd47dcf5e62a5436",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.54,
+  "baseline_256_bytes": 810444,
+  "baseline_256_tris": 27099,
+  "original_tris": 33823,
+  "bounds": {
+    "min": [
+      -1.3072,
+      0.0087,
+      -3.1924
+    ],
+    "max": [
+      1.2598,
+      3.6378,
+      3.3784
+    ],
+    "size": [
+      2.567,
+      3.6291,
+      6.5708
+    ],
+    "center": [
+      -0.0237,
+      1.8232,
+      0.093
+    ],
+    "radius": 3.9666
+  },
+  "labelBounds": {
+    "min": [
+      -1.3072,
+      0.0087,
+      -3.1924
+    ],
+    "max": [
+      1.2598,
+      3.6378,
+      3.3784
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -0.896,
+      0.009,
+      -2.141
+    ],
+    [
+      0.849,
+      0.009,
+      -2.141
+    ],
+    [
+      -0.896,
+      0.009,
+      2.327
+    ],
+    [
+      0.849,
+      0.009,
+      2.327
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          1.1748,
+          1.4574,
+          1.1977
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0447,
+    0.0422,
+    0.0387
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 13802,
+      "tris_lod1": 3108,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LAV_L/lod0.glb",
+      "bytes": 269584,
+      "sha256": "a0d2420f3d808c703a6c0f3743e34297342223b17b1fa5b7a2522e25a4ec787d",
+      "triangles": 13802,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_c4f2a3c3117953d8_b",
+          "uri": "tex/shared_c4f2a3c3117953d8_b.ktx2",
+          "bytes": 70167,
+          "sha256": "cc26f1ec3b705b9aae7da5d4d193fe4a6e10867d5ace6f2d4829f010bff43d92",
+          "linear": false
+        },
+        {
+          "key": "shared_9edf435bc4e2c577_n",
+          "uri": "tex/shared_9edf435bc4e2c577_n.ktx2",
+          "bytes": 82062,
+          "sha256": "ac19bae268e4010d23453f306ca0fbd28b9fee2b022c347e156b09b9c15a9ec7",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LAV_L/lod1.glb",
+      "bytes": 56236,
+      "sha256": "2469e067dd87f3e82dd69f39bc274bd551b25ad7bd659c70c6ab069d066a8014",
+      "triangles": 3108,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_c4f2a3c3117953d8_b",
+          "uri": "tex/shared_c4f2a3c3117953d8_b.ktx2",
+          "bytes": 70167,
+          "sha256": "cc26f1ec3b705b9aae7da5d4d193fe4a6e10867d5ace6f2d4829f010bff43d92",
+          "linear": false
+        },
+        {
+          "key": "shared_9edf435bc4e2c577_n",
+          "uri": "tex/shared_9edf435bc4e2c577_n.ktx2",
+          "bytes": 82062,
+          "sha256": "ac19bae268e4010d23453f306ca0fbd28b9fee2b022c347e156b09b9c15a9ec7",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LAV_L/lod2.glb",
+      "bytes": 11572,
+      "sha256": "97d93ac55bb0eb5137ff5b22a2b349e56cb22124435ec3f85af80a5061a3cfc9",
+      "triangles": 957,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "shared_c4f2a3c3117953d8_b",
+      "uri": "tex/shared_c4f2a3c3117953d8_b.ktx2",
+      "bytes": 70167,
+      "sha256": "cc26f1ec3b705b9aae7da5d4d193fe4a6e10867d5ace6f2d4829f010bff43d92",
+      "linear": false
+    },
+    {
+      "key": "shared_9edf435bc4e2c577_n",
+      "uri": "tex/shared_9edf435bc4e2c577_n.ktx2",
+      "bytes": 82062,
+      "sha256": "ac19bae268e4010d23453f306ca0fbd28b9fee2b022c347e156b09b9c15a9ec7",
+      "linear": true
+    },
+    {
+      "key": "shared_9f402618efd99b98_b",
+      "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+      "bytes": 67037,
+      "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+      "linear": false
+    },
+    {
+      "key": "shared_b5836749932430e5_n",
+      "uri": "tex/shared_b5836749932430e5_n.ktx2",
+      "bytes": 75298,
+      "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 269584,
+    "lod0_lod1_plus_own_tex_bytes": 325820,
+    "lod0_plus_all_tex_bytes": 564148,
+    "shared_tex_bytes": 294564,
+    "own_tex_bytes": 0,
+    "opaque_draw_calls": 2
+  }
+}

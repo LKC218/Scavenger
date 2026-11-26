@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "id": "model:US_LMTV_Warpig",
+  "slug": "US_LMTV_Warpig",
+  "name": "LMTV War Pig",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "01398e7dc555d8c209452d6079ef5da8f6f54a7580ecac13c6a32726bd6a874e",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.88,
+  "baseline_256_bytes": 2828780,
+  "baseline_256_tris": 115116,
+  "original_tris": 183166,
+  "bounds": {
+    "min": [
+      -1.6304,
+      0.0015,
+      -3.7483
+    ],
+    "max": [
+      1.693,
+      4.4967,
+      4.9766
+    ],
+    "size": [
+      3.3234,
+      4.4952,
+      8.7248
+    ],
+    "center": [
+      0.0313,
+      2.2491,
+      0.6141
+    ],
+    "radius": 5.1811
+  },
+  "labelBounds": {
+    "min": [
+      -1.6304,
+      0.0015,
+      -3.7483
+    ],
+    "max": [
+      1.693,
+      4.4967,
+      4.9766
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.099,
+      0.001,
+      -2.352
+    ],
+    [
+      1.161,
+      0.001,
+      -2.352
+    ],
+    [
+      -1.099,
+      0.001,
+      3.581
+    ],
+    [
+      1.161,
+      0.001,
+      3.581
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [
+      {
+        "name": "estimated_muzzle",
+        "pos": [
+          0.248,
+          2.693,
+          -3.748
+        ],
+        "estimated": true
+      }
+    ],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          -1.193,
+          0.7523,
+          0.826
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1199,
+    0.0996,
+    0.0776
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 18640,
+      "tris_lod1": 6620,
+      "drawCalls": 2
+    },
+    {
+      "slot": "turret",
+      "pivot": [
+        0,
+        2.6918,
+        1.2002
+      ],
+      "axis": "y",
+      "tris_lod0": 3595,
+      "tris_lod1": 268,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LMTV_Warpig/lod0.glb",
+      "bytes": 375948,
+      "sha256": "40a5140ef04ad21367c9e86c248753892f1badba989a279278aefc20ce180648",
+      "triangles": 22235,
+      "drawCalls": 5,
+      "nodes": 2,
+      "textures": [
+        {
+          "key": "tex_1e8113138cd472_b",
+          "uri": "tex/tex_1e8113138cd472_b.ktx2",
+          "bytes": 199413,
+          "sha256": "1e8113138cd4721ea17f64785e43434a0470fd3e53922b2ac525fcd6e4816bf1",
+          "linear": false
+        },
+        {
+          "key": "tex_2037a0d67400d9_n",
+          "uri": "tex/tex_2037a0d67400d9_n.ktx2",
+          "bytes": 75778,
+          "sha256": "2037a0d67400d980f5866a0b86d05c1742f691de038a8e2ef45d369e27c305fc",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        },
+        {
+          "key": "shared_19e4aa69084fa928_b",
+          "uri": "tex/shared_19e4aa69084fa928_b.ktx2",
+          "bytes": 82664,
+          "sha256": "a94590922fe77548cb3e245c37e327fb6faeac37e49df55e06e22abd3dee92be",
+          "linear": false
+        },
+        {
+          "key": "shared_4b95a9f5edd01192_n",
+          "uri": "tex/shared_4b95a9f5edd01192_n.ktx2",
+          "bytes": 85703,
+          "sha256": "c83f630b4c0eb4bfbc6acb097579084861d80679e186a0ed33c4770780fbc9c5",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LMTV_Warpig/lod1.glb",
+      "bytes": 125180,
+      "sha256": "21af6f210ee556fca40c2ac2e7740200bd59acdce68114bdf2fc3d12f6dfd28a",
+      "triangles": 6888,
+      "drawCalls": 5,
+      "nodes": 2,
+      "textures": [
+        {
+          "key": "tex_1e8113138cd472_b",
+          "uri": "tex/tex_1e8113138cd472_b.ktx2",
+          "bytes": 199413,
+          "sha256": "1e8113138cd4721ea17f64785e43434a0470fd3e53922b2ac525fcd6e4816bf1",
+          "linear": false
+        },
+        {
+          "key": "tex_2037a0d67400d9_n",
+          "uri": "tex/tex_2037a0d67400d9_n.ktx2",
+          "bytes": 75778,
+          "sha256": "2037a0d67400d980f5866a0b86d05c1742f691de038a8e2ef45d369e27c305fc",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        },
+        {
+          "key": "shared_19e4aa69084fa928_b",
+          "uri": "tex/shared_19e4aa69084fa928_b.ktx2",
+          "bytes": 82664,
+          "sha256": "a94590922fe77548cb3e245c37e327fb6faeac37e49df55e06e22abd3dee92be",
+          "linear": false
+        },
+        {
+          "key": "shared_4b95a9f5edd01192_n",
+          "uri": "tex/shared_4b95a9f5edd01192_n.ktx2",
+          "bytes": 85703,
+          "sha256": "c83f630b4c0eb4bfbc6acb097579084861d80679e186a0ed33c4770780fbc9c5",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LMTV_Warpig/lod2.glb",
+      "bytes": 12392,
+      "sha256": "dfde098005f3d6a86d3a635eb65b652f7b62dc0b4b9703ea68bb1d8192a4deec",
+      "triangles": 955,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_1e8113138cd472_b",
+      "uri": "tex/tex_1e8113138cd472_b.ktx2",
+      "bytes": 199413,
+      "sha256": "1e8113138cd4721ea17f64785e43434a0470fd3e53922b2ac525fcd6e4816bf1",
+      "linear": false
+    },
+    {
+      "key": "tex_2037a0d67400d9_n",
+      "uri": "tex/tex_2037a0d67400d9_n.ktx2",
+      "bytes": 75778,
+      "sha256": "2037a0d67400d980f5866a0b86d05c1742f691de038a8e2ef45d369e27c305fc",
+      "linear": true
+    },
+    {
+      "key": "shared_9f402618efd99b98_b",
+      "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+      "bytes": 67037,
+      "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+      "linear": false
+    },
+    {
+      "key": "shared_b5836749932430e5_n",
+      "uri": "tex/shared_b5836749932430e5_n.ktx2",
+      "bytes": 75298,
+      "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+      "linear": true
+    },
+    {
+      "key": "shared_19e4aa69084fa928_b",
+      "uri": "tex/shared_19e4aa69084fa928_b.ktx2",
+      "bytes": 82664,
+      "sha256": "a94590922fe77548cb3e245c37e327fb6faeac37e49df55e06e22abd3dee92be",
+      "linear": false
+    },
+    {
+      "key": "shared_4b95a9f5edd01192_n",
+      "uri": "tex/shared_4b95a9f5edd01192_n.ktx2",
+      "bytes": 85703,
+      "sha256": "c83f630b4c0eb4bfbc6acb097579084861d80679e186a0ed33c4770780fbc9c5",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 651139,
+    "lod0_lod1_plus_own_tex_bytes": 776319,
+    "lod0_plus_all_tex_bytes": 961841,
+    "shared_tex_bytes": 310702,
+    "own_tex_bytes": 275191,
+    "opaque_draw_calls": 5
+  }
+}

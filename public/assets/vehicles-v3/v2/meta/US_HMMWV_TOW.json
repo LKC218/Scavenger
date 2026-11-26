@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "id": "model:US_HMMWV_TOW",
+  "slug": "US_HMMWV_TOW",
+  "name": "Humvee TOW-2",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "d87112bbae623c9296df222ba9d2e7901ceb5d56f622df8b0dc7db6669704b19",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 1.08,
+  "baseline_256_bytes": 1424676,
+  "baseline_256_tris": 57116,
+  "original_tris": 77964,
+  "bounds": {
+    "min": [
+      -1.3962,
+      -0.0066,
+      -2.5097
+    ],
+    "max": [
+      1.398,
+      4.0195,
+      2.7341
+    ],
+    "size": [
+      2.7942,
+      4.026,
+      5.2439
+    ],
+    "center": [
+      0.0009,
+      2.0065,
+      0.1122
+    ],
+    "radius": 3.5887
+  },
+  "labelBounds": {
+    "min": [
+      -1.3962,
+      -0.0066,
+      -2.5097
+    ],
+    "max": [
+      1.398,
+      4.0195,
+      2.7341
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -0.949,
+      -0.007,
+      -1.671
+    ],
+    [
+      0.951,
+      -0.007,
+      -1.671
+    ],
+    [
+      -0.949,
+      -0.007,
+      1.895
+    ],
+    [
+      0.951,
+      -0.007,
+      1.895
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": []
+  },
+  "avgLinearColor": [
+    0.1453,
+    0.1303,
+    0.1081
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 24038,
+      "tris_lod1": 6150,
+      "drawCalls": 4
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HMMWV_TOW/lod0.glb",
+      "bytes": 404532,
+      "sha256": "1821ce784e08559e7366f7c60c19ca5f70ec5b18bf64755cb7274e3345f8f7df",
+      "triangles": 24038,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_a7daf1414e88c0_b",
+          "uri": "tex/tex_a7daf1414e88c0_b.ktx2",
+          "bytes": 247699,
+          "sha256": "a7daf1414e88c03154f68554ab40e059b02664eeb48813dd330cbb17f79b8c4c",
+          "linear": false
+        },
+        {
+          "key": "tex_54f6f5806ce873_n",
+          "uri": "tex/tex_54f6f5806ce873_n.ktx2",
+          "bytes": 78724,
+          "sha256": "54f6f5806ce8735e08785b44a6b30c0b8830a48d00c218a86da023ec2549f18c",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        },
+        {
+          "key": "tex_50ee0a152c2842_b",
+          "uri": "tex/tex_50ee0a152c2842_b.ktx2",
+          "bytes": 31919,
+          "sha256": "50ee0a152c28428cd7c643c34f97f20ecd85b2205380544726985cfede5c978d",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HMMWV_TOW/lod1.glb",
+      "bytes": 108368,
+      "sha256": "c312fc272b65a1c458b6f00c74b65ab767f4560244a243a8119eebf20ce7be5e",
+      "triangles": 6150,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_a7daf1414e88c0_b",
+          "uri": "tex/tex_a7daf1414e88c0_b.ktx2",
+          "bytes": 247699,
+          "sha256": "a7daf1414e88c03154f68554ab40e059b02664eeb48813dd330cbb17f79b8c4c",
+          "linear": false
+        },
+        {
+          "key": "tex_54f6f5806ce873_n",
+          "uri": "tex/tex_54f6f5806ce873_n.ktx2",
+          "bytes": 78724,
+          "sha256": "54f6f5806ce8735e08785b44a6b30c0b8830a48d00c218a86da023ec2549f18c",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        },
+        {
+          "key": "tex_50ee0a152c2842_b",
+          "uri": "tex/tex_50ee0a152c2842_b.ktx2",
+          "bytes": 31919,
+          "sha256": "50ee0a152c28428cd7c643c34f97f20ecd85b2205380544726985cfede5c978d",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HMMWV_TOW/lod2.glb",
+      "bytes": 12020,
+      "sha256": "0b5789914564bc34bd6b207f14d712ee4dd8fb06907d0803a41c748d073d5735",
+      "triangles": 1035,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_a7daf1414e88c0_b",
+      "uri": "tex/tex_a7daf1414e88c0_b.ktx2",
+      "bytes": 247699,
+      "sha256": "a7daf1414e88c03154f68554ab40e059b02664eeb48813dd330cbb17f79b8c4c",
+      "linear": false
+    },
+    {
+      "key": "tex_54f6f5806ce873_n",
+      "uri": "tex/tex_54f6f5806ce873_n.ktx2",
+      "bytes": 78724,
+      "sha256": "54f6f5806ce8735e08785b44a6b30c0b8830a48d00c218a86da023ec2549f18c",
+      "linear": true
+    },
+    {
+      "key": "shared_f0f32258dd589cc4_b",
+      "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+      "bytes": 80989,
+      "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+      "linear": false
+    },
+    {
+      "key": "shared_616b9fa4a46d547a_n",
+      "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+      "bytes": 83988,
+      "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+      "linear": true
+    },
+    {
+      "key": "shared_9f402618efd99b98_b",
+      "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+      "bytes": 67037,
+      "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+      "linear": false
+    },
+    {
+      "key": "shared_b5836749932430e5_n",
+      "uri": "tex/shared_b5836749932430e5_n.ktx2",
+      "bytes": 75298,
+      "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+      "linear": true
+    },
+    {
+      "key": "tex_50ee0a152c2842_b",
+      "uri": "tex/tex_50ee0a152c2842_b.ktx2",
+      "bytes": 31919,
+      "sha256": "50ee0a152c28428cd7c643c34f97f20ecd85b2205380544726985cfede5c978d",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 762874,
+    "lod0_lod1_plus_own_tex_bytes": 871242,
+    "lod0_plus_all_tex_bytes": 1070186,
+    "shared_tex_bytes": 307312,
+    "own_tex_bytes": 358342,
+    "opaque_draw_calls": 3
+  }
+}

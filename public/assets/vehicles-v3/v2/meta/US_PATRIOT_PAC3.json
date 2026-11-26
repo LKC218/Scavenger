@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "id": "model:US_PATRIOT_PAC3",
+  "slug": "US_PATRIOT_PAC3",
+  "name": "Patriot PAC-3",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "d3ea5de93a5fa54e7b273ba83f49e0a5cbe7bd14734b878c1a6cb5e300f182f4",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 1.1,
+  "baseline_256_bytes": 1542048,
+  "baseline_256_tris": 60631,
+  "original_tris": 86565,
+  "bounds": {
+    "min": [
+      -3.1042,
+      0.0009,
+      -8.1375
+    ],
+    "max": [
+      3.0991,
+      8.9911,
+      7.9549
+    ],
+    "size": [
+      6.2033,
+      8.9902,
+      16.0924
+    ],
+    "center": [
+      -0.0026,
+      4.496,
+      -0.0913
+    ],
+    "radius": 9.7246
+  },
+  "labelBounds": {
+    "min": [
+      -3.1042,
+      0.0009,
+      -8.1375
+    ],
+    "max": [
+      3.0991,
+      8.9911,
+      7.9549
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -2.112,
+      0.001,
+      -5.563
+    ],
+    [
+      2.107,
+      0.001,
+      -5.563
+    ],
+    [
+      -2.112,
+      0.001,
+      5.38
+    ],
+    [
+      2.107,
+      0.001,
+      5.38
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          -0.846,
+          3.2614,
+          -4.7052
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1367,
+    0.124,
+    0.1061
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 23682,
+      "tris_lod1": 10010,
+      "drawCalls": 4
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_PATRIOT_PAC3/lod0.glb",
+      "bytes": 415136,
+      "sha256": "ba6580826c8e8eccc27ad966278fda686eaf5aaf317cfa3ab83c1fe3764b139a",
+      "triangles": 23682,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_17e4ba06a7082209_b",
+          "uri": "tex/shared_17e4ba06a7082209_b.ktx2",
+          "bytes": 79897,
+          "sha256": "237feea071ac91ba5c61326bbad56602c41f682aedbf6ddb2a6eea2f92398e8e",
+          "linear": false
+        },
+        {
+          "key": "shared_566068e969cfabf6_n",
+          "uri": "tex/shared_566068e969cfabf6_n.ktx2",
+          "bytes": 74201,
+          "sha256": "568623e868fc5311a7db41aab10e9694e9740576b8dfc41ab703157fb785dd89",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "shared_b21fe70dcd7ba3ce_b",
+          "uri": "tex/shared_b21fe70dcd7ba3ce_b.ktx2",
+          "bytes": 69045,
+          "sha256": "3de7eee30c53db165f924d5299869018f04e4168a00b7a488a85a1a76e215391",
+          "linear": false
+        },
+        {
+          "key": "shared_b27a08c10e3875c7_n",
+          "uri": "tex/shared_b27a08c10e3875c7_n.ktx2",
+          "bytes": 79685,
+          "sha256": "ab1b4f0f11d31fb4c9583619323aa78b53325b512011b7c41ef21f82d4e54805",
+          "linear": true
+        },
+        {
+          "key": "shared_17e4ba06a7082209_g",
+          "uri": "tex/shared_17e4ba06a7082209_g.ktx2",
+          "bytes": 30857,
+          "sha256": "b5b2c20e1d541180761ca46d14f781b9ebdb361075236f8a8e69a2217a5bd17c",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_PATRIOT_PAC3/lod1.glb",
+      "bytes": 172424,
+      "sha256": "dc5f0cb27b246aa20d94c0242e867a5b92ad156c7520de56b31de53cc55c45fa",
+      "triangles": 10010,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_17e4ba06a7082209_b",
+          "uri": "tex/shared_17e4ba06a7082209_b.ktx2",
+          "bytes": 79897,
+          "sha256": "237feea071ac91ba5c61326bbad56602c41f682aedbf6ddb2a6eea2f92398e8e",
+          "linear": false
+        },
+        {
+          "key": "shared_566068e969cfabf6_n",
+          "uri": "tex/shared_566068e969cfabf6_n.ktx2",
+          "bytes": 74201,
+          "sha256": "568623e868fc5311a7db41aab10e9694e9740576b8dfc41ab703157fb785dd89",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "shared_b21fe70dcd7ba3ce_b",
+          "uri": "tex/shared_b21fe70dcd7ba3ce_b.ktx2",
+          "bytes": 69045,
+          "sha256": "3de7eee30c53db165f924d5299869018f04e4168a00b7a488a85a1a76e215391",
+          "linear": false
+        },
+        {
+          "key": "shared_b27a08c10e3875c7_n",
+          "uri": "tex/shared_b27a08c10e3875c7_n.ktx2",
+          "bytes": 79685,
+          "sha256": "ab1b4f0f11d31fb4c9583619323aa78b53325b512011b7c41ef21f82d4e54805",
+          "linear": true
+        },
+        {
+          "key": "shared_17e4ba06a7082209_g",
+          "uri": "tex/shared_17e4ba06a7082209_g.ktx2",
+          "bytes": 30857,
+          "sha256": "b5b2c20e1d541180761ca46d14f781b9ebdb361075236f8a8e69a2217a5bd17c",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_PATRIOT_PAC3/lod2.glb",
+      "bytes": 14928,
+      "sha256": "c7bacfbed74d9ff816b8392bd5df5681aa6fd591dadbbf35350875283d4fa144",
+      "triangles": 1312,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "shared_17e4ba06a7082209_b",
+      "uri": "tex/shared_17e4ba06a7082209_b.ktx2",
+      "bytes": 79897,
+      "sha256": "237feea071ac91ba5c61326bbad56602c41f682aedbf6ddb2a6eea2f92398e8e",
+      "linear": false
+    },
+    {
+      "key": "shared_566068e969cfabf6_n",
+      "uri": "tex/shared_566068e969cfabf6_n.ktx2",
+      "bytes": 74201,
+      "sha256": "568623e868fc5311a7db41aab10e9694e9740576b8dfc41ab703157fb785dd89",
+      "linear": true
+    },
+    {
+      "key": "shared_f0f32258dd589cc4_b",
+      "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+      "bytes": 80989,
+      "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+      "linear": false
+    },
+    {
+      "key": "shared_616b9fa4a46d547a_n",
+      "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+      "bytes": 83988,
+      "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+      "linear": true
+    },
+    {
+      "key": "shared_b21fe70dcd7ba3ce_b",
+      "uri": "tex/shared_b21fe70dcd7ba3ce_b.ktx2",
+      "bytes": 69045,
+      "sha256": "3de7eee30c53db165f924d5299869018f04e4168a00b7a488a85a1a76e215391",
+      "linear": false
+    },
+    {
+      "key": "shared_b27a08c10e3875c7_n",
+      "uri": "tex/shared_b27a08c10e3875c7_n.ktx2",
+      "bytes": 79685,
+      "sha256": "ab1b4f0f11d31fb4c9583619323aa78b53325b512011b7c41ef21f82d4e54805",
+      "linear": true
+    },
+    {
+      "key": "shared_17e4ba06a7082209_g",
+      "uri": "tex/shared_17e4ba06a7082209_g.ktx2",
+      "bytes": 30857,
+      "sha256": "b5b2c20e1d541180761ca46d14f781b9ebdb361075236f8a8e69a2217a5bd17c",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 415136,
+    "lod0_lod1_plus_own_tex_bytes": 587560,
+    "lod0_plus_all_tex_bytes": 913798,
+    "shared_tex_bytes": 498662,
+    "own_tex_bytes": 0,
+    "opaque_draw_calls": 3
+  }
+}

@@ -1,0 +1,2554 @@
+{
+  "schema_version": 1,
+  "batch_id": "V001-b4570e71",
+  "created_at": "2026-11-19T11:36:47.419929+00:00",
+  "slot_semantics": {
+    "ground": [
+      "hull",
+      "turret",
+      "barrel",
+      "radar"
+    ],
+    "rotorcraft": [
+      "hull",
+      "main_rotor",
+      "tail_rotor",
+      "gun"
+    ],
+    "fixed_wing": [
+      "hull"
+    ],
+    "uav": [
+      "hull"
+    ]
+  },
+  "visual_thresholds": {
+    "lod0_iou_min": 0.965,
+    "lod1_iou_min": 0.915,
+    "lod2_iou_min": 0.8,
+    "lod0_fg_ssim_min": 0.92,
+    "cross_lod_color_drift_max": 0.05,
+    "black_anomaly_max": 0.005
+  },
+  "vehicles": {
+    "model:US_AAVP7A1": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 33336
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AAVP_Arty": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 37074
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AbramsTUA": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 32718,
+        "turret": 31487
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_ACV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 33880,
+        "turret": 2462
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AMPV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 53371,
+        "turret": 5453
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AMPV_MCV": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 55862,
+        "barrel": 17743,
+        "turret": 18582
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_CRAM": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 57861,
+        "turret": 10374
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_HEMTT": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 64380
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_HIMARS": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 42166
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_HMMWV_Avenger": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 45095,
+        "turret": 17743
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_HMMWV_BASE": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 43207,
+        "barrel": 21732,
+        "turret": 5889
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_HMMWV_gmv": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 41108,
+        "barrel": 21732,
+        "turret": 8724
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_HMMWV_Hawkeye": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 47068,
+        "barrel": 17743
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_HMMWV_LRAS3": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 46289,
+        "barrel": 21732,
+        "turret": 5889
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_HMMWV_TOW": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 50343,
+        "turret": 5889,
+        "barrel": 21732
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_IFAV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 32194,
+        "barrel": 21732,
+        "turret": 2588
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LAV25": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 27711,
+        "turret": 5889
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LAV_AD": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 21532,
+        "turret": 43113
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LAV_AT": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 30444,
+        "turret": 5889,
+        "barrel": 1100
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LAV_AT-M_body": {
+      "role": "ground",
+      "size_tier": "small",
+      "lod0_target_tris": 9500,
+      "lod1_target_tris": 2400,
+      "lod2_target_tris": 260,
+      "atlas_max_size": 512,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 16057
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LAV_L": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 27270,
+        "turret": 6553
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LAV_M": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 48024,
+        "barrel": 17743,
+        "turret": 24018
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LMTV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 37626
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LMTV_Brutus": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 52125,
+        "barrel": 35486
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LMTV_MML": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 96745
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LMTV_SLAMRAAM": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 49640,
+        "turret": 9866
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LMTV_Warpig": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 128972,
+        "turret": 54194
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_LVSR": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 61405
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M10": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 31849,
+        "turret": 11037
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M1064A3": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 45534,
+        "barrel": 17743,
+        "turret": 18639
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M109A6": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 60581,
+        "turret": 2588
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M109a7": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 62306,
+        "turret": 2462
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M1117_M1200": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "barrel": 21732,
+        "turret": 5196,
+        "hull": 38031
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M113A3": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 45135,
+        "turret": 2588
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_m1288_base": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 68573,
+        "turret": 2994
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M1301_ISV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 43364,
+        "barrel": 21486,
+        "turret": 6203
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M163_PIVADS": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 32618,
+        "turret": 17743
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M1_ABV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 48577,
+        "turret": 22475
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M1A1FEP": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 31927,
+        "turret": 24242
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M1A1HC": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 30633,
+        "turret": 22223
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M1A2": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 32297,
+        "turret": 22421
+      },
+      "golden": true,
+      "pivots_override": {
+        "turret": [
+          0.0,
+          1.53,
+          -0.23
+        ],
+        "barrel": [
+          0.0,
+          1.83,
+          -1.5
+        ]
+      },
+      "note": "M1A2 战术演训黄金基准轴心"
+    },
+    "model:US_M1A2C": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 33157,
+        "turret": 23929
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M1A2SEP": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 32849,
+        "turret": 22332
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M1A2SEP2": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 33143,
+        "turret": 25100
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M270_A1": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 107797
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M270_A2": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 106933
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M2A2": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 45353,
+        "barrel": 1100
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M2A2_BEV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 61173,
+        "barrel": 1100
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M2A3": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 37750,
+        "barrel": 1100,
+        "turret": 9629
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M2A3_BEV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 53546,
+        "barrel": 1100,
+        "turret": 9481
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M3A2": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 52944,
+        "barrel": 1100
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M3A3": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 45222,
+        "barrel": 1100,
+        "turret": 10280
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M548A3": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 49999
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M551A1": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 30277,
+        "turret": 2588
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M60": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 51597
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M6_Linebacker": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 38932,
+        "turret": 5277
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M7_BFIST": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 36841,
+        "turret": 8898
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M8Thunderbolt": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 31648,
+        "turret": 2588
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M901A3": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 31414,
+        "barrel": 1100,
+        "turret": 5889
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_m981_fist": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 30653,
+        "turret": 5889
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_M985_Battleship": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 49968,
+        "turret": 48919,
+        "barrel": 21732
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MATV": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 122884,
+        "turret": 47857
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MTV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 47470,
+        "turret": 1004
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MTVR": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 37247
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_PATRIOT_PAC2": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 81849
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_PATRIOT_PAC3": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 86565
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_PATRIOT_PAC3MSE": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 86809
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_PLS": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 64746
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_RSOV": {
+      "role": "ground",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 59123,
+        "turret": 45126
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_STRYKER_ATGM": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "barrel",
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 37233,
+        "barrel": 1100,
+        "turret": 5889
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_STRYKER_ESV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 50059,
+        "turret": 5547
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_STRYKER_ICV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 37919,
+        "turret": 2462
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_stryker_mc": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 37169,
+        "turret": 41761
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_stryker_mgs": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 33312,
+        "turret": 15694
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_STRYKER_RV": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 43633,
+        "turret": 5889
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_STRYKER_SHORAD": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull",
+        "turret"
+      ],
+      "slot_tris": {
+        "hull": 41495,
+        "turret": 2201
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_STRYKER_SPH": {
+      "role": "ground",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 33254
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_A10": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 38583
+      },
+      "golden": true,
+      "pivots_override": {},
+      "note": "A-10C 固定翼黄金基准（整机合批）"
+    },
+    "model:US_AC130_Base": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 179879
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AC130J": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 83561
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AC130U": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 90801
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AH-1W Super_Cobra": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 92669
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AH-1Z Viper": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 94153
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AH6": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 62617
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AH64D": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 59285
+      },
+      "golden": true,
+      "pivots_override": {
+        "main_rotor": [
+          0.0,
+          3.772,
+          0.0
+        ],
+        "tail_rotor": [
+          -0.64,
+          3.02,
+          8.98
+        ],
+        "gun": [
+          0.0,
+          1.097,
+          -2.804
+        ]
+      },
+      "note": "AH-64D 战术演训黄金基准轴心"
+    },
+    "model:US_AH64E": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 101743
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AH64L": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 59965
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AV8B_NightAttack": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 45290
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_AV8B_Plus": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 37493
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_B1B": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 41504
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_B2": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 46666
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_B52H": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 82864
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_C130_SuperHercules": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 166003
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_C17_GLOBEMASTER": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 76708
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_Ch47": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "gun",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 81649,
+        "gun": 6714
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_CH53": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "gun",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 86343,
+        "gun": 3357
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_CH53K": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "gun",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 101531,
+        "gun": 7546
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_CV-22_b": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "gun",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 52665,
+        "gun": 17329
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_EA6B_Prowler": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 94488
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F117": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 19157
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F15C": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 33340
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F15E": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 77365
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F15EX": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 54014
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F16block52": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 46205
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F16block70": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 30007
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F16CJ": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 40977
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F22": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 42607
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F35A": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 22757
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_F35B": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 22154
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_FA18C": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 67202
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_FA18D": {
+      "role": "fixed_wing",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 62321
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_KC130_HarvestHawk": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 124061
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MC130H": {
+      "role": "fixed_wing",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 213330
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MH47": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "gun",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 151141,
+        "gun": 26124
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MH6": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 40811
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MH60M_IDAP": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 135414
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MH60M_SOAR": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "gun",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 110768,
+        "gun": 13062
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MH60X": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 46899
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MQ1B": {
+      "role": "uav",
+      "size_tier": "small",
+      "lod0_target_tris": 9500,
+      "lod1_target_tris": 2400,
+      "lod2_target_tris": 260,
+      "atlas_max_size": 512,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 35811
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MQ1C": {
+      "role": "uav",
+      "size_tier": "small",
+      "lod0_target_tris": 9500,
+      "lod1_target_tris": 2400,
+      "lod2_target_tris": 260,
+      "atlas_max_size": 512,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 11043
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MQ9": {
+      "role": "uav",
+      "size_tier": "small",
+      "lod0_target_tris": 9500,
+      "lod1_target_tris": 2400,
+      "lod2_target_tris": 260,
+      "atlas_max_size": 512,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 17107
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_MV-22_b": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "gun",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 50627,
+        "gun": 17329
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_OH58Kiowa": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 56722
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_RAH66": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 39847
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_RQ170": {
+      "role": "uav",
+      "size_tier": "small",
+      "lod0_target_tris": 3758,
+      "lod1_target_tris": 2400,
+      "lod2_target_tris": 260,
+      "atlas_max_size": 512,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 3758
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_RQ4B": {
+      "role": "uav",
+      "size_tier": "small",
+      "lod0_target_tris": 7940,
+      "lod1_target_tris": 2400,
+      "lod2_target_tris": 260,
+      "atlas_max_size": 512,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 7940
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_RQ7": {
+      "role": "uav",
+      "size_tier": "small",
+      "lod0_target_tris": 7901,
+      "lod1_target_tris": 2400,
+      "lod2_target_tris": 260,
+      "atlas_max_size": 512,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 7901
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_UH-1Y": {
+      "role": "rotorcraft",
+      "size_tier": "standard",
+      "lod0_target_tris": 16500,
+      "lod1_target_tris": 3000,
+      "lod2_target_tris": 300,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "gun",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 77972,
+        "gun": 6198
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    },
+    "model:US_UH60M": {
+      "role": "rotorcraft",
+      "size_tier": "heavy",
+      "lod0_target_tris": 22000,
+      "lod1_target_tris": 3600,
+      "lod2_target_tris": 360,
+      "atlas_max_size": 1024,
+      "normal_max_size": 512,
+      "detected_slots": [
+        "gun",
+        "hull"
+      ],
+      "slot_tris": {
+        "hull": 104572,
+        "gun": 13062
+      },
+      "golden": false,
+      "pivots_override": {},
+      "note": ""
+    }
+  }
+}

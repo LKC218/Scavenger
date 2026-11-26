@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "id": "model:US_STRYKER_SPH",
+  "slug": "US_STRYKER_SPH",
+  "name": "Stryker SPH",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "9a7a32d8ea479119e1823dd80905f794080d641e0e08dd4fe069bf68495d94f6",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.39,
+  "baseline_256_bytes": 678056,
+  "baseline_256_tris": 26920,
+  "original_tris": 33254,
+  "bounds": {
+    "min": [
+      -1.509,
+      0.0071,
+      -5.3016
+    ],
+    "max": [
+      1.5388,
+      2.7019,
+      3.3815
+    ],
+    "size": [
+      3.0478,
+      2.6948,
+      8.683
+    ],
+    "center": [
+      0.0149,
+      1.3545,
+      -0.96
+    ],
+    "radius": 4.7944
+  },
+  "labelBounds": {
+    "min": [
+      -1.509,
+      0.0071,
+      -5.3016
+    ],
+    "max": [
+      1.5388,
+      2.7019,
+      3.3815
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.021,
+      0.007,
+      -3.912
+    ],
+    [
+      1.051,
+      0.007,
+      -3.912
+    ],
+    [
+      -1.021,
+      0.007,
+      1.992
+    ],
+    [
+      1.051,
+      0.007,
+      1.992
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          1.2727,
+          2.1234,
+          -1.3592
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0473,
+    0.0452,
+    0.0423
+  ],
+  "opaqueMaterialsCount": 1,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 14607,
+      "tris_lod1": 3546,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_SPH/lod0.glb",
+      "bytes": 244676,
+      "sha256": "b752a241eac95c8312c371006c9b29d4a06a8cbac5e4c7a6beacb298202ba557",
+      "triangles": 14607,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_831a3055215ff0_b",
+          "uri": "tex/tex_831a3055215ff0_b.ktx2",
+          "bytes": 184432,
+          "sha256": "831a3055215ff08922c6ea1a4c24f930cc2f70d4f6a3ef2c960cd25ffe2f1aa1",
+          "linear": false
+        },
+        {
+          "key": "tex_6aef509ffbfa94_n",
+          "uri": "tex/tex_6aef509ffbfa94_n.ktx2",
+          "bytes": 84401,
+          "sha256": "6aef509ffbfa94888c376e8d9e42966b34ed5e760b5a05d58db8b32fb0d13b02",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_SPH/lod1.glb",
+      "bytes": 60064,
+      "sha256": "14f0c053e901d048c5cf1c291d86e1fdfafdb7116efcfccfb090ebf6b21f25b9",
+      "triangles": 3546,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_831a3055215ff0_b",
+          "uri": "tex/tex_831a3055215ff0_b.ktx2",
+          "bytes": 184432,
+          "sha256": "831a3055215ff08922c6ea1a4c24f930cc2f70d4f6a3ef2c960cd25ffe2f1aa1",
+          "linear": false
+        },
+        {
+          "key": "tex_6aef509ffbfa94_n",
+          "uri": "tex/tex_6aef509ffbfa94_n.ktx2",
+          "bytes": 84401,
+          "sha256": "6aef509ffbfa94888c376e8d9e42966b34ed5e760b5a05d58db8b32fb0d13b02",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_SPH/lod2.glb",
+      "bytes": 10892,
+      "sha256": "c4989ea1475ac88f11de2cbbb86ed1f7aedc03f94dbe487f7f5bc0cb13f2f059",
+      "triangles": 968,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_831a3055215ff0_b",
+      "uri": "tex/tex_831a3055215ff0_b.ktx2",
+      "bytes": 184432,
+      "sha256": "831a3055215ff08922c6ea1a4c24f930cc2f70d4f6a3ef2c960cd25ffe2f1aa1",
+      "linear": false
+    },
+    {
+      "key": "tex_6aef509ffbfa94_n",
+      "uri": "tex/tex_6aef509ffbfa94_n.ktx2",
+      "bytes": 84401,
+      "sha256": "6aef509ffbfa94888c376e8d9e42966b34ed5e760b5a05d58db8b32fb0d13b02",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 513509,
+    "lod0_lod1_plus_own_tex_bytes": 573573,
+    "lod0_plus_all_tex_bytes": 513509,
+    "shared_tex_bytes": 0,
+    "own_tex_bytes": 268833,
+    "opaque_draw_calls": 1
+  }
+}

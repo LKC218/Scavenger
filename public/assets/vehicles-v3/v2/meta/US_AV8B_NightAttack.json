@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "id": "model:US_AV8B_NightAttack",
+  "slug": "US_AV8B_NightAttack",
+  "name": "AV-8B Night attack",
+  "category": "air",
+  "role": "fixed_wing",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "b3c63148b18ab7c472591a091dba6612d80115ca71363afa81ff4dd147bc2d59",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.7,
+  "baseline_256_bytes": 1050420,
+  "baseline_256_tris": 34234,
+  "original_tris": 45290,
+  "bounds": {
+    "min": [
+      -4.6231,
+      0.559,
+      -6.5419
+    ],
+    "max": [
+      4.6228,
+      3.8306,
+      7.7457
+    ],
+    "size": [
+      9.2459,
+      3.2716,
+      14.2877
+    ],
+    "center": [
+      -0.0001,
+      2.1948,
+      0.6019
+    ],
+    "radius": 8.665
+  },
+  "labelBounds": {
+    "min": [
+      -4.6231,
+      0.559,
+      -6.5419
+    ],
+    "max": [
+      4.6228,
+      3.8306,
+      7.7457
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -0.893,
+          1.597,
+          1
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          0.891,
+          1.636,
+          1
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1284,
+    0.1104,
+    0.096
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 14360,
+      "tris_lod1": 3324,
+      "drawCalls": 4
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AV8B_NightAttack/lod0.glb",
+      "bytes": 264936,
+      "sha256": "c4c95000edc2c8b0dbbcd94635be422b741477e000f146342728f638dc4417ae",
+      "triangles": 14360,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_df7d11a940f87e_b",
+          "uri": "tex/tex_df7d11a940f87e_b.ktx2",
+          "bytes": 91802,
+          "sha256": "df7d11a940f87edd944ce08d5ee475c439aeef28bb005c889487b57914bcb6a8",
+          "linear": false
+        },
+        {
+          "key": "tex_0f34908522e7a5_n",
+          "uri": "tex/tex_0f34908522e7a5_n.ktx2",
+          "bytes": 36043,
+          "sha256": "0f34908522e7a503fe08e359b88c58790d470428d0cd198303dd36c68f3d466d",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_426ed13f95e73d28_b",
+          "uri": "tex/shared_426ed13f95e73d28_b.ktx2",
+          "bytes": 67454,
+          "sha256": "f0d3ed6fdd196688934e2b439e155b87b8066a1b43aadeeb14178a2d4cecb718",
+          "linear": false
+        },
+        {
+          "key": "shared_45aa9d9f3c0a5908_n",
+          "uri": "tex/shared_45aa9d9f3c0a5908_n.ktx2",
+          "bytes": 13553,
+          "sha256": "517a7d6a1bfbce9a3f2fade7a5ab2a600eb393c64118fecce12c2e2b995179d7",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AV8B_NightAttack/lod1.glb",
+      "bytes": 68352,
+      "sha256": "40b77281106ef89a9d2c098b2a8c1e156091d71c349fbce75c028a1b52c32834",
+      "triangles": 3324,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_df7d11a940f87e_b",
+          "uri": "tex/tex_df7d11a940f87e_b.ktx2",
+          "bytes": 91802,
+          "sha256": "df7d11a940f87edd944ce08d5ee475c439aeef28bb005c889487b57914bcb6a8",
+          "linear": false
+        },
+        {
+          "key": "tex_0f34908522e7a5_n",
+          "uri": "tex/tex_0f34908522e7a5_n.ktx2",
+          "bytes": 36043,
+          "sha256": "0f34908522e7a503fe08e359b88c58790d470428d0cd198303dd36c68f3d466d",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_426ed13f95e73d28_b",
+          "uri": "tex/shared_426ed13f95e73d28_b.ktx2",
+          "bytes": 67454,
+          "sha256": "f0d3ed6fdd196688934e2b439e155b87b8066a1b43aadeeb14178a2d4cecb718",
+          "linear": false
+        },
+        {
+          "key": "shared_45aa9d9f3c0a5908_n",
+          "uri": "tex/shared_45aa9d9f3c0a5908_n.ktx2",
+          "bytes": 13553,
+          "sha256": "517a7d6a1bfbce9a3f2fade7a5ab2a600eb393c64118fecce12c2e2b995179d7",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AV8B_NightAttack/lod2.glb",
+      "bytes": 15336,
+      "sha256": "e4077c701d86eefd0bfbac43af3eabda68204688f863d49724bae0b310c8f32a",
+      "triangles": 1349,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_df7d11a940f87e_b",
+      "uri": "tex/tex_df7d11a940f87e_b.ktx2",
+      "bytes": 91802,
+      "sha256": "df7d11a940f87edd944ce08d5ee475c439aeef28bb005c889487b57914bcb6a8",
+      "linear": false
+    },
+    {
+      "key": "tex_0f34908522e7a5_n",
+      "uri": "tex/tex_0f34908522e7a5_n.ktx2",
+      "bytes": 36043,
+      "sha256": "0f34908522e7a503fe08e359b88c58790d470428d0cd198303dd36c68f3d466d",
+      "linear": true
+    },
+    {
+      "key": "shared_bcb3b634b14a77aa_b",
+      "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+      "bytes": 73563,
+      "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+      "linear": false
+    },
+    {
+      "key": "shared_7b08e70e297c1754_n",
+      "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+      "bytes": 83733,
+      "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+      "linear": true
+    },
+    {
+      "key": "shared_426ed13f95e73d28_b",
+      "uri": "tex/shared_426ed13f95e73d28_b.ktx2",
+      "bytes": 67454,
+      "sha256": "f0d3ed6fdd196688934e2b439e155b87b8066a1b43aadeeb14178a2d4cecb718",
+      "linear": false
+    },
+    {
+      "key": "shared_45aa9d9f3c0a5908_n",
+      "uri": "tex/shared_45aa9d9f3c0a5908_n.ktx2",
+      "bytes": 13553,
+      "sha256": "517a7d6a1bfbce9a3f2fade7a5ab2a600eb393c64118fecce12c2e2b995179d7",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 392781,
+    "lod0_lod1_plus_own_tex_bytes": 461133,
+    "lod0_plus_all_tex_bytes": 631084,
+    "shared_tex_bytes": 238303,
+    "own_tex_bytes": 127845,
+    "opaque_draw_calls": 3
+  }
+}

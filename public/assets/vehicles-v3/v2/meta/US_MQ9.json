@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "id": "model:US_MQ9",
+  "slug": "US_MQ9",
+  "name": "MQ-9 Reaper",
+  "category": "air",
+  "role": "uav",
+  "size_tier": "small",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "b55bb91f313ca2c6a9909828b320927e93aa2bdd5b2280b9e1482d8534e18712",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.57,
+  "baseline_256_bytes": 338772,
+  "baseline_256_tris": 10509,
+  "original_tris": 17107,
+  "bounds": {
+    "min": [
+      -10.0687,
+      0.1414,
+      -4.4505
+    ],
+    "max": [
+      10.0687,
+      2.6258,
+      4.4505
+    ],
+    "size": [
+      20.1374,
+      2.4843,
+      8.901
+    ],
+    "center": [
+      0,
+      1.3836,
+      0
+    ],
+    "radius": 11.0783
+  },
+  "labelBounds": {
+    "min": [
+      -10.0687,
+      0.1414,
+      -4.4505
+    ],
+    "max": [
+      10.0687,
+      2.6258,
+      4.4505
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": []
+  },
+  "avgLinearColor": [
+    0.2131,
+    0.2431,
+    0.2683
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 9507,
+      "tris_lod1": 2331,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MQ9/lod0.glb",
+      "bytes": 124800,
+      "sha256": "511a38bcdbfc8f8b0a7b819950837e7eef77b0c37a707b37c13eaa8ad1d3c229",
+      "triangles": 9507,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_cff43aa4e27262_b",
+          "uri": "tex/tex_cff43aa4e27262_b.ktx2",
+          "bytes": 47663,
+          "sha256": "cff43aa4e272626ac9761069b649a451a5d30e1df66ce60b790bb7b82dac642e",
+          "linear": false
+        },
+        {
+          "key": "tex_3bdb8e948a9f9c_n",
+          "uri": "tex/tex_3bdb8e948a9f9c_n.ktx2",
+          "bytes": 75697,
+          "sha256": "3bdb8e948a9f9c39fffd582c24eafdd3ea9ff15c6f4e075fe556fa4903ca77bf",
+          "linear": true
+        },
+        {
+          "key": "shared_11f7b44d8db34b8e_b",
+          "uri": "tex/shared_11f7b44d8db34b8e_b.ktx2",
+          "bytes": 63169,
+          "sha256": "9d3b521f63d2603b9c0f92eac1b03f7514141e1f45b0745ab9333e394b6d36f8",
+          "linear": false
+        },
+        {
+          "key": "shared_36de1708713f656b_n",
+          "uri": "tex/shared_36de1708713f656b_n.ktx2",
+          "bytes": 65757,
+          "sha256": "c6f6ea224a8b3975a5b321166e2564f73c5a6f9a5671115cb09c516eb5389b91",
+          "linear": true
+        },
+        {
+          "key": "tex_5bc2c95bf6acf6_b",
+          "uri": "tex/tex_5bc2c95bf6acf6_b.ktx2",
+          "bytes": 16489,
+          "sha256": "5bc2c95bf6acf6b4e7f0298349ffa7345ab43bc1d37c19a9a9e28c67c698d3ec",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MQ9/lod1.glb",
+      "bytes": 36468,
+      "sha256": "facfa664016ea27a58f2a1b0567a6240b9196d49b317fbf058efbb31eda59947",
+      "triangles": 2331,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_cff43aa4e27262_b",
+          "uri": "tex/tex_cff43aa4e27262_b.ktx2",
+          "bytes": 47663,
+          "sha256": "cff43aa4e272626ac9761069b649a451a5d30e1df66ce60b790bb7b82dac642e",
+          "linear": false
+        },
+        {
+          "key": "tex_3bdb8e948a9f9c_n",
+          "uri": "tex/tex_3bdb8e948a9f9c_n.ktx2",
+          "bytes": 75697,
+          "sha256": "3bdb8e948a9f9c39fffd582c24eafdd3ea9ff15c6f4e075fe556fa4903ca77bf",
+          "linear": true
+        },
+        {
+          "key": "shared_11f7b44d8db34b8e_b",
+          "uri": "tex/shared_11f7b44d8db34b8e_b.ktx2",
+          "bytes": 63169,
+          "sha256": "9d3b521f63d2603b9c0f92eac1b03f7514141e1f45b0745ab9333e394b6d36f8",
+          "linear": false
+        },
+        {
+          "key": "shared_36de1708713f656b_n",
+          "uri": "tex/shared_36de1708713f656b_n.ktx2",
+          "bytes": 65757,
+          "sha256": "c6f6ea224a8b3975a5b321166e2564f73c5a6f9a5671115cb09c516eb5389b91",
+          "linear": true
+        },
+        {
+          "key": "tex_5bc2c95bf6acf6_b",
+          "uri": "tex/tex_5bc2c95bf6acf6_b.ktx2",
+          "bytes": 16489,
+          "sha256": "5bc2c95bf6acf6b4e7f0298349ffa7345ab43bc1d37c19a9a9e28c67c698d3ec",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MQ9/lod2.glb",
+      "bytes": 17264,
+      "sha256": "44057b01dcff0c50c9ca3a0a831e522ff7a61232ae0a3dc0cd616d81026e2b3a",
+      "triangles": 1348,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_cff43aa4e27262_b",
+      "uri": "tex/tex_cff43aa4e27262_b.ktx2",
+      "bytes": 47663,
+      "sha256": "cff43aa4e272626ac9761069b649a451a5d30e1df66ce60b790bb7b82dac642e",
+      "linear": false
+    },
+    {
+      "key": "tex_3bdb8e948a9f9c_n",
+      "uri": "tex/tex_3bdb8e948a9f9c_n.ktx2",
+      "bytes": 75697,
+      "sha256": "3bdb8e948a9f9c39fffd582c24eafdd3ea9ff15c6f4e075fe556fa4903ca77bf",
+      "linear": true
+    },
+    {
+      "key": "shared_11f7b44d8db34b8e_b",
+      "uri": "tex/shared_11f7b44d8db34b8e_b.ktx2",
+      "bytes": 63169,
+      "sha256": "9d3b521f63d2603b9c0f92eac1b03f7514141e1f45b0745ab9333e394b6d36f8",
+      "linear": false
+    },
+    {
+      "key": "shared_36de1708713f656b_n",
+      "uri": "tex/shared_36de1708713f656b_n.ktx2",
+      "bytes": 65757,
+      "sha256": "c6f6ea224a8b3975a5b321166e2564f73c5a6f9a5671115cb09c516eb5389b91",
+      "linear": true
+    },
+    {
+      "key": "tex_5bc2c95bf6acf6_b",
+      "uri": "tex/tex_5bc2c95bf6acf6_b.ktx2",
+      "bytes": 16489,
+      "sha256": "5bc2c95bf6acf6b4e7f0298349ffa7345ab43bc1d37c19a9a9e28c67c698d3ec",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 264649,
+    "lod0_lod1_plus_own_tex_bytes": 301117,
+    "lod0_plus_all_tex_bytes": 393575,
+    "shared_tex_bytes": 128926,
+    "own_tex_bytes": 139849,
+    "opaque_draw_calls": 2
+  }
+}

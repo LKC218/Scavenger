@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "model:US_AAVP_Arty",
+  "slug": "US_AAVP_Arty",
+  "name": "AAVP MICLIC",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "ac873c07314366b4a7517e2a53d5f9e19cfd6deeef8e91138d1e31c30ab130a4",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.59,
+  "baseline_256_bytes": 871564,
+  "baseline_256_tris": 30132,
+  "original_tris": 37074,
+  "bounds": {
+    "min": [
+      -1.5355,
+      0.0073,
+      -4.2264
+    ],
+    "max": [
+      1.5788,
+      4.1879,
+      3.7113
+    ],
+    "size": [
+      3.1143,
+      4.1806,
+      7.9377
+    ],
+    "center": [
+      0.0216,
+      2.0976,
+      -0.2575
+    ],
+    "radius": 4.7482
+  },
+  "labelBounds": {
+    "min": [
+      -1.5355,
+      0.0073,
+      -4.2264
+    ],
+    "max": [
+      1.5788,
+      4.1879,
+      3.7113
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.037,
+      0.007,
+      -2.956
+    ],
+    [
+      1.08,
+      0.007,
+      -2.956
+    ],
+    [
+      -1.037,
+      0.007,
+      2.441
+    ],
+    [
+      1.08,
+      0.007,
+      2.441
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          -1.408,
+          2.554,
+          -0.624
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0456,
+    0.045,
+    0.0425
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 14960,
+      "tris_lod1": 4790,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AAVP_Arty/lod0.glb",
+      "bytes": 276032,
+      "sha256": "e2af3a0619cf0bd554e821e387730910c825ecdd77278b072be3648e8a43a75e",
+      "triangles": 14960,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_e54e296c8a442a19_b",
+          "uri": "tex/shared_e54e296c8a442a19_b.ktx2",
+          "bytes": 94113,
+          "sha256": "abbf67bb8b87c55685751b03788fd10f48e08c37a33c679a1a8e1efd0492ad52",
+          "linear": false
+        },
+        {
+          "key": "shared_e7c4aa38fb9e618d_n",
+          "uri": "tex/shared_e7c4aa38fb9e618d_n.ktx2",
+          "bytes": 79302,
+          "sha256": "5981eb4082e3d30b14abd0bb7be39df8d06b592e8d4b14deba5d773bca8dd2e4",
+          "linear": true
+        },
+        {
+          "key": "shared_ece80c02112fd889_b",
+          "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+          "bytes": 56288,
+          "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+          "linear": false
+        },
+        {
+          "key": "shared_1550a6e7a3e840a9_n",
+          "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+          "bytes": 34495,
+          "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AAVP_Arty/lod1.glb",
+      "bytes": 95208,
+      "sha256": "0f913ae905ff038377524bf7ea7aea0d5f82e86969a2577e9be54f451bf05868",
+      "triangles": 4790,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_e54e296c8a442a19_b",
+          "uri": "tex/shared_e54e296c8a442a19_b.ktx2",
+          "bytes": 94113,
+          "sha256": "abbf67bb8b87c55685751b03788fd10f48e08c37a33c679a1a8e1efd0492ad52",
+          "linear": false
+        },
+        {
+          "key": "shared_e7c4aa38fb9e618d_n",
+          "uri": "tex/shared_e7c4aa38fb9e618d_n.ktx2",
+          "bytes": 79302,
+          "sha256": "5981eb4082e3d30b14abd0bb7be39df8d06b592e8d4b14deba5d773bca8dd2e4",
+          "linear": true
+        },
+        {
+          "key": "shared_ece80c02112fd889_b",
+          "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+          "bytes": 56288,
+          "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+          "linear": false
+        },
+        {
+          "key": "shared_1550a6e7a3e840a9_n",
+          "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+          "bytes": 34495,
+          "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AAVP_Arty/lod2.glb",
+      "bytes": 11848,
+      "sha256": "a6a0561a7447d3920796c6be689dc63a0e97781b41933992a4ea7db96d71ff00",
+      "triangles": 961,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "shared_e54e296c8a442a19_b",
+      "uri": "tex/shared_e54e296c8a442a19_b.ktx2",
+      "bytes": 94113,
+      "sha256": "abbf67bb8b87c55685751b03788fd10f48e08c37a33c679a1a8e1efd0492ad52",
+      "linear": false
+    },
+    {
+      "key": "shared_e7c4aa38fb9e618d_n",
+      "uri": "tex/shared_e7c4aa38fb9e618d_n.ktx2",
+      "bytes": 79302,
+      "sha256": "5981eb4082e3d30b14abd0bb7be39df8d06b592e8d4b14deba5d773bca8dd2e4",
+      "linear": true
+    },
+    {
+      "key": "shared_ece80c02112fd889_b",
+      "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+      "bytes": 56288,
+      "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+      "linear": false
+    },
+    {
+      "key": "shared_1550a6e7a3e840a9_n",
+      "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+      "bytes": 34495,
+      "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 276032,
+    "lod0_lod1_plus_own_tex_bytes": 371240,
+    "lod0_plus_all_tex_bytes": 540230,
+    "shared_tex_bytes": 264198,
+    "own_tex_bytes": 0,
+    "opaque_draw_calls": 2
+  }
+}

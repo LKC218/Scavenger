@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "id": "model:US_UH-1Y",
+  "slug": "US_UH-1Y",
+  "name": "UH-1Y Venom",
+  "category": "air",
+  "role": "rotorcraft",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "94ef9a2269f158b29f85cda7b76bd4891cc0312522d5a6afe767dee617cd2170",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.95,
+  "baseline_256_bytes": 1382016,
+  "baseline_256_tris": 50088,
+  "original_tris": 84170,
+  "bounds": {
+    "min": [
+      -6.5268,
+      0.0416,
+      -6.7882
+    ],
+    "max": [
+      6.5268,
+      5.412,
+      10.3434
+    ],
+    "size": [
+      13.0536,
+      5.3704,
+      17.1316
+    ],
+    "center": [
+      0,
+      2.7268,
+      1.7776
+    ],
+    "radius": 11.0988
+  },
+  "labelBounds": {
+    "min": [
+      -9.2317,
+      0.0416,
+      -9.4911
+    ],
+    "max": [
+      9.2317,
+      5.412,
+      10.3434
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -0.71,
+          2.4954,
+          2.8304
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          0.65,
+          2.4954,
+          2.8304
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1413,
+    0.1099,
+    0.0966
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 18388,
+      "tris_lod1": 4321,
+      "drawCalls": 4
+    },
+    {
+      "slot": "tail_rotor",
+      "pivot": [
+        -0.7821,
+        3.7765,
+        8.7078
+      ],
+      "axis": "x",
+      "tris_lod0": 1460,
+      "tris_lod1": 1460,
+      "drawCalls": 1
+    },
+    {
+      "slot": "main_rotor",
+      "pivot": [
+        0,
+        4.1373,
+        -0.2594
+      ],
+      "axis": "y",
+      "tris_lod0": 970,
+      "tris_lod1": 922,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_UH-1Y/lod0.glb",
+      "bytes": 374448,
+      "sha256": "cb1d3e4276fcb3545c04906b5f3ab5624d939af339fe4b9c54c678880cb85b69",
+      "triangles": 20818,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_221e015a672f72_b",
+          "uri": "tex/tex_221e015a672f72_b.ktx2",
+          "bytes": 189868,
+          "sha256": "221e015a672f725f8364489bbb23dbae5d28f6681b044a52060fb87913f37d1b",
+          "linear": false
+        },
+        {
+          "key": "tex_860a8caeaa0b12_n",
+          "uri": "tex/tex_860a8caeaa0b12_n.ktx2",
+          "bytes": 78321,
+          "sha256": "860a8caeaa0b12009dcef05ee571fc23c5a18496f3b53fb8f1561d0b051c1caf",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        },
+        {
+          "key": "tex_8a6acdff129ba4_b",
+          "uri": "tex/tex_8a6acdff129ba4_b.ktx2",
+          "bytes": 24647,
+          "sha256": "8a6acdff129ba4c75e223a94abd9b46ef4a8eab97a18bf01f1ca4ab6bde75c22",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_UH-1Y/lod1.glb",
+      "bytes": 114848,
+      "sha256": "6f31a53b4c909602b90d88e19e4d56f81115e8f2febee21ca09a7f069e54a17d",
+      "triangles": 6703,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_221e015a672f72_b",
+          "uri": "tex/tex_221e015a672f72_b.ktx2",
+          "bytes": 189868,
+          "sha256": "221e015a672f725f8364489bbb23dbae5d28f6681b044a52060fb87913f37d1b",
+          "linear": false
+        },
+        {
+          "key": "tex_860a8caeaa0b12_n",
+          "uri": "tex/tex_860a8caeaa0b12_n.ktx2",
+          "bytes": 78321,
+          "sha256": "860a8caeaa0b12009dcef05ee571fc23c5a18496f3b53fb8f1561d0b051c1caf",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        },
+        {
+          "key": "tex_8a6acdff129ba4_b",
+          "uri": "tex/tex_8a6acdff129ba4_b.ktx2",
+          "bytes": 24647,
+          "sha256": "8a6acdff129ba4c75e223a94abd9b46ef4a8eab97a18bf01f1ca4ab6bde75c22",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_UH-1Y/lod2.glb",
+      "bytes": 32180,
+      "sha256": "cecb77e99c1ec2cb9da9bdb2f7570c66e033b167a3f6bec46607f089cd4962a1",
+      "triangles": 3140,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_221e015a672f72_b",
+      "uri": "tex/tex_221e015a672f72_b.ktx2",
+      "bytes": 189868,
+      "sha256": "221e015a672f725f8364489bbb23dbae5d28f6681b044a52060fb87913f37d1b",
+      "linear": false
+    },
+    {
+      "key": "tex_860a8caeaa0b12_n",
+      "uri": "tex/tex_860a8caeaa0b12_n.ktx2",
+      "bytes": 78321,
+      "sha256": "860a8caeaa0b12009dcef05ee571fc23c5a18496f3b53fb8f1561d0b051c1caf",
+      "linear": true
+    },
+    {
+      "key": "shared_c1e20da198b3123d_b",
+      "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+      "bytes": 66024,
+      "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+      "linear": false
+    },
+    {
+      "key": "shared_0f54581d4d87e4eb_n",
+      "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+      "bytes": 81853,
+      "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+      "linear": true
+    },
+    {
+      "key": "shared_9f402618efd99b98_b",
+      "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+      "bytes": 67037,
+      "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+      "linear": false
+    },
+    {
+      "key": "shared_b5836749932430e5_n",
+      "uri": "tex/shared_b5836749932430e5_n.ktx2",
+      "bytes": 75298,
+      "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+      "linear": true
+    },
+    {
+      "key": "tex_8a6acdff129ba4_b",
+      "uri": "tex/tex_8a6acdff129ba4_b.ktx2",
+      "bytes": 24647,
+      "sha256": "8a6acdff129ba4c75e223a94abd9b46ef4a8eab97a18bf01f1ca4ab6bde75c22",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 667284,
+    "lod0_lod1_plus_own_tex_bytes": 782132,
+    "lod0_plus_all_tex_bytes": 957496,
+    "shared_tex_bytes": 290212,
+    "own_tex_bytes": 292836,
+    "opaque_draw_calls": 5
+  }
+}

@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "id": "model:US_AH-1W Super_Cobra",
+  "slug": "US_AH-1W_Super_Cobra",
+  "name": "AH-1W Supercobra",
+  "category": "air",
+  "role": "rotorcraft",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "2d1c4a317802acd12542063ef35a4837db2e65477cb471eeaea38fb637ad214c",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.87,
+  "baseline_256_bytes": 1786756,
+  "baseline_256_tris": 75867,
+  "original_tris": 92669,
+  "bounds": {
+    "min": [
+      -1.8131,
+      -0.0021,
+      -7.3244
+    ],
+    "max": [
+      1.8373,
+      4.1689,
+      10.2681
+    ],
+    "size": [
+      3.6504,
+      4.171,
+      17.5925
+    ],
+    "center": [
+      0.0121,
+      2.0834,
+      1.4718
+    ],
+    "radius": 9.2225
+  },
+  "labelBounds": {
+    "min": [
+      -7.351,
+      -0.0021,
+      -7.351
+    ],
+    "max": [
+      7.351,
+      4.1689,
+      10.2681
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          0,
+          2.0076,
+          3.09
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.102,
+    0.0881,
+    0.0869
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 13074,
+      "tris_lod1": 3673,
+      "drawCalls": 4
+    },
+    {
+      "slot": "main_rotor",
+      "pivot": [
+        0,
+        4.0223,
+        0
+      ],
+      "axis": "y",
+      "tris_lod0": 961,
+      "tris_lod1": 460,
+      "drawCalls": 1
+    },
+    {
+      "slot": "tail_rotor",
+      "pivot": [
+        -0.0496,
+        2.9413,
+        8.7948
+      ],
+      "axis": "x",
+      "tris_lod0": 595,
+      "tris_lod1": 546,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AH-1W_Super_Cobra/lod0.glb",
+      "bytes": 247732,
+      "sha256": "a90a0414503c6ecb3a9e8d1384631a878fe8f48ed4853cbfea66a9b743d40067",
+      "triangles": 14630,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_206ceb1af2656d_b",
+          "uri": "tex/tex_206ceb1af2656d_b.ktx2",
+          "bytes": 111488,
+          "sha256": "206ceb1af2656db8cdc8cde29b64e3faaa268ee624075e48d04c2782f774c7ec",
+          "linear": false
+        },
+        {
+          "key": "tex_c74f86a8989adf_n",
+          "uri": "tex/tex_c74f86a8989adf_n.ktx2",
+          "bytes": 36576,
+          "sha256": "c74f86a8989adfe3d6c4c0a605c85d94676144ab09e44afc996e269e9028edc0",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_798c6f4eb5ee81b8_b",
+          "uri": "tex/shared_798c6f4eb5ee81b8_b.ktx2",
+          "bytes": 64751,
+          "sha256": "afc92bc828d8976b81b7f81a7d1d15d0dd9110616d48cf334cb8af41f890721a",
+          "linear": false
+        },
+        {
+          "key": "shared_75c8edf1097451c2_n",
+          "uri": "tex/shared_75c8edf1097451c2_n.ktx2",
+          "bytes": 27290,
+          "sha256": "006c54d995576dc9bffe4fe75f7c1df44e2612c2dde00139b90f341c894cf34d",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AH-1W_Super_Cobra/lod1.glb",
+      "bytes": 88040,
+      "sha256": "7867035980a2283d446bc5f01a65fa30c2dd18ff242f8e73a2a333a3f83bc03c",
+      "triangles": 4679,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_206ceb1af2656d_b",
+          "uri": "tex/tex_206ceb1af2656d_b.ktx2",
+          "bytes": 111488,
+          "sha256": "206ceb1af2656db8cdc8cde29b64e3faaa268ee624075e48d04c2782f774c7ec",
+          "linear": false
+        },
+        {
+          "key": "tex_c74f86a8989adf_n",
+          "uri": "tex/tex_c74f86a8989adf_n.ktx2",
+          "bytes": 36576,
+          "sha256": "c74f86a8989adfe3d6c4c0a605c85d94676144ab09e44afc996e269e9028edc0",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_798c6f4eb5ee81b8_b",
+          "uri": "tex/shared_798c6f4eb5ee81b8_b.ktx2",
+          "bytes": 64751,
+          "sha256": "afc92bc828d8976b81b7f81a7d1d15d0dd9110616d48cf334cb8af41f890721a",
+          "linear": false
+        },
+        {
+          "key": "shared_75c8edf1097451c2_n",
+          "uri": "tex/shared_75c8edf1097451c2_n.ktx2",
+          "bytes": 27290,
+          "sha256": "006c54d995576dc9bffe4fe75f7c1df44e2612c2dde00139b90f341c894cf34d",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AH-1W_Super_Cobra/lod2.glb",
+      "bytes": 21272,
+      "sha256": "8d93b825516c8c7bcdf75cf9b5ec337fe5e111b666c4a41cf6bcb162c4977919",
+      "triangles": 1800,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_206ceb1af2656d_b",
+      "uri": "tex/tex_206ceb1af2656d_b.ktx2",
+      "bytes": 111488,
+      "sha256": "206ceb1af2656db8cdc8cde29b64e3faaa268ee624075e48d04c2782f774c7ec",
+      "linear": false
+    },
+    {
+      "key": "tex_c74f86a8989adf_n",
+      "uri": "tex/tex_c74f86a8989adf_n.ktx2",
+      "bytes": 36576,
+      "sha256": "c74f86a8989adfe3d6c4c0a605c85d94676144ab09e44afc996e269e9028edc0",
+      "linear": true
+    },
+    {
+      "key": "shared_c1e20da198b3123d_b",
+      "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+      "bytes": 66024,
+      "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+      "linear": false
+    },
+    {
+      "key": "shared_0f54581d4d87e4eb_n",
+      "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+      "bytes": 81853,
+      "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+      "linear": true
+    },
+    {
+      "key": "shared_798c6f4eb5ee81b8_b",
+      "uri": "tex/shared_798c6f4eb5ee81b8_b.ktx2",
+      "bytes": 64751,
+      "sha256": "afc92bc828d8976b81b7f81a7d1d15d0dd9110616d48cf334cb8af41f890721a",
+      "linear": false
+    },
+    {
+      "key": "shared_75c8edf1097451c2_n",
+      "uri": "tex/shared_75c8edf1097451c2_n.ktx2",
+      "bytes": 27290,
+      "sha256": "006c54d995576dc9bffe4fe75f7c1df44e2612c2dde00139b90f341c894cf34d",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 395796,
+    "lod0_lod1_plus_own_tex_bytes": 483836,
+    "lod0_plus_all_tex_bytes": 635714,
+    "shared_tex_bytes": 239918,
+    "own_tex_bytes": 148064,
+    "opaque_draw_calls": 5
+  }
+}

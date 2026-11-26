@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "id": "model:US_AH64D",
+  "slug": "US_AH64D",
+  "name": "AH-64D Apache",
+  "category": "air",
+  "role": "rotorcraft",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "eeba85a7556b8268f0ee4f98836e137911fed97d6082c5019094c77b2d7066ba",
+  "used_golden_assembly": true,
+  "retry_level": 1,
+  "elapsed_sec": 0.88,
+  "baseline_256_bytes": 1183108,
+  "baseline_256_tris": 37439,
+  "original_tris": 59285,
+  "bounds": {
+    "min": [
+      -7.3856,
+      -0.0002,
+      -7.3695
+    ],
+    "max": [
+      7.2871,
+      5.2513,
+      10.1508
+    ],
+    "size": [
+      14.6727,
+      5.2515,
+      17.5203
+    ],
+    "center": [
+      -0.0493,
+      2.6255,
+      1.3907
+    ],
+    "radius": 11.7242
+  },
+  "labelBounds": {
+    "min": [
+      -12.5533,
+      -0.0002,
+      -12.5533
+    ],
+    "max": [
+      12.5533,
+      5.2513,
+      12.5533
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [
+      {
+        "name": "estimated_muzzle",
+        "pos": [
+          -0.049,
+          2.626,
+          -7.369
+        ],
+        "estimated": true
+      }
+    ],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -1.05,
+          2.2059,
+          2.72
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          1.071,
+          2.3029,
+          2.678
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1069,
+    0.0814,
+    0.066
+  ],
+  "opaqueMaterialsCount": 1,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 18044,
+      "tris_lod1": 3523,
+      "drawCalls": 2
+    },
+    {
+      "slot": "main_rotor",
+      "pivot": [
+        0,
+        3.772,
+        0
+      ],
+      "axis": "y",
+      "tris_lod0": 1741,
+      "tris_lod1": 1342,
+      "drawCalls": 1
+    },
+    {
+      "slot": "tail_rotor",
+      "pivot": [
+        -0.64,
+        3.02,
+        8.98
+      ],
+      "axis": "x",
+      "tris_lod0": 520,
+      "tris_lod1": 520,
+      "drawCalls": 1
+    },
+    {
+      "slot": "gun",
+      "pivot": [
+        0,
+        1.097,
+        -2.804
+      ],
+      "axis": "y",
+      "tris_lod0": 629,
+      "tris_lod1": 254,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AH64D/lod0.glb",
+      "bytes": 364932,
+      "sha256": "e30adef300c9117cfc20f65c3acda64b6377e1cad2188d8cf10b7362a3ae0f14",
+      "triangles": 20934,
+      "drawCalls": 5,
+      "nodes": 4,
+      "textures": [
+        {
+          "key": "tex_8fd369653a19cc_b",
+          "uri": "tex/tex_8fd369653a19cc_b.ktx2",
+          "bytes": 118585,
+          "sha256": "8fd369653a19cc7f823a0f228d9876ecb4c23766af290ae1c86bb744cd5ccd0d",
+          "linear": false
+        },
+        {
+          "key": "tex_bc5f9569284288_n",
+          "uri": "tex/tex_bc5f9569284288_n.ktx2",
+          "bytes": 46497,
+          "sha256": "bc5f95692842880cc4c4f5dd443eea91c8e8c9652e0ca3ab05410c3cdd8a8e6e",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AH64D/lod1.glb",
+      "bytes": 104888,
+      "sha256": "94c93ab82a88e8938ba28e54b5cc8a823d9d1ac31e9d7d4ccc56af37cdc72cdc",
+      "triangles": 5639,
+      "drawCalls": 5,
+      "nodes": 4,
+      "textures": [
+        {
+          "key": "tex_8fd369653a19cc_b",
+          "uri": "tex/tex_8fd369653a19cc_b.ktx2",
+          "bytes": 118585,
+          "sha256": "8fd369653a19cc7f823a0f228d9876ecb4c23766af290ae1c86bb744cd5ccd0d",
+          "linear": false
+        },
+        {
+          "key": "tex_bc5f9569284288_n",
+          "uri": "tex/tex_bc5f9569284288_n.ktx2",
+          "bytes": 46497,
+          "sha256": "bc5f95692842880cc4c4f5dd443eea91c8e8c9652e0ca3ab05410c3cdd8a8e6e",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AH64D/lod2.glb",
+      "bytes": 31092,
+      "sha256": "1a751df7c948b11aea8a4ad3cff8f14c7c2bcafb0f7ecaaa42733a2db39491b4",
+      "triangles": 2601,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_8fd369653a19cc_b",
+      "uri": "tex/tex_8fd369653a19cc_b.ktx2",
+      "bytes": 118585,
+      "sha256": "8fd369653a19cc7f823a0f228d9876ecb4c23766af290ae1c86bb744cd5ccd0d",
+      "linear": false
+    },
+    {
+      "key": "tex_bc5f9569284288_n",
+      "uri": "tex/tex_bc5f9569284288_n.ktx2",
+      "bytes": 46497,
+      "sha256": "bc5f95692842880cc4c4f5dd443eea91c8e8c9652e0ca3ab05410c3cdd8a8e6e",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 530014,
+    "lod0_lod1_plus_own_tex_bytes": 634902,
+    "lod0_plus_all_tex_bytes": 530014,
+    "shared_tex_bytes": 0,
+    "own_tex_bytes": 165082,
+    "opaque_draw_calls": 4
+  }
+}

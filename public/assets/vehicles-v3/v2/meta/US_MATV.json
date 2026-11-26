@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "model:US_MATV",
+  "slug": "US_MATV",
+  "name": "M-ATV",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "59266a3726d3c55af613d095c1e4594afb901a8df91b56ffe4cfd0938e617473",
+  "used_golden_assembly": false,
+  "retry_level": 1,
+  "elapsed_sec": 2.2,
+  "baseline_256_bytes": 2751672,
+  "baseline_256_tris": 108845,
+  "original_tris": 170741,
+  "bounds": {
+    "min": [
+      -1.5302,
+      0.005,
+      -3.6554
+    ],
+    "max": [
+      1.5302,
+      4.5368,
+      3.3153
+    ],
+    "size": [
+      3.0605,
+      4.5318,
+      6.9707
+    ],
+    "center": [
+      0,
+      2.2709,
+      -0.1701
+    ],
+    "radius": 4.4298
+  },
+  "labelBounds": {
+    "min": [
+      -1.5302,
+      0.005,
+      -3.6554
+    ],
+    "max": [
+      1.5302,
+      4.5368,
+      3.3153
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.041,
+      0.005,
+      -2.54
+    ],
+    [
+      1.041,
+      0.005,
+      -2.54
+    ],
+    [
+      -1.041,
+      0.005,
+      2.2
+    ],
+    [
+      1.041,
+      0.005,
+      2.2
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -1.157,
+          0.55,
+          1.2278
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          1.149,
+          0.546,
+          1.2238
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.189,
+    0.1608,
+    0.1323
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 51850,
+      "tris_lod1": 6527,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MATV/lod0.glb",
+      "bytes": 858328,
+      "sha256": "cd6145e269288bd814d7582fb9d0af3dcee95f1c38b1e264d37bde894142464b",
+      "triangles": 51850,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_112df62137683e_b",
+          "uri": "tex/tex_112df62137683e_b.ktx2",
+          "bytes": 142911,
+          "sha256": "112df62137683ea808940be97d2122ae889e2c9ca331032c61022e8161b5599b",
+          "linear": false
+        },
+        {
+          "key": "tex_39842cc154fc37_n",
+          "uri": "tex/tex_39842cc154fc37_n.ktx2",
+          "bytes": 37665,
+          "sha256": "39842cc154fc37d44de106035e61a565c6fcdac910da63396ec6065c62ca934b",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MATV/lod1.glb",
+      "bytes": 110416,
+      "sha256": "b454b7ef772b138e34019912709d4fd19b987cb13672f861c52944ea197d9353",
+      "triangles": 6527,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_112df62137683e_b",
+          "uri": "tex/tex_112df62137683e_b.ktx2",
+          "bytes": 142911,
+          "sha256": "112df62137683ea808940be97d2122ae889e2c9ca331032c61022e8161b5599b",
+          "linear": false
+        },
+        {
+          "key": "tex_39842cc154fc37_n",
+          "uri": "tex/tex_39842cc154fc37_n.ktx2",
+          "bytes": 37665,
+          "sha256": "39842cc154fc37d44de106035e61a565c6fcdac910da63396ec6065c62ca934b",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MATV/lod2.glb",
+      "bytes": 13368,
+      "sha256": "fa390609384a095d2308b3eb44d7415ec2c0d798844af65d297a60dd1e6b74f9",
+      "triangles": 1041,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_112df62137683e_b",
+      "uri": "tex/tex_112df62137683e_b.ktx2",
+      "bytes": 142911,
+      "sha256": "112df62137683ea808940be97d2122ae889e2c9ca331032c61022e8161b5599b",
+      "linear": false
+    },
+    {
+      "key": "tex_39842cc154fc37_n",
+      "uri": "tex/tex_39842cc154fc37_n.ktx2",
+      "bytes": 37665,
+      "sha256": "39842cc154fc37d44de106035e61a565c6fcdac910da63396ec6065c62ca934b",
+      "linear": true
+    },
+    {
+      "key": "shared_e280743eb8e60395_b",
+      "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+      "bytes": 66240,
+      "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+      "linear": false
+    },
+    {
+      "key": "shared_87eaef8ed1fbc611_n",
+      "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+      "bytes": 73449,
+      "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 1038904,
+    "lod0_lod1_plus_own_tex_bytes": 1149320,
+    "lod0_plus_all_tex_bytes": 1178593,
+    "shared_tex_bytes": 139689,
+    "own_tex_bytes": 180576,
+    "opaque_draw_calls": 2
+  }
+}

@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "id": "model:US_M1A2",
+  "slug": "US_M1A2",
+  "name": "M1A2 Abrams",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "d9f3fcccbf0167f6caafa87dab231a65112c1ea75b0f189981587a253027bd58",
+  "used_golden_assembly": true,
+  "retry_level": 0,
+  "elapsed_sec": 0.6,
+  "baseline_256_bytes": 1238508,
+  "baseline_256_tris": 40988,
+  "original_tris": 54718,
+  "bounds": {
+    "min": [
+      -1.8384,
+      0.0227,
+      -5.6273
+    ],
+    "max": [
+      1.7781,
+      4.0953,
+      3.8863
+    ],
+    "size": [
+      3.6165,
+      4.0725,
+      9.5136
+    ],
+    "center": [
+      -0.0302,
+      2.059,
+      -0.8705
+    ],
+    "radius": 5.4812
+  },
+  "labelBounds": {
+    "min": [
+      -1.8384,
+      0.0227,
+      -5.6273
+    ],
+    "max": [
+      1.7781,
+      4.0953,
+      3.8863
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.26,
+      0.023,
+      -4.105
+    ],
+    [
+      1.199,
+      0.023,
+      -4.105
+    ],
+    [
+      -1.26,
+      0.023,
+      2.364
+    ],
+    [
+      1.199,
+      0.023,
+      2.364
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [
+      {
+        "name": "estimated_muzzle",
+        "pos": [
+          0.025,
+          2.785,
+          -5.627
+        ],
+        "estimated": true
+      }
+    ],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          0,
+          1.244,
+          3.9374
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0374,
+    0.037,
+    0.0357
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 13145,
+      "tris_lod1": 4429,
+      "drawCalls": 2
+    },
+    {
+      "slot": "turret",
+      "pivot": [
+        0,
+        1.53,
+        -0.23
+      ],
+      "axis": "y",
+      "tris_lod0": 6850,
+      "tris_lod1": 1188,
+      "drawCalls": 1
+    },
+    {
+      "slot": "barrel",
+      "pivot": [
+        0,
+        1.83,
+        -1.5
+      ],
+      "axis": "x",
+      "tris_lod0": 519,
+      "tris_lod1": 253,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M1A2/lod0.glb",
+      "bytes": 382068,
+      "sha256": "d4a71f565d54f534ae28f7dc210f3ab981658b6894083e9a7e7b540c528f06d8",
+      "triangles": 20514,
+      "drawCalls": 4,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_e557e41810cf6c_b",
+          "uri": "tex/tex_e557e41810cf6c_b.ktx2",
+          "bytes": 157378,
+          "sha256": "e557e41810cf6c0c2480a779593e94e2f4894e0dbd2f920c4da26f3fbb4e42d9",
+          "linear": false
+        },
+        {
+          "key": "tex_7ee68b4eab89af_n",
+          "uri": "tex/tex_7ee68b4eab89af_n.ktx2",
+          "bytes": 60623,
+          "sha256": "7ee68b4eab89af6095986544ec2b1cd345a5598267e6504d78c9c1f0f8398aea",
+          "linear": true
+        },
+        {
+          "key": "tex_2e9d2c4d26dfa8_b",
+          "uri": "tex/tex_2e9d2c4d26dfa8_b.ktx2",
+          "bytes": 144211,
+          "sha256": "2e9d2c4d26dfa894b3fb4b8555f0d1db17266fe5fa3384a6f2ff0a365baa6f30",
+          "linear": false
+        },
+        {
+          "key": "tex_3fdae05a163c5a_n",
+          "uri": "tex/tex_3fdae05a163c5a_n.ktx2",
+          "bytes": 38565,
+          "sha256": "3fdae05a163c5ae5eff84136f456cf3fc97f22809267c07aa7a4a7ef30b4f5d2",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M1A2/lod1.glb",
+      "bytes": 108660,
+      "sha256": "3586ef2693ee23343f8cab8ec26260a0c386ba604e4bbf7c1f6eec90ee8b38c6",
+      "triangles": 5870,
+      "drawCalls": 4,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_e557e41810cf6c_b",
+          "uri": "tex/tex_e557e41810cf6c_b.ktx2",
+          "bytes": 157378,
+          "sha256": "e557e41810cf6c0c2480a779593e94e2f4894e0dbd2f920c4da26f3fbb4e42d9",
+          "linear": false
+        },
+        {
+          "key": "tex_7ee68b4eab89af_n",
+          "uri": "tex/tex_7ee68b4eab89af_n.ktx2",
+          "bytes": 60623,
+          "sha256": "7ee68b4eab89af6095986544ec2b1cd345a5598267e6504d78c9c1f0f8398aea",
+          "linear": true
+        },
+        {
+          "key": "tex_2e9d2c4d26dfa8_b",
+          "uri": "tex/tex_2e9d2c4d26dfa8_b.ktx2",
+          "bytes": 144211,
+          "sha256": "2e9d2c4d26dfa894b3fb4b8555f0d1db17266fe5fa3384a6f2ff0a365baa6f30",
+          "linear": false
+        },
+        {
+          "key": "tex_3fdae05a163c5a_n",
+          "uri": "tex/tex_3fdae05a163c5a_n.ktx2",
+          "bytes": 38565,
+          "sha256": "3fdae05a163c5ae5eff84136f456cf3fc97f22809267c07aa7a4a7ef30b4f5d2",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M1A2/lod2.glb",
+      "bytes": 12316,
+      "sha256": "e1816bda8f640b2b4dbcd406194d61a2c48001a0305ead36c3b34ab6d1d4b33c",
+      "triangles": 946,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_e557e41810cf6c_b",
+      "uri": "tex/tex_e557e41810cf6c_b.ktx2",
+      "bytes": 157378,
+      "sha256": "e557e41810cf6c0c2480a779593e94e2f4894e0dbd2f920c4da26f3fbb4e42d9",
+      "linear": false
+    },
+    {
+      "key": "tex_7ee68b4eab89af_n",
+      "uri": "tex/tex_7ee68b4eab89af_n.ktx2",
+      "bytes": 60623,
+      "sha256": "7ee68b4eab89af6095986544ec2b1cd345a5598267e6504d78c9c1f0f8398aea",
+      "linear": true
+    },
+    {
+      "key": "tex_2e9d2c4d26dfa8_b",
+      "uri": "tex/tex_2e9d2c4d26dfa8_b.ktx2",
+      "bytes": 144211,
+      "sha256": "2e9d2c4d26dfa894b3fb4b8555f0d1db17266fe5fa3384a6f2ff0a365baa6f30",
+      "linear": false
+    },
+    {
+      "key": "tex_3fdae05a163c5a_n",
+      "uri": "tex/tex_3fdae05a163c5a_n.ktx2",
+      "bytes": 38565,
+      "sha256": "3fdae05a163c5ae5eff84136f456cf3fc97f22809267c07aa7a4a7ef30b4f5d2",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 782845,
+    "lod0_lod1_plus_own_tex_bytes": 891505,
+    "lod0_plus_all_tex_bytes": 782845,
+    "shared_tex_bytes": 0,
+    "own_tex_bytes": 400777,
+    "opaque_draw_calls": 4
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-11-20T01:50:52.425261+00:00",
+  "elapsed_sec": 5.63,
+  "verified_entries": 927,
+  "expected_entries": 927,
+  "total_range_bytes_read": 76067195,
+  "gates": {
+    "index_le_64kib": true,
+    "far_base_le_3mib": true,
+    "total_le_85mib": true,
+    "all_entries_range_verified": true
+  },
+  "passed": true,
+  "errors": []
+}

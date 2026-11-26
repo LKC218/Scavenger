@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "model:US_ACV",
+  "slug": "US_ACV",
+  "name": "ACV",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "d1fc4d44d60f9a8a987b9c35d50ae53b941216b811e6bce35de048cdd939a2bb",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.57,
+  "baseline_256_bytes": 785472,
+  "baseline_256_tris": 29172,
+  "original_tris": 36342,
+  "bounds": {
+    "min": [
+      -1.671,
+      0.0044,
+      -4.6602
+    ],
+    "max": [
+      1.6619,
+      5.2098,
+      4.3258
+    ],
+    "size": [
+      3.3329,
+      5.2054,
+      8.986
+    ],
+    "center": [
+      -0.0045,
+      2.6071,
+      -0.1672
+    ],
+    "radius": 5.4533
+  },
+  "labelBounds": {
+    "min": [
+      -1.671,
+      0.0044,
+      -4.6602
+    ],
+    "max": [
+      1.6619,
+      5.2098,
+      4.3258
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.138,
+      0.004,
+      -3.222
+    ],
+    [
+      1.129,
+      0.004,
+      -3.222
+    ],
+    [
+      -1.138,
+      0.004,
+      2.888
+    ],
+    [
+      1.129,
+      0.004,
+      2.888
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_right",
+        "pos": [
+          1.239,
+          2.211,
+          -1.0432
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0517,
+    0.0487,
+    0.0439
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 14219,
+      "tris_lod1": 4692,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_ACV/lod0.glb",
+      "bytes": 239928,
+      "sha256": "177b0d751e71e41ba3148298190d071feba42b14dc0a06b4a431659f6f5a4dc7",
+      "triangles": 14219,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_8ae45c32c2f9b6_b",
+          "uri": "tex/tex_8ae45c32c2f9b6_b.ktx2",
+          "bytes": 219045,
+          "sha256": "8ae45c32c2f9b61931833a087479efd95f10d8c4a6eccf9ee2671f1b98680782",
+          "linear": false
+        },
+        {
+          "key": "tex_1a64120cc8e738_n",
+          "uri": "tex/tex_1a64120cc8e738_n.ktx2",
+          "bytes": 77345,
+          "sha256": "1a64120cc8e7384c38ac4239d479abddd4c6063327da2aabd03f47e0bc7c4ffc",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_ACV/lod1.glb",
+      "bytes": 79956,
+      "sha256": "5a10b850e25d23f8a1d89a38976b21e17be12422c449b9e2013a316122f82644",
+      "triangles": 4692,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_8ae45c32c2f9b6_b",
+          "uri": "tex/tex_8ae45c32c2f9b6_b.ktx2",
+          "bytes": 219045,
+          "sha256": "8ae45c32c2f9b61931833a087479efd95f10d8c4a6eccf9ee2671f1b98680782",
+          "linear": false
+        },
+        {
+          "key": "tex_1a64120cc8e738_n",
+          "uri": "tex/tex_1a64120cc8e738_n.ktx2",
+          "bytes": 77345,
+          "sha256": "1a64120cc8e7384c38ac4239d479abddd4c6063327da2aabd03f47e0bc7c4ffc",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_ACV/lod2.glb",
+      "bytes": 11532,
+      "sha256": "591865af116d303e7f9907dd955f884d71287eb51ef6856e891d6e2067b69b65",
+      "triangles": 966,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_8ae45c32c2f9b6_b",
+      "uri": "tex/tex_8ae45c32c2f9b6_b.ktx2",
+      "bytes": 219045,
+      "sha256": "8ae45c32c2f9b61931833a087479efd95f10d8c4a6eccf9ee2671f1b98680782",
+      "linear": false
+    },
+    {
+      "key": "tex_1a64120cc8e738_n",
+      "uri": "tex/tex_1a64120cc8e738_n.ktx2",
+      "bytes": 77345,
+      "sha256": "1a64120cc8e7384c38ac4239d479abddd4c6063327da2aabd03f47e0bc7c4ffc",
+      "linear": true
+    },
+    {
+      "key": "shared_e280743eb8e60395_b",
+      "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+      "bytes": 66240,
+      "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+      "linear": false
+    },
+    {
+      "key": "shared_87eaef8ed1fbc611_n",
+      "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+      "bytes": 73449,
+      "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 536318,
+    "lod0_lod1_plus_own_tex_bytes": 616274,
+    "lod0_plus_all_tex_bytes": 676007,
+    "shared_tex_bytes": 139689,
+    "own_tex_bytes": 296390,
+    "opaque_draw_calls": 2
+  }
+}

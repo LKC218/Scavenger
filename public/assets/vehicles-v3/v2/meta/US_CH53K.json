@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "id": "model:US_CH53K",
+  "slug": "US_CH53K",
+  "name": "CH-53K King Stallion",
+  "category": "air",
+  "role": "rotorcraft",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "54d64a838f8b896674c752d8bf7a4145ede122bf28789b95ec1a8f3658abd65b",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.73,
+  "baseline_256_bytes": 1696940,
+  "baseline_256_tris": 64231,
+  "original_tris": 109077,
+  "bounds": {
+    "min": [
+      -12.0394,
+      0.5351,
+      -11.2398
+    ],
+    "max": [
+      11.9141,
+      8.6649,
+      17.9706
+    ],
+    "size": [
+      23.9536,
+      8.1298,
+      29.2103
+    ],
+    "center": [
+      -0.0626,
+      4.6,
+      3.3654
+    ],
+    "radius": 19.3204
+  },
+  "labelBounds": {
+    "min": [
+      -19.3169,
+      0.5351,
+      -19.3169
+    ],
+    "max": [
+      19.3169,
+      8.6649,
+      19.3169
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -2.192,
+          3.57,
+          1.075
+        ]
+      },
+      {
+        "name": "exhaust_left (1)",
+        "pos": [
+          -1.256,
+          3.9216,
+          3.975
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          2.18,
+          3.6276,
+          0.84
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1531,
+    0.1356,
+    0.1249
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 14970,
+      "tris_lod1": 5988,
+      "drawCalls": 4
+    },
+    {
+      "slot": "main_rotor",
+      "pivot": [
+        0,
+        5.3722,
+        0
+      ],
+      "axis": "y",
+      "tris_lod0": 3531,
+      "tris_lod1": 3300,
+      "drawCalls": 1
+    },
+    {
+      "slot": "tail_rotor",
+      "pivot": [
+        -1.149,
+        6.0386,
+        15.023
+      ],
+      "axis": "x",
+      "tris_lod0": 1360,
+      "tris_lod1": 1344,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CH53K/lod0.glb",
+      "bytes": 339460,
+      "sha256": "977011fe44dd9433057cbc0f4ee22032b17b915132f92a17062b8b0ec6a77f28",
+      "triangles": 19861,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_37c084e57b8115_b",
+          "uri": "tex/tex_37c084e57b8115_b.ktx2",
+          "bytes": 213234,
+          "sha256": "37c084e57b811589f173749e3bcac9f2fe10cb88bc576aa281c11d2366f92fde",
+          "linear": false
+        },
+        {
+          "key": "tex_ed801c99fccf2b_n",
+          "uri": "tex/tex_ed801c99fccf2b_n.ktx2",
+          "bytes": 79174,
+          "sha256": "ed801c99fccf2b4d6e7c5c853943cfbecf4239f18d16f8ec0e2aef7906c892eb",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CH53K/lod1.glb",
+      "bytes": 178616,
+      "sha256": "69430987c550963a6870f1957fe9461a62041c04707e686dbf8f48bc6c3a042e",
+      "triangles": 10632,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_37c084e57b8115_b",
+          "uri": "tex/tex_37c084e57b8115_b.ktx2",
+          "bytes": 213234,
+          "sha256": "37c084e57b811589f173749e3bcac9f2fe10cb88bc576aa281c11d2366f92fde",
+          "linear": false
+        },
+        {
+          "key": "tex_ed801c99fccf2b_n",
+          "uri": "tex/tex_ed801c99fccf2b_n.ktx2",
+          "bytes": 79174,
+          "sha256": "ed801c99fccf2b4d6e7c5c853943cfbecf4239f18d16f8ec0e2aef7906c892eb",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CH53K/lod2.glb",
+      "bytes": 56280,
+      "sha256": "2496a89d344ad25fede3042b2b9651212a2dde785b28f8e1fddb3ceccf85141f",
+      "triangles": 4985,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_37c084e57b8115_b",
+      "uri": "tex/tex_37c084e57b8115_b.ktx2",
+      "bytes": 213234,
+      "sha256": "37c084e57b811589f173749e3bcac9f2fe10cb88bc576aa281c11d2366f92fde",
+      "linear": false
+    },
+    {
+      "key": "tex_ed801c99fccf2b_n",
+      "uri": "tex/tex_ed801c99fccf2b_n.ktx2",
+      "bytes": 79174,
+      "sha256": "ed801c99fccf2b4d6e7c5c853943cfbecf4239f18d16f8ec0e2aef7906c892eb",
+      "linear": true
+    },
+    {
+      "key": "shared_c1e20da198b3123d_b",
+      "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+      "bytes": 66024,
+      "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+      "linear": false
+    },
+    {
+      "key": "shared_0f54581d4d87e4eb_n",
+      "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+      "bytes": 81853,
+      "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+      "linear": true
+    },
+    {
+      "key": "shared_9f402618efd99b98_b",
+      "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+      "bytes": 67037,
+      "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+      "linear": false
+    },
+    {
+      "key": "shared_b5836749932430e5_n",
+      "uri": "tex/shared_b5836749932430e5_n.ktx2",
+      "bytes": 75298,
+      "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 631868,
+    "lod0_lod1_plus_own_tex_bytes": 810484,
+    "lod0_plus_all_tex_bytes": 922080,
+    "shared_tex_bytes": 290212,
+    "own_tex_bytes": 292408,
+    "opaque_draw_calls": 5
+  }
+}

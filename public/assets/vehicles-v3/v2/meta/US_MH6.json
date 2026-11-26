@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "id": "model:US_MH6",
+  "slug": "US_MH6",
+  "name": "MH-6 Little Bird",
+  "category": "air",
+  "role": "rotorcraft",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "ee2ec44594143318366e7a1388a5624733288eb244ae290ddb83ca04004233ce",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.51,
+  "baseline_256_bytes": 909056,
+  "baseline_256_tris": 39223,
+  "original_tris": 40811,
+  "bounds": {
+    "min": [
+      -3.4308,
+      -0.002,
+      -3.5888
+    ],
+    "max": [
+      3.3854,
+      2.5474,
+      5.0526
+    ],
+    "size": [
+      6.8162,
+      2.5494,
+      8.6414
+    ],
+    "center": [
+      -0.0227,
+      1.2727,
+      0.7319
+    ],
+    "radius": 5.6488
+  },
+  "labelBounds": {
+    "min": [
+      -4.9977,
+      -0.002,
+      -4.9395
+    ],
+    "max": [
+      4.9523,
+      2.5474,
+      5.0526
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          -0.0289,
+          0.9351,
+          1.7025
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1353,
+    0.0982,
+    0.0808
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "tail_rotor",
+      "pivot": [
+        -0.0173,
+        1.4332,
+        4.3734
+      ],
+      "axis": "x",
+      "tris_lod0": 519,
+      "tris_lod1": 460,
+      "drawCalls": 1
+    },
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 12874,
+      "tris_lod1": 1610,
+      "drawCalls": 3
+    },
+    {
+      "slot": "main_rotor",
+      "pivot": [
+        -0.0227,
+        2.3664,
+        0.0355
+      ],
+      "axis": "y",
+      "tris_lod0": 1353,
+      "tris_lod1": 1180,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MH6/lod0.glb",
+      "bytes": 240080,
+      "sha256": "c99b5b10fc05815b80570dabf391d29b0e32b30b9562317b503bf4e49ae1c079",
+      "triangles": 14746,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "shared_c4f251b2852da694_b",
+          "uri": "tex/shared_c4f251b2852da694_b.ktx2",
+          "bytes": 82199,
+          "sha256": "dfd44533e6d4ca926d38f63c4df71d3c7d04eb21cc667c02d32c32765597754c",
+          "linear": false
+        },
+        {
+          "key": "shared_da1cd9b21d33e328_n",
+          "uri": "tex/shared_da1cd9b21d33e328_n.ktx2",
+          "bytes": 78647,
+          "sha256": "2e7a851c31f0f321c71756aef3e75a7dca534a999004312680070417d8b894b6",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MH6/lod1.glb",
+      "bytes": 66632,
+      "sha256": "1e1737cda5be05e9ccbe8f9f0fb9ab8a41098fe12443b985766f3ab449c37cec",
+      "triangles": 3250,
+      "drawCalls": 6,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "shared_c4f251b2852da694_b",
+          "uri": "tex/shared_c4f251b2852da694_b.ktx2",
+          "bytes": 82199,
+          "sha256": "dfd44533e6d4ca926d38f63c4df71d3c7d04eb21cc667c02d32c32765597754c",
+          "linear": false
+        },
+        {
+          "key": "shared_da1cd9b21d33e328_n",
+          "uri": "tex/shared_da1cd9b21d33e328_n.ktx2",
+          "bytes": 78647,
+          "sha256": "2e7a851c31f0f321c71756aef3e75a7dca534a999004312680070417d8b894b6",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MH6/lod2.glb",
+      "bytes": 25636,
+      "sha256": "a507ed749b026e759781af3bef20932bb4a0a724123d1587033b147721ee7519",
+      "triangles": 2069,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "shared_c4f251b2852da694_b",
+      "uri": "tex/shared_c4f251b2852da694_b.ktx2",
+      "bytes": 82199,
+      "sha256": "dfd44533e6d4ca926d38f63c4df71d3c7d04eb21cc667c02d32c32765597754c",
+      "linear": false
+    },
+    {
+      "key": "shared_da1cd9b21d33e328_n",
+      "uri": "tex/shared_da1cd9b21d33e328_n.ktx2",
+      "bytes": 78647,
+      "sha256": "2e7a851c31f0f321c71756aef3e75a7dca534a999004312680070417d8b894b6",
+      "linear": true
+    },
+    {
+      "key": "shared_c1e20da198b3123d_b",
+      "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+      "bytes": 66024,
+      "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+      "linear": false
+    },
+    {
+      "key": "shared_0f54581d4d87e4eb_n",
+      "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+      "bytes": 81853,
+      "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 240080,
+    "lod0_lod1_plus_own_tex_bytes": 306712,
+    "lod0_plus_all_tex_bytes": 548803,
+    "shared_tex_bytes": 308723,
+    "own_tex_bytes": 0,
+    "opaque_draw_calls": 5
+  }
+}

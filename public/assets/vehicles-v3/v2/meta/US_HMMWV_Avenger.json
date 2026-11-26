@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "id": "model:US_HMMWV_Avenger",
+  "slug": "US_HMMWV_Avenger",
+  "name": "AN/TWQ-1 Avenger",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "e7deebaf6b42cf2b44b4f5d4b688ca7395d6c23b8e58afddf7846fb596215719",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.99,
+  "baseline_256_bytes": 1142240,
+  "baseline_256_tris": 47628,
+  "original_tris": 62838,
+  "bounds": {
+    "min": [
+      -1.5003,
+      0.0052,
+      -2.4931
+    ],
+    "max": [
+      1.4985,
+      3.8679,
+      2.8015
+    ],
+    "size": [
+      2.9988,
+      3.8627,
+      5.2946
+    ],
+    "center": [
+      -0.0009,
+      1.9366,
+      0.1542
+    ],
+    "radius": 3.6037
+  },
+  "labelBounds": {
+    "min": [
+      -1.5003,
+      0.0052,
+      -2.4931
+    ],
+    "max": [
+      1.4985,
+      3.8679,
+      2.8015
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.02,
+      0.005,
+      -1.646
+    ],
+    [
+      1.019,
+      0.005,
+      -1.646
+    ],
+    [
+      -1.02,
+      0.005,
+      1.954
+    ],
+    [
+      1.019,
+      0.005,
+      1.954
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": []
+  },
+  "avgLinearColor": [
+    0.1668,
+    0.1491,
+    0.1255
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 23148,
+      "tris_lod1": 5713,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HMMWV_Avenger/lod0.glb",
+      "bytes": 377956,
+      "sha256": "d32e61c8c7d0065fc631c189b1be2ee3e6e2849aa85a9a06911407ead70c1948",
+      "triangles": 23148,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_3c7f96d419af01_b",
+          "uri": "tex/tex_3c7f96d419af01_b.ktx2",
+          "bytes": 206428,
+          "sha256": "3c7f96d419af011a820a9a3eabb50d3008913ba8d2a5f15efa56c600f0e98541",
+          "linear": false
+        },
+        {
+          "key": "tex_9a11f445641a10_n",
+          "uri": "tex/tex_9a11f445641a10_n.ktx2",
+          "bytes": 77953,
+          "sha256": "9a11f445641a102a7baf07339f2877faf3fb2b3d755a715514a90143f600ae52",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "tex_bf9beb44b5f18e_b",
+          "uri": "tex/tex_bf9beb44b5f18e_b.ktx2",
+          "bytes": 27438,
+          "sha256": "bf9beb44b5f18e2e2d186dee32f37d42fae3ea3eaad1e326c8e478306ad9bef1",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HMMWV_Avenger/lod1.glb",
+      "bytes": 103024,
+      "sha256": "8fdaa8d8d6654d1550f861d3033b466f29570836ca42d5129ebcd1713b66af4a",
+      "triangles": 5713,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_3c7f96d419af01_b",
+          "uri": "tex/tex_3c7f96d419af01_b.ktx2",
+          "bytes": 206428,
+          "sha256": "3c7f96d419af011a820a9a3eabb50d3008913ba8d2a5f15efa56c600f0e98541",
+          "linear": false
+        },
+        {
+          "key": "tex_9a11f445641a10_n",
+          "uri": "tex/tex_9a11f445641a10_n.ktx2",
+          "bytes": 77953,
+          "sha256": "9a11f445641a102a7baf07339f2877faf3fb2b3d755a715514a90143f600ae52",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "tex_bf9beb44b5f18e_b",
+          "uri": "tex/tex_bf9beb44b5f18e_b.ktx2",
+          "bytes": 27438,
+          "sha256": "bf9beb44b5f18e2e2d186dee32f37d42fae3ea3eaad1e326c8e478306ad9bef1",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HMMWV_Avenger/lod2.glb",
+      "bytes": 12100,
+      "sha256": "6151aecbe83970c2202ef9dbd76d6d6aae032a7325971a8a2d773f6cc61db4ea",
+      "triangles": 973,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_3c7f96d419af01_b",
+      "uri": "tex/tex_3c7f96d419af01_b.ktx2",
+      "bytes": 206428,
+      "sha256": "3c7f96d419af011a820a9a3eabb50d3008913ba8d2a5f15efa56c600f0e98541",
+      "linear": false
+    },
+    {
+      "key": "tex_9a11f445641a10_n",
+      "uri": "tex/tex_9a11f445641a10_n.ktx2",
+      "bytes": 77953,
+      "sha256": "9a11f445641a102a7baf07339f2877faf3fb2b3d755a715514a90143f600ae52",
+      "linear": true
+    },
+    {
+      "key": "shared_f0f32258dd589cc4_b",
+      "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+      "bytes": 80989,
+      "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+      "linear": false
+    },
+    {
+      "key": "shared_616b9fa4a46d547a_n",
+      "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+      "bytes": 83988,
+      "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+      "linear": true
+    },
+    {
+      "key": "tex_bf9beb44b5f18e_b",
+      "uri": "tex/tex_bf9beb44b5f18e_b.ktx2",
+      "bytes": 27438,
+      "sha256": "bf9beb44b5f18e2e2d186dee32f37d42fae3ea3eaad1e326c8e478306ad9bef1",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 689775,
+    "lod0_lod1_plus_own_tex_bytes": 792799,
+    "lod0_plus_all_tex_bytes": 854752,
+    "shared_tex_bytes": 164977,
+    "own_tex_bytes": 311819,
+    "opaque_draw_calls": 2
+  }
+}

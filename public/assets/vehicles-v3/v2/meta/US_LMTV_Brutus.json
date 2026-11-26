@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "model:US_LMTV_Brutus",
+  "slug": "US_LMTV_Brutus",
+  "name": "Brutus",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "42ebb72b307c406a87a1e8e541edcc2e90e3af9abe4eb7b054834eb5ef7f4fa5",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.72,
+  "baseline_256_bytes": 1342692,
+  "baseline_256_tris": 56837,
+  "original_tris": 87611,
+  "bounds": {
+    "min": [
+      -2.1785,
+      0.0144,
+      -4.6969
+    ],
+    "max": [
+      2.2157,
+      3.933,
+      4.8594
+    ],
+    "size": [
+      4.3942,
+      3.9186,
+      9.5563
+    ],
+    "center": [
+      0.0186,
+      1.9737,
+      0.0813
+    ],
+    "radius": 5.6122
+  },
+  "labelBounds": {
+    "min": [
+      -2.1785,
+      0.0144,
+      -4.6969
+    ],
+    "max": [
+      2.2157,
+      3.933,
+      4.8594
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.475,
+      0.014,
+      -3.168
+    ],
+    [
+      1.513,
+      0.014,
+      -3.168
+    ],
+    [
+      -1.475,
+      0.014,
+      3.33
+    ],
+    [
+      1.513,
+      0.014,
+      3.33
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          -1.094,
+          0.6922,
+          0.469
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1772,
+    0.1578,
+    0.1334
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 24457,
+      "tris_lod1": 6372,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LMTV_Brutus/lod0.glb",
+      "bytes": 408360,
+      "sha256": "7783de0a340df45d4c2c0336d7f84d62859644d1d73ecd82ae499f8a09665c85",
+      "triangles": 24457,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_b919097f883985_b",
+          "uri": "tex/tex_b919097f883985_b.ktx2",
+          "bytes": 226846,
+          "sha256": "b919097f8839851a20a9e003252eb33bff645e9033067c8f9c19c3fa678d4ea6",
+          "linear": false
+        },
+        {
+          "key": "tex_5b31bb0a511e98_n",
+          "uri": "tex/tex_5b31bb0a511e98_n.ktx2",
+          "bytes": 80362,
+          "sha256": "5b31bb0a511e984ecc08009ecfd871106263f271b00e363855a584fd334228ed",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LMTV_Brutus/lod1.glb",
+      "bytes": 109040,
+      "sha256": "a15e16d48d1394241ff23c9ff714a4a358ac3a5c91d87ec0ec2a3f19f5def795",
+      "triangles": 6372,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_b919097f883985_b",
+          "uri": "tex/tex_b919097f883985_b.ktx2",
+          "bytes": 226846,
+          "sha256": "b919097f8839851a20a9e003252eb33bff645e9033067c8f9c19c3fa678d4ea6",
+          "linear": false
+        },
+        {
+          "key": "tex_5b31bb0a511e98_n",
+          "uri": "tex/tex_5b31bb0a511e98_n.ktx2",
+          "bytes": 80362,
+          "sha256": "5b31bb0a511e984ecc08009ecfd871106263f271b00e363855a584fd334228ed",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_LMTV_Brutus/lod2.glb",
+      "bytes": 12164,
+      "sha256": "6146b6d0152c689276163ad15ba9a104c5d6b72035055b656858d208c9fa2218",
+      "triangles": 979,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_b919097f883985_b",
+      "uri": "tex/tex_b919097f883985_b.ktx2",
+      "bytes": 226846,
+      "sha256": "b919097f8839851a20a9e003252eb33bff645e9033067c8f9c19c3fa678d4ea6",
+      "linear": false
+    },
+    {
+      "key": "tex_5b31bb0a511e98_n",
+      "uri": "tex/tex_5b31bb0a511e98_n.ktx2",
+      "bytes": 80362,
+      "sha256": "5b31bb0a511e984ecc08009ecfd871106263f271b00e363855a584fd334228ed",
+      "linear": true
+    },
+    {
+      "key": "shared_f0f32258dd589cc4_b",
+      "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+      "bytes": 80989,
+      "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+      "linear": false
+    },
+    {
+      "key": "shared_616b9fa4a46d547a_n",
+      "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+      "bytes": 83988,
+      "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 715568,
+    "lod0_lod1_plus_own_tex_bytes": 824608,
+    "lod0_plus_all_tex_bytes": 880545,
+    "shared_tex_bytes": 164977,
+    "own_tex_bytes": 307208,
+    "opaque_draw_calls": 2
+  }
+}

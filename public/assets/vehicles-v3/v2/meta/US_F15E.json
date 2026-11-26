@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "id": "model:US_F15E",
+  "slug": "US_F15E",
+  "name": "F-15E Strike Eagle",
+  "category": "air",
+  "role": "fixed_wing",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "2b3dde08bca0ca50083e94a6340dd013a333bec4b41fdb38a50aa450906f12dc",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 1.19,
+  "baseline_256_bytes": 1799376,
+  "baseline_256_tris": 55473,
+  "original_tris": 77365,
+  "bounds": {
+    "min": [
+      -6.554,
+      0.7506,
+      -9.5768
+    ],
+    "max": [
+      6.6625,
+      5.8844,
+      9.8592
+    ],
+    "size": [
+      13.2165,
+      5.1338,
+      19.436
+    ],
+    "center": [
+      0.0542,
+      3.3175,
+      0.1412
+    ],
+    "radius": 12.029
+  },
+  "labelBounds": {
+    "min": [
+      -6.554,
+      0.7506,
+      -9.5768
+    ],
+    "max": [
+      6.6625,
+      5.8844,
+      9.8592
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left_1",
+        "pos": [
+          -0.65,
+          2.3007,
+          6.55
+        ]
+      },
+      {
+        "name": "exhaust_right_1",
+        "pos": [
+          0.77,
+          2.3107,
+          6.55
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1201,
+    0.0984,
+    0.0899
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 27393,
+      "tris_lod1": 4519,
+      "drawCalls": 4
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_F15E/lod0.glb",
+      "bytes": 507796,
+      "sha256": "cad01d210cb55ee1c0b8af7fbedc2fe477f1f218e57d1c852b0a9148b9c7d6e3",
+      "triangles": 27393,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_06190d98b2c8bb_b",
+          "uri": "tex/tex_06190d98b2c8bb_b.ktx2",
+          "bytes": 117059,
+          "sha256": "06190d98b2c8bbca2c042e09eda7540d0ed5abf39cb4122741e1e55e166c8cdf",
+          "linear": false
+        },
+        {
+          "key": "tex_1c077434e488db_n",
+          "uri": "tex/tex_1c077434e488db_n.ktx2",
+          "bytes": 44963,
+          "sha256": "1c077434e488dbecead99490af6be646981795b3a515bc1e0fcf076f50c4e6c2",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_9f4a205dd0b17d2e_b",
+          "uri": "tex/shared_9f4a205dd0b17d2e_b.ktx2",
+          "bytes": 33258,
+          "sha256": "44806fea28233e6699370f2f92f3b52593fc62255f50f531cd8d56d9f387ad66",
+          "linear": false
+        },
+        {
+          "key": "shared_ba36d8b9dd68c597_n",
+          "uri": "tex/shared_ba36d8b9dd68c597_n.ktx2",
+          "bytes": 35181,
+          "sha256": "188436ff0977a033e24288f8d74e7d18a235747cf701f5753ca92acc56ecbb49",
+          "linear": true
+        },
+        {
+          "key": "tex_529df38b1fed42_b",
+          "uri": "tex/tex_529df38b1fed42_b.ktx2",
+          "bytes": 29171,
+          "sha256": "529df38b1fed4214c3a6f143a8bc9e6ff88c7dafc93a024f4355c9a8262299f1",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_F15E/lod1.glb",
+      "bytes": 84340,
+      "sha256": "6f70fa2c8a1adf43ec92dbc7160dbb0692745b0a05b3eee164eddd06a3f7739a",
+      "triangles": 4519,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_06190d98b2c8bb_b",
+          "uri": "tex/tex_06190d98b2c8bb_b.ktx2",
+          "bytes": 117059,
+          "sha256": "06190d98b2c8bbca2c042e09eda7540d0ed5abf39cb4122741e1e55e166c8cdf",
+          "linear": false
+        },
+        {
+          "key": "tex_1c077434e488db_n",
+          "uri": "tex/tex_1c077434e488db_n.ktx2",
+          "bytes": 44963,
+          "sha256": "1c077434e488dbecead99490af6be646981795b3a515bc1e0fcf076f50c4e6c2",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_9f4a205dd0b17d2e_b",
+          "uri": "tex/shared_9f4a205dd0b17d2e_b.ktx2",
+          "bytes": 33258,
+          "sha256": "44806fea28233e6699370f2f92f3b52593fc62255f50f531cd8d56d9f387ad66",
+          "linear": false
+        },
+        {
+          "key": "shared_ba36d8b9dd68c597_n",
+          "uri": "tex/shared_ba36d8b9dd68c597_n.ktx2",
+          "bytes": 35181,
+          "sha256": "188436ff0977a033e24288f8d74e7d18a235747cf701f5753ca92acc56ecbb49",
+          "linear": true
+        },
+        {
+          "key": "tex_529df38b1fed42_b",
+          "uri": "tex/tex_529df38b1fed42_b.ktx2",
+          "bytes": 29171,
+          "sha256": "529df38b1fed4214c3a6f143a8bc9e6ff88c7dafc93a024f4355c9a8262299f1",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_F15E/lod2.glb",
+      "bytes": 13708,
+      "sha256": "85df1a9e2f7e58710adcd084b02b1d6a40568f2d741a30f9bb1f2bcecb6e9fcd",
+      "triangles": 1344,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_06190d98b2c8bb_b",
+      "uri": "tex/tex_06190d98b2c8bb_b.ktx2",
+      "bytes": 117059,
+      "sha256": "06190d98b2c8bbca2c042e09eda7540d0ed5abf39cb4122741e1e55e166c8cdf",
+      "linear": false
+    },
+    {
+      "key": "tex_1c077434e488db_n",
+      "uri": "tex/tex_1c077434e488db_n.ktx2",
+      "bytes": 44963,
+      "sha256": "1c077434e488dbecead99490af6be646981795b3a515bc1e0fcf076f50c4e6c2",
+      "linear": true
+    },
+    {
+      "key": "shared_bcb3b634b14a77aa_b",
+      "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+      "bytes": 73563,
+      "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+      "linear": false
+    },
+    {
+      "key": "shared_7b08e70e297c1754_n",
+      "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+      "bytes": 83733,
+      "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+      "linear": true
+    },
+    {
+      "key": "shared_9f4a205dd0b17d2e_b",
+      "uri": "tex/shared_9f4a205dd0b17d2e_b.ktx2",
+      "bytes": 33258,
+      "sha256": "44806fea28233e6699370f2f92f3b52593fc62255f50f531cd8d56d9f387ad66",
+      "linear": false
+    },
+    {
+      "key": "shared_ba36d8b9dd68c597_n",
+      "uri": "tex/shared_ba36d8b9dd68c597_n.ktx2",
+      "bytes": 35181,
+      "sha256": "188436ff0977a033e24288f8d74e7d18a235747cf701f5753ca92acc56ecbb49",
+      "linear": true
+    },
+    {
+      "key": "tex_529df38b1fed42_b",
+      "uri": "tex/tex_529df38b1fed42_b.ktx2",
+      "bytes": 29171,
+      "sha256": "529df38b1fed4214c3a6f143a8bc9e6ff88c7dafc93a024f4355c9a8262299f1",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 698989,
+    "lod0_lod1_plus_own_tex_bytes": 783329,
+    "lod0_plus_all_tex_bytes": 924724,
+    "shared_tex_bytes": 225735,
+    "own_tex_bytes": 191193,
+    "opaque_draw_calls": 3
+  }
+}

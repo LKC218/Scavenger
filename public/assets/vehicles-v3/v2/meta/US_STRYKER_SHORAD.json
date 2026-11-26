@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "model:US_STRYKER_SHORAD",
+  "slug": "US_STRYKER_SHORAD",
+  "name": "Stryker M-SHORAD",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "5be8d68ff10d935608c58dad2a9feb7f2ebc6d451e7a478077c6a7e2e90f5fbe",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.53,
+  "baseline_256_bytes": 986088,
+  "baseline_256_tris": 38156,
+  "original_tris": 43696,
+  "bounds": {
+    "min": [
+      -1.619,
+      0.0052,
+      -3.5881
+    ],
+    "max": [
+      1.619,
+      3.8194,
+      4.0755
+    ],
+    "size": [
+      3.2379,
+      3.8142,
+      7.6636
+    ],
+    "center": [
+      0,
+      1.9123,
+      0.2437
+    ],
+    "radius": 4.5761
+  },
+  "labelBounds": {
+    "min": [
+      -1.619,
+      0.0052,
+      -3.5881
+    ],
+    "max": [
+      1.619,
+      3.8194,
+      4.0755
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.101,
+      0.005,
+      -2.362
+    ],
+    [
+      1.101,
+      0.005,
+      -2.362
+    ],
+    [
+      -1.101,
+      0.005,
+      2.849
+    ],
+    [
+      1.101,
+      0.005,
+      2.849
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          1.2727,
+          2.1234,
+          -1.3592
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0429,
+    0.0414,
+    0.038
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 20794,
+      "tris_lod1": 5176,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_SHORAD/lod0.glb",
+      "bytes": 351124,
+      "sha256": "346dcda02ca747850e2bc7e1333124c0cb41059f22e62d88482dcbb150798ddc",
+      "triangles": 20794,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_4ae12d8331e50d_b",
+          "uri": "tex/tex_4ae12d8331e50d_b.ktx2",
+          "bytes": 195897,
+          "sha256": "4ae12d8331e50d89d639de4467abb09c21eca9b0d0aee23d312c363227d07318",
+          "linear": false
+        },
+        {
+          "key": "tex_915155841b1c67_n",
+          "uri": "tex/tex_915155841b1c67_n.ktx2",
+          "bytes": 82100,
+          "sha256": "915155841b1c674a738956b0ae020b6a05663ef7bd1e8220ff433787431b2a8a",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_SHORAD/lod1.glb",
+      "bytes": 90200,
+      "sha256": "6c19d113bf5fab4551ea355aae5313951256a63b1ce1c262b13e2acd7a806ada",
+      "triangles": 5176,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_4ae12d8331e50d_b",
+          "uri": "tex/tex_4ae12d8331e50d_b.ktx2",
+          "bytes": 195897,
+          "sha256": "4ae12d8331e50d89d639de4467abb09c21eca9b0d0aee23d312c363227d07318",
+          "linear": false
+        },
+        {
+          "key": "tex_915155841b1c67_n",
+          "uri": "tex/tex_915155841b1c67_n.ktx2",
+          "bytes": 82100,
+          "sha256": "915155841b1c674a738956b0ae020b6a05663ef7bd1e8220ff433787431b2a8a",
+          "linear": true
+        },
+        {
+          "key": "shared_9f402618efd99b98_b",
+          "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+          "bytes": 67037,
+          "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+          "linear": false
+        },
+        {
+          "key": "shared_b5836749932430e5_n",
+          "uri": "tex/shared_b5836749932430e5_n.ktx2",
+          "bytes": 75298,
+          "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_SHORAD/lod2.glb",
+      "bytes": 10604,
+      "sha256": "d2057cf8d09fbea76e3521dd40c00a34e7cfdaa2c7129d1d7aac238e7aac3d3c",
+      "triangles": 972,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_4ae12d8331e50d_b",
+      "uri": "tex/tex_4ae12d8331e50d_b.ktx2",
+      "bytes": 195897,
+      "sha256": "4ae12d8331e50d89d639de4467abb09c21eca9b0d0aee23d312c363227d07318",
+      "linear": false
+    },
+    {
+      "key": "tex_915155841b1c67_n",
+      "uri": "tex/tex_915155841b1c67_n.ktx2",
+      "bytes": 82100,
+      "sha256": "915155841b1c674a738956b0ae020b6a05663ef7bd1e8220ff433787431b2a8a",
+      "linear": true
+    },
+    {
+      "key": "shared_9f402618efd99b98_b",
+      "uri": "tex/shared_9f402618efd99b98_b.ktx2",
+      "bytes": 67037,
+      "sha256": "326e8a5d0aa8613f9b0cccf6c674c6214a588630757490055477b1a2e3181134",
+      "linear": false
+    },
+    {
+      "key": "shared_b5836749932430e5_n",
+      "uri": "tex/shared_b5836749932430e5_n.ktx2",
+      "bytes": 75298,
+      "sha256": "61d8ef85160bc34dd59bd0cdbd0f5a926e3458dcfc053aa8489ed032cd926e8f",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 629121,
+    "lod0_lod1_plus_own_tex_bytes": 719321,
+    "lod0_plus_all_tex_bytes": 771456,
+    "shared_tex_bytes": 142335,
+    "own_tex_bytes": 277997,
+    "opaque_draw_calls": 2
+  }
+}

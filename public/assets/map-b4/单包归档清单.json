@@ -1,0 +1,72 @@
+{
+  "schema": "scavenger-procedural-map-b4-archive-v1",
+  "created_at": "2026-11-20T19:30:17.105400+00:00",
+  "binary_index": {
+    "file": "spatial-index.scvi",
+    "bytes": 30194,
+    "kb": 29.486,
+    "limit_kb": 128.0,
+    "within_limit": true,
+    "core_startup_segment_bytes": 5824976,
+    "core_startup_segment_mib": 5.555,
+    "identity": {
+      "path": "local-data/程序化地图/V001-fcf46de3/B4-单包归档/spatial-index.scvi",
+      "bytes": 30194,
+      "mtime_ns": 1795203017105400200,
+      "sha256": "b7b13420638670775cbe8676b04c20da61100ef7eede0ec74503b08fbb48e796"
+    }
+  },
+  "archives": [
+    {
+      "archive_id": 0,
+      "file": "startup-base.scvmap",
+      "entry_count": 41,
+      "bytes": 19222539,
+      "mib": 18.332,
+      "identity": {
+        "path": "local-data/程序化地图/V001-fcf46de3/B4-单包归档/startup-base.scvmap",
+        "bytes": 19222539,
+        "mtime_ns": 1795203016854408300,
+        "sha256": "f69bc90fa3ae7c0fc9248a947ebad75f68b76aad5ae714f205bd3fc230c51f7a"
+      }
+    },
+    {
+      "archive_id": 1,
+      "file": "terrain-support-morton.scvmap",
+      "entry_count": 1297,
+      "bytes": 24727868,
+      "mib": 23.582,
+      "identity": {
+        "path": "local-data/程序化地图/V001-fcf46de3/B4-单包归档/terrain-support-morton.scvmap",
+        "bytes": 24727868,
+        "mtime_ns": 1795203016983012600,
+        "sha256": "9f65b5ad9f0a09dbb5843dafc8ccc2bb508d12494dd02389babd3b82f0219a63"
+      }
+    },
+    {
+      "archive_id": 2,
+      "file": "modular-kit-morton.scvmap",
+      "entry_count": 243,
+      "bytes": 32491812,
+      "mib": 30.987,
+      "identity": {
+        "path": "local-data/程序化地图/V001-fcf46de3/B4-单包归档/modular-kit-morton.scvmap",
+        "bytes": 32491812,
+        "mtime_ns": 1795203017080422800,
+        "sha256": "3052b14425d5c1e283209bc6700d8693fba8acbb3905ff78dba84d8ccff136fa"
+      }
+    }
+  ],
+  "budget_summary": {
+    "archive_count": 3,
+    "max_archives_allowed": 3,
+    "binary_index_kb": 29.486,
+    "binary_index_limit_kb": 128.0,
+    "core_startup_segment_mib": 5.555,
+    "total_archive_bytes": 76472413,
+    "total_archive_mib": 72.93,
+    "limit_mib": 90.0,
+    "within_budget": true
+  },
+  "elapsed_s": 0.29
+}

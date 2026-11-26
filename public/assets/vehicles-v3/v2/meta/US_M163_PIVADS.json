@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "id": "model:US_M163_PIVADS",
+  "slug": "US_M163_PIVADS",
+  "name": "M163 PIVADS",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "978ad0d43ce5f8c0499232750ebcc268f632ae6620480b1ff0ca9eb9a05895d5",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.96,
+  "baseline_256_bytes": 1054556,
+  "baseline_256_tris": 40857,
+  "original_tris": 50361,
+  "bounds": {
+    "min": [
+      -1.4588,
+      0.0001,
+      -2.6389
+    ],
+    "max": [
+      1.4549,
+      4.3176,
+      2.6925
+    ],
+    "size": [
+      2.9137,
+      4.3175,
+      5.3315
+    ],
+    "center": [
+      -0.0019,
+      2.1589,
+      0.0268
+    ],
+    "radius": 3.7268
+  },
+  "labelBounds": {
+    "min": [
+      -1.4588,
+      0.0001,
+      -2.6389
+    ],
+    "max": [
+      1.4549,
+      4.3176,
+      2.6925
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -0.993,
+      0,
+      -1.786
+    ],
+    [
+      0.989,
+      0,
+      -1.786
+    ],
+    [
+      -0.993,
+      0,
+      1.84
+    ],
+    [
+      0.989,
+      0,
+      1.84
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          1.333,
+          2.0226,
+          -0.7679
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1241,
+    0.1136,
+    0.0988
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 16208,
+      "tris_lod1": 4869,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M163_PIVADS/lod0.glb",
+      "bytes": 273828,
+      "sha256": "5185d1f275cb9d615b9d29d7bcc8880f294399c355010de677d8248c98fde343",
+      "triangles": 16208,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_95abc11144e57a_b",
+          "uri": "tex/tex_95abc11144e57a_b.ktx2",
+          "bytes": 129576,
+          "sha256": "95abc11144e57a15a6b99eb15baedb8a4a4857a8477ba890ccdf85a898cb6c7a",
+          "linear": false
+        },
+        {
+          "key": "tex_331a0780fad5f5_n",
+          "uri": "tex/tex_331a0780fad5f5_n.ktx2",
+          "bytes": 44393,
+          "sha256": "331a0780fad5f58d0ca14f988a57773d017936959dae7f32950edcda58b3d2ab",
+          "linear": true
+        },
+        {
+          "key": "shared_ece80c02112fd889_b",
+          "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+          "bytes": 56288,
+          "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+          "linear": false
+        },
+        {
+          "key": "shared_1550a6e7a3e840a9_n",
+          "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+          "bytes": 34495,
+          "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+          "linear": true
+        },
+        {
+          "key": "shared_9248905dd14ee58a_b",
+          "uri": "tex/shared_9248905dd14ee58a_b.ktx2",
+          "bytes": 70989,
+          "sha256": "d14161dad4cd243365878a781acf217f02fd7ec03c9028562c7a2eb731dec16e",
+          "linear": false
+        },
+        {
+          "key": "shared_bf2edfee769aa446_n",
+          "uri": "tex/shared_bf2edfee769aa446_n.ktx2",
+          "bytes": 79851,
+          "sha256": "6afe90fda39dfaa18ba6c0613e3a68928c22fad06d87f42f80bc2281c9b081c7",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M163_PIVADS/lod1.glb",
+      "bytes": 84828,
+      "sha256": "2978f9db2ec09c7f8c4fb54b775473310901353b5793c8b3362cef1d88521de7",
+      "triangles": 4869,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_95abc11144e57a_b",
+          "uri": "tex/tex_95abc11144e57a_b.ktx2",
+          "bytes": 129576,
+          "sha256": "95abc11144e57a15a6b99eb15baedb8a4a4857a8477ba890ccdf85a898cb6c7a",
+          "linear": false
+        },
+        {
+          "key": "tex_331a0780fad5f5_n",
+          "uri": "tex/tex_331a0780fad5f5_n.ktx2",
+          "bytes": 44393,
+          "sha256": "331a0780fad5f58d0ca14f988a57773d017936959dae7f32950edcda58b3d2ab",
+          "linear": true
+        },
+        {
+          "key": "shared_ece80c02112fd889_b",
+          "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+          "bytes": 56288,
+          "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+          "linear": false
+        },
+        {
+          "key": "shared_1550a6e7a3e840a9_n",
+          "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+          "bytes": 34495,
+          "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+          "linear": true
+        },
+        {
+          "key": "shared_9248905dd14ee58a_b",
+          "uri": "tex/shared_9248905dd14ee58a_b.ktx2",
+          "bytes": 70989,
+          "sha256": "d14161dad4cd243365878a781acf217f02fd7ec03c9028562c7a2eb731dec16e",
+          "linear": false
+        },
+        {
+          "key": "shared_bf2edfee769aa446_n",
+          "uri": "tex/shared_bf2edfee769aa446_n.ktx2",
+          "bytes": 79851,
+          "sha256": "6afe90fda39dfaa18ba6c0613e3a68928c22fad06d87f42f80bc2281c9b081c7",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M163_PIVADS/lod2.glb",
+      "bytes": 12704,
+      "sha256": "bcab38b5fe7247dfdd97851fdb1b1e3834beeab30a43569f08d5f4f1a469be79",
+      "triangles": 976,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_95abc11144e57a_b",
+      "uri": "tex/tex_95abc11144e57a_b.ktx2",
+      "bytes": 129576,
+      "sha256": "95abc11144e57a15a6b99eb15baedb8a4a4857a8477ba890ccdf85a898cb6c7a",
+      "linear": false
+    },
+    {
+      "key": "tex_331a0780fad5f5_n",
+      "uri": "tex/tex_331a0780fad5f5_n.ktx2",
+      "bytes": 44393,
+      "sha256": "331a0780fad5f58d0ca14f988a57773d017936959dae7f32950edcda58b3d2ab",
+      "linear": true
+    },
+    {
+      "key": "shared_ece80c02112fd889_b",
+      "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+      "bytes": 56288,
+      "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+      "linear": false
+    },
+    {
+      "key": "shared_1550a6e7a3e840a9_n",
+      "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+      "bytes": 34495,
+      "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+      "linear": true
+    },
+    {
+      "key": "shared_9248905dd14ee58a_b",
+      "uri": "tex/shared_9248905dd14ee58a_b.ktx2",
+      "bytes": 70989,
+      "sha256": "d14161dad4cd243365878a781acf217f02fd7ec03c9028562c7a2eb731dec16e",
+      "linear": false
+    },
+    {
+      "key": "shared_bf2edfee769aa446_n",
+      "uri": "tex/shared_bf2edfee769aa446_n.ktx2",
+      "bytes": 79851,
+      "sha256": "6afe90fda39dfaa18ba6c0613e3a68928c22fad06d87f42f80bc2281c9b081c7",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 447797,
+    "lod0_lod1_plus_own_tex_bytes": 532625,
+    "lod0_plus_all_tex_bytes": 689420,
+    "shared_tex_bytes": 241623,
+    "own_tex_bytes": 173969,
+    "opaque_draw_calls": 3
+  }
+}

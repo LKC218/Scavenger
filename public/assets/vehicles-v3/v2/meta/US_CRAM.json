@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "id": "model:US_CRAM",
+  "slug": "US_CRAM",
+  "name": "Centurion C-RAM",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "76e031a818bc450d098fa86630973239ee1de909bd7d3fe815729757e606e71b",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 1.02,
+  "baseline_256_bytes": 1569080,
+  "baseline_256_tris": 53183,
+  "original_tris": 68235,
+  "bounds": {
+    "min": [
+      -1.7919,
+      -0.0091,
+      -4.9931
+    ],
+    "max": [
+      1.7924,
+      4.9854,
+      5.3612
+    ],
+    "size": [
+      3.5843,
+      4.9946,
+      10.3543
+    ],
+    "center": [
+      0.0002,
+      2.4882,
+      0.184
+    ],
+    "radius": 6.0209
+  },
+  "labelBounds": {
+    "min": [
+      -1.7919,
+      -0.0091,
+      -4.9931
+    ],
+    "max": [
+      1.7924,
+      4.9854,
+      5.3612
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.218,
+      -0.009,
+      -3.336
+    ],
+    [
+      1.219,
+      -0.009,
+      -3.336
+    ],
+    [
+      -1.218,
+      -0.009,
+      3.705
+    ],
+    [
+      1.219,
+      -0.009,
+      3.705
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [
+      {
+        "name": "estimated_muzzle",
+        "pos": [
+          0,
+          3.416,
+          -0.807
+        ],
+        "estimated": true
+      }
+    ],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          -1.279,
+          3.5144,
+          -1.7002
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1626,
+    0.1477,
+    0.1272
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 15956,
+      "tris_lod1": 5876,
+      "drawCalls": 3
+    },
+    {
+      "slot": "turret",
+      "pivot": [
+        0.0001,
+        1.8457,
+        0.0546
+      ],
+      "axis": "y",
+      "tris_lod0": 5017,
+      "tris_lod1": 1499,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CRAM/lod0.glb",
+      "bytes": 350220,
+      "sha256": "1e734ba1fb43ab42abf7502b9a7a0f550b52a435bc956bad24aa254ef983e564",
+      "triangles": 20973,
+      "drawCalls": 4,
+      "nodes": 2,
+      "textures": [
+        {
+          "key": "tex_328a89d78d35a3_b",
+          "uri": "tex/tex_328a89d78d35a3_b.ktx2",
+          "bytes": 307126,
+          "sha256": "328a89d78d35a366881e15ee2a81bfe0ba808d90443d74fe2592d410ed7b9010",
+          "linear": false
+        },
+        {
+          "key": "tex_99ddffd3e8bf6a_n",
+          "uri": "tex/tex_99ddffd3e8bf6a_n.ktx2",
+          "bytes": 79534,
+          "sha256": "99ddffd3e8bf6afeb0eb63807736e71baa7fbc2011f69baf7e887ba1ec54a028",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "tex_ce4217e4459949_b",
+          "uri": "tex/tex_ce4217e4459949_b.ktx2",
+          "bytes": 39344,
+          "sha256": "ce4217e44599498a61ca60580c0aeb783f1e5d261b460ba0e76be377dc4edcc9",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CRAM/lod1.glb",
+      "bytes": 124484,
+      "sha256": "6686b02a9bde4ef3b3071f517613bfbe52de7f73ff5a8d63aa026c55e5cd1435",
+      "triangles": 7375,
+      "drawCalls": 4,
+      "nodes": 2,
+      "textures": [
+        {
+          "key": "tex_328a89d78d35a3_b",
+          "uri": "tex/tex_328a89d78d35a3_b.ktx2",
+          "bytes": 307126,
+          "sha256": "328a89d78d35a366881e15ee2a81bfe0ba808d90443d74fe2592d410ed7b9010",
+          "linear": false
+        },
+        {
+          "key": "tex_99ddffd3e8bf6a_n",
+          "uri": "tex/tex_99ddffd3e8bf6a_n.ktx2",
+          "bytes": 79534,
+          "sha256": "99ddffd3e8bf6afeb0eb63807736e71baa7fbc2011f69baf7e887ba1ec54a028",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "tex_ce4217e4459949_b",
+          "uri": "tex/tex_ce4217e4459949_b.ktx2",
+          "bytes": 39344,
+          "sha256": "ce4217e44599498a61ca60580c0aeb783f1e5d261b460ba0e76be377dc4edcc9",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CRAM/lod2.glb",
+      "bytes": 12572,
+      "sha256": "6972b5a6434049d7fed7049361398abf4c74012663201c5d19ae45796fbfd5b3",
+      "triangles": 969,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_328a89d78d35a3_b",
+      "uri": "tex/tex_328a89d78d35a3_b.ktx2",
+      "bytes": 307126,
+      "sha256": "328a89d78d35a366881e15ee2a81bfe0ba808d90443d74fe2592d410ed7b9010",
+      "linear": false
+    },
+    {
+      "key": "tex_99ddffd3e8bf6a_n",
+      "uri": "tex/tex_99ddffd3e8bf6a_n.ktx2",
+      "bytes": 79534,
+      "sha256": "99ddffd3e8bf6afeb0eb63807736e71baa7fbc2011f69baf7e887ba1ec54a028",
+      "linear": true
+    },
+    {
+      "key": "shared_f0f32258dd589cc4_b",
+      "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+      "bytes": 80989,
+      "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+      "linear": false
+    },
+    {
+      "key": "shared_616b9fa4a46d547a_n",
+      "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+      "bytes": 83988,
+      "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+      "linear": true
+    },
+    {
+      "key": "tex_ce4217e4459949_b",
+      "uri": "tex/tex_ce4217e4459949_b.ktx2",
+      "bytes": 39344,
+      "sha256": "ce4217e44599498a61ca60580c0aeb783f1e5d261b460ba0e76be377dc4edcc9",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 776224,
+    "lod0_lod1_plus_own_tex_bytes": 900708,
+    "lod0_plus_all_tex_bytes": 941201,
+    "shared_tex_bytes": 164977,
+    "own_tex_bytes": 426004,
+    "opaque_draw_calls": 3
+  }
+}

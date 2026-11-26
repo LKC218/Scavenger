@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "id": "model:US_RSOV",
+  "slug": "US_RSOV",
+  "name": "RSOV",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "a8b45f0c4f9b263abc326176aba915e2b07a00b85ec1e6254d2056df7e4c4411",
+  "used_golden_assembly": false,
+  "retry_level": 1,
+  "elapsed_sec": 1.35,
+  "baseline_256_bytes": 1682432,
+  "baseline_256_tris": 63507,
+  "original_tris": 104249,
+  "bounds": {
+    "min": [
+      -1.0642,
+      0,
+      -2.3615
+    ],
+    "max": [
+      1.0793,
+      2.6139,
+      2.3412
+    ],
+    "size": [
+      2.1435,
+      2.6139,
+      4.7027
+    ],
+    "center": [
+      0.0075,
+      1.3069,
+      -0.0102
+    ],
+    "radius": 2.8958
+  },
+  "labelBounds": {
+    "min": [
+      -1.0642,
+      0,
+      -2.3615
+    ],
+    "max": [
+      1.0793,
+      2.6139,
+      2.3412
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -0.721,
+      0,
+      -1.609
+    ],
+    [
+      0.736,
+      0,
+      -1.609
+    ],
+    [
+      -0.721,
+      0,
+      1.589
+    ],
+    [
+      0.736,
+      0,
+      1.589
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [
+      {
+        "name": "estimated_muzzle",
+        "pos": [
+          0.009,
+          1.687,
+          -1.097
+        ],
+        "estimated": true
+      }
+    ],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          -0.6232,
+          0.579,
+          2.215
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1308,
+    0.1078,
+    0.0836
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 26132,
+      "tris_lod1": 2441,
+      "drawCalls": 2
+    },
+    {
+      "slot": "turret",
+      "pivot": [
+        0.0089,
+        1.8236,
+        0.8501
+      ],
+      "axis": "y",
+      "tris_lod0": 14870,
+      "tris_lod1": 679,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RSOV/lod0.glb",
+      "bytes": 646196,
+      "sha256": "d1d03a54e83873c529bf8dec34b94cdd1a24759d6f8c37b637dbea20ec992cbf",
+      "triangles": 41002,
+      "drawCalls": 5,
+      "nodes": 2,
+      "textures": [
+        {
+          "key": "tex_57b8343d1db900_b",
+          "uri": "tex/tex_57b8343d1db900_b.ktx2",
+          "bytes": 268329,
+          "sha256": "57b8343d1db900d44b9fa77f15f1b54b4d970000dcf4cb401a48e57cfdc2e0bb",
+          "linear": false
+        },
+        {
+          "key": "tex_32a17e24c3d364_n",
+          "uri": "tex/tex_32a17e24c3d364_n.ktx2",
+          "bytes": 76797,
+          "sha256": "32a17e24c3d36460b70ae8daa4c42988fa6be869869a4781c6ccf063eb283dd8",
+          "linear": true
+        },
+        {
+          "key": "shared_19e4aa69084fa928_b",
+          "uri": "tex/shared_19e4aa69084fa928_b.ktx2",
+          "bytes": 82664,
+          "sha256": "a94590922fe77548cb3e245c37e327fb6faeac37e49df55e06e22abd3dee92be",
+          "linear": false
+        },
+        {
+          "key": "shared_4b95a9f5edd01192_n",
+          "uri": "tex/shared_4b95a9f5edd01192_n.ktx2",
+          "bytes": 85703,
+          "sha256": "c83f630b4c0eb4bfbc6acb097579084861d80679e186a0ed33c4770780fbc9c5",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RSOV/lod1.glb",
+      "bytes": 64432,
+      "sha256": "a1b305259adcd847db949969cce6216d4525ffeb6382c7c5e356cc15ea57eab2",
+      "triangles": 3120,
+      "drawCalls": 5,
+      "nodes": 2,
+      "textures": [
+        {
+          "key": "tex_57b8343d1db900_b",
+          "uri": "tex/tex_57b8343d1db900_b.ktx2",
+          "bytes": 268329,
+          "sha256": "57b8343d1db900d44b9fa77f15f1b54b4d970000dcf4cb401a48e57cfdc2e0bb",
+          "linear": false
+        },
+        {
+          "key": "tex_32a17e24c3d364_n",
+          "uri": "tex/tex_32a17e24c3d364_n.ktx2",
+          "bytes": 76797,
+          "sha256": "32a17e24c3d36460b70ae8daa4c42988fa6be869869a4781c6ccf063eb283dd8",
+          "linear": true
+        },
+        {
+          "key": "shared_19e4aa69084fa928_b",
+          "uri": "tex/shared_19e4aa69084fa928_b.ktx2",
+          "bytes": 82664,
+          "sha256": "a94590922fe77548cb3e245c37e327fb6faeac37e49df55e06e22abd3dee92be",
+          "linear": false
+        },
+        {
+          "key": "shared_4b95a9f5edd01192_n",
+          "uri": "tex/shared_4b95a9f5edd01192_n.ktx2",
+          "bytes": 85703,
+          "sha256": "c83f630b4c0eb4bfbc6acb097579084861d80679e186a0ed33c4770780fbc9c5",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RSOV/lod2.glb",
+      "bytes": 13376,
+      "sha256": "53159368ba6e02f588720eecfbc51170c3e15a196e18156d90d19d7ced0f878f",
+      "triangles": 965,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_57b8343d1db900_b",
+      "uri": "tex/tex_57b8343d1db900_b.ktx2",
+      "bytes": 268329,
+      "sha256": "57b8343d1db900d44b9fa77f15f1b54b4d970000dcf4cb401a48e57cfdc2e0bb",
+      "linear": false
+    },
+    {
+      "key": "tex_32a17e24c3d364_n",
+      "uri": "tex/tex_32a17e24c3d364_n.ktx2",
+      "bytes": 76797,
+      "sha256": "32a17e24c3d36460b70ae8daa4c42988fa6be869869a4781c6ccf063eb283dd8",
+      "linear": true
+    },
+    {
+      "key": "shared_19e4aa69084fa928_b",
+      "uri": "tex/shared_19e4aa69084fa928_b.ktx2",
+      "bytes": 82664,
+      "sha256": "a94590922fe77548cb3e245c37e327fb6faeac37e49df55e06e22abd3dee92be",
+      "linear": false
+    },
+    {
+      "key": "shared_4b95a9f5edd01192_n",
+      "uri": "tex/shared_4b95a9f5edd01192_n.ktx2",
+      "bytes": 85703,
+      "sha256": "c83f630b4c0eb4bfbc6acb097579084861d80679e186a0ed33c4770780fbc9c5",
+      "linear": true
+    },
+    {
+      "key": "shared_e280743eb8e60395_b",
+      "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+      "bytes": 66240,
+      "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+      "linear": false
+    },
+    {
+      "key": "shared_87eaef8ed1fbc611_n",
+      "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+      "bytes": 73449,
+      "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 991322,
+    "lod0_lod1_plus_own_tex_bytes": 1055754,
+    "lod0_plus_all_tex_bytes": 1299378,
+    "shared_tex_bytes": 308056,
+    "own_tex_bytes": 345126,
+    "opaque_draw_calls": 5
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "id": "model:US_CV-22_b",
+  "slug": "US_CV-22_b",
+  "name": "CV-22B Osprey",
+  "category": "air",
+  "role": "rotorcraft",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "90db5e800b274170925cf968a78e30e82fa89fc9aec602968c8a41f8d41ea25e",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.61,
+  "baseline_256_bytes": 1097940,
+  "baseline_256_tris": 40974,
+  "original_tris": 69994,
+  "bounds": {
+    "min": [
+      -12.2528,
+      0.3276,
+      -7.1453
+    ],
+    "max": [
+      12.2541,
+      9.8537,
+      11.0001
+    ],
+    "size": [
+      24.5069,
+      9.5261,
+      18.1454
+    ],
+    "center": [
+      0.0006,
+      5.0907,
+      1.9274
+    ],
+    "radius": 15.9734
+  },
+  "labelBounds": {
+    "min": [
+      -12.2528,
+      0.3276,
+      -7.1453
+    ],
+    "max": [
+      12.2541,
+      9.8537,
+      11.0001
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -7.22,
+          3.4547,
+          2.6149
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          7.4851,
+          3.5647,
+          2.3949
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1518,
+    0.1222,
+    0.1118
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 15155,
+      "tris_lod1": 4584,
+      "drawCalls": 4
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CV-22_b/lod0.glb",
+      "bytes": 261756,
+      "sha256": "b65ac3d2e647163bb1c7f24ccb7e6311d9fa0807632c8b40bd80e06004f03a81",
+      "triangles": 15155,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_b3a516223c17f485_b",
+          "uri": "tex/shared_b3a516223c17f485_b.ktx2",
+          "bytes": 73191,
+          "sha256": "8ebb45551bd770caf50b2af8eff98426fc9b60b1c4538277f9cd0840aa0bdfb0",
+          "linear": false
+        },
+        {
+          "key": "shared_25fe390b1aadf91c_n",
+          "uri": "tex/shared_25fe390b1aadf91c_n.ktx2",
+          "bytes": 68282,
+          "sha256": "ee71453b9f2904e45e01c300381102cb0c8a4a70417d2f8af07ddafcf25daea7",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CV-22_b/lod1.glb",
+      "bytes": 84528,
+      "sha256": "a8b32ada6cc7567df2df175c9206a837b19f85050b801f7448cf8b6768fd0288",
+      "triangles": 4584,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_b3a516223c17f485_b",
+          "uri": "tex/shared_b3a516223c17f485_b.ktx2",
+          "bytes": 73191,
+          "sha256": "8ebb45551bd770caf50b2af8eff98426fc9b60b1c4538277f9cd0840aa0bdfb0",
+          "linear": false
+        },
+        {
+          "key": "shared_25fe390b1aadf91c_n",
+          "uri": "tex/shared_25fe390b1aadf91c_n.ktx2",
+          "bytes": 68282,
+          "sha256": "ee71453b9f2904e45e01c300381102cb0c8a4a70417d2f8af07ddafcf25daea7",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_CV-22_b/lod2.glb",
+      "bytes": 14072,
+      "sha256": "9c2456f9101996d7925d025a6f43baecc31320f0bbc19c6b20ea9efbe1797277",
+      "triangles": 1325,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "shared_b3a516223c17f485_b",
+      "uri": "tex/shared_b3a516223c17f485_b.ktx2",
+      "bytes": 73191,
+      "sha256": "8ebb45551bd770caf50b2af8eff98426fc9b60b1c4538277f9cd0840aa0bdfb0",
+      "linear": false
+    },
+    {
+      "key": "shared_25fe390b1aadf91c_n",
+      "uri": "tex/shared_25fe390b1aadf91c_n.ktx2",
+      "bytes": 68282,
+      "sha256": "ee71453b9f2904e45e01c300381102cb0c8a4a70417d2f8af07ddafcf25daea7",
+      "linear": true
+    },
+    {
+      "key": "shared_c1e20da198b3123d_b",
+      "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+      "bytes": 66024,
+      "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+      "linear": false
+    },
+    {
+      "key": "shared_0f54581d4d87e4eb_n",
+      "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+      "bytes": 81853,
+      "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+      "linear": true
+    },
+    {
+      "key": "shared_e280743eb8e60395_b",
+      "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+      "bytes": 66240,
+      "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+      "linear": false
+    },
+    {
+      "key": "shared_87eaef8ed1fbc611_n",
+      "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+      "bytes": 73449,
+      "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 261756,
+    "lod0_lod1_plus_own_tex_bytes": 346284,
+    "lod0_plus_all_tex_bytes": 690795,
+    "shared_tex_bytes": 429039,
+    "own_tex_bytes": 0,
+    "opaque_draw_calls": 3
+  }
+}

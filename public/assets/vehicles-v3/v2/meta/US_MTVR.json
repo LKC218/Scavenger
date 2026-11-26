@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "id": "model:US_MTVR",
+  "slug": "US_MTVR",
+  "name": "MTVR",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "4fb70acc7c64cebb042f20002001b34f05f4d8d3080b855a6e3e5e5ceb3948b0",
+  "used_golden_assembly": false,
+  "retry_level": 1,
+  "elapsed_sec": 1.42,
+  "baseline_256_bytes": 670200,
+  "baseline_256_tris": 26019,
+  "original_tris": 37247,
+  "bounds": {
+    "min": [
+      -1.5981,
+      -0.0364,
+      -4.1184
+    ],
+    "max": [
+      1.5967,
+      3.6293,
+      4.0008
+    ],
+    "size": [
+      3.1947,
+      3.6657,
+      8.1192
+    ],
+    "center": [
+      -0.0007,
+      1.7965,
+      -0.0588
+    ],
+    "radius": 4.7319
+  },
+  "labelBounds": {
+    "min": [
+      -1.5981,
+      -0.0364,
+      -4.1184
+    ],
+    "max": [
+      1.5967,
+      3.6293,
+      4.0008
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.087,
+      -0.036,
+      -2.819
+    ],
+    [
+      1.086,
+      -0.036,
+      -2.819
+    ],
+    [
+      -1.087,
+      -0.036,
+      2.702
+    ],
+    [
+      1.086,
+      -0.036,
+      2.702
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          0.97,
+          3.6942,
+          -0.912
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1495,
+    0.13,
+    0.1077
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 21197,
+      "tris_lod1": 3633,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MTVR/lod0.glb",
+      "bytes": 292464,
+      "sha256": "5493d4a1d24ad7cc86ac5a1b5ae10f929e08c5395e4e5b9c50824b3de8e9dbce",
+      "triangles": 21197,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_27d659c1f08717_b",
+          "uri": "tex/tex_27d659c1f08717_b.ktx2",
+          "bytes": 256689,
+          "sha256": "27d659c1f08717834d62fc06da6fa3b7ee5b38078ac150f5057fd3a252572cf9",
+          "linear": false
+        },
+        {
+          "key": "tex_02ee198e240a3b_n",
+          "uri": "tex/tex_02ee198e240a3b_n.ktx2",
+          "bytes": 63831,
+          "sha256": "02ee198e240a3b3598cbe416b62d3e6d5768043909c20ad332cc055c48959a5f",
+          "linear": true
+        },
+        {
+          "key": "shared_61b3c467f2844742_b",
+          "uri": "tex/shared_61b3c467f2844742_b.ktx2",
+          "bytes": 76433,
+          "sha256": "01717ed7c734a624689db5f903a7142cab6d784be70a662a8ec57fd887d34e6f",
+          "linear": false
+        },
+        {
+          "key": "shared_8ad4f3b96fa7de02_n",
+          "uri": "tex/shared_8ad4f3b96fa7de02_n.ktx2",
+          "bytes": 84493,
+          "sha256": "c3212030370ea038a898e4c0088949b4694bd4b1b0cecbb22f2c21ebb537ecba",
+          "linear": true
+        },
+        {
+          "key": "tex_6d74fa4097d5ce_b",
+          "uri": "tex/tex_6d74fa4097d5ce_b.ktx2",
+          "bytes": 32257,
+          "sha256": "6d74fa4097d5ceed3f01c03e967ffb91af30be1dcb7a2498fc3cc6c54b6b2812",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MTVR/lod1.glb",
+      "bytes": 63588,
+      "sha256": "9ae9e882f7fdbbbd8e9f3c1af2a81b848ca3f3487184ab303ee55aebb4bf53cd",
+      "triangles": 3633,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_27d659c1f08717_b",
+          "uri": "tex/tex_27d659c1f08717_b.ktx2",
+          "bytes": 256689,
+          "sha256": "27d659c1f08717834d62fc06da6fa3b7ee5b38078ac150f5057fd3a252572cf9",
+          "linear": false
+        },
+        {
+          "key": "tex_02ee198e240a3b_n",
+          "uri": "tex/tex_02ee198e240a3b_n.ktx2",
+          "bytes": 63831,
+          "sha256": "02ee198e240a3b3598cbe416b62d3e6d5768043909c20ad332cc055c48959a5f",
+          "linear": true
+        },
+        {
+          "key": "shared_61b3c467f2844742_b",
+          "uri": "tex/shared_61b3c467f2844742_b.ktx2",
+          "bytes": 76433,
+          "sha256": "01717ed7c734a624689db5f903a7142cab6d784be70a662a8ec57fd887d34e6f",
+          "linear": false
+        },
+        {
+          "key": "shared_8ad4f3b96fa7de02_n",
+          "uri": "tex/shared_8ad4f3b96fa7de02_n.ktx2",
+          "bytes": 84493,
+          "sha256": "c3212030370ea038a898e4c0088949b4694bd4b1b0cecbb22f2c21ebb537ecba",
+          "linear": true
+        },
+        {
+          "key": "tex_6d74fa4097d5ce_b",
+          "uri": "tex/tex_6d74fa4097d5ce_b.ktx2",
+          "bytes": 32257,
+          "sha256": "6d74fa4097d5ceed3f01c03e967ffb91af30be1dcb7a2498fc3cc6c54b6b2812",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MTVR/lod2.glb",
+      "bytes": 10712,
+      "sha256": "a6882bc9b393f7a9e0af9edd417a91c2c537b8a86bc60ae4daa2f27676b98f8e",
+      "triangles": 959,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_27d659c1f08717_b",
+      "uri": "tex/tex_27d659c1f08717_b.ktx2",
+      "bytes": 256689,
+      "sha256": "27d659c1f08717834d62fc06da6fa3b7ee5b38078ac150f5057fd3a252572cf9",
+      "linear": false
+    },
+    {
+      "key": "tex_02ee198e240a3b_n",
+      "uri": "tex/tex_02ee198e240a3b_n.ktx2",
+      "bytes": 63831,
+      "sha256": "02ee198e240a3b3598cbe416b62d3e6d5768043909c20ad332cc055c48959a5f",
+      "linear": true
+    },
+    {
+      "key": "shared_61b3c467f2844742_b",
+      "uri": "tex/shared_61b3c467f2844742_b.ktx2",
+      "bytes": 76433,
+      "sha256": "01717ed7c734a624689db5f903a7142cab6d784be70a662a8ec57fd887d34e6f",
+      "linear": false
+    },
+    {
+      "key": "shared_8ad4f3b96fa7de02_n",
+      "uri": "tex/shared_8ad4f3b96fa7de02_n.ktx2",
+      "bytes": 84493,
+      "sha256": "c3212030370ea038a898e4c0088949b4694bd4b1b0cecbb22f2c21ebb537ecba",
+      "linear": true
+    },
+    {
+      "key": "tex_6d74fa4097d5ce_b",
+      "uri": "tex/tex_6d74fa4097d5ce_b.ktx2",
+      "bytes": 32257,
+      "sha256": "6d74fa4097d5ceed3f01c03e967ffb91af30be1dcb7a2498fc3cc6c54b6b2812",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 645241,
+    "lod0_lod1_plus_own_tex_bytes": 708829,
+    "lod0_plus_all_tex_bytes": 806167,
+    "shared_tex_bytes": 160926,
+    "own_tex_bytes": 352777,
+    "opaque_draw_calls": 2
+  }
+}

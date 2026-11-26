@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "id": "model:US_AC130J",
+  "slug": "US_AC130J",
+  "name": "US_AC130J",
+  "category": "air",
+  "role": "fixed_wing",
+  "size_tier": "heavy",
+  "quality_status": "partial",
+  "is_partial": true,
+  "source_sha256": "11b0a156ae47b655bb159820575efe7a1bfd05fae02d255578e2c027ea12a91f",
+  "used_golden_assembly": false,
+  "retry_level": 2,
+  "elapsed_sec": 1.22,
+  "baseline_256_bytes": 1079156,
+  "baseline_256_tris": 48815,
+  "original_tris": 83561,
+  "bounds": {
+    "min": [
+      -20.1674,
+      0.2523,
+      -15.0704
+    ],
+    "max": [
+      20.1674,
+      11.9678,
+      14.925
+    ],
+    "size": [
+      40.3349,
+      11.7156,
+      29.9954
+    ],
+    "center": [
+      0,
+      6.1101,
+      -0.0727
+    ],
+    "radius": 25.8064
+  },
+  "labelBounds": {
+    "min": [
+      -20.1674,
+      0.2523,
+      -15.0704
+    ],
+    "max": [
+      20.1674,
+      11.9678,
+      14.925
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left_1",
+        "pos": [
+          -10.01,
+          3.8046,
+          -1.92
+        ]
+      },
+      {
+        "name": "exhaust_left_2",
+        "pos": [
+          -4.572,
+          3.8696,
+          -2.302
+        ]
+      },
+      {
+        "name": "exhaust_right_1",
+        "pos": [
+          10.06,
+          3.7146,
+          -2.67
+        ]
+      },
+      {
+        "name": "exhaust_right_2",
+        "pos": [
+          4.57,
+          3.5446,
+          -2.934
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0882,
+    0.0767,
+    0.0813
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 33083,
+      "tris_lod1": 4178,
+      "drawCalls": 4
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AC130J/lod0.glb",
+      "bytes": 418000,
+      "sha256": "7dab52a1626278119c165b13186a411ed62aee3264dca02d956db8d3ec43dec4",
+      "triangles": 33083,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_7bf6612d1d76a13a_b",
+          "uri": "tex/shared_7bf6612d1d76a13a_b.ktx2",
+          "bytes": 63419,
+          "sha256": "2fb0d5617f779ea44dd78612073f1801a82dbdf6334386918f276edac59349e5",
+          "linear": false
+        },
+        {
+          "key": "shared_3c1dbf1db087060e_b",
+          "uri": "tex/shared_3c1dbf1db087060e_b.ktx2",
+          "bytes": 53303,
+          "sha256": "f6cbf4795a80325efdc151ffc4a4e02e77698947fa1cd0426c0125ff18677dc9",
+          "linear": false
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_7bf6612d1d76a13a_g",
+          "uri": "tex/shared_7bf6612d1d76a13a_g.ktx2",
+          "bytes": 22130,
+          "sha256": "6d71cde90ae5f6ea79a1cb49c8612b6b3bd3b5863b233d9e26990752cc6d84b1",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AC130J/lod1.glb",
+      "bytes": 79120,
+      "sha256": "721f93cd64a91d0b14ee991ca7340429ba1a7f5afda591ed5b097a8d436337ab",
+      "triangles": 4178,
+      "drawCalls": 4,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_7bf6612d1d76a13a_b",
+          "uri": "tex/shared_7bf6612d1d76a13a_b.ktx2",
+          "bytes": 63419,
+          "sha256": "2fb0d5617f779ea44dd78612073f1801a82dbdf6334386918f276edac59349e5",
+          "linear": false
+        },
+        {
+          "key": "shared_3c1dbf1db087060e_b",
+          "uri": "tex/shared_3c1dbf1db087060e_b.ktx2",
+          "bytes": 53303,
+          "sha256": "f6cbf4795a80325efdc151ffc4a4e02e77698947fa1cd0426c0125ff18677dc9",
+          "linear": false
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_7bf6612d1d76a13a_g",
+          "uri": "tex/shared_7bf6612d1d76a13a_g.ktx2",
+          "bytes": 22130,
+          "sha256": "6d71cde90ae5f6ea79a1cb49c8612b6b3bd3b5863b233d9e26990752cc6d84b1",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_AC130J/lod2.glb",
+      "bytes": 13748,
+      "sha256": "5c572378a4125384d8f39f57f9f229fd9cef611041bb3db1b68cad94df70b4f8",
+      "triangles": 1347,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "shared_7bf6612d1d76a13a_b",
+      "uri": "tex/shared_7bf6612d1d76a13a_b.ktx2",
+      "bytes": 63419,
+      "sha256": "2fb0d5617f779ea44dd78612073f1801a82dbdf6334386918f276edac59349e5",
+      "linear": false
+    },
+    {
+      "key": "shared_3c1dbf1db087060e_b",
+      "uri": "tex/shared_3c1dbf1db087060e_b.ktx2",
+      "bytes": 53303,
+      "sha256": "f6cbf4795a80325efdc151ffc4a4e02e77698947fa1cd0426c0125ff18677dc9",
+      "linear": false
+    },
+    {
+      "key": "shared_bcb3b634b14a77aa_b",
+      "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+      "bytes": 73563,
+      "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+      "linear": false
+    },
+    {
+      "key": "shared_7b08e70e297c1754_n",
+      "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+      "bytes": 83733,
+      "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+      "linear": true
+    },
+    {
+      "key": "shared_7bf6612d1d76a13a_g",
+      "uri": "tex/shared_7bf6612d1d76a13a_g.ktx2",
+      "bytes": 22130,
+      "sha256": "6d71cde90ae5f6ea79a1cb49c8612b6b3bd3b5863b233d9e26990752cc6d84b1",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 418000,
+    "lod0_lod1_plus_own_tex_bytes": 497120,
+    "lod0_plus_all_tex_bytes": 714148,
+    "shared_tex_bytes": 296148,
+    "own_tex_bytes": 0,
+    "opaque_draw_calls": 3
+  }
+}

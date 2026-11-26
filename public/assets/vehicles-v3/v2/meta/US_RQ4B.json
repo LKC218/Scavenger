@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "id": "model:US_RQ4B",
+  "slug": "US_RQ4B",
+  "name": "RQ-4 Global Hawk",
+  "category": "air",
+  "role": "uav",
+  "size_tier": "small",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "f141d69b3ca11243c71b17224a0c3a1a491cef2c029f2a84bc3f62d4adb195dd",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.28,
+  "baseline_256_bytes": 153868,
+  "baseline_256_tris": 4366,
+  "original_tris": 7940,
+  "bounds": {
+    "min": [
+      -19.8872,
+      0.6819,
+      -7.2864
+    ],
+    "max": [
+      19.8858,
+      4.9064,
+      7.2864
+    ],
+    "size": [
+      39.7729,
+      4.2245,
+      14.5729
+    ],
+    "center": [
+      -0.0007,
+      2.7941,
+      0
+    ],
+    "radius": 21.2844
+  },
+  "labelBounds": {
+    "min": [
+      -19.8872,
+      0.6819,
+      -7.2864
+    ],
+    "max": [
+      19.8858,
+      4.9064,
+      7.2864
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "Exhaust",
+        "pos": [
+          0,
+          3.123,
+          5.97
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.064,
+    0.0696,
+    0.0776
+  ],
+  "opaqueMaterialsCount": 1,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 7940,
+      "tris_lod1": 2399,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RQ4B/lod0.glb",
+      "bytes": 98732,
+      "sha256": "1f94f4ba277c802e0661b1f8b198a4bd2c016cad70989308c896ccfc4372cf1d",
+      "triangles": 7940,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_83d447fa9ad35f_b",
+          "uri": "tex/tex_83d447fa9ad35f_b.ktx2",
+          "bytes": 59323,
+          "sha256": "83d447fa9ad35fe3a200809f4eb6d1fc45c61c3fdd770076a6b271e7658502cb",
+          "linear": false
+        },
+        {
+          "key": "tex_45f09eff2d57f6_n",
+          "uri": "tex/tex_45f09eff2d57f6_n.ktx2",
+          "bytes": 24965,
+          "sha256": "45f09eff2d57f69a4d5f4cb57219b544a098b20e0a0e5a8a9538040586ca903a",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RQ4B/lod1.glb",
+      "bytes": 34940,
+      "sha256": "17cafd239119a677a478f1cf302af7b507d83a22e3e87bfaddbc3cf062e7b9ed",
+      "triangles": 2399,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_83d447fa9ad35f_b",
+          "uri": "tex/tex_83d447fa9ad35f_b.ktx2",
+          "bytes": 59323,
+          "sha256": "83d447fa9ad35fe3a200809f4eb6d1fc45c61c3fdd770076a6b271e7658502cb",
+          "linear": false
+        },
+        {
+          "key": "tex_45f09eff2d57f6_n",
+          "uri": "tex/tex_45f09eff2d57f6_n.ktx2",
+          "bytes": 24965,
+          "sha256": "45f09eff2d57f69a4d5f4cb57219b544a098b20e0a0e5a8a9538040586ca903a",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_RQ4B/lod2.glb",
+      "bytes": 13172,
+      "sha256": "d75a71cfb44b3ae0b1a28f537705d598b60b0cdcf3930131268aa6d1381f8fd6",
+      "triangles": 1326,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_83d447fa9ad35f_b",
+      "uri": "tex/tex_83d447fa9ad35f_b.ktx2",
+      "bytes": 59323,
+      "sha256": "83d447fa9ad35fe3a200809f4eb6d1fc45c61c3fdd770076a6b271e7658502cb",
+      "linear": false
+    },
+    {
+      "key": "tex_45f09eff2d57f6_n",
+      "uri": "tex/tex_45f09eff2d57f6_n.ktx2",
+      "bytes": 24965,
+      "sha256": "45f09eff2d57f69a4d5f4cb57219b544a098b20e0a0e5a8a9538040586ca903a",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 183020,
+    "lod0_lod1_plus_own_tex_bytes": 217960,
+    "lod0_plus_all_tex_bytes": 183020,
+    "shared_tex_bytes": 0,
+    "own_tex_bytes": 84288,
+    "opaque_draw_calls": 1
+  }
+}

@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "id": "model:US_C17_GLOBEMASTER",
+  "slug": "US_C17_GLOBEMASTER",
+  "name": "C-17 Globemaster",
+  "category": "air",
+  "role": "fixed_wing",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "1e4b4d75a4ce34e1443cc753ee24f5e6d8ddefd527c7c836e1ab9c665e8e1952",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.52,
+  "baseline_256_bytes": 1219932,
+  "baseline_256_tris": 45040,
+  "original_tris": 76708,
+  "bounds": {
+    "min": [
+      -26.0088,
+      0.6244,
+      -26.1978
+    ],
+    "max": [
+      26.0088,
+      17.6016,
+      27.2642
+    ],
+    "size": [
+      52.0175,
+      16.9772,
+      53.4619
+    ],
+    "center": [
+      0,
+      9.113,
+      0.5332
+    ],
+    "radius": 38.2499
+  },
+  "labelBounds": {
+    "min": [
+      -26.0088,
+      0.6244,
+      -26.1978
+    ],
+    "max": [
+      26.0088,
+      17.6016,
+      27.2642
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left_1",
+        "pos": [
+          -14.12,
+          3.8246,
+          -7.06
+        ]
+      },
+      {
+        "name": "exhaust_left_2",
+        "pos": [
+          -7.63,
+          4.3246,
+          -10.622
+        ]
+      },
+      {
+        "name": "exhaust_right_1",
+        "pos": [
+          14.1,
+          3.8046,
+          -7.07
+        ]
+      },
+      {
+        "name": "exhaust_right_2",
+        "pos": [
+          7.57,
+          4.3846,
+          -10.635
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.2026,
+    0.2013,
+    0.203
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 21714,
+      "tris_lod1": 9146,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_C17_GLOBEMASTER/lod0.glb",
+      "bytes": 385504,
+      "sha256": "edf629a38078d8575aee13fac92effca836ad409e27de3305da0b70d0e2e9a3c",
+      "triangles": 21714,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_6541a30f77da16_b",
+          "uri": "tex/tex_6541a30f77da16_b.ktx2",
+          "bytes": 168087,
+          "sha256": "6541a30f77da1656ecff03fdc27ec6f9726d4131134e965eb4f0d905386d0901",
+          "linear": false
+        },
+        {
+          "key": "tex_e6d6355b70aa79_n",
+          "uri": "tex/tex_e6d6355b70aa79_n.ktx2",
+          "bytes": 55647,
+          "sha256": "e6d6355b70aa790038a2089b5657d741af1c1b26c9004a8c6ba89692b8c63b11",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_C17_GLOBEMASTER/lod1.glb",
+      "bytes": 151028,
+      "sha256": "ecc4801841b6edf3f90dfcfbfdd7957eb4c10295450569b4e187d9c3efc98aef",
+      "triangles": 9146,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_6541a30f77da16_b",
+          "uri": "tex/tex_6541a30f77da16_b.ktx2",
+          "bytes": 168087,
+          "sha256": "6541a30f77da1656ecff03fdc27ec6f9726d4131134e965eb4f0d905386d0901",
+          "linear": false
+        },
+        {
+          "key": "tex_e6d6355b70aa79_n",
+          "uri": "tex/tex_e6d6355b70aa79_n.ktx2",
+          "bytes": 55647,
+          "sha256": "e6d6355b70aa790038a2089b5657d741af1c1b26c9004a8c6ba89692b8c63b11",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_C17_GLOBEMASTER/lod2.glb",
+      "bytes": 15552,
+      "sha256": "f45b164c99af61dfb8e0682047ef8fc101fb7a47a35dbc8ad21f28db3f044c2f",
+      "triangles": 1346,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_6541a30f77da16_b",
+      "uri": "tex/tex_6541a30f77da16_b.ktx2",
+      "bytes": 168087,
+      "sha256": "6541a30f77da1656ecff03fdc27ec6f9726d4131134e965eb4f0d905386d0901",
+      "linear": false
+    },
+    {
+      "key": "tex_e6d6355b70aa79_n",
+      "uri": "tex/tex_e6d6355b70aa79_n.ktx2",
+      "bytes": 55647,
+      "sha256": "e6d6355b70aa790038a2089b5657d741af1c1b26c9004a8c6ba89692b8c63b11",
+      "linear": true
+    },
+    {
+      "key": "shared_bcb3b634b14a77aa_b",
+      "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+      "bytes": 73563,
+      "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+      "linear": false
+    },
+    {
+      "key": "shared_7b08e70e297c1754_n",
+      "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+      "bytes": 83733,
+      "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 609238,
+    "lod0_lod1_plus_own_tex_bytes": 760266,
+    "lod0_plus_all_tex_bytes": 766534,
+    "shared_tex_bytes": 157296,
+    "own_tex_bytes": 223734,
+    "opaque_draw_calls": 2
+  }
+}

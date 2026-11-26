@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "id": "model:US_M985_Battleship",
+  "slug": "US_M985_Battleship",
+  "name": "M985 Battleship",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "e62e8428965e11a78ee649dcc66a56a0df521048e9a4be575c96bd31d65d371c",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 1.37,
+  "baseline_256_bytes": 1944400,
+  "baseline_256_tris": 75677,
+  "original_tris": 120619,
+  "bounds": {
+    "min": [
+      -1.8051,
+      -0.0015,
+      -6.1052
+    ],
+    "max": [
+      1.7938,
+      3.6222,
+      5.2705
+    ],
+    "size": [
+      3.5989,
+      3.6238,
+      11.3757
+    ],
+    "center": [
+      -0.0056,
+      1.8104,
+      -0.4173
+    ],
+    "radius": 6.2348
+  },
+  "labelBounds": {
+    "min": [
+      -1.8051,
+      -0.0015,
+      -6.1052
+    ],
+    "max": [
+      1.7938,
+      3.6222,
+      5.2705
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.229,
+      -0.002,
+      -4.285
+    ],
+    [
+      1.218,
+      -0.002,
+      -4.285
+    ],
+    [
+      -1.229,
+      -0.002,
+      3.45
+    ],
+    [
+      1.218,
+      -0.002,
+      3.45
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [
+      {
+        "name": "estimated_muzzle",
+        "pos": [
+          0.182,
+          2.656,
+          2.225
+        ],
+        "estimated": true
+      }
+    ],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          -1.0769,
+          2.5263,
+          -2.1957
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1792,
+    0.1623,
+    0.1348
+  ],
+  "opaqueMaterialsCount": 3,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 11412,
+      "tris_lod1": 5541,
+      "drawCalls": 3
+    },
+    {
+      "slot": "turret",
+      "pivot": [
+        0.6118,
+        2.9083,
+        -4.1816
+      ],
+      "axis": "y",
+      "tris_lod0": 6358,
+      "tris_lod1": 1746,
+      "drawCalls": 3
+    },
+    {
+      "slot": "barrel",
+      "pivot": [
+        0.1822,
+        2.6557,
+        2.5833
+      ],
+      "axis": "x",
+      "tris_lod0": 2485,
+      "tris_lod1": 439,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M985_Battleship/lod0.glb",
+      "bytes": 334240,
+      "sha256": "ecdbd302f74aa295b653d1714d839d9cd8b2b95d10aac7758a8b67678f0d9662",
+      "triangles": 20255,
+      "drawCalls": 7,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_e9b8cc1735e66b_b",
+          "uri": "tex/tex_e9b8cc1735e66b_b.ktx2",
+          "bytes": 165399,
+          "sha256": "e9b8cc1735e66b95da350266948d5491e64e8b99dbe8b6969ad8d57a489951b5",
+          "linear": false
+        },
+        {
+          "key": "tex_cf2e1d3ab36518_n",
+          "uri": "tex/tex_cf2e1d3ab36518_n.ktx2",
+          "bytes": 57064,
+          "sha256": "cf2e1d3ab36518412eede9109cea70162e12add8cd269389d43646043136c82d",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "shared_798c6f4eb5ee81b8_b",
+          "uri": "tex/shared_798c6f4eb5ee81b8_b.ktx2",
+          "bytes": 64751,
+          "sha256": "afc92bc828d8976b81b7f81a7d1d15d0dd9110616d48cf334cb8af41f890721a",
+          "linear": false
+        },
+        {
+          "key": "shared_75c8edf1097451c2_n",
+          "uri": "tex/shared_75c8edf1097451c2_n.ktx2",
+          "bytes": 27290,
+          "sha256": "006c54d995576dc9bffe4fe75f7c1df44e2612c2dde00139b90f341c894cf34d",
+          "linear": true
+        },
+        {
+          "key": "tex_75f8045fe91bd0_b",
+          "uri": "tex/tex_75f8045fe91bd0_b.ktx2",
+          "bytes": 28252,
+          "sha256": "75f8045fe91bd01b322dcb747e8afbf1ceaf4b9df549bf333cedff43dee88753",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M985_Battleship/lod1.glb",
+      "bytes": 137672,
+      "sha256": "b2182f586ff90cc0abd282c23ba0cdbcf71f8a0423580d19502289d93c89bb5c",
+      "triangles": 7726,
+      "drawCalls": 7,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_e9b8cc1735e66b_b",
+          "uri": "tex/tex_e9b8cc1735e66b_b.ktx2",
+          "bytes": 165399,
+          "sha256": "e9b8cc1735e66b95da350266948d5491e64e8b99dbe8b6969ad8d57a489951b5",
+          "linear": false
+        },
+        {
+          "key": "tex_cf2e1d3ab36518_n",
+          "uri": "tex/tex_cf2e1d3ab36518_n.ktx2",
+          "bytes": 57064,
+          "sha256": "cf2e1d3ab36518412eede9109cea70162e12add8cd269389d43646043136c82d",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "shared_798c6f4eb5ee81b8_b",
+          "uri": "tex/shared_798c6f4eb5ee81b8_b.ktx2",
+          "bytes": 64751,
+          "sha256": "afc92bc828d8976b81b7f81a7d1d15d0dd9110616d48cf334cb8af41f890721a",
+          "linear": false
+        },
+        {
+          "key": "shared_75c8edf1097451c2_n",
+          "uri": "tex/shared_75c8edf1097451c2_n.ktx2",
+          "bytes": 27290,
+          "sha256": "006c54d995576dc9bffe4fe75f7c1df44e2612c2dde00139b90f341c894cf34d",
+          "linear": true
+        },
+        {
+          "key": "tex_75f8045fe91bd0_b",
+          "uri": "tex/tex_75f8045fe91bd0_b.ktx2",
+          "bytes": 28252,
+          "sha256": "75f8045fe91bd01b322dcb747e8afbf1ceaf4b9df549bf333cedff43dee88753",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M985_Battleship/lod2.glb",
+      "bytes": 15636,
+      "sha256": "26f5fa5640ff62d0712b87ced23bc1089d728d3adc91cf9e3ce35495f758c552",
+      "triangles": 1323,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_e9b8cc1735e66b_b",
+      "uri": "tex/tex_e9b8cc1735e66b_b.ktx2",
+      "bytes": 165399,
+      "sha256": "e9b8cc1735e66b95da350266948d5491e64e8b99dbe8b6969ad8d57a489951b5",
+      "linear": false
+    },
+    {
+      "key": "tex_cf2e1d3ab36518_n",
+      "uri": "tex/tex_cf2e1d3ab36518_n.ktx2",
+      "bytes": 57064,
+      "sha256": "cf2e1d3ab36518412eede9109cea70162e12add8cd269389d43646043136c82d",
+      "linear": true
+    },
+    {
+      "key": "shared_f0f32258dd589cc4_b",
+      "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+      "bytes": 80989,
+      "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+      "linear": false
+    },
+    {
+      "key": "shared_616b9fa4a46d547a_n",
+      "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+      "bytes": 83988,
+      "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+      "linear": true
+    },
+    {
+      "key": "shared_798c6f4eb5ee81b8_b",
+      "uri": "tex/shared_798c6f4eb5ee81b8_b.ktx2",
+      "bytes": 64751,
+      "sha256": "afc92bc828d8976b81b7f81a7d1d15d0dd9110616d48cf334cb8af41f890721a",
+      "linear": false
+    },
+    {
+      "key": "shared_75c8edf1097451c2_n",
+      "uri": "tex/shared_75c8edf1097451c2_n.ktx2",
+      "bytes": 27290,
+      "sha256": "006c54d995576dc9bffe4fe75f7c1df44e2612c2dde00139b90f341c894cf34d",
+      "linear": true
+    },
+    {
+      "key": "tex_75f8045fe91bd0_b",
+      "uri": "tex/tex_75f8045fe91bd0_b.ktx2",
+      "bytes": 28252,
+      "sha256": "75f8045fe91bd01b322dcb747e8afbf1ceaf4b9df549bf333cedff43dee88753",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 584955,
+    "lod0_lod1_plus_own_tex_bytes": 722627,
+    "lod0_plus_all_tex_bytes": 841973,
+    "shared_tex_bytes": 257018,
+    "own_tex_bytes": 250715,
+    "opaque_draw_calls": 6
+  }
+}

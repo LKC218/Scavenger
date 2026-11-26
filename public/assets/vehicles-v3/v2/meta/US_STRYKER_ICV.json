@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "model:US_STRYKER_ICV",
+  "slug": "US_STRYKER_ICV",
+  "name": "Stryker ICV",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "3d898b7aab8807c4578404cd2845fc612a69e1480f19b335fd67e86715136e07",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.53,
+  "baseline_256_bytes": 947944,
+  "baseline_256_tris": 35709,
+  "original_tris": 40381,
+  "bounds": {
+    "min": [
+      -1.4983,
+      0.0071,
+      -3.5791
+    ],
+    "max": [
+      1.453,
+      4.3275,
+      3.5974
+    ],
+    "size": [
+      2.9513,
+      4.3204,
+      7.1765
+    ],
+    "center": [
+      -0.0226,
+      2.1673,
+      0.0092
+    ],
+    "radius": 4.4407
+  },
+  "labelBounds": {
+    "min": [
+      -1.4983,
+      0.0071,
+      -3.5791
+    ],
+    "max": [
+      1.453,
+      4.3275,
+      3.5974
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.026,
+      0.007,
+      -2.431
+    ],
+    [
+      0.981,
+      0.007,
+      -2.431
+    ],
+    [
+      -1.026,
+      0.007,
+      2.449
+    ],
+    [
+      0.981,
+      0.007,
+      2.449
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          1.2727,
+          2.1234,
+          -1.3592
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0413,
+    0.0409,
+    0.0385
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 19695,
+      "tris_lod1": 4590,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_ICV/lod0.glb",
+      "bytes": 331348,
+      "sha256": "bed2e94a206d2725c4ff07513964c3bd88e357ee5bad40e47fb5b656f5829320",
+      "triangles": 19695,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_333e0c1d7da03566_b",
+          "uri": "tex/shared_333e0c1d7da03566_b.ktx2",
+          "bytes": 66816,
+          "sha256": "560f440cd223e1ce3e087bc8ef09697b61fac2d93c2515bde79318249d012046",
+          "linear": false
+        },
+        {
+          "key": "shared_f05fea8e7795796a_n",
+          "uri": "tex/shared_f05fea8e7795796a_n.ktx2",
+          "bytes": 82581,
+          "sha256": "9a397a25f2a7d6aaee262e48415d1bb8c3b9a4dec8f627f5e2f8b0fcf2e133c5",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_ICV/lod1.glb",
+      "bytes": 80960,
+      "sha256": "6e9bee7244e04549995e9465a1d2acee19c9a5255b7f0e940e6a007c99c01c76",
+      "triangles": 4590,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_333e0c1d7da03566_b",
+          "uri": "tex/shared_333e0c1d7da03566_b.ktx2",
+          "bytes": 66816,
+          "sha256": "560f440cd223e1ce3e087bc8ef09697b61fac2d93c2515bde79318249d012046",
+          "linear": false
+        },
+        {
+          "key": "shared_f05fea8e7795796a_n",
+          "uri": "tex/shared_f05fea8e7795796a_n.ktx2",
+          "bytes": 82581,
+          "sha256": "9a397a25f2a7d6aaee262e48415d1bb8c3b9a4dec8f627f5e2f8b0fcf2e133c5",
+          "linear": true
+        },
+        {
+          "key": "shared_e280743eb8e60395_b",
+          "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+          "bytes": 66240,
+          "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+          "linear": false
+        },
+        {
+          "key": "shared_87eaef8ed1fbc611_n",
+          "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+          "bytes": 73449,
+          "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_STRYKER_ICV/lod2.glb",
+      "bytes": 10904,
+      "sha256": "80e7e84e469b065f1b9471fe1e0fd6880f22919eaf85e44e4252be0678da519d",
+      "triangles": 964,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "shared_333e0c1d7da03566_b",
+      "uri": "tex/shared_333e0c1d7da03566_b.ktx2",
+      "bytes": 66816,
+      "sha256": "560f440cd223e1ce3e087bc8ef09697b61fac2d93c2515bde79318249d012046",
+      "linear": false
+    },
+    {
+      "key": "shared_f05fea8e7795796a_n",
+      "uri": "tex/shared_f05fea8e7795796a_n.ktx2",
+      "bytes": 82581,
+      "sha256": "9a397a25f2a7d6aaee262e48415d1bb8c3b9a4dec8f627f5e2f8b0fcf2e133c5",
+      "linear": true
+    },
+    {
+      "key": "shared_e280743eb8e60395_b",
+      "uri": "tex/shared_e280743eb8e60395_b.ktx2",
+      "bytes": 66240,
+      "sha256": "7c3e7170675c294d19f31dff96d7fa5fca69174510c45451bf0189bc7a47c6ad",
+      "linear": false
+    },
+    {
+      "key": "shared_87eaef8ed1fbc611_n",
+      "uri": "tex/shared_87eaef8ed1fbc611_n.ktx2",
+      "bytes": 73449,
+      "sha256": "222da374eeca8dfc0ed83a090ff5f3c357797fce302b3f2059ff3a7d68e79e47",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 331348,
+    "lod0_lod1_plus_own_tex_bytes": 412308,
+    "lod0_plus_all_tex_bytes": 620434,
+    "shared_tex_bytes": 289086,
+    "own_tex_bytes": 0,
+    "opaque_draw_calls": 2
+  }
+}

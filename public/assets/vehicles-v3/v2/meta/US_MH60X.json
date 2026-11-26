@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "id": "model:US_MH60X",
+  "slug": "US_MH60X",
+  "name": "MH-60X Silent Hawk",
+  "category": "air",
+  "role": "rotorcraft",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "62031abf74dedd17e9ebd2e5e028e611aa0acf19626fad9f1ad27cdb9d51910a",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.49,
+  "baseline_256_bytes": 770096,
+  "baseline_256_tris": 26709,
+  "original_tris": 46899,
+  "bounds": {
+    "min": [
+      -6.5585,
+      0.4001,
+      -6.5971
+    ],
+    "max": [
+      5.8146,
+      4.9386,
+      11.6899
+    ],
+    "size": [
+      12.3731,
+      4.5385,
+      18.287
+    ],
+    "center": [
+      -0.3719,
+      2.6694,
+      2.5464
+    ],
+    "radius": 11.2706
+  },
+  "labelBounds": {
+    "min": [
+      -9.2285,
+      0.4001,
+      -9.3328
+    ],
+    "max": [
+      9.2271,
+      4.9386,
+      11.6899
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -0.312,
+          2.0276,
+          4.7
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          0.38,
+          1.9986,
+          4.658
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1191,
+    0.087,
+    0.0694
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 13413,
+      "tris_lod1": 2780,
+      "drawCalls": 3
+    },
+    {
+      "slot": "tail_rotor",
+      "pivot": [
+        0.2165,
+        3.5159,
+        10.3135
+      ],
+      "axis": "x",
+      "tris_lod0": 520,
+      "tris_lod1": 459,
+      "drawCalls": 1
+    },
+    {
+      "slot": "main_rotor",
+      "pivot": [
+        -0.0007,
+        3.4156,
+        -0.105
+      ],
+      "axis": "y",
+      "tris_lod0": 928,
+      "tris_lod1": 920,
+      "drawCalls": 1
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MH60X/lod0.glb",
+      "bytes": 255320,
+      "sha256": "ef4fa02d149ac578dbffa295b3079ca8bfdd8a8556831e4f86dc33044d832ada",
+      "triangles": 14861,
+      "drawCalls": 5,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_89bd47b4d08826_b",
+          "uri": "tex/tex_89bd47b4d08826_b.ktx2",
+          "bytes": 192872,
+          "sha256": "89bd47b4d08826bf825f81f7f020772eb28fbd0c594cd6b3475840e9ce380009",
+          "linear": false
+        },
+        {
+          "key": "tex_2cf33b94f7448d_n",
+          "uri": "tex/tex_2cf33b94f7448d_n.ktx2",
+          "bytes": 78918,
+          "sha256": "2cf33b94f7448d2d483354058e5ea3b071e7037dcac36dc723fd81fb85e73151",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MH60X/lod1.glb",
+      "bytes": 82456,
+      "sha256": "826e31960972971c5659e6038d3e341b96ef64c08be41f750670de0dbf9bd281",
+      "triangles": 4159,
+      "drawCalls": 5,
+      "nodes": 3,
+      "textures": [
+        {
+          "key": "tex_89bd47b4d08826_b",
+          "uri": "tex/tex_89bd47b4d08826_b.ktx2",
+          "bytes": 192872,
+          "sha256": "89bd47b4d08826bf825f81f7f020772eb28fbd0c594cd6b3475840e9ce380009",
+          "linear": false
+        },
+        {
+          "key": "tex_2cf33b94f7448d_n",
+          "uri": "tex/tex_2cf33b94f7448d_n.ktx2",
+          "bytes": 78918,
+          "sha256": "2cf33b94f7448d2d483354058e5ea3b071e7037dcac36dc723fd81fb85e73151",
+          "linear": true
+        },
+        {
+          "key": "shared_c1e20da198b3123d_b",
+          "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+          "bytes": 66024,
+          "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+          "linear": false
+        },
+        {
+          "key": "shared_0f54581d4d87e4eb_n",
+          "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+          "bytes": 81853,
+          "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_MH60X/lod2.glb",
+      "bytes": 23208,
+      "sha256": "41f1fe295bb282793419a679d6b1e0ee867f3454a66704b9cceecd68afb46a01",
+      "triangles": 2069,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_89bd47b4d08826_b",
+      "uri": "tex/tex_89bd47b4d08826_b.ktx2",
+      "bytes": 192872,
+      "sha256": "89bd47b4d08826bf825f81f7f020772eb28fbd0c594cd6b3475840e9ce380009",
+      "linear": false
+    },
+    {
+      "key": "tex_2cf33b94f7448d_n",
+      "uri": "tex/tex_2cf33b94f7448d_n.ktx2",
+      "bytes": 78918,
+      "sha256": "2cf33b94f7448d2d483354058e5ea3b071e7037dcac36dc723fd81fb85e73151",
+      "linear": true
+    },
+    {
+      "key": "shared_c1e20da198b3123d_b",
+      "uri": "tex/shared_c1e20da198b3123d_b.ktx2",
+      "bytes": 66024,
+      "sha256": "5f48de9f100ea7d2b857b82be445afef6d116a92fc1be3b06b6b0459e30a4028",
+      "linear": false
+    },
+    {
+      "key": "shared_0f54581d4d87e4eb_n",
+      "uri": "tex/shared_0f54581d4d87e4eb_n.ktx2",
+      "bytes": 81853,
+      "sha256": "2bfcc614267a8a2d4cd3161e5d70db0d1605dfa10f724f394fc9dd50c4852c6a",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 527110,
+    "lod0_lod1_plus_own_tex_bytes": 609566,
+    "lod0_plus_all_tex_bytes": 674987,
+    "shared_tex_bytes": 147877,
+    "own_tex_bytes": 271790,
+    "opaque_draw_calls": 4
+  }
+}

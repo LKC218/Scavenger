@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "id": "model:US_C130_SuperHercules",
+  "slug": "US_C130_SuperHercules",
+  "name": "C-130J-30 Hercules",
+  "category": "air",
+  "role": "fixed_wing",
+  "size_tier": "heavy",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "e22b0acbbc224aa691bf1666ccc439967a09199c911afb3136b41b312875a786",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.81,
+  "baseline_256_bytes": 1765900,
+  "baseline_256_tris": 94101,
+  "original_tris": 166003,
+  "bounds": {
+    "min": [
+      -20.3772,
+      0.1271,
+      -14.5266
+    ],
+    "max": [
+      20.3772,
+      11.7217,
+      19.7671
+    ],
+    "size": [
+      40.7543,
+      11.5946,
+      34.2937
+    ],
+    "center": [
+      0,
+      5.9244,
+      2.6203
+    ],
+    "radius": 27.2553
+  },
+  "labelBounds": {
+    "min": [
+      -20.3772,
+      0.1271,
+      -14.5266
+    ],
+    "max": [
+      20.3772,
+      11.7217,
+      19.7671
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left_1",
+        "pos": [
+          -10.01,
+          3.8046,
+          -0.32
+        ]
+      },
+      {
+        "name": "exhaust_left_2",
+        "pos": [
+          -4.57,
+          3.6046,
+          -0.7
+        ]
+      },
+      {
+        "name": "exhaust_right_1",
+        "pos": [
+          10.06,
+          3.7146,
+          -0.696
+        ]
+      },
+      {
+        "name": "exhaust_right_2",
+        "pos": [
+          4.57,
+          3.5446,
+          -0.96
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1205,
+    0.1225,
+    0.1282
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 13997,
+      "tris_lod1": 4904,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_C130_SuperHercules/lod0.glb",
+      "bytes": 225028,
+      "sha256": "02f25fcd688bb94cb38996eeee8c69fd4485b74e83388551d43717e0753e4f9a",
+      "triangles": 13997,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_52e573729a682fd4_b",
+          "uri": "tex/shared_52e573729a682fd4_b.ktx2",
+          "bytes": 56360,
+          "sha256": "b00522418743c69778aaecba494bd25a1b1ac59ce503f2524e49be6af41b3353",
+          "linear": false
+        },
+        {
+          "key": "shared_386b413cfc858486_n",
+          "uri": "tex/shared_386b413cfc858486_n.ktx2",
+          "bytes": 64710,
+          "sha256": "6388909b96ea2f3ed27ca43441c7c93bce756c8b8e6aa6ffafb0808a794bb8c7",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_52e573729a682fd4_g",
+          "uri": "tex/shared_52e573729a682fd4_g.ktx2",
+          "bytes": 20456,
+          "sha256": "68f893b78d15443c2575ed0ffe933c7fadd6d1e61042df8af30d6a73458a0579",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_C130_SuperHercules/lod1.glb",
+      "bytes": 86156,
+      "sha256": "8be1fa3596a53a754352f278a08f51811824a8ac6638b19de3c5e38545d3c5e4",
+      "triangles": 4904,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "shared_52e573729a682fd4_b",
+          "uri": "tex/shared_52e573729a682fd4_b.ktx2",
+          "bytes": 56360,
+          "sha256": "b00522418743c69778aaecba494bd25a1b1ac59ce503f2524e49be6af41b3353",
+          "linear": false
+        },
+        {
+          "key": "shared_386b413cfc858486_n",
+          "uri": "tex/shared_386b413cfc858486_n.ktx2",
+          "bytes": 64710,
+          "sha256": "6388909b96ea2f3ed27ca43441c7c93bce756c8b8e6aa6ffafb0808a794bb8c7",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        },
+        {
+          "key": "shared_52e573729a682fd4_g",
+          "uri": "tex/shared_52e573729a682fd4_g.ktx2",
+          "bytes": 20456,
+          "sha256": "68f893b78d15443c2575ed0ffe933c7fadd6d1e61042df8af30d6a73458a0579",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_C130_SuperHercules/lod2.glb",
+      "bytes": 14288,
+      "sha256": "62c378d5b070d585442cb4dbf6da8b3a3afda7337142f3b8f35981766756ce98",
+      "triangles": 1328,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "shared_52e573729a682fd4_b",
+      "uri": "tex/shared_52e573729a682fd4_b.ktx2",
+      "bytes": 56360,
+      "sha256": "b00522418743c69778aaecba494bd25a1b1ac59ce503f2524e49be6af41b3353",
+      "linear": false
+    },
+    {
+      "key": "shared_386b413cfc858486_n",
+      "uri": "tex/shared_386b413cfc858486_n.ktx2",
+      "bytes": 64710,
+      "sha256": "6388909b96ea2f3ed27ca43441c7c93bce756c8b8e6aa6ffafb0808a794bb8c7",
+      "linear": true
+    },
+    {
+      "key": "shared_bcb3b634b14a77aa_b",
+      "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+      "bytes": 73563,
+      "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+      "linear": false
+    },
+    {
+      "key": "shared_7b08e70e297c1754_n",
+      "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+      "bytes": 83733,
+      "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+      "linear": true
+    },
+    {
+      "key": "shared_52e573729a682fd4_g",
+      "uri": "tex/shared_52e573729a682fd4_g.ktx2",
+      "bytes": 20456,
+      "sha256": "68f893b78d15443c2575ed0ffe933c7fadd6d1e61042df8af30d6a73458a0579",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 225028,
+    "lod0_lod1_plus_own_tex_bytes": 311184,
+    "lod0_plus_all_tex_bytes": 523850,
+    "shared_tex_bytes": 298822,
+    "own_tex_bytes": 0,
+    "opaque_draw_calls": 2
+  }
+}

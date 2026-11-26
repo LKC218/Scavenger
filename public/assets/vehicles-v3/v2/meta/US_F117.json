@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "id": "model:US_F117",
+  "slug": "US_F117",
+  "name": "F-117 Nighthawk",
+  "category": "air",
+  "role": "fixed_wing",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "3f33a90898acbf543ae5eb237421a3fd415c17fd870229c9acf2396ef7dee630",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.86,
+  "baseline_256_bytes": 476400,
+  "baseline_256_tris": 13037,
+  "original_tris": 19157,
+  "bounds": {
+    "min": [
+      -6.4492,
+      1.5114,
+      -7.7437
+    ],
+    "max": [
+      6.4492,
+      4.0299,
+      11.688
+    ],
+    "size": [
+      12.8985,
+      2.5184,
+      19.4317
+    ],
+    "center": [
+      0,
+      2.7707,
+      1.9722
+    ],
+    "radius": 11.7293
+  },
+  "labelBounds": {
+    "min": [
+      -6.4492,
+      1.5114,
+      -7.7437
+    ],
+    "max": [
+      6.4492,
+      4.0299,
+      11.688
+    ]
+  },
+  "groundSamplePoints": [],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust_left",
+        "pos": [
+          -1.372,
+          2.0167,
+          6.662
+        ]
+      },
+      {
+        "name": "exhaust_right",
+        "pos": [
+          1.402,
+          2.0057,
+          6.612
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1116,
+    0.0766,
+    0.0613
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": false,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 13800,
+      "tris_lod1": 1383,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_F117/lod0.glb",
+      "bytes": 181628,
+      "sha256": "ef6a4e03a8032a4b072e129d8daaca5d57dec267c0eac4bb98b5bfc4b8f018d4",
+      "triangles": 13800,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_6d15fab7a7500e_b",
+          "uri": "tex/tex_6d15fab7a7500e_b.ktx2",
+          "bytes": 146313,
+          "sha256": "6d15fab7a7500ed1e22c5dc038d0c4709d4d19f8d4e3430add51d5a8857d00f8",
+          "linear": false
+        },
+        {
+          "key": "tex_72a98291142130_n",
+          "uri": "tex/tex_72a98291142130_n.ktx2",
+          "bytes": 41075,
+          "sha256": "72a98291142130315ccd31830288575237aea4cd5e0a4a9e3f691652d23ed412",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_F117/lod1.glb",
+      "bytes": 30008,
+      "sha256": "ae684de0315ddcc208888a2867de723e1e64be47f05df4a847068154aa01e037",
+      "triangles": 1383,
+      "drawCalls": 2,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_6d15fab7a7500e_b",
+          "uri": "tex/tex_6d15fab7a7500e_b.ktx2",
+          "bytes": 146313,
+          "sha256": "6d15fab7a7500ed1e22c5dc038d0c4709d4d19f8d4e3430add51d5a8857d00f8",
+          "linear": false
+        },
+        {
+          "key": "tex_72a98291142130_n",
+          "uri": "tex/tex_72a98291142130_n.ktx2",
+          "bytes": 41075,
+          "sha256": "72a98291142130315ccd31830288575237aea4cd5e0a4a9e3f691652d23ed412",
+          "linear": true
+        },
+        {
+          "key": "shared_bcb3b634b14a77aa_b",
+          "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+          "bytes": 73563,
+          "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+          "linear": false
+        },
+        {
+          "key": "shared_7b08e70e297c1754_n",
+          "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+          "bytes": 83733,
+          "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_F117/lod2.glb",
+      "bytes": 14008,
+      "sha256": "e1881b82eac3aab4c48845991f86f6fec91c00b238974039cb9a65bd1a203bd2",
+      "triangles": 1349,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_6d15fab7a7500e_b",
+      "uri": "tex/tex_6d15fab7a7500e_b.ktx2",
+      "bytes": 146313,
+      "sha256": "6d15fab7a7500ed1e22c5dc038d0c4709d4d19f8d4e3430add51d5a8857d00f8",
+      "linear": false
+    },
+    {
+      "key": "tex_72a98291142130_n",
+      "uri": "tex/tex_72a98291142130_n.ktx2",
+      "bytes": 41075,
+      "sha256": "72a98291142130315ccd31830288575237aea4cd5e0a4a9e3f691652d23ed412",
+      "linear": true
+    },
+    {
+      "key": "shared_bcb3b634b14a77aa_b",
+      "uri": "tex/shared_bcb3b634b14a77aa_b.ktx2",
+      "bytes": 73563,
+      "sha256": "3c70f1a4c086783180b30fdcf44be804b1ccc9ff8691694f23d5a7cae51f27e8",
+      "linear": false
+    },
+    {
+      "key": "shared_7b08e70e297c1754_n",
+      "uri": "tex/shared_7b08e70e297c1754_n.ktx2",
+      "bytes": 83733,
+      "sha256": "281486d64f319efb327a3a434cb1e260370db8df63e5b20107ce4afcb2084740",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 369016,
+    "lod0_lod1_plus_own_tex_bytes": 399024,
+    "lod0_plus_all_tex_bytes": 526312,
+    "shared_tex_bytes": 157296,
+    "own_tex_bytes": 187388,
+    "opaque_draw_calls": 2
+  }
+}

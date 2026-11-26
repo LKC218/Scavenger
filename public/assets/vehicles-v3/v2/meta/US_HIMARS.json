@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "id": "model:US_HIMARS",
+  "slug": "US_HIMARS",
+  "name": "M142 HIMARS",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "9f6cfc6f74c0905ffa83f793d515008902b16c742cdd8b06cc67478ea40e3dca",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.9,
+  "baseline_256_bytes": 719808,
+  "baseline_256_tris": 29614,
+  "original_tris": 42166,
+  "bounds": {
+    "min": [
+      -1.297,
+      -0.0083,
+      -4.0582
+    ],
+    "max": [
+      1.2696,
+      4.1379,
+      4.1187
+    ],
+    "size": [
+      2.5666,
+      4.1462,
+      8.1768
+    ],
+    "center": [
+      -0.0137,
+      2.0648,
+      0.0302
+    ],
+    "radius": 4.7602
+  },
+  "labelBounds": {
+    "min": [
+      -1.297,
+      -0.0083,
+      -4.0582
+    ],
+    "max": [
+      1.2696,
+      4.1379,
+      4.1187
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -0.886,
+      -0.008,
+      -2.75
+    ],
+    [
+      0.859,
+      -0.008,
+      -2.75
+    ],
+    [
+      -0.886,
+      -0.008,
+      2.81
+    ],
+    [
+      0.859,
+      -0.008,
+      2.81
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          -1.105,
+          0.686,
+          0.7911
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.1361,
+    0.1233,
+    0.1048
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 13915,
+      "tris_lod1": 4365,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HIMARS/lod0.glb",
+      "bytes": 221124,
+      "sha256": "7bcc61cc68906ec40fa20de86ee55c6d63314d6fe8fe99fb62d131e25f5e46dc",
+      "triangles": 13915,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_270dc20f0f5943_b",
+          "uri": "tex/tex_270dc20f0f5943_b.ktx2",
+          "bytes": 211753,
+          "sha256": "270dc20f0f5943403c49fe7a6f457f8cc79ad8658ded4f4d6d5afaf728516a41",
+          "linear": false
+        },
+        {
+          "key": "tex_6caab749ce7d42_n",
+          "uri": "tex/tex_6caab749ce7d42_n.ktx2",
+          "bytes": 68119,
+          "sha256": "6caab749ce7d420374b992077f0288a1a7466038bc0fd1eb5c8f709caba3f54f",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "tex_02ec2f223f3547_b",
+          "uri": "tex/tex_02ec2f223f3547_b.ktx2",
+          "bytes": 26923,
+          "sha256": "02ec2f223f3547a50c21c2c30361165940acda2606b7c9e9db7b7066b2c75851",
+          "linear": false
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HIMARS/lod1.glb",
+      "bytes": 80952,
+      "sha256": "9b71bbd72d4cbcb10aae6e321e39a1958c341ce8e86032f7945451450bfcb884",
+      "triangles": 4365,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_270dc20f0f5943_b",
+          "uri": "tex/tex_270dc20f0f5943_b.ktx2",
+          "bytes": 211753,
+          "sha256": "270dc20f0f5943403c49fe7a6f457f8cc79ad8658ded4f4d6d5afaf728516a41",
+          "linear": false
+        },
+        {
+          "key": "tex_6caab749ce7d42_n",
+          "uri": "tex/tex_6caab749ce7d42_n.ktx2",
+          "bytes": 68119,
+          "sha256": "6caab749ce7d420374b992077f0288a1a7466038bc0fd1eb5c8f709caba3f54f",
+          "linear": true
+        },
+        {
+          "key": "shared_f0f32258dd589cc4_b",
+          "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+          "bytes": 80989,
+          "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+          "linear": false
+        },
+        {
+          "key": "shared_616b9fa4a46d547a_n",
+          "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+          "bytes": 83988,
+          "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+          "linear": true
+        },
+        {
+          "key": "tex_02ec2f223f3547_b",
+          "uri": "tex/tex_02ec2f223f3547_b.ktx2",
+          "bytes": 26923,
+          "sha256": "02ec2f223f3547a50c21c2c30361165940acda2606b7c9e9db7b7066b2c75851",
+          "linear": false
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_HIMARS/lod2.glb",
+      "bytes": 11680,
+      "sha256": "f201a6e899e5b7e5cc06c4c96fe3b505df1d58588f5592266feea4a83b039e18",
+      "triangles": 962,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_270dc20f0f5943_b",
+      "uri": "tex/tex_270dc20f0f5943_b.ktx2",
+      "bytes": 211753,
+      "sha256": "270dc20f0f5943403c49fe7a6f457f8cc79ad8658ded4f4d6d5afaf728516a41",
+      "linear": false
+    },
+    {
+      "key": "tex_6caab749ce7d42_n",
+      "uri": "tex/tex_6caab749ce7d42_n.ktx2",
+      "bytes": 68119,
+      "sha256": "6caab749ce7d420374b992077f0288a1a7466038bc0fd1eb5c8f709caba3f54f",
+      "linear": true
+    },
+    {
+      "key": "shared_f0f32258dd589cc4_b",
+      "uri": "tex/shared_f0f32258dd589cc4_b.ktx2",
+      "bytes": 80989,
+      "sha256": "efe4b90c5c4f72a60da923a37b2e250a263da357245b9eb4f05ec9d6df7c60bc",
+      "linear": false
+    },
+    {
+      "key": "shared_616b9fa4a46d547a_n",
+      "uri": "tex/shared_616b9fa4a46d547a_n.ktx2",
+      "bytes": 83988,
+      "sha256": "f78b9c9d743fb59407af39f170a6c150eecee52395f818ea80973aaa156b386f",
+      "linear": true
+    },
+    {
+      "key": "tex_02ec2f223f3547_b",
+      "uri": "tex/tex_02ec2f223f3547_b.ktx2",
+      "bytes": 26923,
+      "sha256": "02ec2f223f3547a50c21c2c30361165940acda2606b7c9e9db7b7066b2c75851",
+      "linear": false
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 527919,
+    "lod0_lod1_plus_own_tex_bytes": 608871,
+    "lod0_plus_all_tex_bytes": 692896,
+    "shared_tex_bytes": 164977,
+    "own_tex_bytes": 306795,
+    "opaque_draw_calls": 2
+  }
+}

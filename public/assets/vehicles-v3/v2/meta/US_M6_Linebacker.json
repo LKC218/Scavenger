@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "model:US_M6_Linebacker",
+  "slug": "US_M6_Linebacker",
+  "name": "M6 Linebacker ",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "1dc5e984161d37f0bf5261f576838d10c94feb4f14466ae8bd74a66e5be98dd8",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.55,
+  "baseline_256_bytes": 1068720,
+  "baseline_256_tris": 38025,
+  "original_tris": 44209,
+  "bounds": {
+    "min": [
+      -1.6997,
+      0.0195,
+      -3.1135
+    ],
+    "max": [
+      1.6997,
+      4.8173,
+      3.3532
+    ],
+    "size": [
+      3.3994,
+      4.7978,
+      6.4667
+    ],
+    "center": [
+      0,
+      2.4184,
+      0.1199
+    ],
+    "radius": 4.3702
+  },
+  "labelBounds": {
+    "min": [
+      -1.6997,
+      0.0195,
+      -3.1135
+    ],
+    "max": [
+      1.6997,
+      4.8173,
+      3.3532
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.156,
+      0.02,
+      -2.079
+    ],
+    [
+      1.156,
+      0.02,
+      -2.079
+    ],
+    [
+      -1.156,
+      0.02,
+      2.319
+    ],
+    [
+      1.156,
+      0.02,
+      2.319
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          1.3976,
+          2.0236,
+          -0.8307
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.097,
+    0.0941,
+    0.0782
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 20557,
+      "tris_lod1": 6244,
+      "drawCalls": 3
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M6_Linebacker/lod0.glb",
+      "bytes": 373980,
+      "sha256": "b758d08691dcf70c031b26105644721c93ccdbf5aad6d9f8a63354a7070c0ee0",
+      "triangles": 20557,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_5edc2ca134cb32_b",
+          "uri": "tex/tex_5edc2ca134cb32_b.ktx2",
+          "bytes": 223358,
+          "sha256": "5edc2ca134cb325973887c7a6cd16527a81ab960a59c00c30b519307d6e365e5",
+          "linear": false
+        },
+        {
+          "key": "tex_64785aba51bb09_n",
+          "uri": "tex/tex_64785aba51bb09_n.ktx2",
+          "bytes": 79885,
+          "sha256": "64785aba51bb099b55cd1cb09d67a63233e81986620a2bd2403d3d8150e57202",
+          "linear": true
+        },
+        {
+          "key": "shared_ece80c02112fd889_b",
+          "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+          "bytes": 56288,
+          "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+          "linear": false
+        },
+        {
+          "key": "shared_1550a6e7a3e840a9_n",
+          "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+          "bytes": 34495,
+          "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M6_Linebacker/lod1.glb",
+      "bytes": 119456,
+      "sha256": "1281311a036e1176f72518211c99afd196393cc743f73a0e92189adc69362cc4",
+      "triangles": 6244,
+      "drawCalls": 3,
+      "nodes": 1,
+      "textures": [
+        {
+          "key": "tex_5edc2ca134cb32_b",
+          "uri": "tex/tex_5edc2ca134cb32_b.ktx2",
+          "bytes": 223358,
+          "sha256": "5edc2ca134cb325973887c7a6cd16527a81ab960a59c00c30b519307d6e365e5",
+          "linear": false
+        },
+        {
+          "key": "tex_64785aba51bb09_n",
+          "uri": "tex/tex_64785aba51bb09_n.ktx2",
+          "bytes": 79885,
+          "sha256": "64785aba51bb099b55cd1cb09d67a63233e81986620a2bd2403d3d8150e57202",
+          "linear": true
+        },
+        {
+          "key": "shared_ece80c02112fd889_b",
+          "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+          "bytes": 56288,
+          "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+          "linear": false
+        },
+        {
+          "key": "shared_1550a6e7a3e840a9_n",
+          "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+          "bytes": 34495,
+          "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M6_Linebacker/lod2.glb",
+      "bytes": 13140,
+      "sha256": "da43a327cb341323c3da4f7122cb3d200d475cd36941ee01a8d3f054867c5c0a",
+      "triangles": 969,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_5edc2ca134cb32_b",
+      "uri": "tex/tex_5edc2ca134cb32_b.ktx2",
+      "bytes": 223358,
+      "sha256": "5edc2ca134cb325973887c7a6cd16527a81ab960a59c00c30b519307d6e365e5",
+      "linear": false
+    },
+    {
+      "key": "tex_64785aba51bb09_n",
+      "uri": "tex/tex_64785aba51bb09_n.ktx2",
+      "bytes": 79885,
+      "sha256": "64785aba51bb099b55cd1cb09d67a63233e81986620a2bd2403d3d8150e57202",
+      "linear": true
+    },
+    {
+      "key": "shared_ece80c02112fd889_b",
+      "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+      "bytes": 56288,
+      "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+      "linear": false
+    },
+    {
+      "key": "shared_1550a6e7a3e840a9_n",
+      "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+      "bytes": 34495,
+      "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 677223,
+    "lod0_lod1_plus_own_tex_bytes": 796679,
+    "lod0_plus_all_tex_bytes": 768006,
+    "shared_tex_bytes": 90783,
+    "own_tex_bytes": 303243,
+    "opaque_draw_calls": 2
+  }
+}

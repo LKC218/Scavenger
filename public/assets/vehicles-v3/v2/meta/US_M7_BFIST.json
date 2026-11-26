@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "id": "model:US_M7_BFIST",
+  "slug": "US_M7_BFIST",
+  "name": "M7 BFIST",
+  "category": "ground",
+  "role": "ground",
+  "size_tier": "standard",
+  "quality_status": "passed",
+  "is_partial": false,
+  "source_sha256": "7b6cdb3dd3f581746da8a103ff5669de22922b4b941bf2702849ebd3e3fe9df9",
+  "used_golden_assembly": false,
+  "retry_level": 0,
+  "elapsed_sec": 0.54,
+  "baseline_256_bytes": 1090796,
+  "baseline_256_tris": 38519,
+  "original_tris": 45739,
+  "bounds": {
+    "min": [
+      -1.6997,
+      0.0195,
+      -3.1135
+    ],
+    "max": [
+      1.6997,
+      4.8173,
+      3.4238
+    ],
+    "size": [
+      3.3994,
+      4.7978,
+      6.5373
+    ],
+    "center": [
+      0,
+      2.4184,
+      0.1551
+    ],
+    "radius": 4.3963
+  },
+  "labelBounds": {
+    "min": [
+      -1.6997,
+      0.0195,
+      -3.1135
+    ],
+    "max": [
+      1.6997,
+      4.8173,
+      3.4238
+    ]
+  },
+  "groundSamplePoints": [
+    [
+      -1.156,
+      0.02,
+      -2.068
+    ],
+    [
+      1.156,
+      0.02,
+      -2.068
+    ],
+    [
+      -1.156,
+      0.02,
+      2.378
+    ],
+    [
+      1.156,
+      0.02,
+      2.378
+    ]
+  ],
+  "hardpoints": {
+    "muzzles": [
+      {
+        "name": "estimated_muzzle",
+        "pos": [
+          0.031,
+          3.411,
+          -2.258
+        ],
+        "estimated": true
+      }
+    ],
+    "exhausts": [
+      {
+        "name": "exhaust",
+        "pos": [
+          1.3976,
+          2.0236,
+          -0.8307
+        ]
+      }
+    ]
+  },
+  "avgLinearColor": [
+    0.0419,
+    0.0407,
+    0.0379
+  ],
+  "opaqueMaterialsCount": 2,
+  "hasGlassMaterial": true,
+  "hasNormalMap": true,
+  "slots": [
+    {
+      "slot": "hull",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "axis": "none",
+      "tris_lod0": 17133,
+      "tris_lod1": 5028,
+      "drawCalls": 2
+    },
+    {
+      "slot": "turret",
+      "pivot": [
+        0.1931,
+        2.064,
+        0.5068
+      ],
+      "axis": "y",
+      "tris_lod0": 4322,
+      "tris_lod1": 1563,
+      "drawCalls": 2
+    }
+  ],
+  "lods": {
+    "lod0": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M7_BFIST/lod0.glb",
+      "bytes": 393160,
+      "sha256": "bf9209e67e00efd104a375ac1be3884ccad095db824f7db8a0ab848e65bdc629",
+      "triangles": 21455,
+      "drawCalls": 4,
+      "nodes": 2,
+      "textures": [
+        {
+          "key": "tex_3797a623f796b7_b",
+          "uri": "tex/tex_3797a623f796b7_b.ktx2",
+          "bytes": 224210,
+          "sha256": "3797a623f796b751f4a3d42751e94c763405893f3fd1951c5745fb4e040c83a5",
+          "linear": false
+        },
+        {
+          "key": "tex_5208bf29924961_n",
+          "uri": "tex/tex_5208bf29924961_n.ktx2",
+          "bytes": 79909,
+          "sha256": "5208bf29924961e2d1dc3a0e87caf33255f0bb39ea95df701024cf7bcb219ecd",
+          "linear": true
+        },
+        {
+          "key": "shared_ece80c02112fd889_b",
+          "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+          "bytes": 56288,
+          "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+          "linear": false
+        },
+        {
+          "key": "shared_1550a6e7a3e840a9_n",
+          "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+          "bytes": 34495,
+          "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+          "linear": true
+        }
+      ]
+    },
+    "lod1": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M7_BFIST/lod1.glb",
+      "bytes": 127960,
+      "sha256": "4e80aca1fe61d198ac8436504ce68aeb025fcd4b92c2cb5f16f2fef28cd37741",
+      "triangles": 6591,
+      "drawCalls": 4,
+      "nodes": 2,
+      "textures": [
+        {
+          "key": "tex_3797a623f796b7_b",
+          "uri": "tex/tex_3797a623f796b7_b.ktx2",
+          "bytes": 224210,
+          "sha256": "3797a623f796b751f4a3d42751e94c763405893f3fd1951c5745fb4e040c83a5",
+          "linear": false
+        },
+        {
+          "key": "tex_5208bf29924961_n",
+          "uri": "tex/tex_5208bf29924961_n.ktx2",
+          "bytes": 79909,
+          "sha256": "5208bf29924961e2d1dc3a0e87caf33255f0bb39ea95df701024cf7bcb219ecd",
+          "linear": true
+        },
+        {
+          "key": "shared_ece80c02112fd889_b",
+          "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+          "bytes": 56288,
+          "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+          "linear": false
+        },
+        {
+          "key": "shared_1550a6e7a3e840a9_n",
+          "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+          "bytes": 34495,
+          "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+          "linear": true
+        }
+      ]
+    },
+    "lod2": {
+      "path": "local-data/程序化载具/V001-b4570e71/V2-全库编译/models/US_M7_BFIST/lod2.glb",
+      "bytes": 13376,
+      "sha256": "e54b6d3c46d478bd858452bde0cd593c7dc4c65ae0c4e1de00fd562de07a4608",
+      "triangles": 974,
+      "drawCalls": 1,
+      "nodes": 1,
+      "textures": []
+    }
+  },
+  "textures": [
+    {
+      "key": "tex_3797a623f796b7_b",
+      "uri": "tex/tex_3797a623f796b7_b.ktx2",
+      "bytes": 224210,
+      "sha256": "3797a623f796b751f4a3d42751e94c763405893f3fd1951c5745fb4e040c83a5",
+      "linear": false
+    },
+    {
+      "key": "tex_5208bf29924961_n",
+      "uri": "tex/tex_5208bf29924961_n.ktx2",
+      "bytes": 79909,
+      "sha256": "5208bf29924961e2d1dc3a0e87caf33255f0bb39ea95df701024cf7bcb219ecd",
+      "linear": true
+    },
+    {
+      "key": "shared_ece80c02112fd889_b",
+      "uri": "tex/shared_ece80c02112fd889_b.ktx2",
+      "bytes": 56288,
+      "sha256": "886c200722931b240fcec6bb077757ffe804f0d576e203b66bc0a4b02d8faeb8",
+      "linear": false
+    },
+    {
+      "key": "shared_1550a6e7a3e840a9_n",
+      "uri": "tex/shared_1550a6e7a3e840a9_n.ktx2",
+      "bytes": 34495,
+      "sha256": "5f7f5e3b98be01bf8e693a593f4c76a916e95a5e80072cd677006a2ff1aac939",
+      "linear": true
+    }
+  ],
+  "totals": {
+    "lod0_plus_own_tex_bytes": 697279,
+    "lod0_lod1_plus_own_tex_bytes": 825239,
+    "lod0_plus_all_tex_bytes": 788062,
+    "shared_tex_bytes": 90783,
+    "own_tex_bytes": 304119,
+    "opaque_draw_calls": 3
+  }
+}
