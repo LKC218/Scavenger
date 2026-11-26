@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 280" width="1200" height="280" role="img" aria-label="SCAVENGER — 9KM Airbase WebGL Tactical RTS">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0d12"/>
+      <stop offset="52%" stop-color="#12151e"/>
+      <stop offset="100%" stop-color="#17140f"/>
+    </linearGradient>
+    <radialGradient id="goldGlow" cx="18%" cy="50%" r="42%">
+      <stop offset="0%" stop-color="#ffb800" stop-opacity="0.24"/>
+      <stop offset="55%" stop-color="#f0d372" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#0d0e13" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lineGold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f0d372" stop-opacity="0"/>
+      <stop offset="18%" stop-color="#f0d372" stop-opacity="0.7"/>
+      <stop offset="78%" stop-color="#ffb800" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ffb800" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="tacGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0d372" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Base tactical charcoal card -->
+  <rect width="1200" height="280" rx="14" fill="url(#bgGrad)"/>
+  <rect width="1200" height="280" rx="14" fill="url(#tacGrid)"/>
+  <rect width="1200" height="280" rx="14" fill="url(#goldGlow)"/>
+  <rect x="1" y="1" width="1198" height="278" rx="13" fill="none" stroke="#f0d372" stroke-opacity="0.26" stroke-width="1.5"/>
+
+  <!-- Subtle topographic contour arcs on right -->
+  <g fill="none" stroke="#f0d372" stroke-opacity="0.10" stroke-width="1.2">
+    <path d="M 850 280 C 900 185, 985 150, 1200 135"/>
+    <path d="M 915 280 C 960 205, 1035 178, 1200 170"/>
+    <path d="M 985 280 C 1020 228, 1085 206, 1200 205"/>
+    <circle cx="1065" cy="96" r="56" stroke-dasharray="4 6"/>
+    <circle cx="1065" cy="96" r="30"/>
+    <line x1="1000" y1="96" x2="1130" y2="96" stroke-opacity="0.14"/>
+    <line x1="1065" y1="31" x2="1065" y2="161" stroke-opacity="0.14"/>
+  </g>
+
+  <!-- Corner tactical brackets -->
+  <g stroke="#f0d372" stroke-width="2" fill="none" stroke-opacity="0.65">
+    <path d="M 18 38 V 18 H 38"/>
+    <path d="M 1162 18 H 1182 V 38"/>
+    <path d="M 18 242 V 262 H 38"/>
+    <path d="M 1162 262 H 1182 V 242"/>
+  </g>
+
+  <!-- Brand Emblem: Bio-Clearance Tri-Wedge Shield (Single Source from src/界面规范/favicon.svg) -->
+  <g transform="translate(88, 62) scale(6.4)">
+    <rect width="24" height="24" rx="4" fill="#0d0e13" stroke="#f0d372" stroke-opacity="0.35" stroke-width="0.45"/>
+    <path fill="#f0d372" fill-opacity="0.16" stroke="#f0d372" stroke-width="1.6" stroke-linejoin="round" d="M4.5 5.2 L12 3 L19.5 5.2 V13.2 C19.5 16.2 16.2 18.8 12 20.8 C7.8 18.8 4.5 16.2 4.5 13.2 Z"/>
+    <path fill="#f0d372" d="M9.1 7.6 L12 6.5 L14.9 7.6 L13.4 10.6 L12 10.0 L10.6 10.6 Z M17.5 12.1 L17.0 15.1 L14.6 17.0 L13.0 14.3 L14.2 13.4 L14.3 12.0 Z M6.5 12.1 L9.7 12.0 L9.8 13.4 L11.0 14.3 L9.4 17.0 L7.0 15.1 Z"/>
+    <path fill="#ffb800" d="M12 10.6 L13.5 12.1 L12 13.6 L10.5 12.1 Z"/>
+  </g>
+
+  <!-- Main Wordmark & Subtitle -->
+  <text x="282" y="100" fill="#f0d372" font-family="'Bahnschrift', 'Segoe UI', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="700" letter-spacing="4.2" opacity="0.86">AIRBASE 9KM // WEBGL TACTICAL RTS &amp; COMBINED-ARMS SANDBOX</text>
+  <text x="278" y="168" fill="#f5f3ea" font-family="'Bahnschrift', 'Segoe UI', sans-serif" font-size="72" font-weight="800" letter-spacing="8">SCAVENGER</text>
+  <rect x="282" y="184" width="640" height="2" fill="url(#lineGold)"/>
+  <text x="282" y="218" fill="#c7cbd4" font-family="'Microsoft YaHei', 'Segoe UI', sans-serif" font-size="19" font-weight="500" letter-spacing="1.2">9km×9km 程序化大地图 · 129 型现代陆空载具 · 680p 复古微缩 3D × 原生高清双层 UI</text>
+
+  <!-- Right Telemetry Tag -->
+  <g font-family="Consolas, 'Cascadia Mono', monospace" font-size="12" fill="#f0d372" opacity="0.72" text-anchor="end">
+    <text x="1156" y="218">PORT 127.0.0.1:8800</text>
+    <text x="1156" y="238" fill="#ffb800">STYLIZED-680P-V1 // CODE SSOT V2.2</text>
+  </g>
+</svg>
