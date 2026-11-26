@@ -22,7 +22,7 @@
 | 入口 | 职责 | 说明落点 |
 | --- | --- | --- |
 | [启动工作任务看板.cmd](../启动工作任务看板.cmd)、[数据库.py](../scripts/工作项看板/数据库.py)、[启动看板服务.py](../scripts/工作项看板/启动看板服务.py)、[看板工具.py](../scripts/工作项看板/看板工具.py)、[验证看板闭环.py](../scripts/工作项看板/验证看板闭环.py) | 专属端口 `18800` 独立看板服务与根目录一键快捷启动脚本（双击前台留窗 + 自动开浏览器 + `[O]/[L]/[R]/[Q]` 单键面板 + 关窗优雅停服 + 后台接管/前台保护；SQLite WAL、2 层父子工作项与未完成子项结单保护、乐观锁 `rev`、SSE 实时同步、SHA-256 附件、单人/局域网双鉴权、作用域路径冲突雷达与 AI Agent CLI） | [看板服务说明](../scripts/工作项看板/README.md)、[实施计划](研发协作/本地工作项看板-实施计划.md) |
-| [index.html](../src/工作项看板/index.html)、[样式.css](../src/工作项看板/样式.css)、[应用.mjs](../src/工作项看板/应用.mjs) | Plane 风格暗色协作前端（8 列人机闸门拖拽看板、父子工作项进度条/面包屑/子项拆分与前置阻塞可视化、新建工作项 5 类统一模板与字数计、列表视图、右侧抽屉与 `Ctrl+V` 贴图、模块上下文包与 Agent 冲突雷达） | [看板前端说明](../src/工作项看板/README.md) |
+| [index.html](../src/工作项看板/index.html)、[样式.css](../src/工作项看板/样式.css)、[应用.mjs](../src/工作项看板/应用.mjs) | 对齐 `/ui-spec` Code SSOT V2.2 的暗夜烟炭双金协作前端（只读复用 `/ui/*` 令牌/三楔盾/`.ui-select` 零原生下拉、21:9 超宽屏弹性列宽、8 列人机闸门拖拽看板、侧栏推进态势卡、三段式降噪卡片、父子工作项进度/面包屑/子项拆分与前置阻塞可视化、5 类规范模板与 `Ctrl+V` 贴图） | [看板前端说明](../src/工作项看板/README.md) |
 | [workboard-item-create](../.agents/skills/workboard-item-create/SKILL.md)、[workboard-item-exec](../.agents/skills/workboard-item-exec/SKILL.md) | 项目级工作项双技能：统一 5 类编写规范（`[需求]/[缺陷]/[优化]/[任务]/[资产]`）、`--dry-run`/`lint` 机械校验建单，以及 `pull → plan_review → in_progress → qa_wait → done` 多 Agent 执行闭环 | [工作项编写规范与模板](../.agents/skills/workboard-item-create/references/工作项编写规范与模板.md)、[状态流转与协作规程](../.agents/skills/workboard-item-exec/references/状态流转与协作规程.md) |
 
 ## 正式统一主入口与全局 UI/UX 规范（127.0.0.1:8800 · Code SSOT V2.2）
