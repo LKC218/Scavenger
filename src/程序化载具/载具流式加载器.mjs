@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {KTX2Loader} from 'three/addons/loaders/KTX2Loader.js';
 import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
+import {VEHICLE_STYLE_DEFAULT, applyVehicleStyleToObject} from './载具风格化材质.mjs';
 
 export class ProceduralVehicleLoader {
   constructor(renderer, options = {}) {
@@ -17,6 +18,15 @@ export class ProceduralVehicleLoader {
     this.archiveBaseUrl = (options.archiveBaseUrl || '/v3').replace(/\/$/, '');
     this.maxConcurrentDownloads = options.maxConcurrentDownloads || 6;
     this.maxCachedDetailVehicles = options.maxCachedDetailVehicles || 64;
+
+    this.stylePreset = VEHICLE_STYLE_DEFAULT.key;
+    this.envMap = options.envMap || null;
+    this.styleResolution = {
+      width: Math.max(1, Number(options.width) || 1208),
+      height: Math.max(1, Number(options.height) || 680),
+    };
+    this._activeStyleHandles = new Map();
+    this._disposed = false;
 
     this.ktx2Loader = new KTX2Loader()
       .setTranscoderPath(options.basisPath || '/vendor/examples/jsm/libs/basis/')
@@ -325,7 +335,8 @@ export class ProceduralVehicleLoader {
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.flipY = false;
-        texture.anisotropy = Math.min(4, this.renderer.capabilities.getMaxAnisotropy());
+        const maxAniso = this.renderer?.capabilities?.getMaxAnisotropy?.() || 1;
+        texture.anisotropy = Math.min(8, maxAniso);
         texture.needsUpdate = true;
         this.texResolved.set(texKey, texture);
         this.stats.uniqueTexturesLoaded = this.texResolved.size;
@@ -335,6 +346,11 @@ export class ProceduralVehicleLoader {
       }
     })();
     this.texPromiseCache.set(texKey, p);
+    p.catch(() => {
+      if (this.texPromiseCache.get(texKey) === p) {
+        this.texPromiseCache.delete(texKey);
+      }
+    });
     return p;
   }
 
@@ -418,15 +434,46 @@ export class ProceduralVehicleLoader {
       if (lodLevel === 2) {
         gltf.scene.traverse(obj => {
           if (obj.isMesh && obj.geometry.getAttribute('color')) {
-            obj.material.vertexColors = true;
-            obj.material.needsUpdate = true;
+            const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+            for (const m of mats) {
+              if (m) {
+                m.vertexColors = true;
+                m.needsUpdate = true;
+              }
+            }
           }
         });
       }
 
+      const styleHandle = applyVehicleStyleToObject(gltf.scene, {
+        width: this.styleResolution.width,
+        height: this.styleResolution.height,
+        envMap: this.envMap,
+        outlineEnabled: lodLevel < 2,
+        castShadow: true,
+        receiveShadow: lodLevel < 2,
+      });
+
       const slots = {};
       for (const ch of gltf.scene.children) {
         slots[ch.name] = ch;
+      }
+
+      if (this._disposed) {
+        styleHandle?.dispose();
+        this._disposeSceneOnlyGeometryAndMaterials(gltf.scene);
+        return {
+          slug,
+          lodLevel,
+          scene: gltf.scene,
+          slots,
+          bytes: glbBuf.byteLength,
+          disposed: true,
+        };
+      }
+
+      if (styleHandle) {
+        this._activeStyleHandles.set(cacheKey, styleHandle);
       }
 
       const result = {
@@ -443,6 +490,11 @@ export class ProceduralVehicleLoader {
     })();
 
     this.lodCache.set(cacheKey, p);
+    p.catch(() => {
+      if (this.lodCache.get(cacheKey) === p) {
+        this.lodCache.delete(cacheKey);
+      }
+    });
     return p;
   }
 
@@ -512,6 +564,34 @@ export class ProceduralVehicleLoader {
     return {cleanBuffer: out.buffer, externalTextures};
   }
 
+  setResolution(width, height) {
+    const w = Math.max(1, Number(width) || 1208);
+    const h = Math.max(1, Number(height) || 680);
+    this.styleResolution.width = w;
+    this.styleResolution.height = h;
+    for (const handle of this._activeStyleHandles.values()) {
+      handle.setResolution(w, h);
+    }
+  }
+
+  setEnvMap(envMap) {
+    this.envMap = envMap || null;
+    for (const handle of this._activeStyleHandles.values()) {
+      handle.setEnvMap(this.envMap);
+    }
+  }
+
+  _disposeCachedLodEntry(key, parsed) {
+    const handle = this._activeStyleHandles.get(key);
+    if (handle) {
+      handle.dispose();
+      this._activeStyleHandles.delete(key);
+    }
+    if (parsed?.scene) {
+      this._disposeSceneOnlyGeometryAndMaterials(parsed.scene);
+    }
+  }
+
   _touchLru(key) {
     if (key.endsWith(':lod2')) return;
     const idx = this.lruOrder.indexOf(key);
@@ -524,7 +604,7 @@ export class ProceduralVehicleLoader {
       const victim = this.lruOrder.shift();
       const parsed = this.lodResolved.get(victim);
       if (parsed) {
-        this._disposeSceneOnlyGeometryAndMaterials(parsed.scene);
+        this._disposeCachedLodEntry(victim, parsed);
         this.lodResolved.delete(victim);
       }
       this.lodCache.delete(victim);
@@ -532,11 +612,21 @@ export class ProceduralVehicleLoader {
   }
 
   _disposeSceneOnlyGeometryAndMaterials(scene) {
+    const seenGeos = new Set();
+    const seenMats = new Set();
     scene.traverse(obj => {
       if (!obj.isMesh) return;
-      obj.geometry?.dispose();
+      if (obj.geometry && !seenGeos.has(obj.geometry)) {
+        seenGeos.add(obj.geometry);
+        obj.geometry.dispose();
+      }
       const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-      for (const m of mats) m?.dispose();
+      for (const m of mats) {
+        if (m && !seenMats.has(m)) {
+          seenMats.add(m);
+          m.dispose();
+        }
+      }
     });
   }
 
@@ -544,7 +634,7 @@ export class ProceduralVehicleLoader {
     for (const key of [...this.lruOrder]) {
       const parsed = this.lodResolved.get(key);
       if (parsed) {
-        this._disposeSceneOnlyGeometryAndMaterials(parsed.scene);
+        this._disposeCachedLodEntry(key, parsed);
         this.lodResolved.delete(key);
       }
       this.lodCache.delete(key);
@@ -561,9 +651,14 @@ export class ProceduralVehicleLoader {
   }
 
   dispose() {
-    for (const parsed of this.lodResolved.values()) {
-      this._disposeSceneOnlyGeometryAndMaterials(parsed.scene);
+    this._disposed = true;
+    for (const [key, parsed] of this.lodResolved.entries()) {
+      this._disposeCachedLodEntry(key, parsed);
     }
+    for (const handle of this._activeStyleHandles.values()) {
+      handle.dispose();
+    }
+    this._activeStyleHandles.clear();
     this.lodResolved.clear();
     this.lodCache.clear();
     this.lruOrder.length = 0;
@@ -573,6 +668,7 @@ export class ProceduralVehicleLoader {
     this.texResolved.clear();
     this.texPromiseCache.clear();
     this.ktx2Loader.dispose();
+    this.envMap = null;
     this.farArchiveBuffer = null;
   }
 }

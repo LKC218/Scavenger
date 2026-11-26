@@ -63,12 +63,8 @@ class ProceduralVehicleHTTPHandler(SimpleHTTPRequestHandler):
             super().log_message(fmt, *args)
 
     def _resolve_route(self, raw_path: str) -> Path | None:
-        if raw_path in ("/", "/index.html", "/showcase"):
-            return ROOT / "src/程序化载具/展示对比台.html"
-        if raw_path in ("/battlefield", "/混编演训场.html"):
+        if raw_path in ("/", "/index.html", "/battlefield", "/混编演训场.html"):
             return ROOT / "src/程序化载具/混编演训场.html"
-        if raw_path in ("/fixture", "/视觉测试夹具.html"):
-            return ROOT / "src/程序化载具/视觉测试夹具.html"
         if raw_path in ("/report", "/验收报告"):
             return REPORT_DIR / "程序化载具优化与视觉验收报告-V001.html"
         if raw_path == "/compressed-loader.mjs":
@@ -81,8 +77,6 @@ class ProceduralVehicleHTTPHandler(SimpleHTTPRequestHandler):
             return safe_under(ROOT / "src", raw_path[len("/src/") :])
         if raw_path.startswith("/v0/"):
             return safe_under(V0_DIR, raw_path[len("/v0/") :])
-        if raw_path.startswith("/v1/"):
-            return safe_under(V1_DIR, raw_path[len("/v1/") :])
         if raw_path.startswith("/v2/"):
             return safe_under(V2_DIR, raw_path[len("/v2/") :])
         if raw_path.startswith("/v3/"):
@@ -95,8 +89,6 @@ class ProceduralVehicleHTTPHandler(SimpleHTTPRequestHandler):
             return safe_under(REPORT_DIR / "assets", raw_path[len("/assets/") :])
         if raw_path.startswith("/orig/"):
             return safe_under(ORIGINALS_CACHE_DIR, raw_path[len("/orig/") :])
-        if raw_path.startswith("/ref256/"):
-            return safe_under(FORMAL_VEH_MODEL_DIR, raw_path[len("/ref256/") :])
         return None
 
     def do_HEAD(self):
@@ -153,7 +145,7 @@ class ProceduralVehicleHTTPHandler(SimpleHTTPRequestHandler):
 
         etag = f'W/"{file_size:x}-{st.st_mtime_ns:x}"'
         is_immutable = (
-            raw_path.startswith(("/vendor/", "/v3/", "/orig/", "/ref256/"))
+            raw_path.startswith(("/vendor/", "/v3/", "/orig/"))
             and ext in (".scvveh", ".scvi", ".glb", ".ktx2", ".wasm", ".js", ".mjs", ".png")
         )
         cache_ctrl = "public, max-age=31536000, immutable" if is_immutable else "no-cache"
@@ -246,7 +238,7 @@ def main() -> None:
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
     httpd = start_server(args.port, verbose=args.verbose)
-    print(f"[载具预览服务] 已启动只读回环服务: http://127.0.0.1:{args.port}/ (展示台 /showcase · 混编场 /battlefield · 报告 /report)")
+    print(f"[载具预览服务] 已启动只读回环服务: http://127.0.0.1:{args.port}/ (混编场 /battlefield · 报告 /report)")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

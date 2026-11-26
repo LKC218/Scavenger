@@ -68,6 +68,10 @@
     <div class="hud-layer">
       <div class="hud-top">
         <div class="ui-pod hud-card">
+          <a class="ui-back-home" href="/" title="返回 Scavenger 作战大厅 (/)">
+            <span class="ui-back-home-arrow" aria-hidden="true">←</span><span>返回大厅</span>
+          </a>
+          <span class="ui-divider"></span>
           <strong style="font-size:13px;">混编演训场</strong>
           <span class="ui-divider"></span>
           <button class="hud-btn" data-preset="10_near">10车近景</button>
@@ -81,7 +85,7 @@
           <button class="hud-btn active" data-aspect="16:9">16:9 (1208×680)</button>
           <button class="hud-btn" data-aspect="21:9">21:9 (1588×680)</button>
           <span class="ui-divider"></span>
-          <a class="hud-btn" href="/showcase">单车展示台</a>
+          <a class="hud-btn" href="/armory">武器库</a>
           <a class="hud-btn" href="/report">验收报告</a>
         </div>
       </div>
@@ -115,6 +119,7 @@
     } from '/src/程序化地图/渲染基线.mjs';
     import {ProceduralVehicleLoader} from '/src/程序化载具/载具流式加载器.mjs';
     import {ProceduralVehicleRenderer} from '/src/程序化载具/载具实例化渲染器.mjs';
+    import {createStylizedVehicleEnvMaps} from '/src/程序化载具/载具风格化材质.mjs';
 
     const params = new URLSearchParams(location.search);
     const sourceMode = params.get('source') || 'archive';
@@ -138,6 +143,9 @@
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x3a4736);
     scene.fog = new THREE.Fog(0x3a4736, 2600, 12000);
+    const envMaps = createStylizedVehicleEnvMaps(renderer);
+    scene.environment = envMaps.sandboxEnv;
+    scene.environmentIntensity = 0.08;
 
     const hemi = new THREE.HemisphereLight(0xeef3e2, 0x5c6a53, 1.35);
     const sun = new THREE.DirectionalLight(0xffeed4, 2.8);
@@ -172,7 +180,13 @@
     gTex.colorSpace = THREE.SRGBColorSpace;
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(9000, 9000),
-      new THREE.MeshStandardMaterial({map: gTex, roughness: 0.96, metalness: 0.02}),
+      new THREE.MeshStandardMaterial({
+        map: gTex,
+        roughness: 0.96,
+        metalness: 0.02,
+        envMap: envMaps.sandboxEnv,
+        envMapIntensity: 0.18,
+      }),
     );
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
@@ -209,12 +223,17 @@
       sun.target.updateMatrixWorld();
     }
 
+    let loader = null;
+    let vehRenderer = null;
+
     function updateAspectLayout() {
       const spec = applyStylized680pCanvas(renderer, currentAspect);
       const box = layoutAspectFrameBox(spec.ratio, window.innerWidth - 16, window.innerHeight - 16);
       frameEl.style.width = `${box.width}px`;
       frameEl.style.height = `${box.height}px`;
       updateCamera();
+      loader?.setResolution?.(spec.width, spec.height);
+      vehRenderer?.setResolution?.(spec.width, spec.height);
       document.querySelectorAll('[data-aspect]').forEach(b => b.classList.toggle('active', b.dataset.aspect === currentAspect));
     }
     window.addEventListener('resize', updateAspectLayout);
@@ -228,13 +247,22 @@
       updateCamera();
     }, {passive: false});
 
-    const loader = new ProceduralVehicleLoader(renderer, {
+    const initSpec = getStandardAspectSpec(currentAspect);
+    loader = new ProceduralVehicleLoader(renderer, {
       mode: sourceMode,
       baseUrl,
       archiveBaseUrl,
       maxCachedDetailVehicles: 140,
+      envMap: envMaps.sandboxEnv,
+      width: initSpec.width,
+      height: initSpec.height,
     });
-    const vehRenderer = new ProceduralVehicleRenderer({scene, loader});
+    vehRenderer = new ProceduralVehicleRenderer({
+      scene,
+      loader,
+      width: initSpec.width,
+      height: initSpec.height,
+    });
 
     let allVehicles = [];
     let units = [];
@@ -434,17 +462,52 @@
         },
         resetFrameTimes: () => { frameTimes.length = 0; },
         sampleFrameTimes: () => [...frameTimes],
-        getStats: () => ({
-          span: camSpan,
-          aspect: currentAspect,
-          render: {...renderer.info.render},
-          memory: {...renderer.info.memory},
-          vehicles: {...vehRenderer.stats},
-          loader: {...loader.stats},
-          jsHeap: performance.memory?.usedJSHeapSize || 0,
-        }),
+        getStats: () => {
+          let outlineCount = 0;
+          let matOutlineRes = null;
+          for (const p of vehRenderer.typePools.values()) {
+            for (const lv of [0, 1, 2]) {
+              const list = p.lodMeshes[lv];
+              if (!list) continue;
+              for (const e of list) {
+                if (e.isOutline) {
+                  if (e.mesh.visible) outlineCount += 1;
+                  const uRes = e.mesh.material?.uniforms?.uResolution?.value;
+                  if (!matOutlineRes && uRes) matOutlineRes = [uRes.x, uRes.y];
+                }
+              }
+            }
+          }
+          return {
+            span: camSpan,
+            aspect: currentAspect,
+            render: {...renderer.info.render},
+            memory: {...renderer.info.memory},
+            vehicles: {...vehRenderer.stats},
+            loader: {...loader.stats},
+            jsHeap: performance.memory?.usedJSHeapSize || 0,
+            outlineCount,
+            outlineResolution: matOutlineRes || [vehRenderer.resolution.width, vehRenderer.resolution.height],
+          };
+        },
       };
     }
+
+    let unloaded = false;
+    function cleanupOnUnload() {
+      if (unloaded) return;
+      unloaded = true;
+      vehRenderer?.dispose();
+      loader?.dispose();
+      envMaps.dispose();
+      gTex.dispose();
+      ground.geometry.dispose();
+      ground.material.dispose();
+      renderer.dispose();
+    }
+    window.addEventListener('pagehide', cleanupOnUnload);
+    window.addEventListener('beforeunload', cleanupOnUnload);
+
     boot();
   </script>
 </body>

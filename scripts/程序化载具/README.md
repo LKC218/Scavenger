@@ -17,6 +17,7 @@
 | [验证V5全矩阵.py](验证V5全矩阵.py) | V5 | Playwright、可见 Chrome 与 Edge、`numpy` | 单进程串行实测双浏览器 × `stylized-680p-v1` 双画幅 × 五类负载帧率、20 Mbps 限速冷温启动、5 轮遍历零泄漏与路线 B 契约校验 |
 | [生成验收报告.py](生成验收报告.py) | V5 | Python 标准库 | 汇总全部实测与最差 Top 15 联系表，生成离线自包含 HTML 与 Markdown 验收报告 |
 | [运行全流程.py](运行全流程.py) | V0–V5 | Python 标准库 | 一键按阶段串行调度全部编译、归档、自检与视觉验证闭环 |
+| [生成兵牌插画.py](生成兵牌插画.py) | V6 | Playwright、可见 Chrome、Pillow | 复用 `.scvveh` 与 `miniature_sand` 材质离线批拍全部 129 车前斜 3/4 透明底兵牌特写 WebP（`192×264`），输出至 `V6-兵牌插画/` 并经 `/portraits/<slug>.webp` 分发 |
 
 ## 常用命令
 

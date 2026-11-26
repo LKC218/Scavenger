@@ -12,16 +12,33 @@ const _matPart = new THREE.Matrix4();
 const _matLocal = new THREE.Matrix4();
 const _matPivot = new THREE.Matrix4();
 const _matRot = new THREE.Matrix4();
+const _invPivotMat = new THREE.Matrix4();
+const _relMat = new THREE.Matrix4();
+const _matFinal = new THREE.Matrix4();
 const _quat = new THREE.Quaternion();
 const _euler = new THREE.Euler(0, 0, 0, 'YXZ');
 const _pos = new THREE.Vector3();
 const _scale = new THREE.Vector3(1, 1, 1);
+const _IDENTITY_ELEMENTS = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+
+function _isIdentityMatrix4(m, eps = 1e-6) {
+  const e = m.elements;
+  for (let i = 0; i < 16; i++) {
+    if (Math.abs(e[i] - _IDENTITY_ELEMENTS[i]) > eps) return false;
+  }
+  return true;
+}
 
 export class ProceduralVehicleRenderer {
-  constructor({scene, loader, shadowLayer = 0}) {
+  constructor({scene, loader, shadowLayer = 0, width, height, outlineEnabled = true}) {
     this.scene = scene;
     this.loader = loader;
     this.shadowLayer = shadowLayer;
+    this.resolution = {
+      width: Math.max(1, Number(width) || loader?.styleResolution?.width || 1208),
+      height: Math.max(1, Number(height) || loader?.styleResolution?.height || 680),
+    };
+    this.outlineEnabled = outlineEnabled !== false;
 
     this.root = new THREE.Group();
     this.root.name = 'ProceduralVehicleInstancedRoot';
@@ -103,20 +120,52 @@ export class ProceduralVehicleRenderer {
   _buildInstancedEntries(parsed, capacity, lodLevel, isShadowOnly, meta = null) {
     const entries = [];
     const axisBySlot = new Map();
-    if (meta?.sl) {
-      for (const s of meta.sl) axisBySlot.set(s[0], s[2]);
-    } else if (meta?.slots) {
-      for (const s of meta.slots) axisBySlot.set(s.slot, s.axis);
+    const pivotBySlot = new Map();
+    if (Array.isArray(meta?.sl)) {
+      for (const s of meta.sl) {
+        if (!Array.isArray(s) || !s[0]) continue;
+        axisBySlot.set(s[0], s[2]);
+        if (Array.isArray(s[1]) && s[1].length >= 3) {
+          pivotBySlot.set(
+            s[0],
+            new THREE.Vector3(Number(s[1][0]) || 0, Number(s[1][1]) || 0, Number(s[1][2]) || 0),
+          );
+        }
+      }
+    } else if (Array.isArray(meta?.slots)) {
+      for (const s of meta.slots) {
+        if (!s?.slot) continue;
+        axisBySlot.set(s.slot, s.axis);
+        if (Array.isArray(s.pivot) && s.pivot.length >= 3) {
+          pivotBySlot.set(
+            s.slot,
+            new THREE.Vector3(Number(s.pivot[0]) || 0, Number(s.pivot[1]) || 0, Number(s.pivot[2]) || 0),
+          );
+        }
+      }
     }
     parsed.scene.updateMatrixWorld(true);
     for (const slotNode of parsed.scene.children) {
       const slotName = slotNode.name || 'hull';
-      const pivot = slotNode.position.clone();
+      const metaPivot = pivotBySlot.get(slotName);
+      const pivot =
+        slotName === 'hull'
+          ? new THREE.Vector3(0, 0, 0)
+          : metaPivot
+            ? metaPivot.clone()
+            : slotNode.position.clone();
       const axis = axisBySlot.get(slotName) || (slotName === 'tail_rotor' || slotName === 'barrel' ? 'x' : 'y');
+      _invPivotMat.makeTranslation(-pivot.x, -pivot.y, -pivot.z);
       slotNode.traverse(obj => {
         if (!obj.isMesh) return;
-        const mat = isShadowOnly ? obj.material : obj.material;
-        const im = new THREE.InstancedMesh(obj.geometry, mat, capacity);
+        const isOutline = Boolean(obj.userData?.isStylizedOutline);
+        if (isShadowOnly && isOutline) return;
+        if (lodLevel >= 2 && isOutline) return;
+
+        _relMat.multiplyMatrices(_invPivotMat, obj.matrixWorld);
+        const localMatrix = _isIdentityMatrix4(_relMat) ? null : _relMat.clone();
+
+        const im = new THREE.InstancedMesh(obj.geometry, obj.material, capacity);
         im.frustumCulled = false;
         im.count = 0;
         im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -133,13 +182,18 @@ export class ProceduralVehicleRenderer {
             im.material = shadowMat;
             im.userData.ownedMat = shadowMat;
           }
+        } else if (isOutline) {
+          im.castShadow = false;
+          im.receiveShadow = false;
+          im.renderOrder = -1;
+          im.material?.uniforms?.uResolution?.value?.set?.(this.resolution.width, this.resolution.height);
         } else {
           im.receiveShadow = lodLevel < 2;
           // LOD1 直接投射阴影，LOD0 改由 LOD1 阴影代理投射（省 5-8 倍阴影顶点数），LOD2 远景不投实时阴影
           im.castShadow = lodLevel === 1;
         }
         this.root.add(im);
-        entries.push({slot: slotName, axis, pivot, mesh: im, count: 0});
+        entries.push({slot: slotName, axis, pivot, localMatrix, mesh: im, count: 0, isOutline});
       });
     }
     return entries;
@@ -173,8 +227,9 @@ export class ProceduralVehicleRenderer {
     }
     for (const ent of entries) {
       if (ent.count >= ent.mesh.instanceMatrix.count) continue;
+      let baseMat;
       if (ent.slot === 'hull') {
-        ent.mesh.setMatrixAt(ent.count, hullMatrix);
+        baseMat = hullMatrix;
       } else if (ent.slot === 'barrel' && turretPivot) {
         // 炮管随炮塔绕 turretPivot 公转，再绕自身相对炮塔支点俯仰，确保炮盾绝不脱节
         _matPivot.makeTranslation(turretPivot.x, turretPivot.y, turretPivot.z);
@@ -187,7 +242,7 @@ export class ProceduralVehicleRenderer {
         );
         _matLocal.makeRotationX(unit.barrelPitch || 0);
         _matPart.multiply(_matPivot).multiply(_matLocal);
-        ent.mesh.setMatrixAt(ent.count, _matPart);
+        baseMat = _matPart;
       } else {
         // 按槽位绕精确 pivot 施加局部旋转
         _matPivot.makeTranslation(ent.pivot.x, ent.pivot.y, ent.pivot.z);
@@ -206,7 +261,13 @@ export class ProceduralVehicleRenderer {
           _matRot.identity();
         }
         _matPart.copy(hullMatrix).multiply(_matPivot).multiply(_matRot);
-        ent.mesh.setMatrixAt(ent.count, _matPart);
+        baseMat = _matPart;
+      }
+      if (ent.localMatrix) {
+        _matFinal.multiplyMatrices(baseMat, ent.localMatrix);
+        ent.mesh.setMatrixAt(ent.count, _matFinal);
+      } else {
+        ent.mesh.setMatrixAt(ent.count, baseMat);
       }
       ent.count += 1;
     }
@@ -273,9 +334,10 @@ export class ProceduralVehicleRenderer {
         const list = pool.lodMeshes[lv];
         if (!list) continue;
         for (const e of list) {
+          const visible = e.count > 0 && (!e.isOutline || this.outlineEnabled);
           e.mesh.count = e.count;
-          e.mesh.visible = e.count > 0;
-          if (e.count > 0) {
+          e.mesh.visible = visible;
+          if (visible) {
             e.mesh.instanceMatrix.needsUpdate = true;
             activeBatches += 1;
           }
@@ -299,6 +361,37 @@ export class ProceduralVehicleRenderer {
     this.stats.lod2Count = c2;
     this.stats.shadowCasterCount = cShad;
     this.stats.activeBatches = activeBatches;
+  }
+
+  setResolution(width, height) {
+    this.resolution.width = Math.max(1, Number(width) || 1208);
+    this.resolution.height = Math.max(1, Number(height) || 680);
+    for (const pool of this.typePools.values()) {
+      for (const lv of [0, 1]) {
+        const list = pool.lodMeshes[lv];
+        if (!list) continue;
+        for (const e of list) {
+          if (e.isOutline) {
+            e.mesh.material?.uniforms?.uResolution?.value?.set?.(this.resolution.width, this.resolution.height);
+          }
+        }
+      }
+    }
+  }
+
+  setOutlineEnabled(enabled) {
+    this.outlineEnabled = Boolean(enabled);
+    for (const pool of this.typePools.values()) {
+      for (const lv of [0, 1]) {
+        const list = pool.lodMeshes[lv];
+        if (!list) continue;
+        for (const e of list) {
+          if (e.isOutline) {
+            e.mesh.visible = this.outlineEnabled && e.count > 0;
+          }
+        }
+      }
+    }
   }
 
   _disposeTypePool(pool) {
