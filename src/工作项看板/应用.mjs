@@ -1,18 +1,26 @@
 /**
- * 工作任务看板前端主控 V002（Plane 风格极简布局、可折叠空列、双栏抽屉、零第三方依赖）
+ * 工作任务看板前端主控 V003（全面对齐 /ui-spec Code SSOT V2.2：A3 烟炭双金 × B2 微描边 × C4 外柔内锐）
  */
+
+import { bindAllUiSelects, createEscStack } from "/ui/交互控件.mjs";
+import { createBrandLogoSvg } from "/ui/图标与标绘.mjs";
+
+const escStack = createEscStack();
+const selectBinders = { login: null, drawer: null, modal: null };
 
 const DEFAULT_DISPLAY = {
   layout: "board", // board | list
-  groupBy: "state", // state | module | priority
+  groupBy: "state", // state | module | priority | parent
   autoCollapseEmpty: true,
   compact: false,
+  topLevelOnly: false,
   fields: {
     priority: true,
     module: true,
     labels: true,
     owner: true,
     agent: true,
+    subProgress: true,
     scopeCount: false,
     statePill: false,
   },
@@ -24,9 +32,10 @@ function loadDisplayPrefs() {
     if (!raw || typeof raw !== "object") return structuredClone(DEFAULT_DISPLAY);
     return {
       layout: raw.layout === "list" ? "list" : "board",
-      groupBy: ["state", "module", "priority"].includes(raw.groupBy) ? raw.groupBy : "state",
+      groupBy: ["state", "module", "priority", "parent"].includes(raw.groupBy) ? raw.groupBy : "state",
       autoCollapseEmpty: raw.autoCollapseEmpty !== false,
       compact: Boolean(raw.compact),
+      topLevelOnly: Boolean(raw.topLevelOnly),
       fields: { ...DEFAULT_DISPLAY.fields, ...(raw.fields || {}) },
     };
   } catch {
@@ -63,14 +72,17 @@ const state = {
   openPopover: null, // "actor" | "filter" | "display" | null
   filters: {
     q: "",
+    stateKey: "",
     priority: "",
     memberId: "",
     category: "",
     moduleId: null,
+    parentId: null,
     conflictOnly: false,
   },
   openItemKey: null,
   openItemDetail: null,
+  drawerBlockers: [],
   sse: null,
   dragItemKey: null,
 };
@@ -377,9 +389,88 @@ function buildAgentPrompt(item) {
   ].join("\n");
 }
 
+// ---------- Code SSOT V2.2 定制战术下拉工厂（全面取代浏览器原生下拉控件） ----------
+
+const UI_SELECT_CHEV_SVG = `<svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><polyline points="4 6 8 10 12 6"/></svg>`;
+const UI_SELECT_CHECK_SVG = `<svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3.5 8.5 6.8 11.6 12.6 4.8"/></svg>`;
+
+function buildUiSelectHtml({ id, value = "", options = [], groups = null, disabled = false, placeholder = "请选择" }) {
+  const flatOpts = [];
+  if (Array.isArray(groups)) {
+    for (const g of groups) {
+      for (const o of g.options || []) flatOpts.push(o);
+    }
+  } else {
+    for (const o of options) flatOpts.push(o);
+  }
+  const strVal = value == null ? "" : String(value);
+  const selected = flatOpts.find((o) => String(o.value) === strVal) || flatOpts[0] || { value: "", label: placeholder, dot: "" };
+  const renderOpt = (o) => {
+    const isSel = String(o.value) === String(selected.value);
+    const dotAttr = o.dot ? ` data-dot="${esc(o.dot)}"` : "";
+    const dotHtml = o.dot ? `<span class="ui-select-dot" style="color:${esc(o.dot)};background:currentColor"></span>` : "";
+    return `<button type="button" class="ui-select-option" role="option" data-val="${esc(o.value)}"${dotAttr} aria-selected="${isSel ? "true" : "false"}">
+      <span class="ui-select-option-main">
+        <span class="ui-select-option-title">${dotHtml}<span>${esc(o.label)}</span></span>
+        ${o.sub ? `<span class="ui-select-option-sub">${esc(o.sub)}</span>` : ""}
+      </span>
+      ${UI_SELECT_CHECK_SVG}
+    </button>`;
+  };
+  let menuHtml = "";
+  if (Array.isArray(groups)) {
+    menuHtml = groups
+      .map((g) => {
+        const head = g.label ? `<div class="ui-select-group-label">${esc(g.label)}</div>` : "";
+        return head + (g.options || []).map(renderOpt).join("");
+      })
+      .join("");
+  } else {
+    menuHtml = flatOpts.map(renderOpt).join("");
+  }
+  const trigDot = selected.dot
+    ? `<span class="ui-select-dot" style="color:${esc(selected.dot)};background:currentColor"></span>`
+    : `<span class="ui-select-dot" style="display:none"></span>`;
+  return `<div class="ui-select ${disabled ? "is-disabled" : ""}" id="${esc(id)}" data-value="${esc(selected.value)}" data-disabled="${disabled ? "1" : "0"}">
+    <button type="button" class="ui-select-trigger" aria-haspopup="listbox" aria-expanded="false" ${disabled ? "disabled" : ""}>
+      <span class="ui-select-val">${trigDot}<span class="ui-select-txt">${esc(selected.label || placeholder)}</span></span>
+      ${UI_SELECT_CHEV_SVG}
+    </button>
+    <div class="ui-select-menu" role="listbox" hidden>${menuHtml}</div>
+  </div>`;
+}
+
+function buildModuleSelectGroups(emptyLabel = "无模块") {
+  const groups = getGroupedModules();
+  return [
+    { label: "", options: [{ value: "", label: emptyLabel, dot: "#838896" }] },
+    ...groups.map((g) => ({
+      label: g.name,
+      options: g.modules.map((m) => ({ value: String(m.id), label: m.name, dot: safeColor(m.color) })),
+    })),
+  ];
+}
+
+function bindSelectScope(scopeKey, rootEl, boundaryEl = null) {
+  if (selectBinders[scopeKey]) {
+    selectBinders[scopeKey].destroy();
+    selectBinders[scopeKey] = null;
+  }
+  if (!rootEl) return;
+  selectBinders[scopeKey] = bindAllUiSelects(rootEl, {
+    escStack,
+    boundaryEl: boundaryEl || rootEl,
+    dropupThreshold: 210,
+  });
+}
+
 // ---------- 初始化与数据刷新 ----------
 
 async function boot() {
+  const sigilHost = $("#brand-sigil-host");
+  if (sigilHost) {
+    sigilHost.replaceChildren(createBrandLogoSvg({ variant: "sigil", size: 17 }));
+  }
   applySidebarState();
   bindStaticEvents();
   const auth = await fetch("/api/v1/auth/state").then((r) => r.json());
@@ -398,8 +489,20 @@ function applySidebarState() {
 }
 
 function renderLoginMembers(humans) {
-  const sel = $("#login-member-select");
-  sel.innerHTML = humans.map((m) => `<option value="${m.id}">${esc(m.display_name)} (${esc(m.role || "成员")})</option>`).join("");
+  const host = $("#login-member-select-host");
+  if (!host) return;
+  const opts = humans.map((m) => ({
+    value: String(m.id),
+    label: `${m.display_name} (${m.role || "成员"})`,
+    dot: safeColor(m.avatar_color),
+  }));
+  host.innerHTML = buildUiSelectHtml({
+    id: "login-member-select",
+    value: opts[0]?.value || "",
+    options: opts,
+    placeholder: "选择成员",
+  });
+  bindSelectScope("login", host, $("#login-overlay .login-box"));
 }
 
 function showLoginOverlay() {
@@ -561,17 +664,33 @@ function buildModuleOptionsHtml(selectedId = null, emptyLabel = "无模块") {
 
 function getActiveFilterCount() {
   let n = 0;
+  if (state.filters.stateKey) n++;
   if (state.filters.priority) n++;
   if (state.filters.memberId) n++;
   if (state.filters.moduleId) n++;
   if (state.filters.category) n++;
+  if (state.filters.parentId) n++;
   if (state.filters.conflictOnly) n++;
   return n;
+}
+
+function getTopLevelParents() {
+  return state.items.filter((it) => !it.parent_id);
+}
+
+function itemById(id) {
+  return state.items.find((it) => it.id === id) || null;
 }
 
 function getFilteredItems() {
   const q = state.filters.q.trim().toLowerCase();
   return state.items.filter((it) => {
+    if (state.display.topLevelOnly && it.parent_id && !state.filters.parentId) return false;
+    if (state.filters.stateKey && it.state !== state.filters.stateKey) return false;
+    if (state.filters.parentId) {
+      const pid = Number(state.filters.parentId);
+      if (it.id !== pid && it.parent_id !== pid) return false;
+    }
     if (state.filters.priority && it.priority !== state.filters.priority) return false;
     if (state.filters.moduleId && it.module_id !== state.filters.moduleId) return false;
     if (state.filters.category) {
@@ -585,7 +704,7 @@ function getFilteredItems() {
     }
     if (q) {
       const mod = moduleById(it.module_id);
-      const hay = `${it.item_key} ${it.title} ${it.description_md} ${it.agent_branch} ${mod?.name || ""} ${mod?.category || ""} ${(it.scope_paths || []).join(" ")}`.toLowerCase();
+      const hay = `${it.item_key} ${it.title} ${it.parent_key || ""} ${it.parent_title || ""} ${it.description_md} ${it.agent_branch} ${mod?.name || ""} ${mod?.category || ""} ${(it.scope_paths || []).join(" ")}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -631,6 +750,40 @@ function getColumnBuckets(filteredItems) {
         gate: false,
         gateKind: "",
         items: unassigned,
+      });
+    }
+    return cols;
+  }
+  if (groupBy === "parent") {
+    const parentOwners = state.items.filter((it) => !it.parent_id && (it.sub_total > 0 || filteredItems.some((x) => x.parent_id === it.id)));
+    const cols = parentOwners.map((p) => {
+      const st = stateMeta(p.state);
+      const groupItems = filteredItems.filter((i) => i.id === p.id || i.parent_id === p.id);
+      return {
+        colId: `parent:${p.id}`,
+        groupType: "parent",
+        groupValue: String(p.id),
+        label: `${p.item_key} · ${p.title}`,
+        color: st.color,
+        iconHtml: renderStateIcon(st.key, st.color, 13),
+        gate: false,
+        gateKind: "",
+        items: groupItems,
+      };
+    });
+    const usedIds = new Set(cols.flatMap((c) => c.items.map((x) => x.id)));
+    const standalone = filteredItems.filter((i) => !usedIds.has(i.id));
+    if (standalone.length || !cols.length) {
+      cols.push({
+        colId: "parent:none",
+        groupType: "parent",
+        groupValue: "",
+        label: "独立工作项（无父子分组）",
+        color: "#64748b",
+        iconHtml: `<span class="mod-dot" style="background:#64748b"></span>`,
+        gate: false,
+        gateKind: "",
+        items: standalone,
       });
     }
     return cols;
@@ -786,6 +939,31 @@ function renderFilterPopover() {
     </div>
 
     <div class="pop-section">
+      <div class="pop-head">
+        <span>按父工作项专题筛选</span>
+        ${state.filters.parentId ? `<button class="text-btn-xs" data-clear-filter="parentId">清除</button>` : ""}
+      </div>
+      <div class="pop-pills">
+        ${(() => {
+          const parents = state.items.filter((it) => !it.parent_id && it.sub_total > 0);
+          if (!parents.length) {
+            return `<span style="font-size:11.5px;color:var(--text-muted)">暂无已拆分子项的父工作项</span>`;
+          }
+          return parents
+            .map(
+              (p) => `
+            <button class="pop-pill ${Number(state.filters.parentId) === p.id ? "is-active" : ""}" data-set-parent="${p.id}" title="${esc(p.title)}">
+              <span style="font-family:var(--font-mono);font-size:10.5px">${esc(p.item_key)}</span>
+              <span style="max-width:130px;overflow:hidden;text-overflow:ellipsis">${esc(p.title)}</span>
+              <span style="font-family:var(--font-mono);font-size:10px;color:#7dd3fc">${p.sub_done}/${p.sub_total}</span>
+            </button>`
+            )
+            .join("");
+        })()}
+      </div>
+    </div>
+
+    <div class="pop-section">
       <div class="pop-row-toggle" data-toggle-conflict-filter="1">
         <span style="display:inline-flex;align-items:center;gap:6px">${SVG_ICONS.warn} 仅显示存在路径冲突的工作项</span>
         <span class="switch-track ${state.filters.conflictOnly ? "is-on" : ""}"></span>
@@ -803,6 +981,7 @@ function renderDisplayPopover() {
     ["labels", "标签"],
     ["owner", "负责人"],
     ["agent", "AI Agent"],
+    ["subProgress", "父子进度"],
     ["scopeCount", "路径数"],
     ["statePill", "状态徽标"],
   ];
@@ -813,16 +992,21 @@ function renderDisplayPopover() {
         <button class="pop-pill ${d.groupBy === "state" ? "is-active" : ""}" data-set-groupby="state">按状态分列</button>
         <button class="pop-pill ${d.groupBy === "module" ? "is-active" : ""}" data-set-groupby="module">按模块分列</button>
         <button class="pop-pill ${d.groupBy === "priority" ? "is-active" : ""}" data-set-groupby="priority">按优先级分列</button>
+        <button class="pop-pill ${d.groupBy === "parent" ? "is-active" : ""}" data-set-groupby="parent">按父工作项分组</button>
       </div>
     </div>
 
     <div class="pop-section">
       <div class="pop-head">
-        <span>看板列策略</span>
+        <span>看板列与层级策略</span>
         <div style="display:flex;gap:6px">
           <button class="text-btn-xs" data-cols-action="expand-all">全部展开</button>
           <button class="text-btn-xs" data-cols-action="reset">按默认</button>
         </div>
+      </div>
+      <div class="pop-row-toggle" data-toggle-display="topLevelOnly">
+        <span>仅看顶层工作项（折叠隐藏子项）</span>
+        <span class="switch-track ${d.topLevelOnly ? "is-on" : ""}"></span>
       </div>
       <div class="pop-row-toggle" data-toggle-display="autoCollapseEmpty">
         <span>自动折叠空列为窄竖条</span>
@@ -851,6 +1035,7 @@ function renderDisplayPopover() {
 // ---------- 核心渲染 ----------
 
 function renderAll() {
+  renderSidebarPulse();
   renderProjectTree();
   renderSubHeader();
   renderActiveFilterBar();
@@ -862,6 +1047,39 @@ function renderAll() {
   renderSettingsView();
   if (state.openPopover === "filter") renderFilterPopover();
   if (state.openPopover === "display") renderDisplayPopover();
+}
+
+function renderSidebarPulse() {
+  const host = $("#sidebar-pulse-card");
+  if (!host) return;
+  const total = state.items.length;
+  const done = state.items.filter((i) => i.state === "done").length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const planWait = state.items.filter((i) => i.state === "plan_review").length;
+  const qaWait = state.items.filter((i) => i.state === "qa_wait").length;
+  const conflicts = state.conflictPairs.length;
+
+  host.innerHTML = `
+    <div class="pulse-head">
+      <span class="pulse-label">推进态势 · ${esc(state.activeProject?.key || "OPS")}</span>
+      <span class="pulse-ratio">${done}/${total} (${pct}%)</span>
+    </div>
+    <div class="pulse-bar" title="已完成 ${done} / 总计 ${total}"><i style="width:${pct}%"></i></div>
+    <div class="pulse-quick-grid">
+      <button type="button" class="pulse-kpi-btn ${planWait ? "is-warn" : ""}" data-pulse-state="plan_review" title="点击筛选「方案待审」闸门工作项">
+        <strong>${planWait}</strong>
+        <span>方案待审</span>
+      </button>
+      <button type="button" class="pulse-kpi-btn ${qaWait ? "is-qa" : ""}" data-pulse-state="qa_wait" title="点击筛选「待测试」闸门工作项">
+        <strong>${qaWait}</strong>
+        <span>待测试</span>
+      </button>
+      <button type="button" class="pulse-kpi-btn ${conflicts ? "is-danger" : ""}" data-jump-agents="1" title="查看作用域路径防撞雷达">
+        <strong>${conflicts}</strong>
+        <span>路径冲突</span>
+      </button>
+    </div>
+  `;
 }
 
 function renderProjectTree() {
@@ -944,10 +1162,10 @@ function renderSubHeader() {
   cBadge.hidden = conflictCount === 0;
 
   const alerts = [];
-  if (planWait > 0) alerts.push(`<span class="stat-alert-pill is-gate">待审方案 ${planWait}</span>`);
-  if (qaWait > 0) alerts.push(`<span class="stat-alert-pill is-gate" style="background:rgba(168,85,247,0.14);border-color:rgba(168,85,247,0.34);color:#d8b4fe">待测试 ${qaWait}</span>`);
+  if (planWait > 0) alerts.push(`<button type="button" class="stat-alert-pill is-gate" data-pulse-state="plan_review">方案待审 ${planWait}</button>`);
+  if (qaWait > 0) alerts.push(`<button type="button" class="stat-alert-pill is-qa" data-pulse-state="qa_wait">待测试 ${qaWait}</button>`);
   if (conflictCount > 0) {
-    alerts.push(`<button class="stat-alert-pill is-conflict" data-jump-agents="1">${SVG_ICONS.warn} 路径冲突 ${conflictCount}</button>`);
+    alerts.push(`<button type="button" class="stat-alert-pill is-conflict" data-jump-agents="1">${SVG_ICONS.warn} 路径冲突 ${conflictCount}</button>`);
   }
   $("#topbar-stats").innerHTML = alerts.join("");
 
@@ -972,6 +1190,10 @@ function renderActiveFilterBar() {
   if (state.filters.q.trim()) {
     chips.push(`<span class="af-chip">搜索：${esc(state.filters.q.trim())}<button data-clear-filter="q">×</button></span>`);
   }
+  if (state.filters.stateKey) {
+    const st = stateMeta(state.filters.stateKey);
+    chips.push(`<span class="af-chip">${renderStateIcon(st.key, st.color, 11)} 状态：${esc(st.label)}<button data-clear-filter="stateKey">×</button></span>`);
+  }
   if (state.filters.priority) {
     const p = priorityMeta(state.filters.priority);
     chips.push(`<span class="af-chip">${renderPriorityIcon(p.key, p.color, 11)} ${esc(p.label)}<button data-clear-filter="priority">×</button></span>`);
@@ -987,8 +1209,12 @@ function renderActiveFilterBar() {
     const mod = moduleById(state.filters.moduleId);
     if (mod) chips.push(`<span class="af-chip"><span class="chip-dot" style="background:${esc(mod.color)}"></span>${esc(mod.name)}<button data-clear-filter="module">×</button></span>`);
   }
+  if (state.filters.parentId) {
+    const pItem = itemById(Number(state.filters.parentId));
+    if (pItem) chips.push(`<span class="af-chip" style="border-color:rgba(177,151,252,0.48);color:var(--ui-ch-plane-inner)">专题：${esc(pItem.item_key)} ${esc(pItem.title.slice(0, 14))}<button data-clear-filter="parentId">×</button></span>`);
+  }
   if (state.filters.conflictOnly) {
-    chips.push(`<span class="af-chip" style="border-color:rgba(229,169,60,0.4);color:#f3c873">仅路径冲突<button data-clear-filter="conflictOnly">×</button></span>`);
+    chips.push(`<span class="af-chip" style="border-color:rgba(255,184,0,0.45);color:var(--warn)">仅路径冲突<button data-clear-filter="conflictOnly">×</button></span>`);
   }
 
   if (!chips.length) {
@@ -1020,7 +1246,8 @@ function renderBoard() {
     .map((col) => {
       const collapsed = isColCollapsed(col);
       const gateCls = col.gateKind === "qa" ? "is-gate-qa" : col.gateKind === "plan" ? "is-gate" : "";
-      const dataAttrs = `data-col-id="${esc(col.colId)}" data-group-type="${esc(col.groupType)}" data-group-value="${esc(col.groupValue)}"`;
+      const colAccent = safeColor(col.color, "#838896");
+      const dataAttrs = `style="--col-accent:${esc(colAccent)}" data-col-id="${esc(col.colId)}" data-group-type="${esc(col.groupType)}" data-group-value="${esc(col.groupValue)}"`;
 
       if (collapsed) {
         return `
@@ -1068,20 +1295,25 @@ function renderCardHtml(it) {
   const st = stateMeta(it.state);
   const mod = moduleById(it.module_id);
   const owner = memberById(it.owner_id);
-  const agent = memberById(it.agent_id);
+  const rawAgent = memberById(it.agent_id);
+  // 人物智能去重：仅真正 AI 槽位以 Agent 胶囊渲染，避免把同一人类成员重复渲染两枚胶囊
+  const aiAgent = rawAgent && rawAgent.kind === "agent" ? rawAgent : null;
+  const displayOwner = owner || (rawAgent && rawAgent.kind === "human" ? rawAgent : null);
   const hasConflict = Boolean(it.conflicts && it.conflicts.length);
   const labels = it.labels || [];
+
+  // 卡片左侧语义光条：阻塞/紧急用危急红，高优先级用琥珀黄，其余用状态色
+  const cardAccent =
+    it.blocked_open_count > 0 || it.priority === "urgent"
+      ? "#ff5266"
+      : it.priority === "high"
+      ? "#ffb800"
+      : safeColor(st.color, "#838896");
 
   const pills = [];
 
   if (f.statePill || state.display.groupBy !== "state") {
     pills.push(`<span class="prop-pill">${renderStateIcon(st.key, st.color, 11)}<span>${esc(st.label)}</span></span>`);
-  }
-
-  if (f.priority) {
-    pills.push(
-      `<span class="prop-pill" title="优先级：${esc(prio.label)}">${renderPriorityIcon(prio.key, prio.color, 11)}<span style="color:${esc(prio.color)}">${esc(prio.label)}</span></span>`
-    );
   }
 
   if (f.module && mod && state.display.groupBy !== "module") {
@@ -1091,45 +1323,62 @@ function renderCardHtml(it) {
   }
 
   if (f.labels && labels.length) {
-    if (labels.length === 1) {
-      const lb = labels[0];
-      pills.push(`<span class="prop-pill"><span class="chip-dot" style="background:${esc(lb.color)}"></span><span>${esc(lb.name)}</span></span>`);
-    } else {
-      const tip = labels.map((l) => l.name).join("、");
-      pills.push(
-        `<span class="prop-pill" title="标签：${esc(tip)}"><span class="chip-dot" style="background:${esc(labels[0].color)}"></span><span>${labels.length} 个标签</span></span>`
-      );
-    }
-  }
-
-  if (f.agent && agent) {
-    const hb = fmtRelativeAge(it.agent_heartbeat_at);
-    const br = it.agent_branch ? ` · ${it.agent_branch}` : "";
+    const firstLb = labels[0];
+    const extraTxt = labels.length > 1 ? ` +${labels.length - 1}` : "";
+    const tip = labels.map((l) => l.name).join("、");
     pills.push(
-      `<span class="prop-pill is-agent" title="AI 执行器：${esc(agent.display_name + br)} (${esc(hb.text)})"><span class="hb-dot ${hb.fresh ? "is-fresh" : "is-stale"}"></span><span class="prop-pill-text">${esc(agent.display_name)}</span></span>`
+      `<span class="prop-pill" title="标签：${esc(tip)}"><span class="chip-dot" style="background:${esc(firstLb.color)}"></span><span>${esc(firstLb.name)}${extraTxt}</span></span>`
     );
   }
 
-  if (f.owner && owner) {
+  if (f.subProgress && it.sub_total > 0) {
+    const allDone = it.sub_done >= it.sub_total;
     pills.push(
-      `<span class="prop-pill" title="人类负责人：${esc(owner.display_name)}"><span class="avatar-chip" style="background:${safeColor(owner.avatar_color)}">${esc(owner.display_name.slice(0, 1))}</span><span>${esc(owner.display_name)}</span></span>`
+      `<span class="prop-pill is-sub ${allDone ? "is-all-done" : ""}" title="子工作项完成度：${it.sub_done}/${it.sub_total}">↳ ${it.sub_done}/${it.sub_total}</span>`
     );
   }
 
-  if (f.scopeCount && it.scope_paths?.length) {
-    pills.push(`<span class="prop-pill is-mono" title="${esc(it.scope_paths.join("\n"))}">${SVG_ICONS.folder}${it.scope_paths.length}</span>`);
+  if (it.blocked_open_count > 0) {
+    pills.push(
+      `<span class="prop-pill is-blocked" title="存在 ${it.blocked_open_count} 项未完成前置阻塞：${esc((it.blocked_by || []).join(", "))}">⊘ 阻塞 ${it.blocked_open_count}</span>`
+    );
   }
 
-  if (it.attachment_count) {
-    pills.push(`<span class="prop-pill is-mono" title="附件数">${SVG_ICONS.attach}${it.attachment_count}</span>`);
-  }
-  if (it.comment_count) {
-    pills.push(`<span class="prop-pill is-mono" title="评论数">${SVG_ICONS.comment}${it.comment_count}</span>`);
-  }
   if (hasConflict) {
     const conflictText = it.conflicts.map((c) => c.other_key).join(", ");
     pills.push(`<span class="prop-pill is-conflict" title="作用域路径重叠：${esc(conflictText)}">${SVG_ICONS.warn} 冲突 ${esc(conflictText)}</span>`);
   }
+
+  // 底部足迹：左侧精简人物（已去重） + 右侧无框等宽微标
+  const footLeft = [];
+  if (f.agent && aiAgent) {
+    const hb = fmtRelativeAge(it.agent_heartbeat_at);
+    const br = it.agent_branch ? ` · ${it.agent_branch}` : "";
+    footLeft.push(
+      `<span class="prop-pill is-agent" title="AI 执行器：${esc(aiAgent.display_name + br)} (${esc(hb.text)})"><span class="hb-dot ${hb.fresh ? "is-fresh" : "is-stale"}"></span><span class="prop-pill-text">${esc(aiAgent.display_name)}</span></span>`
+    );
+  }
+  if (f.owner && displayOwner) {
+    footLeft.push(
+      `<span class="card-metric" style="color:var(--text-secondary)" title="人类负责人：${esc(displayOwner.display_name)}"><span class="avatar-chip" style="background:${safeColor(displayOwner.avatar_color)}">${esc(displayOwner.display_name.slice(0, 1))}</span><span>${esc(displayOwner.display_name)}</span></span>`
+    );
+  }
+
+  const footRight = [];
+  if (f.scopeCount && it.scope_paths?.length) {
+    footRight.push(`<span class="card-metric" title="${esc(it.scope_paths.join("\n"))}">${SVG_ICONS.folder}${it.scope_paths.length}</span>`);
+  }
+  if (it.attachment_count) {
+    footRight.push(`<span class="card-metric" title="附件数">${SVG_ICONS.attach}${it.attachment_count}</span>`);
+  }
+  if (it.comment_count) {
+    footRight.push(`<span class="card-metric" title="评论数">${SVG_ICONS.comment}${it.comment_count}</span>`);
+  }
+
+  const footHtml =
+    footLeft.length || footRight.length
+      ? `<div class="card-foot"><div class="card-foot-left">${footLeft.join("")}</div><div class="card-foot-right">${footRight.join("")}</div></div>`
+      : "";
 
   let gateBtns = "";
   if (it.state === "plan_review") {
@@ -1147,17 +1396,35 @@ function renderCardHtml(it) {
       </div>`;
   }
 
+  const prioChip =
+    f.priority && prio.key !== "none"
+      ? `<span class="card-prio-chip" style="color:${esc(prio.color)}" title="优先级：${esc(prio.label)}">${renderPriorityIcon(prio.key, prio.color, 11)}<span>${esc(prio.label)}</span></span>`
+      : "";
+
+  const parentBadge =
+    f.subProgress && it.parent_key
+      ? `<button type="button" class="card-parent-tag" data-open-parent-key="${esc(it.parent_key)}" title="所属父工作项：${esc(it.parent_key)} · ${esc(it.parent_title || "")}">↑ ${esc(it.parent_key)}</button>`
+      : "";
+  const subBarHtml =
+    f.subProgress && it.sub_total > 0
+      ? `<div class="card-sub-bar" title="子项进度 ${it.sub_done}/${it.sub_total}"><i style="width:${Math.round((it.sub_done / it.sub_total) * 100)}%"></i></div>`
+      : "";
+
   return `
-    <article class="card ${hasConflict ? "has-conflict" : ""}" draggable="true" data-card-key="${esc(it.item_key)}">
+    <article class="card ${hasConflict ? "has-conflict" : ""}" style="--card-accent:${esc(cardAccent)}" draggable="true" data-card-key="${esc(it.item_key)}">
       <div class="card-top">
         <span class="card-key">${esc(it.item_key)}</span>
+        ${prioChip}
+        ${parentBadge}
         <div class="card-hover-tools">
           <button class="icon-btn-xs" data-copy-prompt="${esc(it.item_key)}" title="复制 Agent 开工指令">${SVG_ICONS.copy}</button>
         </div>
       </div>
-      <div class="card-title">${esc(it.title)}</div>
+      <div class="card-title" title="${esc(it.title)}">${esc(it.title)}</div>
       ${pills.length ? `<div class="card-props">${pills.join("")}</div>` : ""}
+      ${footHtml}
       ${gateBtns}
+      ${subBarHtml}
     </article>`;
 }
 
@@ -1175,12 +1442,26 @@ function renderListView() {
           const agent = memberById(it.agent_id);
           const prio = priorityMeta(it.priority);
           const st = stateMeta(it.state);
+          const pTag = it.parent_key
+            ? `<button type="button" class="card-parent-tag" data-open-parent-key="${esc(it.parent_key)}" title="父工作项：${esc(it.parent_title || "")}">↑ ${esc(it.parent_key)}</button>`
+            : "";
+          const subTag =
+            it.sub_total > 0
+              ? `<span class="prop-pill is-sub ${it.sub_done >= it.sub_total ? "is-all-done" : ""}" style="height:18px;padding:0 5px">↳ ${it.sub_done}/${it.sub_total}</span>`
+              : "";
+          const blkTag =
+            it.blocked_open_count > 0
+              ? `<span class="prop-pill is-blocked" style="height:18px;padding:0 5px" title="前置阻塞：${esc((it.blocked_by || []).join(", "))}">⊘${it.blocked_open_count}</span>`
+              : "";
           return `
             <div class="list-row" data-open-key="${esc(it.item_key)}">
               <span class="card-key">${esc(it.item_key)}</span>
-              <span style="display:flex;align-items:center;gap:7px;min-width:0;font-weight:500">
+              <span style="display:flex;align-items:center;gap:6px;min-width:0;font-weight:500">
                 ${state.display.groupBy !== "state" ? renderStateIcon(st.key, st.color, 13) : ""}
+                ${pTag}
                 <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${it.conflicts?.length ? "⚠ " : ""}${esc(it.title)}</span>
+                ${subTag}
+                ${blkTag}
               </span>
               <span>${mod ? `<span class="prop-pill"><span class="chip-dot" style="background:${esc(mod.color)}"></span><span class="prop-pill-text">${esc(mod.name)}</span></span>` : `<span style="color:var(--text-muted)">-</span>`}</span>
               <span style="display:inline-flex;align-items:center;gap:5px;color:${esc(prio.color)};font-size:12px">${renderPriorityIcon(prio.key, prio.color, 11)}${esc(prio.label)}</span>
@@ -1504,6 +1785,107 @@ function renderDrawer(item) {
       </details>`
     : "";
 
+  // 父级面包屑（子单顶部一键跳回父单）
+  const pDetail = item.parent_detail;
+  const parentCrumb = pDetail
+    ? `<div class="drawer-parent-crumb">
+        <span style="color:var(--text-muted);flex-shrink:0">上级父单</span>
+        <button type="button" class="parent-link-btn" data-open-key="${esc(pDetail.item_key)}">
+          ${renderStateIcon(pDetail.state, stateMeta(pDetail.state).color, 13)}
+          <span class="crumb-key">${esc(pDetail.item_key)}</span>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(pDetail.title)}</span>
+        </button>
+        <span class="prop-pill is-sub" style="height:20px;margin-left:auto">↳ ${pDetail.sub_done ?? 0}/${pDetail.sub_total ?? 0}</span>
+        <button type="button" class="btn btn-xs" data-focus-parent="${pDetail.id}" title="在看板中仅筛选此专题">聚焦专题</button>
+      </div>`
+    : "";
+
+  // 子工作项管理区（顶层工作项可拆分子项并追踪总进度）
+  const children = item.children || [];
+  const subTotal = children.length;
+  const subDone = children.filter((c) => c.state === "done").length;
+  const subPct = subTotal ? Math.round((subDone / subTotal) * 100) : 0;
+  const subItemsBox = !item.parent_id
+    ? `<div class="sub-items-box">
+        <div class="sub-items-head">
+          <label class="field-label" style="margin:0;color:var(--text-primary)">子工作项 (Sub-items)</label>
+          <span class="prop-pill is-sub ${subTotal > 0 && subDone >= subTotal ? "is-all-done" : ""}" style="height:20px">${subDone} / ${subTotal}</span>
+          ${subTotal > 0 ? `<button type="button" class="btn btn-xs" data-focus-parent="${item.id}">在看板聚焦</button>` : ""}
+          <button type="button" class="btn btn-primary btn-xs" style="margin-left:auto" data-create-subitem="${item.id}">＋ 拆分子项</button>
+        </div>
+        ${subTotal > 0 ? `<div class="sub-progress-track"><div class="sub-progress-fill" style="width:${subPct}%"></div></div>` : ""}
+        ${
+          subTotal > 0
+            ? `<div class="sub-items-list">
+                ${children
+                  .map((ch) => {
+                    const cst = stateMeta(ch.state);
+                    const cMod = ch.module_name
+                      ? `<span class="prop-pill" style="height:19px;padding:0 6px"><span class="chip-dot" style="background:${safeColor(ch.module_color)}"></span><span style="max-width:96px;overflow:hidden;text-overflow:ellipsis">${esc(ch.module_name)}</span></span>`
+                      : "";
+                    const cBlk = ch.blocked_open_count > 0 ? `<span class="prop-pill is-blocked" style="height:19px;padding:0 5px">⊘${ch.blocked_open_count}</span>` : "";
+                    const cWarn = ch.has_conflict ? `<span class="prop-pill is-conflict" style="height:19px;padding:0 5px">⚠</span>` : "";
+                    return `<div class="sub-item-row" data-open-key="${esc(ch.item_key)}">
+                      ${renderStateIcon(cst.key, cst.color, 13)}
+                      <span class="card-key">${esc(ch.item_key)}</span>
+                      <span class="sub-item-title ${ch.state === "done" ? "is-done" : ""}" title="${esc(ch.title)}">${esc(ch.title)}</span>
+                      ${cMod}
+                      ${cBlk}
+                      ${cWarn}
+                      <button type="button" class="icon-btn-xs" data-detach-child="${esc(ch.item_key)}" title="移出父单（转为顶层工作项）">✕</button>
+                    </div>`;
+                  })
+                  .join("")}
+              </div>`
+            : `<div class="muted-text">尚未拆分子项；跨模块特性建议按模块拆分多个并行子项并用前置阻塞串联波次。</div>`
+        }
+      </div>`
+    : "";
+
+  // 同父兄弟子项速览（子单参考，防跨模块接口打架）
+  const siblings = item.siblings || [];
+  const siblingsBox =
+    item.parent_id && siblings.length
+      ? `<details style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:7px;padding:8px 11px">
+          <summary style="cursor:pointer;font-weight:600;font-size:12px;color:#c7d2fe">同父兄弟子项（共 ${siblings.length} 项 · 便于对齐模块接口与路径）</summary>
+          <div class="sub-items-list" style="margin-top:8px">
+            ${siblings
+              .map((sb) => {
+                const sst = stateMeta(sb.state);
+                return `<div class="sub-item-row" data-open-key="${esc(sb.item_key)}">
+                  ${renderStateIcon(sst.key, sst.color, 12)}
+                  <span class="card-key">${esc(sb.item_key)}</span>
+                  <span class="sub-item-title ${sb.state === "done" ? "is-done" : ""}">${esc(sb.title)}</span>
+                  ${sb.module_name ? `<span class="prop-pill" style="height:19px;padding:0 6px">${esc(sb.module_name)}</span>` : ""}
+                </div>`;
+              })
+              .join("")}
+          </div>
+        </details>`
+      : "";
+
+  // 可选父工作项列表（仅同项目无父级的顶层单，排除自己）
+  const parentCandidates = state.items.filter((x) => !x.parent_id && x.id !== item.id);
+  const canSetParent = (item.sub_total || 0) === 0;
+  state.drawerBlockers = (item.blocked_by || []).map((k) => String(k).toUpperCase());
+
+  const stateOpts = state.states.map((s) => ({ value: s.key, label: s.label, dot: safeColor(s.color) }));
+  const prioOpts = state.priorities.map((p) => ({ value: p.key, label: p.label, dot: safeColor(p.color) }));
+  const parentOpts = canSetParent
+    ? [
+        { value: "", label: "无（顶层工作项）", dot: "#838896" },
+        ...parentCandidates.map((p) => ({ value: String(p.id), label: `${p.item_key} · ${p.title.slice(0, 22)}`, dot: "#b197fc" })),
+      ]
+    : [{ value: "", label: `已包含 ${item.sub_total} 个子项（不可嵌套）`, dot: "#838896" }];
+  const ownerOpts = [
+    { value: "", label: "未指派", dot: "#838896" },
+    ...humans.map((m) => ({ value: String(m.id), label: m.display_name, dot: safeColor(m.avatar_color) })),
+  ];
+  const agentOpts = [
+    { value: "", label: "未分配 AI", dot: "#838896" },
+    ...agents.map((m) => ({ value: String(m.id), label: m.display_name, dot: safeColor(m.avatar_color) })),
+  ];
+
   $("#drawer-content").innerHTML = `
     <div class="drawer-head">
       ${renderStateIcon(st.key, st.color, 14)}
@@ -1517,10 +1899,11 @@ function renderDrawer(item) {
     </div>
 
     <div class="drawer-split">
-      <!-- 左侧正文、方案、附件与活动流 -->
+      <!-- 左侧正文、方案、子工作项、附件与活动流 -->
       <div class="drawer-main">
         ${gateStrip}
         ${conflictBox}
+        ${parentCrumb}
 
         <input id="d-title" class="drawer-title-input" value="${esc(item.title)}" />
 
@@ -1534,6 +1917,8 @@ function renderDrawer(item) {
           <textarea id="d-plan" class="textarea-ctrl" style="min-height:92px" placeholder="由 AI Agent 提交或工程师补充的修改计划...">${esc(item.plan_md)}</textarea>
         </div>
 
+        ${subItemsBox}
+        ${siblingsBox}
         ${modBox}
 
         <div>
@@ -1591,51 +1976,46 @@ function renderDrawer(item) {
         </div>
       </div>
 
-      <!-- 右侧固定 276px 属性栏 -->
+      <!-- 右侧固定 296px 属性栏（全量 V2.2 .ui-select，零原生 select） -->
       <aside class="drawer-aside">
         <div class="drawer-aside-title">属性与协作元数据</div>
 
         <div class="prop-field">
           <label class="field-label">当前状态</label>
-          <select id="d-state" class="input-ctrl">
-            ${state.states.map((s) => `<option value="${s.key}" ${s.key === item.state ? "selected" : ""}>${esc(s.label)}</option>`).join("")}
-          </select>
+          ${buildUiSelectHtml({ id: "d-state", value: item.state, options: stateOpts })}
         </div>
 
         <div class="prop-field">
           <label class="field-label">优先级</label>
-          <select id="d-priority" class="input-ctrl">
-            ${state.priorities.map((p) => `<option value="${p.key}" ${p.key === item.priority ? "selected" : ""}>${esc(p.label)}</option>`).join("")}
-          </select>
+          ${buildUiSelectHtml({ id: "d-priority", value: item.priority, options: prioOpts })}
+        </div>
+
+        <div class="prop-field">
+          <label class="field-label">所属父工作项（限定 2 层）</label>
+          ${buildUiSelectHtml({ id: "d-parent", value: item.parent_id ? String(item.parent_id) : "", options: parentOpts, disabled: !canSetParent })}
         </div>
 
         <div class="prop-field">
           <label class="field-label">所属模块</label>
-          <select id="d-module" class="input-ctrl">
-            ${buildModuleOptionsHtml(item.module_id, "无模块")}
-          </select>
+          ${buildUiSelectHtml({ id: "d-module", value: item.module_id ? String(item.module_id) : "", groups: buildModuleSelectGroups("无模块") })}
         </div>
 
         <div class="prop-field">
           <label class="field-label">人类负责人 (Owner)</label>
-          <select id="d-owner" class="input-ctrl">
-            <option value="">未指派</option>
-            ${humans.map((m) => `<option value="${m.id}" ${m.id === item.owner_id ? "selected" : ""}>${esc(m.display_name)}</option>`).join("")}
-          </select>
+          ${buildUiSelectHtml({ id: "d-owner", value: item.owner_id ? String(item.owner_id) : "", options: ownerOpts })}
         </div>
 
         <div class="prop-field">
           <label class="field-label">AI 执行槽位 (Agent)</label>
-          <select id="d-agent" class="input-ctrl">
-            <option value="">未分配 AI</option>
-            ${agents.map((m) => `<option value="${m.id}" ${m.id === item.agent_id ? "selected" : ""}>${esc(m.display_name)}</option>`).join("")}
-          </select>
+          ${buildUiSelectHtml({ id: "d-agent", value: item.agent_id ? String(item.agent_id) : "", options: agentOpts })}
         </div>
 
         <div class="prop-field">
           <label class="field-label">分支 / Worktree</label>
           <input id="d-branch" class="input-ctrl mono-input" value="${esc(item.agent_branch)}" placeholder="如 feat/scav-1" />
         </div>
+
+        <div class="prop-field" id="d-blocker-section"></div>
 
         <div class="prop-field">
           <label class="field-label">标签</label>
@@ -1657,9 +2037,83 @@ function renderDrawer(item) {
       </aside>
     </div>
   `;
+
+  renderDrawerBlockerSection();
+  bindSelectScope("drawer", $("#item-drawer"), $("#item-drawer"));
 }
 
-async function saveDrawerItem() {
+function renderDrawerBlockerSection() {
+  const host = $("#d-blocker-section");
+  const item = state.openItemDetail;
+  if (!host || !item) return;
+
+  const currentBlockerKeys = state.drawerBlockers || [];
+  const blockerDetailMap = Object.fromEntries((item.blocked_by_details || []).map((b) => [b.item_key.toUpperCase(), b]));
+  const blockerCandidates = state.items.filter((x) => x.id !== item.id && !currentBlockerKeys.includes(x.item_key.toUpperCase()));
+  const blocksDownstream = item.blocks_details || [];
+
+  const blockerOpts = [
+    { value: "", label: "选择前置单号...", dot: "#838896" },
+    ...blockerCandidates.map((x) => ({
+      value: x.item_key,
+      label: `${x.item_key} · ${x.title.slice(0, 18)}`,
+      dot: safeColor(stateMeta(x.state).color),
+    })),
+  ];
+
+  host.innerHTML = `
+    <label class="field-label">前置阻塞依赖 (blocked_by)</label>
+    <div id="d-blocker-list" class="dep-chip-list">
+      ${
+        currentBlockerKeys.length
+          ? currentBlockerKeys
+              .map((bk) => {
+                const bd = blockerDetailMap[bk] || state.items.find((x) => x.item_key.toUpperCase() === bk);
+                const bState = bd ? bd.state : "todo";
+                const isDone = bState === "done";
+                const stInfo = stateMeta(bState);
+                return `<div class="dep-chip-row ${isDone ? "is-done" : "is-open"}" data-blocker-key="${esc(bk)}">
+                  <button type="button" class="dep-chip-btn" data-open-key="${esc(bk)}" title="${esc(bd ? `${bd.item_key} (${stInfo.label}) ${bd.title}` : bk)}">
+                    ${renderStateIcon(bState, stInfo.color, 11)}
+                    <span class="card-key" style="color:inherit">${esc(bk)}</span>
+                    <span style="overflow:hidden;text-overflow:ellipsis">${esc(bd ? bd.title : "(外部/已删除)")}</span>
+                  </button>
+                  <button type="button" class="icon-btn-xs" data-remove-blocker="${esc(bk)}" title="移除前置依赖">✕</button>
+                </div>`;
+              })
+              .join("")
+          : `<div class="muted-text" style="font-size:11px">无前置阻塞</div>`
+      }
+    </div>
+    <div class="dep-add-row">
+      ${buildUiSelectHtml({ id: "d-blocker-select", value: "", options: blockerOpts, placeholder: "选择前置单号..." })}
+      <button type="button" id="d-blocker-add" class="btn btn-xs" style="height:32px;padding:0 10px">＋</button>
+    </div>
+    ${
+      blocksDownstream.length
+        ? `<div style="margin-top:6px">
+            <div class="field-label" style="margin-bottom:4px">阻塞下游（${blocksDownstream.length}）</div>
+            <div class="dep-chip-list" style="margin-bottom:0">
+              ${blocksDownstream
+                .map((dn) => {
+                  const dSt = stateMeta(dn.state);
+                  return `<div class="dep-chip-row">
+                    <button type="button" class="dep-chip-btn" data-open-key="${esc(dn.item_key)}">
+                      ${renderStateIcon(dn.state, dSt.color, 11)}
+                      <span class="card-key">${esc(dn.item_key)}</span>
+                      <span style="overflow:hidden;text-overflow:ellipsis">${esc(dn.title)}</span>
+                    </button>
+                  </div>`;
+                })
+                .join("")}
+            </div>
+          </div>`
+        : ""
+    }
+  `;
+}
+
+async function saveDrawerItem({ force = false } = {}) {
   const item = state.openItemDetail;
   if (!item) return;
   const newState = $("#d-state").value;
@@ -1668,6 +2122,8 @@ async function saveDrawerItem() {
     return;
   }
   const labelIds = $$("#d-labels .label-toggle.is-selected").map((b) => Number(b.dataset.lid));
+  const blockedBy = [...(state.drawerBlockers || [])];
+  const parentEl = $("#d-parent");
   const payload = {
     expected_rev: item.rev,
     title: $("#d-title").value.trim(),
@@ -1678,10 +2134,17 @@ async function saveDrawerItem() {
     module_id: $("#d-module").value ? Number($("#d-module").value) : null,
     agent_branch: $("#d-branch").value.trim(),
     scope_paths: $("#d-scope").value.split("\n").map((s) => s.trim()).filter(Boolean),
+    blocked_by: blockedBy,
     description_md: $("#d-desc").value,
     plan_md: $("#d-plan").value,
     label_ids: labelIds,
   };
+  if (parentEl && parentEl.dataset.disabled !== "1") {
+    payload.parent_id = parentEl.value ? Number(parentEl.value) : null;
+  }
+  if (force) {
+    payload.force = true;
+  }
   try {
     const res = await api(`/api/v1/items/${encodeURIComponent(item.item_key)}`, { method: "PATCH", body: payload });
     state.openItemDetail = res.item;
@@ -1689,6 +2152,12 @@ async function saveDrawerItem() {
     await loadActiveProject();
     toast(`已保存 ${item.item_key} (rev #${res.item.rev})`, "success");
   } catch (err) {
+    if (err.data?.reason_code === "incomplete_children" && !force) {
+      if (confirm(`${err.message}\n\n是否忽略未完成子项并强制结单？`)) {
+        return saveDrawerItem({ force: true });
+      }
+      return;
+    }
     if (err.status === 409) {
       toast("检测到并发修改冲突，已自动刷新最新内容", "warn");
       await openDrawer(item.item_key);
@@ -1725,8 +2194,13 @@ function showModal(html) {
   closePopovers();
   $("#modal-box").innerHTML = html;
   $("#modal-root").hidden = false;
+  bindSelectScope("modal", $("#modal-box"), $("#modal-box"));
 }
 function closeModal() {
+  if (selectBinders.modal) {
+    selectBinders.modal.destroy();
+    selectBinders.modal = null;
+  }
   $("#modal-root").hidden = true;
   $("#modal-box").innerHTML = "";
 }
@@ -1735,15 +2209,28 @@ function openCreateItemModal(defaults = {}) {
   const defaultState = defaults.state || "todo";
   const defaultPrio = defaults.priority || "medium";
   const defaultModId = defaults.moduleId ?? state.filters.moduleId ?? null;
+  const defaultParentId = defaults.parentId ?? (state.filters.parentId ? Number(state.filters.parentId) : null);
   const humans = state.members.filter((m) => m.kind === "human");
   const agents = state.members.filter((m) => m.kind === "agent");
+  const topParents = getTopLevelParents();
   const selectedLabelIds = new Set();
   const presetBodies = new Set(ITEM_SPEC_TEMPLATES.map((t) => t.body.trim()));
   let activeTplKey = "";
 
+  const stateOpts = state.states.map((s) => ({ value: s.key, label: s.label, dot: safeColor(s.color) }));
+  const prioOpts = state.priorities.map((p) => ({ value: p.key, label: p.label, dot: safeColor(p.color) }));
+  const agentOpts = [
+    { value: "", label: "暂不分配", dot: "#838896" },
+    ...agents.map((m) => ({ value: String(m.id), label: m.display_name, dot: safeColor(m.avatar_color) })),
+  ];
+  const parentOpts = [
+    { value: "", label: "无（顶层工作项）", dot: "#838896" },
+    ...topParents.map((p) => ({ value: String(p.id), label: `${p.item_key} · ${p.title.slice(0, 22)}`, dot: "#b197fc" })),
+  ];
+
   showModal(`
     <div class="modal-header">
-      <h3>新建工作项 (${esc(state.activeProject?.key || "")})</h3>
+      <h3>${defaultParentId ? "拆分子工作项" : "新建工作项"} (${esc(state.activeProject?.key || "")})</h3>
       <button class="icon-btn-xs" data-close-modal>✕</button>
     </div>
     <div class="modal-body">
@@ -1771,28 +2258,27 @@ function openCreateItemModal(defaults = {}) {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
           <label class="field-label">初始列</label>
-          <select id="m-state" class="input-ctrl">
-            ${state.states.map((s) => `<option value="${s.key}" ${s.key === defaultState ? "selected" : ""}>${esc(s.label)}</option>`).join("")}
-          </select>
+          ${buildUiSelectHtml({ id: "m-state", value: defaultState, options: stateOpts })}
         </div>
         <div>
           <label class="field-label">优先级</label>
-          <select id="m-prio" class="input-ctrl">
-            ${state.priorities.map((p) => `<option value="${p.key}" ${p.key === defaultPrio ? "selected" : ""}>${esc(p.label)}</option>`).join("")}
-          </select>
+          ${buildUiSelectHtml({ id: "m-prio", value: defaultPrio, options: prioOpts })}
         </div>
         <div>
           <label class="field-label">所属模块</label>
-          <select id="m-mod" class="input-ctrl">
-            ${buildModuleOptionsHtml(defaultModId, "暂不指定")}
-          </select>
+          ${buildUiSelectHtml({ id: "m-mod", value: defaultModId ? String(defaultModId) : "", groups: buildModuleSelectGroups("暂不指定") })}
         </div>
         <div>
           <label class="field-label">指派 AI Agent（可选）</label>
-          <select id="m-agent" class="input-ctrl">
-            <option value="">暂不分配</option>
-            ${agents.map((m) => `<option value="${m.id}">${esc(m.display_name)}</option>`).join("")}
-          </select>
+          ${buildUiSelectHtml({ id: "m-agent", value: "", options: agentOpts })}
+        </div>
+        <div>
+          <label class="field-label">所属父工作项（可选，2 层结构）</label>
+          ${buildUiSelectHtml({ id: "m-parent", value: defaultParentId ? String(defaultParentId) : "", options: parentOpts })}
+        </div>
+        <div>
+          <label class="field-label">前置阻塞单号（可选，逗号分隔）</label>
+          <input id="m-blocked-by" class="input-ctrl mono-input" placeholder="如 SCAV-1, SCAV-2" />
         </div>
       </div>
       ${
@@ -1803,7 +2289,7 @@ function openCreateItemModal(defaults = {}) {
                 ${state.labels
                   .map(
                     (lb) => `<button type="button" class="label-toggle" data-create-label="${lb.id}">
-                      <span class="dot" style="background:${esc(lb.color)}"></span>${esc(lb.name)}
+                      <span class="chip-dot" style="background:${esc(lb.color)}"></span>${esc(lb.name)}
                     </button>`
                   )
                   .join("")}
@@ -1903,6 +2389,12 @@ function openCreateItemModal(defaults = {}) {
   $("#btn-submit-item").onclick = async () => {
     const title = titleEl.value.trim();
     if (!title) return toast("请输入工作项标题", "warn");
+    const blockedBy = $("#m-blocked-by")
+      .value.replace(/，/g, ",")
+      .split(",")
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean);
+    const parentVal = $("#m-parent").value;
     try {
       const res = await api(`/api/v1/projects/${state.activeProjectId}/items`, {
         method: "POST",
@@ -1910,11 +2402,13 @@ function openCreateItemModal(defaults = {}) {
           title,
           state: $("#m-state").value,
           priority: $("#m-prio").value,
+          parent_id: parentVal ? Number(parentVal) : null,
           module_id: $("#m-mod").value ? Number($("#m-mod").value) : null,
           owner_id: $("#m-owner").value ? Number($("#m-owner").value) : null,
           agent_id: $("#m-agent").value ? Number($("#m-agent").value) : null,
           label_ids: Array.from(selectedLabelIds),
           scope_paths: $("#m-scope").value.split("\n").map((s) => s.trim()).filter(Boolean),
+          blocked_by: blockedBy,
           description_md: descEl.value,
         },
       });
@@ -2057,12 +2551,16 @@ function openAddMemberModal() {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
           <label class="field-label">身份类型</label>
-          <select id="mem-kind" class="input-ctrl">
-            <option value="agent">AI Agent 槽位</option>
-            <option value="human">人类成员</option>
-          </select>
+          ${buildUiSelectHtml({
+            id: "mem-kind",
+            value: "agent",
+            options: [
+              { value: "agent", label: "AI Agent 槽位", dot: "#b197fc" },
+              { value: "human", label: "人类成员", dot: "#f0d372" },
+            ],
+          })}
         </div>
-        <div><label class="field-label">头像颜色</label><input id="mem-color" type="color" class="input-ctrl" style="height:32px;padding:2px" value="#3b82f6" /></div>
+        <div><label class="field-label">头像颜色</label><input id="mem-color" type="color" class="input-ctrl" style="height:32px;padding:2px" value="#f0d372" /></div>
       </div>
       <div><label class="field-label">职责说明</label><input id="mem-role" class="input-ctrl" placeholder="例如：后端开发 / 前端联调" /></div>
       <div><label class="field-label">局域网登录口令 PIN（仅人类成员需要，默认 1234）</label><input id="mem-pin" class="input-ctrl" placeholder="4~8 位数字或字符" /></div>
@@ -2112,16 +2610,20 @@ function toggleSidebar() {
 
 function clearFilterKey(key) {
   if (key === "all") {
-    state.filters = { q: "", priority: "", memberId: "", category: "", moduleId: null, conflictOnly: false };
+    state.filters = { q: "", stateKey: "", priority: "", memberId: "", category: "", moduleId: null, parentId: null, conflictOnly: false };
     $("#search-input").value = "";
     $("#btn-clear-search").hidden = true;
   } else if (key === "q") {
     state.filters.q = "";
     $("#search-input").value = "";
     $("#btn-clear-search").hidden = true;
+  } else if (key === "stateKey") {
+    state.filters.stateKey = "";
   } else if (key === "module") {
     state.filters.category = "";
     state.filters.moduleId = null;
+  } else if (key === "parentId") {
+    state.filters.parentId = null;
   } else if (key === "conflictOnly") {
     state.filters.conflictOnly = false;
   } else {
@@ -2146,8 +2648,10 @@ function bindStaticEvents() {
       const pid = Number(projBtn.dataset.projId);
       if (pid !== state.activeProjectId) {
         state.activeProjectId = pid;
+        state.filters.stateKey = "";
         state.filters.moduleId = null;
         state.filters.category = "";
+        state.filters.parentId = null;
         await loadActiveProject();
       } else {
         switchView("items");
@@ -2156,7 +2660,6 @@ function bindStaticEvents() {
   });
 
   $("#btn-new-project").addEventListener("click", openCreateProjectModal);
-  $("#btn-sidebar-new-item").addEventListener("click", () => openCreateItemModal({ state: "todo" }));
   $("#btn-new-item").addEventListener("click", () => openCreateItemModal({ state: "todo" }));
   $("#btn-new-module").addEventListener("click", () => openModuleModal(null));
 
@@ -2225,6 +2728,12 @@ function bindStaticEvents() {
       const mid = Number(modBtn.dataset.setModule);
       state.filters.category = "";
       state.filters.moduleId = state.filters.moduleId === mid ? null : mid;
+      return renderAll();
+    }
+    const parBtn = e.target.closest("[data-set-parent]");
+    if (parBtn) {
+      const pid = Number(parBtn.dataset.setParent);
+      state.filters.parentId = state.filters.parentId === pid ? null : pid;
       return renderAll();
     }
     if (e.target.closest("[data-toggle-conflict-filter]")) {
@@ -2348,6 +2857,12 @@ function bindStaticEvents() {
   // 看板交互、列折叠与拖拽流转（支持向折叠竖条 Drop！）
   const kanban = $("#kanban-columns");
   kanban.addEventListener("click", async (e) => {
+    const parentJump = e.target.closest("[data-open-parent-key]");
+    if (parentJump) {
+      e.stopPropagation();
+      openDrawer(parentJump.dataset.openParentKey);
+      return;
+    }
     const collapseBtn = e.target.closest("[data-collapse-col]");
     if (collapseBtn) {
       e.stopPropagation();
@@ -2379,16 +2894,25 @@ function bindStaticEvents() {
       const act = gateBtn.dataset.gateAction;
       const it = state.items.find((x) => x.item_key === key);
       if (act === "reject") return openRejectModal(key, it?.rev);
-      try {
-        await api(`/api/v1/items/${encodeURIComponent(key)}/transition`, {
-          method: "POST",
-          body: { action: act, expected_rev: it?.rev },
-        });
-        await loadActiveProject();
-        toast(`${key} 状态已更新`, "success");
-      } catch (err) {
-        toast(err.message, "error");
-      }
+      const execGate = async (force = false) => {
+        try {
+          await api(`/api/v1/items/${encodeURIComponent(key)}/transition`, {
+            method: "POST",
+            body: { action: act, expected_rev: it?.rev, ...(force ? { force: true } : {}) },
+          });
+          await loadActiveProject();
+          toast(`${key} 状态已更新`, "success");
+        } catch (err) {
+          if (err.data?.reason_code === "incomplete_children" && !force) {
+            if (confirm(`${err.message}\n\n是否忽略未完成子项并强制结单？`)) {
+              return execGate(true);
+            }
+            return;
+          }
+          toast(err.message, "error");
+        }
+      };
+      await execGate(false);
       return;
     }
     const qAdd = e.target.closest("[data-quick-add-type]");
@@ -2399,6 +2923,7 @@ function bindStaticEvents() {
       if (gt === "state") defaults.state = gv;
       else if (gt === "priority") defaults.priority = gv;
       else if (gt === "module") defaults.moduleId = gv ? Number(gv) : null;
+      else if (gt === "parent") defaults.parentId = gv ? Number(gv) : null;
       openCreateItemModal(defaults);
       return;
     }
@@ -2463,17 +2988,35 @@ function bindStaticEvents() {
       if ((item.module_id || null) === targetModId) return;
       body.module_id = targetModId;
       msgLabel = targetModId ? `模块：${moduleById(targetModId)?.name || ""}` : "未指定模块";
+    } else if (gt === "parent") {
+      const targetParentId = gv ? Number(gv) : null;
+      if (targetParentId === item.id || (item.parent_id || null) === targetParentId) return;
+      body.parent_id = targetParentId;
+      msgLabel = targetParentId ? `归入父单 ${itemById(targetParentId)?.item_key || ""}` : "移出父单（独立顶层）";
     }
 
-    try {
-      await api(`/api/v1/items/${encodeURIComponent(item.item_key)}`, { method: "PATCH", body });
-      state.manualCollapsedCols.delete(cid);
-      await loadActiveProject();
-      toast(`${item.item_key} → ${msgLabel}`, "success");
-    } catch (err) {
-      toast(err.message, err.status === 409 ? "warn" : "error");
-      await loadActiveProject();
-    }
+    const execDrop = async (force = false) => {
+      try {
+        await api(`/api/v1/items/${encodeURIComponent(item.item_key)}`, {
+          method: "PATCH",
+          body: force ? { ...body, force: true } : body,
+        });
+        state.manualCollapsedCols.delete(cid);
+        await loadActiveProject();
+        toast(`${item.item_key} → ${msgLabel}`, "success");
+      } catch (err) {
+        if (err.data?.reason_code === "incomplete_children" && !force) {
+          if (confirm(`${err.message}\n\n是否忽略未完成子项并强制结单？`)) {
+            return execDrop(true);
+          }
+          await loadActiveProject();
+          return;
+        }
+        toast(err.message, err.status === 409 ? "warn" : "error");
+        await loadActiveProject();
+      }
+    };
+    await execDrop(false);
   });
 
   // 全局点击委托
@@ -2485,8 +3028,32 @@ function bindStaticEvents() {
       switchView("agents");
       return;
     }
+    const pulseStateBtn = e.target.closest("[data-pulse-state]");
+    if (pulseStateBtn) {
+      const sk = pulseStateBtn.dataset.pulseState;
+      state.filters.stateKey = state.filters.stateKey === sk ? "" : sk;
+      state.manualCollapsedCols.delete(`state:${sk}`);
+      switchView("items");
+      renderAll();
+      return;
+    }
     if (e.target.closest("[data-close-modal]") || e.target === $("#modal-root")) {
       closeModal();
+      return;
+    }
+    const focusParentBtn = e.target.closest("[data-focus-parent]");
+    if (focusParentBtn) {
+      e.stopPropagation();
+      state.filters.parentId = Number(focusParentBtn.dataset.focusParent) || null;
+      closeDrawer();
+      switchView("items");
+      renderAll();
+      return;
+    }
+    const openParentBtn = e.target.closest("[data-open-parent-key]");
+    if (openParentBtn) {
+      e.stopPropagation();
+      openDrawer(openParentBtn.dataset.openParentKey);
       return;
     }
     const openKeyBtn = e.target.closest("[data-open-key]");
@@ -2542,8 +3109,53 @@ function bindStaticEvents() {
     if (e.target.closest("#btn-drawer-close")) return closeDrawer();
     if (e.target.closest("#btn-drawer-save")) return saveDrawerItem();
     if (e.target.closest("#btn-drawer-copy-prompt")) return copyText(buildAgentPrompt(item), `已复制 ${item.item_key} Agent 开工指令`);
+    const createSubBtn = e.target.closest("[data-create-subitem]");
+    if (createSubBtn) {
+      e.stopPropagation();
+      openCreateItemModal({ state: "todo", parentId: Number(createSubBtn.dataset.createSubitem) });
+      return;
+    }
+    const detachBtn = e.target.closest("[data-detach-child]");
+    if (detachBtn) {
+      e.stopPropagation();
+      const childKey = detachBtn.dataset.detachChild;
+      if (!confirm(`确定将子项 ${childKey} 从 ${item.item_key} 中移出并转为独立顶层工作项吗？`)) return;
+      try {
+        await api(`/api/v1/items/${encodeURIComponent(childKey)}`, { method: "PATCH", body: { parent_id: null } });
+        await openDrawer(item.item_key);
+        await loadActiveProject();
+        toast(`已将 ${childKey} 移出父工作项`, "info");
+      } catch (err) {
+        toast(err.message || "解除父子关系失败", "error");
+      }
+      return;
+    }
+    if (e.target.closest("#d-blocker-add")) {
+      e.stopPropagation();
+      const sel = $("#d-blocker-select");
+      const val = (sel?.value || "").trim().toUpperCase();
+      if (!val) return toast("请先选择前置工作项单号", "warn");
+      if (!state.drawerBlockers.includes(val)) {
+        state.drawerBlockers.push(val);
+        renderDrawerBlockerSection();
+        bindSelectScope("drawer", $("#item-drawer"), $("#item-drawer"));
+        toast(`已加入前置依赖 ${val}，请点击「保存修改」生效`, "info");
+      }
+      return;
+    }
+    const remBlkBtn = e.target.closest("[data-remove-blocker]");
+    if (remBlkBtn) {
+      e.stopPropagation();
+      const bk = (remBlkBtn.dataset.removeBlocker || "").toUpperCase();
+      state.drawerBlockers = (state.drawerBlockers || []).filter((x) => x !== bk);
+      renderDrawerBlockerSection();
+      bindSelectScope("drawer", $("#item-drawer"), $("#item-drawer"));
+      toast(`已移除前置依赖 ${bk}，请点击「保存修改」生效`, "info");
+      return;
+    }
     if (e.target.closest("#btn-drawer-delete")) {
-      if (!confirm(`确认永久删除工作项 ${item.item_key} 吗？`)) return;
+      const subWarn = item.sub_total > 0 ? `\n（注意：其下 ${item.sub_total} 个子工作项将被保留并自动转为顶层工作项）` : "";
+      if (!confirm(`确认永久删除工作项 ${item.item_key} 吗？${subWarn}`)) return;
       try {
         await api(`/api/v1/items/${encodeURIComponent(item.item_key)}`, { method: "DELETE" });
         closeDrawer();
@@ -2563,17 +3175,26 @@ function bindStaticEvents() {
     if (gateBtn) {
       const act = gateBtn.dataset.drawerGate;
       if (act === "reject") return openRejectModal(item.item_key, item.rev);
-      try {
-        await api(`/api/v1/items/${encodeURIComponent(item.item_key)}/transition`, {
-          method: "POST",
-          body: { action: act, expected_rev: item.rev },
-        });
-        await loadActiveProject();
-        toast(`${item.item_key} 已流转`, "success");
-      } catch (err) {
-        toast(err.message || "状态流转失败", err.status === 409 ? "warn" : "error");
-        if (err.status === 409) await loadActiveProject();
-      }
+      const execDrawerGate = async (force = false) => {
+        try {
+          await api(`/api/v1/items/${encodeURIComponent(item.item_key)}/transition`, {
+            method: "POST",
+            body: { action: act, expected_rev: item.rev, ...(force ? { force: true } : {}) },
+          });
+          await loadActiveProject();
+          toast(`${item.item_key} 已流转`, "success");
+        } catch (err) {
+          if (err.data?.reason_code === "incomplete_children" && !force) {
+            if (confirm(`${err.message}\n\n是否忽略未完成子项并强制结单？`)) {
+              return execDrawerGate(true);
+            }
+            return;
+          }
+          toast(err.message || "状态流转失败", err.status === 409 ? "warn" : "error");
+          if (err.status === 409) await loadActiveProject();
+        }
+      };
+      await execDrawerGate(false);
       return;
     }
     if (e.target.closest("#btn-send-comment")) {
@@ -2631,10 +3252,11 @@ function bindStaticEvents() {
     }
   });
 
-  // 快捷键：/ 或 Ctrl+K 搜索，C 新建，B 折叠侧栏，Esc 逐层退出，Ctrl+Enter 发评论
+  // 快捷键：/ 或 Ctrl+K 搜索，C 新建，B 折叠侧栏，Esc 按 Code SSOT V2.2 LIFO 栈逐层退出，Ctrl+Enter 发评论
   document.addEventListener("keydown", (e) => {
     const inField = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
     if (e.key === "Escape") {
+      if (escStack.handleKeydown(e)) return;
       if (!$("#modal-root").hidden) return closeModal();
       if (state.openPopover) return closePopovers();
       if (!$("#item-drawer").hidden) return closeDrawer();

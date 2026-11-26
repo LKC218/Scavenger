@@ -51,6 +51,7 @@ from 数据库 import (  # noqa: E402
 
 ROOT = SCRIPT_DIR.parents[1]
 FRONTEND_DIR = ROOT / "src" / "工作项看板"
+UI_SPEC_DIR = ROOT / "src" / "界面规范"
 DEFAULT_DATA_DIR = ROOT / "local-data" / "工作项看板"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 18800
@@ -96,12 +97,19 @@ STATIC_ALLOW = {
     "/app.mjs": ("应用.mjs", "text/javascript; charset=utf-8"),
 }
 
+# 只读复用项目 Code SSOT V2.2 共享界面规范源（18800 仍保持完全独立进程，不依赖 8800）
+UI_STATIC_ALLOW = {
+    "/ui/令牌.css": ("令牌.css", "text/css; charset=utf-8"),
+    "/ui/组件.css": ("组件.css", "text/css; charset=utf-8"),
+    "/ui/交互控件.mjs": ("交互控件.mjs", "text/javascript; charset=utf-8"),
+    "/ui/图标与标绘.mjs": ("图标与标绘.mjs", "text/javascript; charset=utf-8"),
+    "/ui/favicon.svg": ("favicon.svg", "image/svg+xml; charset=utf-8"),
+}
+
 FAVICON_SVG = (
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
-    '<rect width="24" height="24" rx="5" fill="#0f1117"/>'
-    '<rect x="3.5" y="4.5" width="4.5" height="15" rx="1.4" fill="#3b82f6"/>'
-    '<rect x="9.75" y="4.5" width="4.5" height="10.5" rx="1.4" fill="#e5a93c"/>'
-    '<rect x="16" y="4.5" width="4.5" height="13" rx="1.4" fill="#22c55e"/>'
+    '<rect width="24" height="24" rx="5" fill="#0d0e13"/>'
+    '<path d="M4.5 5.2 L12 3 L19.5 5.2 V13.2 C19.5 16.2 16.2 18.8 12 20.8 C7.8 18.8 4.5 16.2 4.5 13.2 Z" fill="none" stroke="#f0d372" stroke-width="1.6"/>'
     "</svg>"
 ).encode("utf-8")
 
@@ -524,7 +532,18 @@ class WorkboardHandler(BaseHTTPRequestHandler):
             return
 
         if path == "/favicon.svg":
-            self._send_bytes(200, FAVICON_SVG, "image/svg+xml; charset=utf-8", extra_headers={"Cache-Control": "public, max-age=3600"})
+            fav_fp = UI_SPEC_DIR / "favicon.svg"
+            fav_bytes = fav_fp.read_bytes() if fav_fp.is_file() else FAVICON_SVG
+            self._send_bytes(200, fav_bytes, "image/svg+xml; charset=utf-8", extra_headers={"Cache-Control": "public, max-age=3600"})
+            return
+
+        if path in UI_STATIC_ALLOW:
+            fname, ctype = UI_STATIC_ALLOW[path]
+            fp = UI_SPEC_DIR / fname
+            if not fp.is_file():
+                self._send_json(404, {"ok": False, "error": "missing_ui_spec_asset", "message": f"缺少界面规范共享文件：{fname}"})
+                return
+            self._send_bytes(200, fp.read_bytes(), ctype, extra_headers={"Cache-Control": "no-cache"})
             return
 
         if path in STATIC_ALLOW:
