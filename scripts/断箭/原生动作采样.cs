@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -10,12 +11,12 @@ using UnityEngine.Playables;
 
 public static class 原生动作采样
 {
-    [Serializable] public class 配置 { public string bundle; public string output; }
+    [Serializable] public class 预制体 { public string name; public string path; }
+    [Serializable] public class 配置 { public string bundle; public string output; public string[] dependencies; public 预制体[] prefabs; }
     [Serializable] public class 帧 { public float time; public float[] trs; }
     [Serializable] public class 网格核验 { public int frame; public float[] vertices; }
     [Serializable] public class 动作 { public string name; public float duration; public float sampleRate; public bool humanMotion; public bool looping; public 帧[] frames; public 网格核验[] checks; }
     [Serializable] public class 角色 { public string name; public string prefab; public string avatar; public bool validAvatar; public bool humanAvatar; public string[] paths; public 动作[] clips; }
-    [Serializable] public class 结果 { public string unity; public 角色[] roles; }
 
     public static void Run()
     {
@@ -23,18 +24,34 @@ public static class 原生动作采样
         {
             string project = Directory.GetParent(Application.dataPath).FullName;
             var config = JsonUtility.FromJson<配置>(File.ReadAllText(Path.Combine(project, "采样配置.json")));
+            var dependencies = new List<AssetBundle>();
+            foreach (string path in config.dependencies ?? Array.Empty<string>())
+            {
+                var dependency = AssetBundle.LoadFromFile(path);
+                if (!dependency) throw new Exception("依赖资源包加载失败：" + Path.GetFileName(path));
+                dependencies.Add(dependency);
+            }
             var bundle = AssetBundle.LoadFromFile(config.bundle);
             if (!bundle) throw new Exception("原资源包加载失败");
-            var result = new 结果 { unity = Application.unityVersion };
-            var records = new List<角色>();
-            foreach (string role in new[] { "Walker", "Runner" })
+            using var file = new FileStream(config.output, FileMode.CreateNew);
+            using Stream payload = config.output.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                ? new GZipStream(file, System.IO.Compression.CompressionLevel.Fastest, true) : file;
+            using var writer = new StreamWriter(payload);
+            writer.Write("{\"unity\":\"" + Application.unityVersion + "\",\"roles\":[");
+            var targets = config.prefabs ?? new[] { "Walker", "Runner" }.Select(role => new 预制体 {
+                name = role, path = "Assets/Resources_moved/ModelPrefabs/Zombie/" + role + "/ZOM_" + role + "1.prefab"
+            }).ToArray();
+            for (int roleIndex = 0; roleIndex < targets.Length; roleIndex++)
             {
-                string source = "Assets/Resources_moved/ModelPrefabs/Zombie/" + role + "/ZOM_" + role + "1.prefab";
+                var target = targets[roleIndex];
+                string role = target.name, source = target.path;
                 var prefab = bundle.LoadAsset<GameObject>(source);
                 if (!prefab) throw new Exception("预制体加载失败：" + role);
                 var go = UnityEngine.Object.Instantiate(prefab);
                 var animator = go.GetComponentInChildren<Animator>(true);
                 if (!animator || !animator.avatar || !animator.avatar.isValid) throw new Exception("Avatar无效：" + role);
+                if (!animator.runtimeAnimatorController) throw new Exception("缺少动画控制器：" + role);
+                animator.fireEvents = false;
                 var clips = animator.runtimeAnimatorController.animationClips.Distinct().OrderBy(c => c.name).ToArray();
                 var transforms = go.GetComponentsInChildren<Transform>(true);
                 var initialT = transforms.Select(t => t.localPosition).ToArray();
@@ -93,13 +110,16 @@ public static class 原生动作采样
                         humanMotion = clip.humanMotion, looping = clip.isLooping, frames = frames, checks = checks.ToArray() });
                     Debug.Log("原生采样完成：" + role + "/" + clip.name + "，帧数" + count);
                 }
-                record.clips = animations.ToArray(); records.Add(record);
+                record.clips = animations.ToArray();
+                if (roleIndex != 0) writer.Write(',');
+                writer.Write(JsonUtility.ToJson(record));
                 UnityEngine.Object.DestroyImmediate(go);
             }
-            result.roles = records.ToArray();
-            using (var stream = new FileStream(config.output, FileMode.CreateNew))
-            using (var writer = new StreamWriter(stream)) writer.Write(JsonUtility.ToJson(result));
+            writer.Write("]}");
+            // EditorApplication.Exit 会直接结束进程，必须先写完压缩文件尾。
+            writer.Dispose();
             bundle.Unload(true);
+            foreach (var dependency in dependencies) dependency.Unload(true);
             EditorApplication.Exit(0);
         }
         catch (Exception error)

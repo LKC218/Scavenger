@@ -62,6 +62,34 @@ def material(root, source):
     return mat
 
 
+def add_native_actions(scene, arm, role, native, bone_nodes, names, paths, prefix=''):
+    arm.animation_data_create();actions={};frame_stats=[]
+    native_index={path:i for i,path in enumerate(native['paths'])}
+    for clip in native['clips']:
+        action=bpy.data.actions.new(prefix+clip['name']);action.use_fake_user=True
+        slot=action.slots.new(id_type='OBJECT',name=arm.name);layer=action.layers.new('原生采样');strip=layer.strips.new(type='KEYFRAME');bag=strip.channelbag(slot,ensure=True)
+        arm.animation_data.action=action;arm.animation_data.action_slot=slot
+        frames=np.array([1+f['time']*scene.render.fps for f in clip['frames']]);channels={n['id']:[] for n in bone_nodes}; previous={}
+        for frame in clip['frames']:
+            for n in bone_nodes:
+                offset=native_index[paths[n['id']]]*10;local=C@matrix(frame['trs'][offset:offset+10])@C
+                rest=arm.data.bones[names[n['id']]].matrix_local
+                basis=rest.inverted()@(arm.data.bones[names[n['parent']]].matrix_local@local if n['parent'] else local)
+                t,q,s=basis.decompose()
+                if n['id'] in previous and q.dot(previous[n['id']])<0:q.negate()
+                previous[n['id']]=q.copy();channels[n['id']].append(list(t)+list(q)+list(s))
+        for n in bone_nodes:
+            values=np.array(channels[n['id']]);pb=arm.pose.bones[names[n['id']]]
+            for prop,start,count in [('location',0,3),('rotation_quaternion',3,4),('scale',7,3)]:
+                for index in range(count):
+                    curve=bag.fcurves.new(data_path=pb.path_from_id(prop),index=index);curve.keyframe_points.add(len(frames))
+                    curve.keyframe_points.foreach_set('co',np.column_stack([frames,values[:,start+index]]).ravel())
+                    for point in curve.keyframe_points:point.interpolation='LINEAR'
+        action['源动作']=clip['name'];action['原生采样频率']=clip['sampleRate'];action['源时长秒']=clip['duration'];action['循环']=clip['looping'];actions[clip['name']]=action
+        frame_stats.append({'name':clip['name'],'frames':len(frames),'curves':len(bag.fcurves),'duration':clip['duration']})
+        print(role,clip['name'],'动作已建立',flush=True)
+    return actions, frame_stats
+
 def build(batch,role,revision):
     source=batch/'角色'/role; target=batch/'工程'/f'{role}-原生骨骼与动作-{revision}.blend'
     if target.exists() or target.with_suffix('.构建记录.json').exists(): raise FileExistsError('工程已存在')
@@ -112,31 +140,7 @@ def build(batch,role,revision):
             for index,weight in zip(indices,weights):
                 if weight>0:groups[int(index)].add([vertex],float(weight),'ADD')
         modifier=obj.modifiers.new('原生蒙皮','ARMATURE');modifier.object=arm;modifier.use_deform_preserve_volume=False
-    arm.animation_data_create();actions={};frame_stats=[]
-    native_index={path:i for i,path in enumerate(native['paths'])}
-    for clip in native['clips']:
-        action=bpy.data.actions.new(clip['name']);action.use_fake_user=True
-        slot=action.slots.new(id_type='OBJECT',name=arm.name);layer=action.layers.new('原生采样');strip=layer.strips.new(type='KEYFRAME');bag=strip.channelbag(slot,ensure=True)
-        arm.animation_data.action=action;arm.animation_data.action_slot=slot
-        frames=np.array([1+f['time']*scene.render.fps for f in clip['frames']]);channels={n['id']:[] for n in bone_nodes}; previous={}
-        for frame in clip['frames']:
-            for n in bone_nodes:
-                offset=native_index[paths[n['id']]]*10;local=C@matrix(frame['trs'][offset:offset+10])@C
-                rest=arm.data.bones[names[n['id']]].matrix_local
-                basis=rest.inverted()@(arm.data.bones[names[n['parent']]].matrix_local@local if n['parent'] else local)
-                t,q,s=basis.decompose()
-                if n['id'] in previous and q.dot(previous[n['id']])<0:q.negate()
-                previous[n['id']]=q.copy();channels[n['id']].append(list(t)+list(q)+list(s))
-        for n in bone_nodes:
-            values=np.array(channels[n['id']]);pb=arm.pose.bones[names[n['id']]]
-            for prop,start,count in [('location',0,3),('rotation_quaternion',3,4),('scale',7,3)]:
-                for index in range(count):
-                    curve=bag.fcurves.new(data_path=pb.path_from_id(prop),index=index);curve.keyframe_points.add(len(frames))
-                    curve.keyframe_points.foreach_set('co',np.column_stack([frames,values[:,start+index]]).ravel())
-                    for point in curve.keyframe_points:point.interpolation='LINEAR'
-        action['源动作']=clip['name'];action['原生采样频率']=clip['sampleRate'];action['源时长秒']=clip['duration'];action['循环']=clip['looping'];actions[clip['name']]=action
-        frame_stats.append({'name':clip['name'],'frames':len(frames),'curves':len(bag.fcurves),'duration':clip['duration']})
-        print(role,clip['name'],'动作已建立',flush=True)
+    actions, frame_stats=add_native_actions(scene,arm,role,native,bone_nodes,names,paths)
     default='ZombieRunning' if role=='Walker' else 'ZombieSprint';arm.animation_data.action=actions[default];arm.animation_data.action_slot=actions[default].slots[0]
     scene.frame_start=1;scene.frame_end=int(math.ceil(actions[default].frame_range[1]));scene.frame_set(1)
     arm['来源']=data['source'];arm['骨引用数量']=len(data['meshes'][0]['bone_ids']);arm['动作列表']=json.dumps(list(actions),ensure_ascii=False)
