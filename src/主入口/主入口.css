@@ -1,0 +1,731 @@
+/* 正式游戏主入口布局样式（严格引用 /ui/令牌.css 与 /ui/组件.css） */
+* {
+  box-sizing: border-box;
+}
+
+.app-body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(920px 460px at 84% -6%, rgba(240, 211, 114, 0.08), transparent 62%),
+    radial-gradient(760px 400px at 12% 28%, rgba(56, 229, 192, 0.045), transparent 62%),
+    var(--ui-bg-canvas);
+  color: var(--ui-text-primary);
+  font-family: var(--ui-font-sans);
+  font-size: var(--ui-fs-md);
+}
+
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 18px 20px;
+  gap: 14px;
+  max-width: 1588px;
+  margin: 0 auto;
+}
+
+/* 武器库全景模式：全视口铺满，彻底消除黑边 */
+.app-shell.is-armory {
+  max-width: none;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  padding: 10px 14px 12px;
+  gap: 10px;
+}
+
+.app-shell.is-armory .armory-hide-dev {
+  display: none !important;
+}
+
+.app-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 9px 16px;
+  flex: 0 0 auto;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.app-brand:hover .app-title {
+  filter: brightness(1.08);
+}
+
+.app-sigil {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--ui-r-control);
+  background: var(--ui-accent-grad);
+  color: var(--ui-text-inverse);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 14px var(--ui-accent-glow);
+}
+
+.app-title {
+  display: block;
+  font-size: var(--ui-fs-lg);
+  letter-spacing: 0.08em;
+  color: var(--ui-state-select);
+}
+
+.app-sub {
+  display: block;
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-fs-2xs);
+  color: var(--ui-text-muted);
+  letter-spacing: 0.08em;
+}
+
+.app-top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.app-main[hidden] {
+  display: none !important;
+}
+
+/* ====== 4A 主菜单大厅 ====== */
+.lobby-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(340px, 440px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.lobby-menu-pod,
+.lobby-brief-pod {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lobby-hero-title {
+  margin: 0;
+  font-size: var(--ui-fs-2xl);
+  letter-spacing: 0.04em;
+  color: var(--ui-text-primary);
+}
+
+.lobby-desc {
+  margin: 0;
+  font-size: var(--ui-fs-sm);
+  color: var(--ui-text-secondary);
+}
+
+.lobby-cta {
+  width: 100%;
+  justify-content: space-between;
+  font-size: var(--ui-fs-md);
+}
+
+.lobby-baseline-foot {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--ui-line-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-muted);
+}
+
+.lobby-baseline-foot strong {
+  color: var(--ui-text-secondary);
+  font-weight: 700;
+}
+
+.brief-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.brief-kpi {
+  padding: 10px 14px;
+  border: 1px solid var(--ui-line-subtle);
+  border-radius: var(--ui-r-control);
+  background: var(--ui-bg-slot);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.brief-kpi strong {
+  font-size: var(--ui-fs-xl);
+  color: var(--ui-state-select);
+}
+
+.brief-kpi small {
+  font-size: var(--ui-fs-2xs);
+  color: var(--ui-text-muted);
+}
+
+.brief-roster-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brief-roster-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lobby-roster-item {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+.lobby-roster-item .ui-unit-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.lobby-roster-item.has-airlab .ui-unit-card {
+  padding-right: 60px;
+}
+
+.lobby-airlab-chip {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  padding: 3px 7px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid rgba(177, 151, 252, 0.45);
+  background: var(--ui-ch-plane-fill);
+  color: var(--ui-ch-plane-inner);
+  font-size: var(--ui-fs-2xs);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  z-index: 2;
+  transition: background var(--ui-dur-micro) var(--ui-ease-out), border-color var(--ui-dur-micro) var(--ui-ease-out);
+}
+
+.lobby-airlab-chip:hover {
+  border-color: var(--ui-ch-plane);
+  background: rgba(177, 151, 252, 0.28);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.lobby-roster-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 8px 10px;
+  border-radius: var(--ui-r-control);
+  border: 1px dashed var(--ui-line-base);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--ui-text-muted);
+  font-size: var(--ui-fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--ui-dur-micro) var(--ui-ease-out), color var(--ui-dur-micro) var(--ui-ease-out);
+}
+
+.lobby-roster-empty:hover {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+}
+
+.brief-dev-box {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--ui-line-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dev-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dev-card-grid[hidden] {
+  display: none !important;
+}
+
+.dev-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px 10px 14px;
+  border-radius: var(--ui-r-control);
+  border: 1px solid var(--ui-line-subtle);
+  background: var(--ui-bg-slot);
+  color: var(--ui-text-primary);
+  text-decoration: none;
+  min-width: 0;
+  transition: border-color var(--ui-dur-micro) var(--ui-ease-out), background var(--ui-dur-micro) var(--ui-ease-out);
+}
+
+.dev-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--ui-line-strong);
+}
+
+.dev-card[data-tone="plane"]::before {
+  background: var(--ui-ch-plane);
+}
+
+.dev-card[data-tone="ground"]::before {
+  background: var(--ui-ch-ground);
+}
+
+.dev-card[data-tone="select"]::before {
+  background: var(--ui-state-select);
+}
+
+.dev-card:hover {
+  border-color: var(--ui-state-select);
+  background: rgba(240, 211, 114, 0.08);
+  text-decoration: none;
+}
+
+.dev-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dev-card-head strong {
+  font-size: var(--ui-fs-sm);
+  font-weight: 700;
+  color: var(--ui-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dev-card-head .ui-mono {
+  font-size: var(--ui-fs-2xs);
+  color: var(--ui-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.dev-card:hover .dev-card-head .ui-mono {
+  color: var(--ui-state-select);
+}
+
+.dev-card small {
+  font-size: var(--ui-fs-2xs);
+  color: var(--ui-text-secondary);
+  line-height: 1.35;
+}
+
+.armory-airlab-btn {
+  width: 100%;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  border-color: rgba(177, 151, 252, 0.45);
+  background: var(--ui-ch-plane-fill);
+  color: var(--ui-ch-plane-inner);
+}
+
+.armory-airlab-btn:hover {
+  border-color: var(--ui-ch-plane);
+  background: rgba(177, 151, 252, 0.24);
+  color: #ffffff;
+}
+
+@media (max-width: 1180px) {
+  .brief-roster-grid,
+  .dev-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ====== 4B 129 车武器库全景沉浸式 680p 沙盘整备台 ====== */
+.armory-main {
+  flex: 1;
+  min-height: 0;
+}
+
+.armory-canvas-wrap {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  border-radius: var(--ui-r-surface);
+  border: 1px solid var(--ui-line-base);
+  background: #c7dbe6;
+  overflow: hidden;
+  box-shadow: var(--ui-shadow-pod);
+}
+
+#armory-3d-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+
+#armory-3d-canvas:active {
+  cursor: grabbing;
+}
+
+.armory-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 48%, transparent 56%, rgba(10, 14, 16, 0.24) 100%);
+  z-index: 2;
+}
+
+/* 顶部居中战术铭牌 */
+.armory-hero-row {
+  position: absolute;
+  top: 14px;
+  left: 326px;
+  right: 334px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 11;
+  transition: left 200ms var(--ui-ease-out);
+}
+
+.armory-canvas-wrap.is-catalog-collapsed .armory-hero-row {
+  left: 160px;
+}
+
+.armory-hero-badge {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 16px;
+  border-radius: var(--ui-r-surface);
+  background: rgba(16, 18, 25, 0.80);
+  backdrop-filter: blur(12px) saturate(1.15);
+  border: 1px solid var(--ui-line-base);
+  box-shadow: var(--ui-rim-top), 0 8px 24px rgba(0, 0, 0, 0.34);
+  max-width: 100%;
+}
+
+.armory-hero-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--ui-r-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ui-line-subtle);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.armory-hero-meta {
+  min-width: 0;
+}
+
+.armory-stage-title {
+  margin: 0;
+  font-size: var(--ui-fs-lg);
+  line-height: 1.18;
+  color: var(--ui-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.armory-stage-sub {
+  display: block;
+  margin-top: 1px;
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-secondary);
+}
+
+/* 展开目录悬浮钮 */
+.armory-catalog-open {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 14;
+  background: rgba(16, 18, 25, 0.84);
+  backdrop-filter: blur(12px);
+}
+
+/* 左右毛玻璃悬浮抽屉 */
+.armory-drawer {
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  z-index: 12;
+  padding: 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(16, 18, 25, 0.82);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border: 1px solid var(--ui-line-base);
+  box-shadow: var(--ui-rim-top), 0 12px 32px rgba(0, 0, 0, 0.38);
+  transition: transform 220ms var(--ui-ease-out), opacity 180ms var(--ui-ease-out);
+}
+
+.armory-drawer--left {
+  left: 14px;
+  width: 298px;
+}
+
+.armory-drawer--left.is-collapsed {
+  transform: translateX(calc(-100% - 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.armory-drawer--right {
+  right: 14px;
+  width: 326px;
+}
+
+.armory-drawer-head {
+  margin-bottom: 0;
+  padding-bottom: 8px;
+}
+
+.armory-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.armory-list-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+#armory-list .ui-unit-card strong,
+#armory-list .ui-unit-card small {
+  grid-column: 2;
+}
+
+#armory-list .ui-unit-card:has(.armory-roster-flag) {
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+}
+
+.armory-roster-flag {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  align-self: center;
+  white-space: nowrap;
+  padding: 2px 6px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid var(--ui-line-accent);
+  background: var(--ui-state-select-fill);
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-fs-2xs);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ui-state-select);
+}
+
+.armory-dossier {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 62%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.armory-dossier > .ui-vd-card {
+  box-shadow: var(--ui-rim-top);
+}
+
+.dossier-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--ui-fs-xs);
+}
+
+.armory-roster-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.armory-roster-slots {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.armory-deploy-btn {
+  width: 100%;
+  justify-content: space-between;
+  flex: 0 0 auto;
+}
+
+/* 底部悬浮操控胶囊 */
+.armory-dock-row {
+  position: absolute;
+  left: 326px;
+  right: 334px;
+  bottom: 14px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 12;
+  transition: left 200ms var(--ui-ease-out);
+}
+
+.armory-canvas-wrap.is-catalog-collapsed .armory-dock-row {
+  left: 16px;
+}
+
+.armory-dock {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--ui-r-surface);
+  background: rgba(16, 18, 25, 0.84);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border: 1px solid var(--ui-line-base);
+  box-shadow: var(--ui-rim-top), 0 10px 26px rgba(0, 0, 0, 0.38);
+}
+
+.armory-loading-overlay {
+  position: absolute;
+  left: 50%;
+  bottom: 72px;
+  margin-left: -130px;
+  width: 260px;
+  z-index: 15;
+  pointer-events: none;
+  background: rgba(16, 18, 25, 0.84);
+  backdrop-filter: blur(8px);
+}
+
+/* ====== 系统设置 ====== */
+.settings-grid {
+  max-width: 780px;
+  width: 100%;
+  margin: 12px auto;
+}
+
+.settings-pod {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-hint {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-muted);
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ui-line-subtle);
+}
+
+@media (max-width: 1180px) {
+  .lobby-grid,
+  .brief-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell.is-armory {
+    height: auto;
+    min-height: 100dvh;
+    overflow: auto;
+  }
+
+  .armory-canvas-wrap {
+    min-height: 620px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .armory-drawer {
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+    max-height: 360px;
+  }
+
+  .armory-hero-row,
+  .armory-dock-row {
+    left: 12px;
+    right: 12px;
+  }
+}

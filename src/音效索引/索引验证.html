@@ -10,7 +10,10 @@
 </head>
 <body>
 <header class="masthead">
- <div><p class="eyebrow">载具声音档案 / 本地验证</p><h1>载具<span>声场</span></h1><p class="subtitle">从载具找到声音，从声音追溯载具。</p></div>
+ <div class="masthead-left">
+  <a class="back-home-btn" href="/" title="返回 Scavenger 作战大厅 (/)"><span aria-hidden="true">←</span><span>返回大厅</span></a>
+  <div><p class="eyebrow">载具声音档案 / 本地验证</p><h1>载具<span>声场</span></h1><p class="subtitle">从载具找到声音，从声音追溯载具。</p></div>
+ </div>
  <div class="sound-controls"><button id="unlock" class="primary">开启声音</button><label class="volume">总音量 <input id="volume" type="range" min="0" max="1" value="0.35" step="0.01"></label><label><input id="mute" type="checkbox">静音</label><button id="stop">停止全部</button></div>
 </header>
 <section class="overview" aria-label="索引概况"><div id="metrics">正在读取索引…</div><p id="message" role="status" aria-live="polite">选择型号查看绑定；声音和模型均按需加载。</p></section>

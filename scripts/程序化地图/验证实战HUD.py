@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT_ROOT = ROOT / "local-data/程序化地图/V001-fcf46de3/HUD实装验证-c7c1e6f7"
 
 
-def run_browser(channel: str, base_url: str, out_dir: Path, headed: bool = False) -> dict:
+def run_browser(channel: str, base_url: str, out_dir: Path, headed: bool = False, entry_path: str = "/") -> dict:
     out_dir.mkdir(parents=True, exist_ok=False)
     report: dict = {
         "channel": channel,
@@ -60,7 +60,8 @@ def run_browser(channel: str, base_url: str, out_dir: Path, headed: bool = False
         page.on("console", lambda msg: report["errors"].append(f"console.{msg.type}: {msg.text}") if msg.type == "error" else None)
 
         try:
-            page.goto(f"{base_url}/?aspect=16:9", wait_until="domcontentloaded", timeout=45000)
+            norm_path = entry_path if entry_path.startswith("/") else f"/{entry_path}"
+            page.goto(f"{base_url}{norm_path}?aspect=16:9", wait_until="domcontentloaded", timeout=45000)
             page.wait_for_function("() => window.__SCV_MAP__ && window.__SCV_MAP__.isCoreReady() === true", timeout=60000)
             report["browser_version"] = browser.version
             page.wait_for_timeout(600)
@@ -106,12 +107,16 @@ def run_browser(channel: str, base_url: str, out_dir: Path, headed: bool = False
                 scale_metrics[sz] = page.evaluate(
                     """() => {
                         const btn = document.getElementById('btn-toggle-editor');
-                        const cell = document.querySelector('.ui-cmd-cell');
+                        const cell = document.querySelector('#hud-cmd-grid .ui-cmd-wep-card');
+                        const items = [...document.querySelectorAll('#hud-cmd-grid .ui-cmd-wep-card, #hud-cmd-grid .ui-cmd-util-btn')];
                         const host = document.getElementById('canvas-host');
                         return {
                             uiSize: window.__SCV_MAP__.getUiHudState().uiSize,
                             btnH: Math.round(btn.getBoundingClientRect().height * 10) / 10,
-                            cmdH: Math.round(cell.getBoundingClientRect().height * 10) / 10,
+                            cmdH: Math.round((cell?.getBoundingClientRect().height || 0) * 10) / 10,
+                            cmdSvgCount: items.filter(c => Boolean(c.querySelector('svg'))).length,
+                            cmdSubCount: document.querySelectorAll('#hud-cmd-grid .c-sub').length,
+                            isPartitioned: Boolean(document.getElementById('hud-cmd-grid')?.classList.contains('is-partitioned')),
                             transform: getComputedStyle(host).transform,
                         };
                     }"""
@@ -119,11 +124,13 @@ def run_browser(channel: str, base_url: str, out_dir: Path, headed: bool = False
             ok_scale = (
                 scale_metrics["compact"]["btnH"] < scale_metrics["lg"]["btnH"] < scale_metrics["xl"]["btnH"]
                 and scale_metrics["compact"]["cmdH"] < scale_metrics["lg"]["cmdH"] < scale_metrics["xl"]["cmdH"]
+                and all(v["isPartitioned"] and v["cmdSvgCount"] == 6 and v["cmdSubCount"] == 0 for v in scale_metrics.values())
                 and all(v["transform"] == "none" for v in scale_metrics.values())
             )
             page.locator("#btn-load-100").click()
             page.locator("#btn-ed-add-bldg").click()
-            page.wait_for_timeout(400)
+            page.wait_for_function("() => (document.getElementById('ui-ed-obb')?.textContent || '').includes('1 个动态')", timeout=10000)
+            page.wait_for_timeout(120)
             after_edit = page.evaluate(
                 """() => ({
                     hud: window.__SCV_MAP__.getUiHudState(),
@@ -197,7 +204,7 @@ def run_browser(channel: str, base_url: str, out_dir: Path, headed: bool = False
                 },
             )
 
-            # 5. 2560×1080 视口下切换 21:9 (1588×680) Hor+ 核验顶栏正间距与底中净空
+            # 5. 2560×1080 视口下切换 21:9 (1588×680) Hor+ 核验顶栏正间距、放大 1:1 雷达、大图标指令舱与弹性居中卡片坞
             page.set_viewport_size({"width": 2560, "height": 1080})
             page.locator("#btn-quick-aspect").click()
             page.wait_for_timeout(350)
@@ -208,24 +215,69 @@ def run_browser(channel: str, base_url: str, out_dir: Path, headed: bool = False
                     const tc = document.querySelector('.scv-top-center').getBoundingClientRect();
                     const tr = document.querySelector('.scv-top-right').getBoundingClientRect();
                     const bl = document.querySelector('.scv-bl-wing').getBoundingClientRect();
+                    const deck = document.querySelector('.scv-card-deck').getBoundingClientRect();
                     const br = document.querySelector('.scv-br-wing').getBoundingClientRect();
+                    const mm = document.getElementById('hud-minimap-box').getBoundingClientRect();
+                    const cells = [...document.querySelectorAll('#hud-cmd-grid .ui-cmd-wep-card, #hud-cmd-grid .ui-cmd-util-btn')];
+                    const radarDock = document.getElementById('hud-radar-dock').getBoundingClientRect();
+                    const pipSt = window.__SCV_MAP__.getPipCamState();
                     return {
                         canvasAttr: cv ? [cv.width, cv.height] : null,
                         hud: window.__SCV_MAP__.getUiHudState(),
                         topGapL: Math.round(tc.left - tl.right),
                         topGapR: Math.round(tr.left - tc.right),
                         bottomCenterClearance: Math.round(br.left - bl.right),
+                        deckWidth: Math.round(deck.width),
+                        deckHeight: Math.round(deck.height),
+                        rightDockWidth: Math.round(br.width),
+                        mmWidth: Math.round(mm.width * 10) / 10,
+                        mmHeight: Math.round(mm.height * 10) / 10,
+                        radarRightDiffH: Math.round(Math.abs(radarDock.height - br.height)),
+                        hasDeployRail: Boolean(document.getElementById('hud-deploy-rail')),
+                        pipFrameCount: pipSt?.frameCount || 0,
+                        pipEnvExcluded: Boolean(pipSt?.environmentExcluded),
+                        pipShadowSkipped: Boolean(pipSt?.shadowMapSkipped),
+                        pipDrawCalls: Number(pipSt?.lastDrawCalls || 0),
+                        pipTriangles: Number(pipSt?.lastTriangles || 0),
+                        pipDurationMs: Number(pipSt?.lastDurationMs || 0),
+                        isPartitioned: Boolean(document.getElementById('hud-cmd-grid')?.classList.contains('is-partitioned')),
+                        cmdGridH: Math.round((document.getElementById('hud-cmd-grid')?.getBoundingClientRect().height || 0) * 10) / 10,
+                        cmdSvgCount: cells.filter(c => Boolean(c.querySelector('svg'))).length,
+                        cmdSubCount: document.querySelectorAll('#hud-cmd-grid .c-sub').length,
+                        threeBaysNoOverlap: bl.right <= deck.left + 2 && deck.right <= br.left + 2,
                     };
                 }"""
             )
+            page.locator('#hud-cmd-pager button[data-cmd-page="move"]').click()
+            page.wait_for_timeout(120)
+            move_grid_h = page.evaluate("Math.round((document.getElementById('hud-cmd-grid')?.getBoundingClientRect().height || 0) * 10) / 10")
+            page.locator('#hud-cmd-pager button[data-cmd-page="attack"]').click()
+            page.wait_for_timeout(300)
+            wide_metrics["moveCmdGridH"] = move_grid_h
             ok_wide = (
                 wide_metrics["canvasAttr"] == [1588, 680]
                 and wide_metrics["hud"]["aspectKey"] == "21:9"
                 and wide_metrics["topGapL"] > 0
                 and wide_metrics["topGapR"] > 0
                 and wide_metrics["bottomCenterClearance"] > 300
+                and wide_metrics["threeBaysNoOverlap"] is True
+                and 300 <= wide_metrics["deckWidth"] < wide_metrics["bottomCenterClearance"] - 200
+                and wide_metrics["deckHeight"] <= 156
+                and wide_metrics["mmWidth"] >= 268
+                and abs(wide_metrics["mmWidth"] - wide_metrics["mmHeight"]) <= 1.5
+                and wide_metrics["rightDockWidth"] >= 400
+                and wide_metrics["radarRightDiffH"] <= 18
+                and wide_metrics["hasDeployRail"] is True
+                and wide_metrics["pipFrameCount"] >= 1
+                and wide_metrics["pipEnvExcluded"] is True
+                and wide_metrics["pipShadowSkipped"] is True
+                and 1 <= wide_metrics["pipDrawCalls"] <= 48
+                and wide_metrics["isPartitioned"] is True
+                and abs(wide_metrics["cmdGridH"] - move_grid_h) <= 1.0
+                and wide_metrics["cmdSvgCount"] == 6
+                and wide_metrics["cmdSubCount"] == 0
             )
-            record("2560x1080下21:9 680p Hor+画布与顶栏底中净空校验", ok_wide, wide_metrics)
+            record("2560x1080下21:9 680p Hor+画布与放大1:1雷达、大图标指令舱及弹性卡片坞校验", ok_wide, wide_metrics)
             page.screenshot(path=str(out_dir / "04-21x9-2560超宽实景.png"))
 
             record("控制台与页面零报错", len(report["errors"]) == 0, report["errors"])
@@ -244,15 +296,20 @@ def run_browser(channel: str, base_url: str, out_dir: Path, headed: bool = False
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=8821)
+    parser.add_argument("--port", type=int, default=8800)
+    parser.add_argument("--path", default="/play", help="主入口路由路径（如 / 或 /play）")
     parser.add_argument("--channel", choices=["chrome", "msedge", "both"], default="both")
+    parser.add_argument("--out-base", default=str(OUT_ROOT), help="输出根目录")
     parser.add_argument("--run", required=True, help="本轮独立输出目录名")
     parser.add_argument("--headed", action="store_true", help="使用有窗口模式运行")
     args = parser.parse_args()
     if Path(args.run).name != args.run or not args.run:
         raise ValueError("--run 只接受单个目录名")
 
-    run_root = OUT_ROOT / args.run
+    out_base = Path(args.out_base)
+    if not out_base.is_absolute():
+        out_base = ROOT / out_base
+    run_root = out_base / args.run
     if run_root.exists():
         raise FileExistsError(f"输出目录已存在，拒绝覆盖：{run_root.relative_to(ROOT).as_posix()}")
 
@@ -263,9 +320,9 @@ def main() -> int:
         raise RuntimeError(f"预览服务健康检查异常：{health}")
 
     channels = ["chrome", "msedge"] if args.channel == "both" else [args.channel]
-    summary = {"run": args.run, "port": args.port, "channels": {}}
+    summary = {"run": args.run, "port": args.port, "path": args.path, "channels": {}}
     for ch in channels:
-        rep = run_browser(ch, base_url, run_root / ch, headed=args.headed)
+        rep = run_browser(ch, base_url, run_root / ch, headed=args.headed, entry_path=args.path)
         summary["channels"][ch] = {"passed": rep["passed"], "checks": len(rep["checks"])}
 
     (run_root / "汇总摘要.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

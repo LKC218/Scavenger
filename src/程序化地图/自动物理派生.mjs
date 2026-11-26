@@ -184,12 +184,55 @@ export class AutoPhysicsAndNavEngine {
 
     // 缓存每个 125m 格解码出的源 OBB 列表
     this._cellSourceOBBs = new Map();
+    // 建筑/障碍变更通知监听（供战争迷雾静态 OBB 遮挡缓存实时局部失效）
+    this._occlusionDirtyListeners = new Set();
     this.stats = {
       recalcCount: 0,
       lastRecalcMs: 0,
       dirtyCellsCount: 0,
       activeDynamicOBBs: 0,
     };
+  }
+
+  /**
+   * 订阅建筑/碰撞体变更事件（编辑器增删改或导入场景后立即通知迷雾等只读缓存失效）。
+   */
+  onOcclusionDirty(listener) {
+    if (typeof listener !== 'function') return () => {};
+    this._occlusionDirtyListeners.add(listener);
+    return () => {
+      this._occlusionDirtyListeners.delete(listener);
+    };
+  }
+
+  _notifyOcclusionDirty(x = null, z = null, radiusM = null) {
+    if (this._occlusionDirtyListeners.size === 0) return;
+    const payload = { x, z, radiusM };
+    for (const fn of this._occlusionDirtyListeners) {
+      try {
+        fn(payload);
+      } catch {
+        // 隔离下游监听异常，不影响物理派生主链
+      }
+    }
+  }
+
+  _isSourceOBBSuppressed(obb) {
+    if (this.deletedKeys.size === 0 && this.modifiedInstances.size === 0) return false;
+    for (const delKey of this.deletedKeys) {
+      if (
+        delKey === obb.sourceKey ||
+        (typeof delKey === 'object' && Math.hypot(delKey.x - obb.center[0], delKey.z - obb.center[2]) < 6.0)
+      ) {
+        return true;
+      }
+    }
+    for (const mod of this.modifiedInstances.values()) {
+      if (mod.origPos && Math.hypot(mod.origPos[0] - obb.center[0], mod.origPos[2] - obb.center[2]) < 8.0) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -355,129 +398,498 @@ export class AutoPhysicsAndNavEngine {
   }
 
   /**
+   * 纯建筑旋转 OBB 点遮挡判定（零数组分配，剥离地形坡度与水域查询，专供战争迷雾视线判定）。
+   */
+  isPointBlockedByBuildingOBB(px, pz, clearance = 1.5) {
+    const pad = clearance + 2.0;
+    const minX = px - pad;
+    const maxX = px + pad;
+    const minZ = pz - pad;
+    const maxZ = pz + pad;
+
+    if (this.collisionIndex) {
+      const { minX: gMinX, minZ: gMinZ, chunkM, gridX, gridZ } = this.collisionIndex;
+      const cx0 = Math.max(0, Math.min(gridX - 1, Math.floor((minX - gMinX) / chunkM)));
+      const cx1 = Math.max(0, Math.min(gridX - 1, Math.floor((maxX - gMinX) / chunkM)));
+      const cz0 = Math.max(0, Math.min(gridZ - 1, Math.floor((minZ - gMinZ) / chunkM)));
+      const cz1 = Math.max(0, Math.min(gridZ - 1, Math.floor((maxZ - gMinZ) / chunkM)));
+
+      for (let cz = cz0; cz <= cz1; cz++) {
+        for (let cx = cx0; cx <= cx1; cx++) {
+          const srcList = this.getSourceCellOBBs(cx, cz);
+          for (let i = 0; i < srcList.length; i++) {
+            const obb = srcList[i];
+            if (
+              obb.aabb[3] < minX || obb.aabb[0] > maxX ||
+              obb.aabb[5] < minZ || obb.aabb[2] > maxZ
+            ) continue;
+            if (this._isSourceOBBSuppressed(obb)) continue;
+            const dx = px - obb.center[0];
+            const dz = pz - obb.center[2];
+            const lx = Math.abs(dx * obb.axisX[0] + dz * obb.axisX[1]);
+            if (lx > obb.halfExtents[0] + clearance) continue;
+            const lz = Math.abs(dx * obb.axisZ[0] + dz * obb.axisZ[1]);
+            if (lz <= obb.halfExtents[2] + clearance) return true;
+          }
+        }
+      }
+    }
+
+    for (const item of this.addedInstances.values()) {
+      const obb = item.obb;
+      if (
+        obb.aabb[3] < minX || obb.aabb[0] > maxX ||
+        obb.aabb[5] < minZ || obb.aabb[2] > maxZ
+      ) continue;
+      const dx = px - obb.center[0];
+      const dz = pz - obb.center[2];
+      const lx = Math.abs(dx * obb.axisX[0] + dz * obb.axisX[1]);
+      if (lx > obb.halfExtents[0] + clearance) continue;
+      const lz = Math.abs(dx * obb.axisZ[0] + dz * obb.axisZ[1]);
+      if (lz <= obb.halfExtents[2] + clearance) return true;
+    }
+
+    for (const mod of this.modifiedInstances.values()) {
+      const obb = mod.obb;
+      if (
+        obb.aabb[3] < minX || obb.aabb[0] > maxX ||
+        obb.aabb[5] < minZ || obb.aabb[2] > maxZ
+      ) continue;
+      const dx = px - obb.center[0];
+      const dz = pz - obb.center[2];
+      const lx = Math.abs(dx * obb.axisX[0] + dz * obb.axisX[1]);
+      if (lx > obb.halfExtents[0] + clearance) continue;
+      const lz = Math.abs(dx * obb.axisZ[0] + dz * obb.axisZ[1]);
+      if (lz <= obb.halfExtents[2] + clearance) return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * 纯建筑 OBB 块级覆盖光栅化（专供战争迷雾 512×512 静态遮挡位图按需填充）：
+   * - 仅判定旋转建筑 OBB，完全剥离与迷雾高程射线重复的 4× 坡度与水域查询；
+   * - 使用 2D OBB vs 格网矩形分离轴（SAT）覆盖写入，宽度 < 11.6m 的薄墙/窄建筑同样可靠标记为 2（阻挡）。
+   */
+  rasterizeBuildingOcclusionRegion(outGrid, gridW, gridH, bounds, ix0, iz0, ix1, iz1, clearance = 1.5) {
+    if (!outGrid || !bounds || gridW <= 0 || gridH <= 0) return;
+    const minX = bounds.minX;
+    const minZ = bounds.minZ;
+    const spanX = Math.max(1, bounds.maxX - minX);
+    const spanZ = Math.max(1, bounds.maxZ - minZ);
+    const cellW = spanX / gridW;
+    const cellH = spanZ / gridH;
+    const invCellW = gridW / spanX;
+    const invCellH = gridH / spanZ;
+    const halfCellX = cellW * 0.5;
+    const halfCellZ = cellH * 0.5;
+
+    const cIx0 = Math.max(0, ix0);
+    const cIz0 = Math.max(0, iz0);
+    const cIx1 = Math.min(gridW - 1, ix1);
+    const cIz1 = Math.min(gridH - 1, iz1);
+    if (cIx0 > cIx1 || cIz0 > cIz1) return;
+
+    const rMinX = minX + cIx0 * cellW - clearance;
+    const rMaxX = minX + (cIx1 + 1) * cellW + clearance;
+    const rMinZ = minZ + cIz0 * cellH - clearance;
+    const rMaxZ = minZ + (cIz1 + 1) * cellH + clearance;
+
+    const stampOBB = (obb) => {
+      if (
+        obb.aabb[3] < rMinX || obb.aabb[0] > rMaxX ||
+        obb.aabb[5] < rMinZ || obb.aabb[2] > rMaxZ
+      ) return;
+      const cx = obb.center[0];
+      const cz = obb.center[2];
+      const hx = obb.halfExtents[0] + clearance;
+      const hz = obb.halfExtents[2] + clearance;
+      const ax0 = obb.axisX ? obb.axisX[0] : 1;
+      const ax1 = obb.axisX ? obb.axisX[1] : 0;
+      const az0 = obb.axisZ ? obb.axisZ[0] : 0;
+      const az1 = obb.axisZ ? obb.axisZ[1] : 1;
+
+      const extX = Math.abs(ax0) * hx + Math.abs(az0) * hz;
+      const extZ = Math.abs(ax1) * hx + Math.abs(az1) * hz;
+      const oMinX = cx - extX;
+      const oMaxX = cx + extX;
+      const oMinZ = cz - extZ;
+      const oMaxZ = cz + extZ;
+
+      const gx0 = Math.max(cIx0, Math.floor((oMinX - minX) * invCellW));
+      const gx1 = Math.min(cIx1, Math.floor((oMaxX - minX) * invCellW));
+      const gz0 = Math.max(cIz0, Math.floor((oMinZ - minZ) * invCellH));
+      const gz1 = Math.min(cIz1, Math.floor((oMaxZ - minZ) * invCellH));
+      if (gx0 > gx1 || gz0 > gz1) return;
+
+      const limX = hx + Math.abs(ax0) * halfCellX + Math.abs(ax1) * halfCellZ;
+      const limZ = hz + Math.abs(az0) * halfCellX + Math.abs(az1) * halfCellZ;
+
+      for (let iz = gz0; iz <= gz1; iz++) {
+        const dz = minZ + (iz + 0.5) * cellH - cz;
+        const rowOff = iz * gridW;
+        for (let ix = gx0; ix <= gx1; ix++) {
+          const idx = rowOff + ix;
+          if (outGrid[idx] === 2) continue;
+          const dx = minX + (ix + 0.5) * cellW - cx;
+          if (Math.abs(dx * ax0 + dz * ax1) <= limX && Math.abs(dx * az0 + dz * az1) <= limZ) {
+            outGrid[idx] = 2;
+          }
+        }
+      }
+    };
+
+    if (this.collisionIndex) {
+      const { minX: gMinX, minZ: gMinZ, chunkM, gridX, gridZ } = this.collisionIndex;
+      const cx0 = Math.max(0, Math.min(gridX - 1, Math.floor((rMinX - gMinX) / chunkM)));
+      const cx1 = Math.max(0, Math.min(gridX - 1, Math.floor((rMaxX - gMinX) / chunkM)));
+      const cz0 = Math.max(0, Math.min(gridZ - 1, Math.floor((rMinZ - gMinZ) / chunkM)));
+      const cz1 = Math.max(0, Math.min(gridZ - 1, Math.floor((rMaxZ - gMinZ) / chunkM)));
+      for (let cz = cz0; cz <= cz1; cz++) {
+        for (let cx = cx0; cx <= cx1; cx++) {
+          const srcList = this.getSourceCellOBBs(cx, cz);
+          for (let i = 0; i < srcList.length; i++) {
+            const obb = srcList[i];
+            if (
+              obb.aabb[3] < rMinX || obb.aabb[0] > rMaxX ||
+              obb.aabb[5] < rMinZ || obb.aabb[2] > rMaxZ
+            ) continue;
+            if (this._isSourceOBBSuppressed(obb)) continue;
+            stampOBB(obb);
+          }
+        }
+      }
+    }
+
+    for (const item of this.addedInstances.values()) {
+      stampOBB(item.obb);
+    }
+    for (const mod of this.modifiedInstances.values()) {
+      stampOBB(mod.obb);
+    }
+  }
+
+  /**
    * 在 4 米局部寻路网格上使用 A* 搜索从 (startX, startZ) 到 (goalX, goalZ) 的平滑绕行路径。
+   * 采用 OBB 反向包围盒光栅化 + TypedArray 最小二叉堆 + inOpen 去重 + 共线拐点抽稀。
    */
   findLocalPath4m(startX, startZ, goalX, goalZ, clearance = 5.5) {
     const step = 4.0;
+    const invStep = 1.0 / step;
     const pad = 80.0;
     const minX = Math.min(startX, goalX) - pad;
     const maxX = Math.max(startX, goalX) + pad;
     const minZ = Math.min(startZ, goalZ) - pad;
     const maxZ = Math.max(startZ, goalZ) + pad;
 
-    const cols = Math.min(160, Math.max(16, Math.ceil((maxX - minX) / step)));
-    const rows = Math.min(160, Math.max(16, Math.ceil((maxZ - minZ) / step)));
-    const obbs = this.getActiveOBBsInBounds(minX - clearance, minZ - clearance, maxX + clearance, maxZ + clearance);
+    const cols = Math.min(160, Math.max(16, Math.ceil((maxX - minX) * invStep)));
+    const rows = Math.min(160, Math.max(16, Math.ceil((maxZ - minZ) * invStep)));
+    const total = cols * rows;
+    const blockedGrid = new Uint8Array(total);
 
-    const isCellBlocked = (ix, iz) => {
-      const px = minX + (ix + 0.5) * step;
-      const pz = minZ + (iz + 0.5) * step;
-      for (const obb of obbs) {
-        const dx = px - obb.center[0];
-        const dz = pz - obb.center[2];
-        const lx = Math.abs(dx * obb.axisX[0] + dz * obb.axisX[1]);
-        const lz = Math.abs(dx * obb.axisZ[0] + dz * obb.axisZ[1]);
-        if (lx <= obb.halfExtents[0] + clearance && lz <= obb.halfExtents[2] + clearance) {
-          return true;
+    // 1. 构建水域与 >30° 陡坡地形阻挡标记（零对象分配直读高度场或兼容单测 mock support）
+    const hf = this.support?.hf;
+    if (hf && hf.qGrid) {
+      const {
+        width: hfW,
+        height: hfH,
+        minX: hfMinX,
+        minZ: hfMinZ,
+        stepX: hfStepX,
+        stepZ: hfStepZ,
+        qGrid,
+        roleGrid,
+        roleGridHalf,
+        halfWidth,
+      } = hf;
+      const scaleH = this.support.scaleH || ((hf.maxH - hf.minH) / 65534.0);
+      const invHfStepX = 1.0 / (hfStepX || 2.0);
+      const invHfStepZ = 1.0 / (hfStepZ || 2.0);
+      for (let iz = 0; iz < rows; iz++) {
+        const pz = minZ + (iz + 0.5) * step;
+        const cpz = Math.max(0, Math.min(hfH - 2, (pz - hfMinZ) * invHfStepZ | 0));
+        const rowOff = iz * cols;
+        const hfRowOff = cpz * hfW;
+        for (let ix = 0; ix < cols; ix++) {
+          const px = minX + (ix + 0.5) * step;
+          const cpx = Math.max(0, Math.min(hfW - 2, (px - hfMinX) * invHfStepX | 0));
+          const i00 = hfRowOff + cpx;
+          const q00 = qGrid[i00];
+          if (q00 === 65535) {
+            blockedGrid[rowOff + ix] = 1;
+            continue;
+          }
+          let role = 1;
+          if (roleGrid) {
+            role = roleGrid[i00] || 1;
+          } else if (roleGridHalf) {
+            role = roleGridHalf[(cpz >> 1) * halfWidth + (cpx >> 1)] || 1;
+          }
+          if (role === 5) {
+            blockedGrid[rowOff + ix] = 1;
+            continue;
+          }
+          const gx = (qGrid[i00 + 1] - q00) * scaleH * invHfStepX;
+          const gz = (qGrid[i00 + hfW] - q00) * scaleH * invHfStepZ;
+          if (gx * gx + gz * gz > 0.3364) {
+            blockedGrid[rowOff + ix] = 1;
+          }
         }
       }
-      return false;
-    };
-
-    const sx = Math.max(0, Math.min(cols - 1, Math.floor((startX - minX) / step)));
-    const sz = Math.max(0, Math.min(rows - 1, Math.floor((startZ - minZ) / step)));
-    const gx = Math.max(0, Math.min(cols - 1, Math.floor((goalX - minX) / step)));
-    const gz = Math.max(0, Math.min(rows - 1, Math.floor((goalZ - minZ) / step)));
-
-    const total = cols * rows;
-    const gScore = new Float32Array(total).fill(1e9);
-    const parent = new Int32Array(total).fill(-1);
-    const closed = new Uint8Array(total);
-    const blockedGrid = new Uint8Array(total);
-    for (let iz = 0; iz < rows; iz++) {
-      for (let ix = 0; ix < cols; ix++) {
-        blockedGrid[iz * cols + ix] = isCellBlocked(ix, iz) ? 1 : 0;
+    } else if (typeof this.support?.query === 'function') {
+      for (let iz = 0; iz < rows; iz++) {
+        const pz = minZ + (iz + 0.5) * step;
+        const rowOff = iz * cols;
+        for (let ix = 0; ix < cols; ix++) {
+          const px = minX + (ix + 0.5) * step;
+          const sup = this.support.query(px, pz);
+          if (sup && (sup.waterDepth > 0.4 || sup.role === 5)) {
+            blockedGrid[rowOff + ix] = 1;
+          }
+        }
       }
     }
+
+    // 2. OBB 反向光栅化：仅遍历每个活动 OBB 在局部网格中（含 clearance 扩张）覆盖的包围盒格
+    const obbs = this.getActiveOBBsInBounds(minX - clearance, minZ - clearance, maxX + clearance, maxZ + clearance);
+    for (let k = 0; k < obbs.length; k++) {
+      const obb = obbs[k];
+      const cx = obb.center[0];
+      const cz = obb.center[2];
+      const hx = obb.halfExtents[0] + clearance;
+      const hz = obb.halfExtents[2] + clearance;
+      const ax0 = obb.axisX ? obb.axisX[0] : 1;
+      const ax1 = obb.axisX ? obb.axisX[1] : 0;
+      const az0 = obb.axisZ ? obb.axisZ[0] : 0;
+      const az1 = obb.axisZ ? obb.axisZ[1] : 1;
+
+      const extX = Math.abs(ax0) * hx + Math.abs(az0) * hz;
+      const extZ = Math.abs(ax1) * hx + Math.abs(az1) * hz;
+      const oMinX = cx - extX;
+      const oMaxX = cx + extX;
+      const oMinZ = cz - extZ;
+      const oMaxZ = cz + extZ;
+
+      if (oMaxX < minX || oMinX > maxX || oMaxZ < minZ || oMinZ > maxZ) continue;
+
+      const gx0 = Math.max(0, Math.floor((oMinX - minX) * invStep));
+      const gx1 = Math.min(cols - 1, Math.floor((oMaxX - minX) * invStep));
+      const gz0 = Math.max(0, Math.floor((oMinZ - minZ) * invStep));
+      const gz1 = Math.min(rows - 1, Math.floor((oMaxZ - minZ) * invStep));
+
+      for (let iz = gz0; iz <= gz1; iz++) {
+        const pz = minZ + (iz + 0.5) * step;
+        const dz = pz - cz;
+        const rowOff = iz * cols;
+        for (let ix = gx0; ix <= gx1; ix++) {
+          const idx = rowOff + ix;
+          if (blockedGrid[idx]) continue;
+          const px = minX + (ix + 0.5) * step;
+          const dx = px - cx;
+          const lx = Math.abs(dx * ax0 + dz * ax1);
+          if (lx > hx) continue;
+          const lz = Math.abs(dx * az0 + dz * az1);
+          if (lz <= hz) {
+            blockedGrid[idx] = 1;
+          }
+        }
+      }
+    }
+
+    const sx = Math.max(0, Math.min(cols - 1, Math.floor((startX - minX) * invStep)));
+    const sz = Math.max(0, Math.min(rows - 1, Math.floor((startZ - minZ) * invStep)));
+    const gx = Math.max(0, Math.min(cols - 1, Math.floor((goalX - minX) * invStep)));
+    const gz = Math.max(0, Math.min(rows - 1, Math.floor((goalZ - minZ) * invStep)));
+
     // 起点与终点自身放行
     const startIdx = sz * cols + sx;
     const goalIdx = gz * cols + gx;
     blockedGrid[startIdx] = 0;
     blockedGrid[goalIdx] = 0;
 
-    const open = [startIdx];
+    // 3. TypedArray 最小二叉堆 + inOpen 去重 A* 搜索
+    const gScore = new Float32Array(total).fill(1e9);
+    const fScore = new Float32Array(total).fill(1e9);
+    const parent = new Int32Array(total).fill(-1);
+    const closed = new Uint8Array(total);
+    const inOpen = new Uint8Array(total);
+    const heap = new Int32Array(total + 1);
+    const heapPos = new Int32Array(total).fill(-1);
+    let heapSize = 0;
+
+    const siftUp = (pos) => {
+      const node = heap[pos];
+      const f = fScore[node];
+      let p = pos;
+      while (p > 1) {
+        const parentPos = p >> 1;
+        const parentNode = heap[parentPos];
+        if (fScore[parentNode] <= f) break;
+        heap[p] = parentNode;
+        heapPos[parentNode] = p;
+        p = parentPos;
+      }
+      heap[p] = node;
+      heapPos[node] = p;
+    };
+
+    const siftDown = (pos) => {
+      const node = heap[pos];
+      const f = fScore[node];
+      let p = pos;
+      const half = heapSize >> 1;
+      while (p <= half) {
+        let child = p << 1;
+        let childNode = heap[child];
+        let childF = fScore[childNode];
+        const right = child + 1;
+        if (right <= heapSize) {
+          const rightNode = heap[right];
+          const rightF = fScore[rightNode];
+          if (rightF < childF) {
+            child = right;
+            childNode = rightNode;
+            childF = rightF;
+          }
+        }
+        if (f <= childF) break;
+        heap[p] = childNode;
+        heapPos[childNode] = p;
+        p = child;
+      }
+      heap[p] = node;
+      heapPos[node] = p;
+    };
+
+    const pushOpen = (node) => {
+      heapSize += 1;
+      heap[heapSize] = node;
+      heapPos[node] = heapSize;
+      inOpen[node] = 1;
+      siftUp(heapSize);
+    };
+
+    const popOpen = () => {
+      const top = heap[1];
+      inOpen[top] = 0;
+      heapPos[top] = -1;
+      const last = heap[heapSize];
+      heapSize -= 1;
+      if (heapSize > 0) {
+        heap[1] = last;
+        heapPos[last] = 1;
+        siftDown(1);
+      }
+      return top;
+    };
+
     gScore[startIdx] = 0;
-    const dirs = [
-      [1, 0, 1.0], [-1, 0, 1.0], [0, 1, 1.0], [0, -1, 1.0],
-      [1, 1, 1.414], [1, -1, 1.414], [-1, 1, 1.414], [-1, -1, 1.414],
-    ];
+    fScore[startIdx] = Math.hypot(gx - sx, gz - sz);
+    pushOpen(startIdx);
+
+    const dirDX = [1, -1, 0, 0, 1, 1, -1, -1];
+    const dirDZ = [0, 0, 1, -1, 1, -1, 1, -1];
+    const dirCost = [1.0, 1.0, 1.0, 1.0, 1.414, 1.414, 1.414, 1.414];
 
     let found = false;
-    while (open.length > 0) {
-      let bestPos = 0;
-      let bestF = 1e9;
-      for (let i = 0; i < open.length; i++) {
-        const u = open[i];
-        const ux = u % cols;
-        const uz = Math.floor(u / cols);
-        const f = gScore[u] + Math.hypot(gx - ux, gz - uz);
-        if (f < bestF) {
-          bestF = f;
-          bestPos = i;
-        }
-      }
-      const cur = open[bestPos];
-      open.splice(bestPos, 1);
+    let expanded = 0;
+    while (heapSize > 0) {
+      const cur = popOpen();
       if (cur === goalIdx) {
         found = true;
         break;
       }
       if (closed[cur]) continue;
       closed[cur] = 1;
+      expanded += 1;
 
-      const cx = cur % cols;
-      const cz = Math.floor(cur / cols);
-      for (const [dx, dz, cost] of dirs) {
+      const cz = (cur / cols) | 0;
+      const cx = cur - cz * cols;
+      const curG = gScore[cur];
+
+      for (let d = 0; d < 8; d++) {
+        const dx = dirDX[d];
+        const dz = dirDZ[d];
         const nx = cx + dx;
         const nz = cz + dz;
         if (nx < 0 || nx >= cols || nz < 0 || nz >= rows) continue;
         const nIdx = nz * cols + nx;
         if (closed[nIdx] || blockedGrid[nIdx]) continue;
         // 防止对角线穿墙角
-        if (dx !== 0 && dz !== 0) {
+        if (d >= 4) {
           if (blockedGrid[cz * cols + nx] || blockedGrid[nz * cols + cx]) continue;
         }
-        const tentativeG = gScore[cur] + cost;
+        const tentativeG = curG + dirCost[d];
         if (tentativeG < gScore[nIdx]) {
           gScore[nIdx] = tentativeG;
+          fScore[nIdx] = tentativeG + Math.hypot(gx - nx, gz - nz);
           parent[nIdx] = cur;
-          open.push(nIdx);
+          if (inOpen[nIdx]) {
+            siftUp(heapPos[nIdx]);
+          } else {
+            pushOpen(nIdx);
+          }
         }
       }
     }
 
+    // 4. 回溯路径并做轻量共线中间格点抽稀（保留全部绕障拐点与首尾点）
     const waypoints = [];
     if (found) {
+      const rawCells = [];
       let curr = goalIdx;
       while (curr !== -1) {
-        const ix = curr % cols;
-        const iz = Math.floor(curr / cols);
-        const wx = curr === startIdx ? startX : (curr === goalIdx ? goalX : minX + (ix + 0.5) * step);
-        const wz = curr === startIdx ? startZ : (curr === goalIdx ? goalZ : minZ + (iz + 0.5) * step);
-        const wy = this.support.heightAt(wx, wz) || 0;
-        waypoints.push([wx, wy + 0.25, wz]);
+        rawCells.push(curr);
         curr = parent[curr];
       }
-      waypoints.reverse();
+      rawCells.reverse();
+
+      const keptCells = [rawCells[0]];
+      for (let i = 1; i < rawCells.length - 1; i++) {
+        const prevCell = keptCells[keptCells.length - 1];
+        const curCell = rawCells[i];
+        const nextCell = rawCells[i + 1];
+        const pz = (prevCell / cols) | 0;
+        const px = prevCell - pz * cols;
+        const cz = (curCell / cols) | 0;
+        const cx = curCell - cz * cols;
+        const nz = (nextCell / cols) | 0;
+        const nx = nextCell - nz * cols;
+        const vx1 = cx - px;
+        const vz1 = cz - pz;
+        const vx2 = nx - cx;
+        const vz2 = nz - cz;
+        const cross = Math.abs(vx1 * vz2 - vz1 * vx2);
+        const dot = vx1 * vx2 + vz1 * vz2;
+        const spanCells = Math.hypot(nx - px, nz - pz);
+        if (cross === 0 && dot > 0 && spanCells <= 16) {
+          continue;
+        }
+        keptCells.push(curCell);
+      }
+      if (rawCells.length > 1) {
+        keptCells.push(rawCells[rawCells.length - 1]);
+      }
+
+      for (let i = 0; i < keptCells.length; i++) {
+        const cell = keptCells[i];
+        const iz = (cell / cols) | 0;
+        const ix = cell - iz * cols;
+        const wx = cell === startIdx ? startX : (cell === goalIdx ? goalX : minX + (ix + 0.5) * step);
+        const wz = cell === startIdx ? startZ : (cell === goalIdx ? goalZ : minZ + (iz + 0.5) * step);
+        const wy = this.support?.heightAt?.(wx, wz) || 0;
+        waypoints.push([wx, wy + 0.25, wz]);
+      }
     } else {
-      const sy = this.support.heightAt(startX, startZ) || 0;
-      const gy = this.support.heightAt(goalX, goalZ) || 0;
+      const sy = this.support?.heightAt?.(startX, startZ) || 0;
+      const gy = this.support?.heightAt?.(goalX, goalZ) || 0;
       waypoints.push([startX, sy + 0.25, startZ], [goalX, gy + 0.25, goalZ]);
     }
 
     return {
       found,
       waypoints,
+      expanded,
       gridBounds: {minX, minZ, step, cols, rows},
       blockedGrid,
       activeOBBs: obbs,
@@ -595,6 +1007,8 @@ export class AutoPhysicsAndNavEngine {
     this.addedInstances.set(instId, record);
     this._recordRecalc(t0);
     record.recalcMs = this.stats.lastRecalcMs;
+    const rad = Math.max(48, Math.hypot(obb.aabb[3] - obb.aabb[0], obb.aabb[5] - obb.aabb[2]) * 0.5 + 32);
+    this._notifyOcclusionDirty(obb.center[0], obb.center[2], rad);
     return record;
   }
 
@@ -605,6 +1019,7 @@ export class AutoPhysicsAndNavEngine {
     const t0 = performance.now();
     if (this.addedInstances.has(instanceKey)) {
       const cur = this.addedInstances.get(instanceKey);
+      const prevObb = cur.obb;
       const nextProtoId = prototype_id ?? cur.prototype_id;
       const protoMeta = this.protoById.get(nextProtoId) || this.bldgProtoByIndex[0];
       const nextXZ = position ? [position[0], position[2]] : [cur.position[0], cur.position[2]];
@@ -626,10 +1041,17 @@ export class AutoPhysicsAndNavEngine {
       };
       this.addedInstances.set(instanceKey, updated);
       this._recordRecalc(t0);
+      if (prevObb) {
+        const prevRad = Math.max(48, Math.hypot(prevObb.aabb[3] - prevObb.aabb[0], prevObb.aabb[5] - prevObb.aabb[2]) * 0.5 + 32);
+        this._notifyOcclusionDirty(prevObb.center[0], prevObb.center[2], prevRad);
+      }
+      const nextRad = Math.max(48, Math.hypot(obb.aabb[3] - obb.aabb[0], obb.aabb[5] - obb.aabb[2]) * 0.5 + 32);
+      this._notifyOcclusionDirty(obb.center[0], obb.center[2], nextRad);
       return updated;
     }
 
     const prev = this.modifiedInstances.get(instanceKey) || {};
+    const prevObb = prev.obb || null;
     const nextProtoId = prototype_id ?? prev.prototype_id ?? this.bldgProtoByIndex[0].id;
     const protoMeta = this.protoById.get(nextProtoId) || this.bldgProtoByIndex[0];
     const basePos = position ?? prev.position ?? [0, 0, 0];
@@ -652,6 +1074,14 @@ export class AutoPhysicsAndNavEngine {
     };
     this.modifiedInstances.set(instanceKey, record);
     this._recordRecalc(t0);
+    if (prevObb) {
+      const prevRad = Math.max(48, Math.hypot(prevObb.aabb[3] - prevObb.aabb[0], prevObb.aabb[5] - prevObb.aabb[2]) * 0.5 + 32);
+      this._notifyOcclusionDirty(prevObb.center[0], prevObb.center[2], prevRad);
+    } else if (record.origPos) {
+      this._notifyOcclusionDirty(record.origPos[0], record.origPos[2], 64);
+    }
+    const nextRad = Math.max(48, Math.hypot(obb.aabb[3] - obb.aabb[0], obb.aabb[5] - obb.aabb[2]) * 0.5 + 32);
+    this._notifyOcclusionDirty(obb.center[0], obb.center[2], nextRad);
     return record;
   }
 
@@ -660,6 +1090,7 @@ export class AutoPhysicsAndNavEngine {
    */
   deleteInstance(instanceKey, worldPosHint = null) {
     const t0 = performance.now();
+    const prevObb = this.addedInstances.get(instanceKey)?.obb || this.modifiedInstances.get(instanceKey)?.obb || null;
     if (this.addedInstances.has(instanceKey)) {
       this.addedInstances.delete(instanceKey);
     } else {
@@ -667,6 +1098,14 @@ export class AutoPhysicsAndNavEngine {
       this.deletedKeys.add(worldPosHint ? {key: instanceKey, x: worldPosHint[0], z: worldPosHint[2]} : instanceKey);
     }
     this._recordRecalc(t0);
+    if (prevObb) {
+      const rad = Math.max(48, Math.hypot(prevObb.aabb[3] - prevObb.aabb[0], prevObb.aabb[5] - prevObb.aabb[2]) * 0.5 + 32);
+      this._notifyOcclusionDirty(prevObb.center[0], prevObb.center[2], rad);
+    } else if (worldPosHint && Number.isFinite(worldPosHint[0]) && Number.isFinite(worldPosHint[2])) {
+      this._notifyOcclusionDirty(worldPosHint[0], worldPosHint[2], 64);
+    } else {
+      this._notifyOcclusionDirty(null, null, null);
+    }
   }
 
   /**
@@ -741,6 +1180,7 @@ export class AutoPhysicsAndNavEngine {
     this.terrainStrokes = [...(ov.terrain_height_strokes || [])];
     this.splatStrokes = [...(ov.splat_strokes || [])];
     this._recordRecalc(t0);
+    this._notifyOcclusionDirty(null, null, null);
     return this.stats;
   }
 

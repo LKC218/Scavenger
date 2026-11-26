@@ -1,6 +1,7 @@
 /**
- * B4阶段：PMTiles 思路 .scvmap 空间归档 HTTP Range 按需加载器 + 距离驱动 8x8 Bayer 平滑过渡与 ±15% 滞回控制器。
+ * B4阶段：PMTiles 思路 .scvmap 空间归档 HTTP Range 按需加载器 + 距离驱动平滑过渡与 ±15% 滞回控制器。
  */
+import {LOD_TRANSITION_CONFIG} from './过渡动画管线.mjs?v=680p-v9';
 
 const ARCHIVE_FILES = [
   'startup-base.scvmap',
@@ -78,6 +79,8 @@ export class SCVMapRangeClient {
     this.coreBuffer = null;
     this.sliceCache = new Map(); // logicalKey -> ArrayBuffer
     this.inFlight = new Map();
+    this.deferLowPriorityPrefetch = false;
+    this._deferredSupportTileKeys = new Set();
     this.stats = {
       mode,
       rangeRequests: 0,
@@ -193,14 +196,16 @@ export class SCVMapRangeClient {
 
   /**
    * 按逻辑路径 (如 'b1/splatmap/macro-tint.webp' 或 'b3/kit/near-kit/xxx.glb') 获取 ArrayBuffer。
+   * 传 { cacheSlice: false } 时跳过 sliceCache 缓存且不与缓存请求共享 inFlight，确保一次性大包独占且消费后可立即回收。
    */
-  async fetchBuffer(logicalKey) {
+  async fetchBuffer(logicalKey, { cacheSlice = true } = {}) {
     const cleanKey = logicalKey.replace(/^\/+/, '');
     if (this.sliceCache.has(cleanKey)) {
       this.stats.cacheHits++;
-      return this.sliceCache.get(cleanKey);
+      const cached = this.sliceCache.get(cleanKey);
+      return cacheSlice ? cached : cached.slice(0);
     }
-    if (this.inFlight.has(cleanKey)) {
+    if (cacheSlice && this.inFlight.has(cleanKey)) {
       return this.inFlight.get(cleanKey);
     }
 
@@ -210,7 +215,7 @@ export class SCVMapRangeClient {
         if (!res.ok) throw new Error('散文件加载失败: ' + cleanKey);
         const buf = await res.arrayBuffer();
         this.stats.mapBytesTransferred += buf.byteLength;
-        this.sliceCache.set(cleanKey, buf);
+        if (cacheSlice) this.sliceCache.set(cleanKey, buf);
         return buf;
       }
 
@@ -234,9 +239,13 @@ export class SCVMapRangeClient {
       const buf = await res.arrayBuffer();
       this.stats.rangeRequests++;
       this.stats.mapBytesTransferred += buf.byteLength;
-      this.sliceCache.set(cleanKey, buf);
+      if (cacheSlice) this.sliceCache.set(cleanKey, buf);
       return buf;
     })();
+
+    if (!cacheSlice) {
+      return await task;
+    }
 
     this.inFlight.set(cleanKey, task);
     try {
@@ -246,15 +255,28 @@ export class SCVMapRangeClient {
     }
   }
 
-  async fetchJSON(logicalKey) {
-    const buf = await this.fetchBuffer(logicalKey);
+  async fetchJSON(logicalKey, opts = {}) {
+    const buf = await this.fetchBuffer(logicalKey, opts);
     return JSON.parse(new TextDecoder().decode(buf));
   }
 
-  async fetchBlobUrl(logicalKey, mimeType = 'application/octet-stream') {
-    const buf = await this.fetchBuffer(logicalKey);
+  async fetchBlobUrl(logicalKey, mimeType = 'application/octet-stream', opts = {}) {
+    const buf = await this.fetchBuffer(logicalKey, opts);
     const blob = new Blob([buf], {type: mimeType});
     return URL.createObjectURL(blob);
+  }
+
+  /**
+   * 后台全精度主干升级期间暂停非首屏支撑页预取，避免抢占 HTTP/1.1 并发连接槽；
+   * 升级结束后自动补发视区最近登记的支撑页队列。
+   */
+  setUpgradeInProgress(active) {
+    this.deferLowPriorityPrefetch = Boolean(active);
+    if (!this.deferLowPriorityPrefetch && this._deferredSupportTileKeys.size > 0) {
+      const pending = Array.from(this._deferredSupportTileKeys);
+      this._deferredSupportTileKeys.clear();
+      this.prefetchSupportPatchesMorton(pending).catch(() => {});
+    }
   }
 
   /**
@@ -262,6 +284,10 @@ export class SCVMapRangeClient {
    */
   async prefetchSupportPatchesMorton(tileKeys) {
     if (this.mode === 'scatter' || !tileKeys || tileKeys.length === 0) return;
+    if (this.deferLowPriorityPrefetch) {
+      for (const tk of tileKeys) this._deferredSupportTileKeys.add(tk);
+      return;
+    }
     await this.init();
 
     const slots = [];
@@ -368,24 +394,23 @@ export class SmoothDistanceTransitionController {
       this.metrics.tierTransitions++;
     }
 
-    // 3. 地形精细块滞回状态机 (阈值 1800m ± 15% => [1530m, 2070m])
-    if (this.terrainTier === 'detail' && span > 2070) {
+    // 3. 地形精细块滞回状态机 (来自唯一配置源 LOD_TRANSITION_CONFIG.terrain)
+    if (this.terrainTier === 'detail' && span > LOD_TRANSITION_CONFIG.terrain.detailOffSpan) {
       this.terrainTier = 'macro';
       this.metrics.tierTransitions++;
-    } else if (this.terrainTier === 'macro' && span < 1530) {
+    } else if (this.terrainTier === 'macro' && span < LOD_TRANSITION_CONFIG.terrain.detailOnSpan) {
       this.terrainTier = 'detail';
       this.metrics.tierTransitions++;
     }
 
-    // 更新各子系统（着色器内 8x8 Bayer Dither 始终按真实连续 span 与距离插值，CPU 实例提交遵循滞回防抖）
-    this.terrainPool.update(center, span);
+    // 更新各子系统：真实 span 驱动 CPU 批调度，时间缓动与微雾交由 LODTransitionPipeline.syncFrame 统一驱动
+    this.terrainPool.update(center, span, this.terrainTier);
     if (this.foliageSystem) {
       this.foliageSystem.update(center, effectiveFoliageSpan);
-      // 同步真实连续 span 给着色器 uniform 以保证 Bayer Dither 逐帧丝滑
       this.foliageSystem.sharedUniforms.uCameraSpan.value = span;
     }
     if (this.buildingSystem) {
-      await this.buildingSystem.update(center, this.buildingTier === 'near' ? Math.min(span, 580) : Math.max(span, 630));
+      await this.buildingSystem.update(center, span);
       this.buildingSystem.sharedUniforms.uCameraSpan.value = span;
     }
 

@@ -9,6 +9,8 @@
 | 文件 | 职责 |
 | --- | --- |
 | [索引验证.html](索引验证.html) | 页面结构、首次开启声音、双向查询和样例控件 |
+| [空战音效对比试听.html](空战音效对比试听.html) | A-10C 机炮与 Hydra 70 火箭齐射 WebAudio 实时 A/B 对比试听台（挂载于主服务 `/dev/audio/空战音效对比试听.html`） |
+| [机炮物理声学引擎.mjs](机炮物理声学引擎.mjs) | 参数化共享机炮物理混合声学引擎 V2（导出 `DEFAULT_GAU8_ACOUSTIC_PRESET`、参数化 `buildShockPulseLoopBuffer({ rpm, caliberMm, barrelCount })`、共享 `buildAirspaceThunderIR`、`createContinuousGunAcousticVoice` 无内建 Convolver 持续动态声源，同时向后兼容试听台 `computeGau8DistanceProfile` / `createGau8AcousticResources` / `triggerGau8AcousticBurst`） |
 | [界面.css](界面.css) | 深绿档案界面、窄屏布局、键盘焦点和减少动效支持 |
 | [页面.mjs](页面.mjs) | 读取三份JSON，将选择和动作交给查询及播放接口 |
 | [音效查询.mjs](音效查询.mjs) | 纯数据查询、精确配置匹配、弹药优先和显式回退条件 |

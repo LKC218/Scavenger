@@ -36,6 +36,7 @@ button, input {
   height: 100%;
   display: block;
   position: relative;
+  isolation: isolate;
   background: var(--ui-bg-canvas);
   overflow: hidden;
   border-radius: 8px;
@@ -47,6 +48,7 @@ button, input {
   border-color: rgba(56, 229, 192, 0.34);
 }
 
+#canvas-host[data-aspect="full"],
 #canvas-host[data-embed="1"] {
   border: 0;
   border-radius: 0;
@@ -58,6 +60,8 @@ button, input {
   height: 100% !important;
   display: block;
   image-rendering: pixelated;
+  will-change: filter;
+  contain: strict;
 }
 
 /* ====== Z-200 三行安全区 CSS Grid 战斗 HUD ====== */
@@ -78,6 +82,11 @@ button, input {
   margin: 0 auto;
 }
 
+#canvas-host[data-aspect="full"] .scv-hud-grid {
+  max-width: none;
+  width: 100%;
+}
+
 .scv-hud-grid.is-hidden-hud {
   opacity: 0;
   visibility: hidden;
@@ -96,7 +105,7 @@ button, input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
   pointer-events: none;
 }
@@ -110,16 +119,45 @@ button, input {
   pointer-events: auto;
 }
 
+.scv-top-left {
+  gap: 6px;
+}
+
 .scv-top-right {
-  gap: 10px;
+  gap: 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.scv-top-right > .ui-btn,
+.scv-top-right > .ui-prompt-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.scv-fs-icon-btn {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.scv-fs-icon-btn.active {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+  background: rgba(240, 211, 114, 0.16);
 }
 
 .scv-tele-pod {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 13px;
-  max-width: min(520px, 39vw);
+  gap: 8px;
+  padding: 6px 10px;
+  max-width: min(300px, 24vw);
   white-space: nowrap;
 }
 
@@ -263,73 +301,177 @@ button, input {
   pointer-events: none;
 }
 
-.scv-cat-btn {
-  border: 1px solid transparent;
-  border-radius: var(--ui-r-control);
-  background: transparent;
-  color: var(--ui-text-secondary);
-  padding: 7px 8px;
+/* ====== 左上 4A：5 兵种配额增援竖轨 + 向右紧致滑出部署舱（已彻底替换旧统计/名册） ====== */
+.scv-deploy-rail {
+  pointer-events: auto;
+  width: 112px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-  cursor: pointer;
-  transition: background var(--ui-dur-micro), color var(--ui-dur-micro);
+  gap: 4px;
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-.scv-cat-btn:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.08);
+#canvas-host[data-ui-size="compact"] .scv-deploy-rail {
+  width: 98px;
+  padding: 5px;
+  gap: 3px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-deploy-rail {
+  width: 124px;
+  padding: 7px;
+  gap: 5px;
+}
+
+.scv-drail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 3px 5px;
+  border-bottom: 1px solid var(--ui-line-subtle);
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--ui-text-muted);
+  white-space: nowrap;
+}
+
+.scv-drail-head b {
+  font-family: var(--ui-font-mono);
+  color: var(--ui-state-select);
+}
+
+.scv-drail-btn {
+  width: 100%;
+  padding: 5px 7px 4px;
+  border-radius: var(--ui-r-control);
+  border: 1px solid var(--ui-line-subtle);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--ui-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 3.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--ui-dur-micro), background var(--ui-dur-micro), color var(--ui-dur-micro);
+}
+
+#canvas-host[data-ui-size="compact"] .scv-drail-btn {
+  padding: 4px 5px;
+}
+
+.scv-drail-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.085);
+  border-color: var(--ui-line-base);
   color: var(--ui-text-primary);
 }
 
-.scv-cat-btn.active {
-  background: #ffffff;
-  color: var(--ui-text-inverse);
+.scv-drail-btn.active {
+  background: rgba(240, 211, 114, 0.16);
+  border-color: var(--ui-state-select);
+  color: var(--ui-text-primary);
 }
 
-.scv-cat-top {
+.scv-drail-btn.is-full:not(.active) {
+  border-color: rgba(255, 184, 0, 0.45);
+}
+
+.scv-drail-top {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: var(--ui-fs-2xs);
-  font-weight: 800;
-}
-
-.scv-cat-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-
-.scv-cat-name {
-  font-size: var(--ui-fs-sm);
+  gap: 4px;
+  font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
 }
 
-/* 左侧编队名册滑出抽屉（实底防透字 + 物理限高不碰底栏） */
-.scv-roster-flyout {
-  pointer-events: auto;
-  width: min(320px, 28vw);
-  max-height: 100%;
-  padding: 12px 13px;
-  background: var(--ui-bg-pod-elevated);
-  border: 1px solid var(--ui-line-base);
-  border-radius: var(--ui-r-surface);
-  box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
+.scv-drail-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
 }
 
-.scv-roster-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  overflow-y: auto;
-  min-height: 0;
-  scrollbar-width: thin;
+.scv-cat-dot {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.scv-drail-quota {
+  font-family: var(--ui-font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--ui-text-secondary);
+}
+
+.scv-drail-btn.is-full .scv-drail-quota {
+  color: var(--ui-state-warn);
+}
+
+.scv-drail-btn.active .scv-drail-quota {
+  color: var(--ui-state-select);
+}
+
+.scv-drail-bar {
+  height: 2.5px;
+  border-radius: var(--ui-r-pill);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.scv-drail-bar i {
+  display: block;
+  height: 100%;
+  border-radius: var(--ui-r-pill);
+  transition: width 160ms var(--ui-ease-out);
+}
+
+.scv-drail-all-btn {
+  width: 100%;
+  margin-top: 2px;
+  padding: 5px 6px;
+  border-radius: var(--ui-r-control);
+  border: 1px solid var(--ui-line-accent);
+  background: rgba(240, 211, 114, 0.08);
+  color: var(--ui-state-select);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.scv-drail-all-btn:hover {
+  background: rgba(240, 211, 114, 0.16);
+}
+
+.scv-drail-all-btn.active {
+  background: var(--ui-accent-grad);
+  border-color: transparent;
+  color: var(--ui-text-inverse);
+}
+
+.scv-drail-kbd {
+  font-family: var(--ui-font-mono);
+  font-size: 9.5px;
+  font-weight: 900;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.scv-drail-all-btn.active .scv-drail-kbd {
+  background: rgba(13, 14, 19, 0.22);
+  color: var(--ui-text-inverse);
 }
 
 /* 右侧演训与地图编辑抽屉（保留 #editor-drawer 供脚本控制，全实底物理限高） */
@@ -412,12 +554,240 @@ button, input {
   color: var(--ui-text-primary);
 }
 
-/* ====== ROW 3：底部双翼分离（底中完全贯通净空！） ====== */
+/* ====== 右侧 129 车战场即时与落点部署抽屉（与编辑抽屉互斥，全实底零模糊） ====== */
+.scv-deploy-drawer {
+  pointer-events: auto;
+  width: var(--ui-sz-drawer-w, 380px);
+  max-width: min(444px, 38vw);
+  max-height: 100%;
+  padding: 12px 14px;
+  background: var(--ui-bg-pod-elevated);
+  border: 1px solid var(--ui-line-base);
+  border-radius: var(--ui-r-surface);
+  box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.scv-deploy-quota {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  font-size: var(--ui-fs-xs);
+  border-radius: var(--ui-r-pill);
+  background: var(--ui-bg-slot);
+  border: 1px solid var(--ui-line-accent);
+  color: var(--ui-state-select);
+  vertical-align: middle;
+}
+
+.scv-deploy-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.scv-deploy-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scv-deploy-search {
+  width: 100%;
+  height: 30px;
+  padding: 4px 10px;
+  font-size: var(--ui-fs-xs);
+  border-radius: var(--ui-r-control);
+  background: var(--ui-bg-slot);
+  border: 1px solid var(--ui-line-base);
+  color: var(--ui-text-primary);
+  outline: none;
+}
+
+.scv-deploy-search:focus {
+  border-color: var(--ui-line-accent);
+}
+
+.scv-deploy-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.scv-deploy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1 1 auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+}
+
+.scv-deploy-item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--ui-r-control);
+  background: var(--ui-bg-slot);
+  border: 1px solid var(--ui-line-subtle);
+  transition: border-color var(--ui-dur-micro), background var(--ui-dur-micro);
+}
+
+.scv-deploy-item:hover {
+  border-color: var(--ui-line-base);
+  background: var(--ui-bg-control-hover);
+}
+
+.scv-deploy-item.is-picking {
+  border-color: var(--ui-line-accent);
+  box-shadow: inset 0 0 0 1px var(--ui-line-accent);
+}
+
+.scv-deploy-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--ui-r-sm);
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scv-deploy-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.scv-deploy-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.scv-deploy-title-row strong {
+  font-size: var(--ui-fs-xs);
+  font-weight: 800;
+  color: var(--ui-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scv-part-badge {
+  flex: 0 0 auto;
+  padding: 1px 5px;
+  border-radius: var(--ui-r-sm);
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ui-text-muted);
+  border: 1px solid transparent;
+}
+
+.scv-part-badge.has-parts {
+  color: var(--ui-state-select);
+  border-color: rgba(240, 211, 114, 0.32);
+  background: rgba(240, 211, 114, 0.08);
+}
+
+.scv-deploy-meta small {
+  font-family: var(--ui-font-mono);
+  font-size: 10px;
+  color: var(--ui-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scv-deploy-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.scv-deploy-pick-btn.active {
+  background: var(--ui-accent-grad);
+  border-color: transparent;
+  color: var(--ui-text-inverse);
+}
+
+.scv-deploy-item.is-quota-full {
+  opacity: 0.56;
+}
+
+.scv-pill-btn.is-cat-full:not(.active) {
+  border-color: rgba(255, 180, 84, 0.45);
+  color: var(--ui-state-warn);
+}
+
+.scv-deploy-empty {
+  padding: 18px 10px;
+  text-align: center;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-muted);
+}
+
+/* ====== 顶部中岛正下方独立净空带 Toast（永不遮挡左下雷达、卡片坞与单机浮卡） ====== */
+.scv-top-toast {
+  position: absolute;
+  left: 50%;
+  top: 56px;
+  transform: translateX(-50%);
+  z-index: calc(var(--ui-z-hud) + 4);
+  max-width: min(560px, 46vw);
+  padding: 4px 12px;
+  border-radius: var(--ui-r-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-secondary);
+  pointer-events: none;
+}
+
+.scv-top-toast i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ui-state-select);
+  flex: 0 0 auto;
+}
+
+.scv-top-toast span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ====== ROW 3：方案 B 全宽紧凑三舱指挥台（左下 1:1 雷达 + 底中低矮卡片坞 + 右下状态指令舱） ====== */
+.scv-scheme-b-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  pointer-events: none;
+}
+
 .scv-bl-wing {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  flex: 0 0 auto;
   min-width: 0;
   pointer-events: none;
 }
@@ -427,10 +797,12 @@ button, input {
 }
 
 .scv-br-wing {
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: flex-end;
   justify-content: flex-end;
-  gap: 9px;
+  flex: 0 0 auto;
   min-width: 0;
   pointer-events: none;
 }
@@ -439,116 +811,136 @@ button, input {
   pointer-events: auto;
 }
 
-.scv-bl-toast {
-  max-width: min(520px, 44vw);
-  padding: 5px 12px;
-  border-radius: var(--ui-r-pill);
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: var(--ui-fs-xs);
-  color: var(--ui-text-secondary);
-}
-
-.scv-bl-toast i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--ui-state-select);
-  flex: 0 0 auto;
-}
-
-.scv-bl-toast span {
+/* ====== 左舱：1:1 真实 9km 离屏烘焙 + 无级缩放 + 144Hz 同步旋转战术雷达一体舱 ====== */
+.scv-radar-dock {
+  --scv-mm-size: 248px;
+  width: calc(var(--scv-mm-size) + 2px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  border-radius: var(--ui-r-surface);
+  transition: width 220ms var(--ui-ease-out), border-color var(--ui-dur-micro), box-shadow var(--ui-dur-micro);
 }
 
-.scv-air-wrap {
+#canvas-host[data-ui-size="compact"] .scv-radar-dock:not(.is-expanded-map) {
+  --scv-mm-size: 208px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-radar-dock:not(.is-expanded-map) {
+  --scv-mm-size: 276px;
+}
+
+#canvas-host .scv-radar-dock.is-expanded-map {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: calc(var(--ui-z-hud) + 18);
+  --scv-mm-size: min(468px, calc(100vh - 220px), calc(100vw - 460px));
+  border-color: var(--ui-line-accent);
+  background: var(--ui-bg-pod-elevated);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.72), var(--ui-rim-top);
+}
+
+.scv-radar-topbar {
   display: flex;
   align-items: center;
-  gap: 7px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 3px;
+  padding: 4px 5px;
+  background: rgba(24, 27, 38, 0.98);
+  border-bottom: 1px solid var(--ui-line-subtle);
+  overflow: hidden;
 }
 
-.scv-air-strip {
+.scv-radar-topbar-grp {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 6px;
-  border-radius: var(--ui-r-control);
+  gap: 3px;
+  min-width: 0;
 }
 
-.scv-air-chip {
+.scv-radar-micro-btn {
   border: 1px solid var(--ui-line-subtle);
-  border-radius: var(--ui-r-sm);
-  padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.055);
   color: var(--ui-text-secondary);
+  border-radius: var(--ui-r-sm);
+  height: 25px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: var(--ui-fs-xs);
-  font-weight: 700;
+  gap: 3px;
   cursor: pointer;
   white-space: nowrap;
+  flex: 0 0 auto;
+  transition: border-color var(--ui-dur-micro), background var(--ui-dur-micro), color var(--ui-dur-micro);
 }
 
-.scv-air-chip:hover {
+#canvas-host[data-ui-size="compact"] .scv-radar-micro-btn {
+  height: 22px;
+  padding: 0 4px;
+  font-size: 10px;
+}
+
+.scv-radar-micro-btn:hover {
   background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
 }
 
-.scv-air-chip.active {
-  background: #ffffff;
-  color: var(--ui-text-inverse);
-  border-color: #ffffff;
+.scv-radar-micro-btn.is-on {
+  background: rgba(240, 211, 114, 0.20);
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
 }
 
-.scv-mm-cg-pair {
-  display: flex;
-  align-items: flex-end;
-  gap: 7px;
+.scv-radar-micro-btn.is-layer-on:not(.is-on) {
+  background: rgba(56, 229, 192, 0.14);
+  border-color: rgba(56, 229, 192, 0.45);
+  color: var(--ui-ch-ground);
 }
 
-.scv-minimap-shell {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: var(--ui-sz-mm-w, 292px);
+.scv-mm-key-gold {
+  font-family: var(--ui-font-mono);
+  color: var(--ui-state-select);
+  font-weight: 800;
 }
 
-.scv-minimap-head {
-  display: flex;
+.scv-follow-btn {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
-  gap: 6px;
-  min-width: 0;
+  gap: 3px;
 }
 
-.scv-minimap-head .ui-badge {
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.scv-minimap-head .ui-prompt-btn {
+.scv-follow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(245, 246, 249, 0.28);
   flex: 0 0 auto;
-  white-space: nowrap;
+  transition: background var(--ui-dur-micro), box-shadow var(--ui-dur-micro);
+}
+
+.scv-follow-btn.is-follow-active {
+  border-color: var(--ui-state-select);
+  background: rgba(240, 211, 114, 0.20);
+  color: var(--ui-state-select);
+  box-shadow: 0 0 8px rgba(240, 211, 114, 0.28);
+}
+
+.scv-follow-btn.is-follow-active .scv-follow-dot {
+  background: var(--ui-state-select);
+  box-shadow: 0 0 7px var(--ui-state-select);
 }
 
 .scv-minimap-box {
   position: relative;
-  width: var(--ui-sz-mm-w, 292px);
-  height: var(--ui-sz-mm-h, 168px);
-  border-radius: var(--ui-r-surface);
+  width: var(--scv-mm-size);
+  height: var(--scv-mm-size);
   overflow: hidden;
-  background: #0d1218;
-  border: 1px solid var(--ui-line-strong);
-  box-shadow: var(--ui-shadow-pod);
+  background: #0a0f16;
   cursor: crosshair;
 }
 
@@ -558,80 +950,1046 @@ button, input {
   display: block;
 }
 
-.scv-mm-hint {
+.scv-radar-badge-tl,
+.scv-radar-badge-bl,
+.scv-radar-badge-br {
   position: absolute;
-  left: 6px;
-  right: 6px;
-  bottom: 4px;
   font-family: var(--ui-font-mono);
-  font-size: 10px;
-  line-height: 1.2;
-  color: rgba(245, 246, 249, 0.84);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.92);
+  font-size: 9.5px;
+  line-height: 1;
+  padding: 2.5px 5.5px;
+  border-radius: 4px;
+  background: rgba(9, 11, 17, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--ui-text-secondary);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.scv-radar-badge-tl {
+  left: 5px;
+  top: 5px;
+  color: var(--ui-ch-ground);
+}
+
+.scv-radar-badge-bl {
+  left: 5px;
+  bottom: 5px;
+  max-width: 64%;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.scv-radar-badge-br {
+  right: 5px;
+  bottom: 5px;
+  color: var(--ui-state-safe);
+}
+
+.scv-compass-btn {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(240, 211, 114, 0.50);
+  background: rgba(11, 13, 20, 0.90);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+  z-index: 4;
+}
+
+.scv-compass-btn:hover {
+  border-color: var(--ui-state-select);
+  background: rgba(24, 28, 40, 0.96);
+}
+
+.scv-compass-n {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  font-family: var(--ui-font-mono);
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 1px 2.5px;
+  border-radius: 3px;
+  background: rgba(10, 12, 18, 0.94);
+  color: var(--ui-state-select);
   pointer-events: none;
+}
+
+.scv-mm-right-ctrls {
+  position: absolute;
+  right: 6px;
+  top: 38px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 4;
+}
+
+.scv-mm-float-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(11, 13, 20, 0.88);
+  color: var(--ui-text-primary);
+  font-family: var(--ui-font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color var(--ui-dur-micro), background var(--ui-dur-micro), color var(--ui-dur-micro), opacity var(--ui-dur-micro);
+}
+
+.scv-mm-float-btn:hover:not(:disabled) {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+  background: rgba(24, 28, 40, 0.96);
+}
+
+.scv-mm-float-btn.is-on {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+  background: rgba(240, 211, 114, 0.22);
+}
+
+.scv-mm-float-btn:disabled {
+  opacity: 0.36;
+  cursor: default;
 }
 
 .scv-cg-strip {
   display: grid;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 3px;
-  height: var(--ui-sz-mm-h, 168px);
-  padding: 4px;
-  border-radius: var(--ui-r-control);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  padding: 5px 6px;
+  background: rgba(19, 21, 30, 0.98);
+  border-top: 1px solid var(--ui-line-subtle);
 }
 
 .scv-cg-btn {
-  width: 26px;
-  border: 0;
+  position: relative;
+  height: 28px;
+  min-height: 26px;
+  border: 1px solid var(--ui-line-subtle);
   border-radius: var(--ui-r-sm);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--ui-text-secondary);
   font-family: var(--ui-font-mono);
-  font-size: var(--ui-fs-xs);
+  font-size: 11.5px;
   font-weight: 800;
   cursor: pointer;
   padding: 0;
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-cg-btn {
+  height: 24px;
+  min-height: 22px;
+  font-size: 10.5px;
+}
+
+.scv-cg-btn:hover {
+  border-color: var(--ui-line-strong);
+  color: #ffffff;
+}
+
+.scv-cg-btn.has-group {
+  border-color: rgba(240, 211, 114, 0.48);
+  color: var(--ui-state-select);
+}
+
+.scv-cg-btn.is-empty-slot {
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(245, 246, 249, 0.34);
+  border: 1px dashed rgba(255, 255, 255, 0.14);
 }
 
 .scv-cg-btn.active {
   background: #ffffff;
   color: var(--ui-text-inverse);
+  border-color: #ffffff;
 }
 
-/* 右下详情卡 & 3×2 命令盘 */
-.scv-inspector-card {
-  width: var(--ui-sz-insp-w, 400px);
-  padding: 11px 13px;
+.scv-cg-badge {
+  font-style: normal;
+  font-size: 8.5px;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--ui-state-select);
+  pointer-events: none;
+}
+
+.scv-cg-btn.active .scv-cg-badge {
+  color: var(--ui-text-inverse);
+}
+
+/* ====== 中舱：方案 B 显式像素宽度平滑插值卡片指挥台 + 向上展开单车矩阵 ====== */
+.scv-deck-slot {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.scv-card-deck {
+  position: relative;
+  flex: 0 1 auto;
+  min-width: min(320px, 100%);
+  max-width: 100%;
+  height: 144px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
+  overflow: visible;
+  pointer-events: auto;
+  transition:
+    width 260ms var(--ui-ease-out),
+    height 260ms var(--ui-ease-out),
+    border-color var(--ui-dur-micro);
 }
 
-.scv-insp-top {
+.scv-card-deck.is-expanded {
+  border-color: var(--ui-line-accent);
+  background: var(--ui-bg-pod-elevated);
+  z-index: calc(var(--ui-z-hud) + 12);
+}
+
+#canvas-host[data-ui-size="compact"] .scv-card-deck:not(.is-expanded) {
+  height: 126px;
+  padding: 5px 7px;
+  gap: 4px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-card-deck:not(.is-expanded) {
+  height: 158px;
+  padding: 7px 9px;
+  gap: 6px;
+}
+
+.scv-deck-tabs {
+  height: 24px;
+  flex: 0 0 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--ui-line-subtle);
+  overflow: hidden;
+}
+
+.scv-deck-tab-grp {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.scv-deck-tab {
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--ui-text-secondary);
+  border-radius: var(--ui-r-sm);
+  height: 20px;
+  padding: 0 7px;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  transition: background var(--ui-dur-micro), color var(--ui-dur-micro);
+}
+
+.scv-deck-tab:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+
+.scv-deck-tab.active {
+  background: #ffffff;
+  color: var(--ui-text-inverse);
+  font-weight: 800;
+}
+
+.scv-deck-expand-btn {
+  border: 1px solid var(--ui-line-accent);
+  background: rgba(240, 211, 114, 0.13);
+  color: var(--ui-state-select);
+  border-radius: var(--ui-r-sm);
+  height: 20px;
+  padding: 0 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scv-deck-expand-btn:hover {
+  background: rgba(240, 211, 114, 0.24);
+}
+
+.scv-deck-expand-btn.active {
+  background: var(--ui-accent-grad);
+  border-color: transparent;
+  color: var(--ui-text-inverse);
+}
+
+.scv-deck-expand-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  padding: 2px 2px 4px;
+  border-bottom: 1px solid var(--ui-line-subtle);
+  flex: 0 0 auto;
+}
+
+.scv-deck-expand-bar[hidden] {
+  display: none;
+}
+
+.scv-view-seg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--ui-r-control);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--ui-line-subtle);
+  gap: 2px;
+}
+
+.scv-view-seg-btn {
+  border: 0;
+  background: transparent;
+  color: var(--ui-text-secondary);
+  border-radius: 3.5px;
+  height: 20px;
+  padding: 0 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.scv-view-seg-btn.active {
+  background: var(--ui-accent-grad);
+  color: var(--ui-text-inverse);
+  font-weight: 800;
+}
+
+.scv-assign-cg-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.scv-assign-cg-lbl {
+  font-size: 10px;
+  color: var(--ui-text-muted);
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+.scv-assign-cg-btn {
+  border: 1px solid var(--ui-line-base);
+  background: var(--ui-bg-slot);
+  color: var(--ui-text-secondary);
+  border-radius: var(--ui-r-sm);
+  width: 22px;
+  height: 20px;
+  font-family: var(--ui-font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.scv-assign-cg-btn:hover {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+}
+
+.scv-cards-grid {
+  flex: 1 1 auto;
   min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(240, 211, 114, 0.45) rgba(8, 10, 16, 0.55);
+}
+
+.scv-card-deck.is-expanded .scv-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  grid-auto-rows: 102px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  align-items: stretch;
+  gap: 6px;
+  padding-right: 3px;
+}
+
+.scv-card-deck.is-expanded .scv-unit-card {
+  flex: unset;
+  min-width: 0;
+  width: 100%;
+  height: 102px;
+}
+
+.scv-card-state-tag {
+  font-family: var(--ui-font-mono);
+  font-size: 8.5px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(9, 11, 17, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--ui-text-secondary);
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.scv-card-state-tag.moving {
+  color: var(--ui-ch-ground);
+  border-color: rgba(56, 229, 192, 0.42);
+}
+
+.scv-card-state-tag.follow {
+  color: var(--ui-state-select);
+  border-color: rgba(240, 211, 114, 0.55);
+}
+
+.scv-cards-grid::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scv-cards-grid::-webkit-scrollbar-track {
+  background: rgba(8, 10, 16, 0.58);
+  border-radius: 99px;
+}
+
+.scv-cards-grid::-webkit-scrollbar-thumb {
+  background: rgba(240, 211, 114, 0.42);
+  border-radius: 99px;
+}
+
+.scv-cards-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(240, 211, 114, 0.72);
+}
+
+/* 1A：全战竖长条兵牌卡片（透明底 3/4 模型特写插画 + 兵种渐变背板 + 双微条） */
+.scv-unit-card {
+  position: relative;
+  flex: 0 0 68px;
+  min-width: 68px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.scv-unit-card.is-rtb {
+  border-color: var(--ui-state-warn);
+  box-shadow: inset 0 2px 0 var(--ui-state-warn);
+}
+.scv-unit-card.is-fuel-low {
+  border-color: var(--ui-state-warn);
+}
+.scv-unit-card.is-fuel-bingo {
+  border-color: var(--ui-state-danger);
+  box-shadow: inset 0 2px 0 var(--ui-state-danger), 0 0 10px rgba(255, 82, 102, 0.28);
+}
+.scv-fuel-bingo-tick {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  background: var(--ui-state-danger);
+  box-shadow: 0 0 4px rgba(255, 82, 102, 0.85);
+  pointer-events: none;
+  z-index: 3;
+}
+.scv-right-hp-track {
+  position: relative;
+}
+.ground-mark.is-fuel-low .mark-sub {
+  color: var(--ui-state-warn);
+  font-weight: 700;
+}
+.ground-mark.is-fuel-bingo .mark-sub {
+  color: var(--ui-state-danger);
+  font-weight: 700;
+}
+.scv-deploy-item.is-rearming {
+  opacity: 0.72;
+}
+.scv-deploy-item.is-rearming .scv-deploy-now-btn {
+  color: var(--ui-state-warn);
+  border-color: rgba(255, 184, 0, 0.45);
+}
+
+.scv-card-rtb-tag {
+  position: relative;
+  align-self: center;
+  margin-bottom: 1px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(13, 14, 19, 0.90);
+  border: 1px solid var(--ui-state-warn);
+  color: var(--ui-state-warn);
+  font-family: var(--ui-font-mono);
+  font-size: 8.5px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.scv-card-rtb-tag.is-winchester {
+  border-color: var(--ui-state-warn);
+  color: var(--ui-state-warn);
+}
+
+.scv-unit-card.is-winchester {
+  border-color: var(--ui-state-warn);
+}
+
+.scv-card-rtb-tag[hidden] {
+  display: none;
+}
+
+@keyframes scvCardDealIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+    box-shadow: 0 0 0 1px rgba(240, 211, 114, 0.85), 0 -4px 14px rgba(177, 151, 252, 0.45);
+  }
+  70% {
+    opacity: 1;
+    transform: translate3d(0, -2px, 0);
+    box-shadow: 0 0 0 1px rgba(177, 151, 252, 0.72), 0 4px 12px rgba(0, 0, 0, 0.45);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes scvCardDealOut {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    max-width: 84px;
+  }
+  56% {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+    max-width: 84px;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+    flex-basis: 0;
+    min-width: 0;
+    max-width: 0;
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    border-width: 0;
+  }
+}
+
+@keyframes scvCountBump {
+  0% {
+    border-color: var(--ui-state-select);
+    color: var(--ui-state-select);
+    background: rgba(240, 211, 114, 0.24);
+  }
+  100% {
+    border-color: var(--ui-line-base);
+    color: var(--ui-text-primary);
+    background: rgba(9, 11, 17, 0.86);
+  }
+}
+
+.scv-unit-card.is-entering {
+  animation: scvCardDealIn 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.scv-unit-card.is-leaving {
+  pointer-events: none;
+  overflow: hidden;
+  flex-shrink: 1;
+  animation: scvCardDealOut 260ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: transform, opacity, max-width, flex-basis;
+}
+
+.scv-card-count.is-bump {
+  animation: scvCountBump 260ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scv-unit-card.is-entering,
+  .scv-unit-card.is-leaving,
+  .scv-card-count.is-bump {
+    animation-duration: 0.01ms !important;
+  }
+}
+
+#canvas-host[data-ui-size="compact"] .scv-unit-card {
+  flex-basis: 60px;
+  min-width: 60px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-unit-card {
+  flex-basis: 76px;
+  min-width: 76px;
+}
+
+.scv-card-top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 3px 3px 0;
+}
+
+.scv-card-ico {
+  width: 17px;
+  height: 17px;
+  border-radius: 3px;
+  background: rgba(9, 11, 17, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.scv-card-count {
+  border: 1px solid var(--ui-line-base);
+  background: rgba(9, 11, 17, 0.86);
+  color: var(--ui-text-primary);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: var(--ui-font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.scv-card-count:hover {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+}
+
+.scv-card-footer {
+  position: relative;
+  z-index: 2;
+  padding: 14px 4px 3px;
+  background: linear-gradient(180deg, rgba(10, 12, 18, 0) 0%, rgba(10, 12, 18, 0.88) 44%, rgba(10, 12, 18, 0.98) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scv-card-name {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--ui-text-primary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.92);
+}
+
+.scv-card-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--ui-font-mono);
+  font-size: 8.5px;
+  line-height: 1;
+  color: var(--ui-text-secondary);
+}
+
+.scv-card-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+}
+
+.scv-card-hp-track {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.scv-card-hp-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 140ms;
+}
+
+.scv-card-ammo-track {
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.10);
+  overflow: hidden;
+}
+
+.scv-card-ammo-fill {
+  height: 100%;
+  background: var(--ui-state-select);
+  transition: width 140ms;
+}
+
+.scv-deck-empty {
+  margin: auto;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-muted);
+  white-space: nowrap;
+}
+
+/* 共享组件：底部兵牌悬停精简浮卡（位于卡片坞正上方外部，永不被 overflow-x 裁切） */
+.scv-deck-hover-card {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: calc(var(--ui-z-drawer) + 2);
+}
+
+/* 方案 B 外部单机浮卡（位于卡片坞正上方外部，绝不被 overflow-x 裁切） */
+.scv-deck-popover {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 8px;
+  min-width: 224px;
+  max-width: 268px;
+  max-height: 236px;
+  padding: 7px;
+  border-radius: var(--ui-r-surface);
+  background: var(--ui-bg-pod-elevated);
+  border: 1px solid var(--ui-state-select);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.82);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: var(--ui-z-drawer);
+}
+
+.scv-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 1px 4px 5px;
+  border-bottom: 1px solid var(--ui-line-subtle);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ui-state-select);
+}
+
+.scv-pop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: thin;
+}
+
+.scv-pop-row {
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: var(--ui-r-sm);
+  padding: 5px 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ui-text-primary);
+  cursor: pointer;
+}
+
+.scv-pop-row:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: var(--ui-line-base);
+}
+
+.scv-pop-row.active {
+  background: rgba(240, 211, 114, 0.16);
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+}
+
+.scv-pop-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scv-pop-row small {
+  font-family: var(--ui-font-mono);
+  font-size: 10px;
+  color: var(--ui-text-secondary);
+  flex: 0 0 auto;
+}
+
+/* ====== 右舱：3A 场景内 Live PiP 实时实况窗 + 遥测 + ROE + 3×2 大图标指令盘（与左雷达 1:1 等高对称） ====== */
+.scv-right-dock {
+  width: 416px;
+  min-width: 356px;
+  flex: 0 0 auto;
+  padding: 9px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-dock {
+  width: 356px;
+  min-width: 332px;
+  padding: 7px 9px;
+  gap: 5px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-right-dock {
+  width: 440px;
+  padding: 10px 12px;
+  gap: 8px;
+}
+
+.scv-pip-hero {
+  display: grid;
+  grid-template-columns: 146px minmax(0, 1fr);
+  gap: 9px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--ui-line-subtle);
+  align-items: stretch;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-pip-hero {
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 7px;
+  padding-bottom: 5px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-pip-hero {
+  grid-template-columns: 158px minmax(0, 1fr);
+  gap: 10px;
+  padding-bottom: 8px;
+}
+
+.scv-pip-frame {
+  position: relative;
+  border-radius: var(--ui-r-control);
+  border: 1px solid var(--ui-line-accent);
+  background: #0a0c12;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.scv-pip-frame:hover {
+  border-color: var(--ui-state-select);
+}
+
+.scv-pip-viewport {
+  position: relative;
+  width: 100%;
+  height: 112px;
+  background: #0b0e14;
+  overflow: hidden;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-pip-viewport {
+  height: 86px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-pip-viewport {
+  height: 132px;
+}
+
+#hud-pip-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  filter: contrast(1.08) saturate(1.10) sepia(0.06);
+}
+
+.scv-pip-mode-btn,
+.scv-pip-badge-tr {
+  position: absolute;
+  top: 4px;
+  font-family: var(--ui-font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+.scv-pip-mode-btn {
+  left: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
+}
+
+.scv-pip-mode-btn.is-live {
+  background: rgba(9, 11, 17, 0.86);
+  border: 1px solid rgba(60, 214, 159, 0.48);
+  color: var(--ui-state-safe);
+}
+
+.scv-pip-mode-btn.is-live:hover {
+  border-color: var(--ui-state-safe);
+  background: rgba(14, 24, 22, 0.94);
+}
+
+.scv-pip-mode-btn.is-static {
+  background: rgba(18, 20, 26, 0.92);
+  border: 1px solid rgba(240, 211, 114, 0.56);
+  color: var(--ui-state-select);
+}
+
+.scv-pip-mode-btn.is-static:hover {
+  border-color: var(--ui-state-select);
+}
+
+.scv-pip-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ui-state-safe);
+  box-shadow: 0 0 6px var(--ui-state-safe);
+  flex: 0 0 auto;
+}
+
+.scv-pip-mode-btn.is-static .scv-pip-live-dot {
+  background: var(--ui-state-select);
+  box-shadow: none;
+  border-radius: 1px;
+}
+
+.scv-pip-badge-tr {
+  right: 4px;
+  pointer-events: none;
+  background: rgba(240, 211, 114, 0.22);
+  border: 1px solid var(--ui-state-select);
+  color: var(--ui-state-select);
+}
+
+.scv-pip-angle-btn {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(10, 12, 18, 0.86);
+  color: var(--ui-text-primary);
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-family: var(--ui-font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.scv-pip-angle-btn:hover:not(:disabled) {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+}
+
+.scv-pip-angle-btn:disabled {
+  opacity: 0.52;
+  cursor: default;
+  color: var(--ui-text-muted);
+  border-color: var(--ui-line-subtle);
+}
+
+.scv-pip-hp-bar {
+  height: 18px;
+  padding: 0 5px;
+  background: rgba(11, 13, 19, 0.96);
+  border-top: 1px solid var(--ui-line-subtle);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.scv-pip-tele {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 5px;
 }
 
 .scv-insp-title {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 6px;
   min-width: 0;
 }
 
 .scv-insp-ico {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--ui-r-control);
-  background: rgba(255, 255, 255, 0.07);
+  width: 24px;
+  height: 24px;
+  border-radius: var(--ui-r-sm);
+  background: rgba(255, 255, 255, 0.08);
   display: grid;
   place-items: center;
   flex: 0 0 auto;
@@ -639,11 +1997,13 @@ button, input {
 
 .scv-insp-name {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .scv-insp-name strong {
   display: block;
-  font-size: var(--ui-fs-md);
+  font-size: 13px;
+  line-height: 1.15;
   color: var(--ui-state-select);
   white-space: nowrap;
   overflow: hidden;
@@ -652,34 +2012,218 @@ button, input {
 
 .scv-insp-name small {
   display: block;
-  font-size: var(--ui-fs-xs);
+  font-size: 10px;
+  line-height: 1.15;
   color: var(--ui-text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.scv-insp-foot {
+.scv-ch-pill {
+  flex: 0 0 auto;
+  font-family: var(--ui-font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 3px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--ui-line-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  letter-spacing: 0.04em;
+}
+
+.scv-tele-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.scv-tele-kv {
+  height: 24px;
+  padding: 0 6px;
+  border-radius: var(--ui-r-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--ui-line-subtle);
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 4px;
+}
+
+.scv-tele-kv span {
+  font-size: 9.5px;
+  color: var(--ui-text-muted);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.scv-tele-kv b {
+  font-family: var(--ui-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ui-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  min-width: 0;
+}
+
+.scv-tele-roe-row {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.scv-tele-roe-row .ui-select {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+.scv-tele-roe-row .ui-select-trigger {
+  min-height: 26px;
+  height: 26px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.scv-tele-manual-badge {
+  width: 100%;
+  min-height: 26px;
+  height: 26px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--ui-r-control);
+  background: rgba(114, 102, 232, 0.14);
+  border: 1px solid rgba(143, 125, 255, 0.42);
+  color: var(--ui-ch-plane);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+.scv-tele-manual-badge[hidden],
+.scv-tele-roe-row .ui-select[hidden] {
+  display: none !important;
+}
+
+.scv-fw-manual-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: var(--ui-ch-plane);
+  box-shadow: 0 0 6px rgba(143, 125, 255, 0.65);
+}
+
+.scv-tele-roe-row .ui-select-menu {
+  min-width: 100%;
+  left: auto;
+  right: 0;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-pip-tele {
+  gap: 3px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-insp-ico {
+  width: 21px;
+  height: 21px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-insp-name strong {
+  font-size: 12px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-insp-name small {
+  font-size: 9.5px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-ch-pill {
+  font-size: 8.5px;
+  padding: 2px 4px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-tele-grid {
+  gap: 3px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-tele-kv {
+  height: 21px;
+  padding: 0 5px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-tele-roe-row .ui-select-trigger,
+#canvas-host[data-ui-size="compact"] .scv-tele-manual-badge {
+  min-height: 22px;
+  height: 22px;
+  font-size: 10.5px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-tele-kv {
+  height: 27px;
+  padding: 0 7px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-tele-roe-row .ui-select-trigger,
+#canvas-host[data-ui-size="xl"] .scv-tele-manual-badge {
+  min-height: 28px;
+  height: 28px;
+  font-size: 11.5px;
+}
+
+.scv-right-hp-txt {
+  font-size: 10.5px;
+  font-weight: 900;
+  flex: 0 0 auto;
+}
+
+.scv-right-hp-track {
+  flex: 1 1 auto;
+  height: 4.5px !important;
+}
+
+.scv-right-mid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  min-width: 0;
 }
 
 .scv-weapon-strip {
   display: flex;
-  gap: 4px;
+  gap: 5px;
   min-width: 0;
-  overflow: hidden;
+  flex: 1 1 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.scv-weapon-strip::-webkit-scrollbar {
+  display: none;
 }
 
 .scv-wep-pill {
   border: 1px solid var(--ui-line-base);
   border-radius: var(--ui-r-sm);
-  padding: 3px 7px;
+  height: 26px;
+  padding: 0 8px;
   background: rgba(11, 12, 18, 0.88);
   color: var(--ui-text-secondary);
-  font-size: var(--ui-fs-xs);
+  font-size: 11px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
   white-space: nowrap;
   flex: 0 0 auto;
@@ -692,25 +2236,169 @@ button, input {
   font-weight: 700;
 }
 
-.scv-inspector-card .ui-select {
-  min-width: 118px;
-  max-width: 146px;
-}
+/* ====== 右舱武器条：独占整行，全额保留宽度与滑动 ====== */
 
-.scv-cmd-shell {
-  width: var(--ui-sz-cmd-w, 326px);
-  padding: 10px 11px;
-  display: flex;
-  flex-direction: column;
+.scv-right-cmd-grid {
   gap: 7px;
 }
 
-.scv-cmd-head {
-  display: flex;
-  justify-content: space-between;
+.scv-right-cmd-grid .ui-cmd-cell {
+  height: 62px;
+  padding: 16px 6px 6px;
+  gap: 4px;
   align-items: center;
-  font-size: var(--ui-fs-xs);
+  justify-content: center;
+}
+
+.scv-right-cmd-grid .ui-cmd-cell .c-kbd {
+  top: 5px;
+  left: 6px;
+  font-size: 10px;
   color: var(--ui-text-muted);
+}
+
+.scv-right-cmd-grid .ui-cmd-cell .c-ico svg {
+  width: 22px;
+  height: 22px;
+}
+
+.scv-right-cmd-grid .ui-cmd-cell .c-txt {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid .ui-cmd-cell {
+  height: 52px;
+  padding: 14px 4px 4px;
+  gap: 2px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid .ui-cmd-cell .c-ico svg {
+  width: 18px;
+  height: 18px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid .ui-cmd-cell .c-txt {
+  font-size: 11px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-card,
+#canvas-host[data-ui-size="compact"] #hud-cmd-paged .ui-cmd-wep-card {
+  height: 48px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 6px;
+  padding: 5px 6px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-well,
+#canvas-host[data-ui-size="compact"] #hud-cmd-paged .ui-cmd-wep-well {
+  width: 34px;
+  height: 34px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-well .c-ico svg,
+#canvas-host[data-ui-size="compact"] #hud-cmd-paged .ui-cmd-wep-well .c-ico svg {
+  width: 20px;
+  height: 20px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-row1 .c-txt,
+#canvas-host[data-ui-size="compact"] #hud-cmd-paged .ui-cmd-wep-row1 .c-txt {
+  font-size: 11px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-row2 .c-subtxt,
+#canvas-host[data-ui-size="compact"] #hud-cmd-paged .ui-cmd-wep-row2 .c-subtxt {
+  font-size: 9.5px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid.is-partitioned .ui-cmd-util-btn,
+#canvas-host[data-ui-size="compact"] #hud-cmd-paged .ui-cmd-util-btn {
+  height: 30px;
+  padding: 0 7px;
+  font-size: 11px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-right-cmd-grid.is-partitioned .ui-cmd-util-left .c-ico svg,
+#canvas-host[data-ui-size="compact"] #hud-cmd-paged .ui-cmd-util-left .c-ico svg {
+  width: 16px;
+  height: 16px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-right-cmd-grid .ui-cmd-cell {
+  height: 70px;
+  padding: 18px 7px 6px;
+  gap: 5px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-right-cmd-grid .ui-cmd-cell .c-ico svg {
+  width: 23px;
+  height: 23px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-right-cmd-grid .ui-cmd-cell .c-txt {
+  font-size: 13px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-card,
+#canvas-host[data-ui-size="xl"] #hud-cmd-paged .ui-cmd-wep-card {
+  height: 60px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 9px;
+  padding: 7px 9px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-well,
+#canvas-host[data-ui-size="xl"] #hud-cmd-paged .ui-cmd-wep-well {
+  width: 42px;
+  height: 42px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-well .c-ico svg,
+#canvas-host[data-ui-size="xl"] #hud-cmd-paged .ui-cmd-wep-well .c-ico svg {
+  width: 26px;
+  height: 26px;
+}
+
+#canvas-host[data-ui-size="xl"] .scv-right-cmd-grid.is-partitioned .ui-cmd-util-btn,
+#canvas-host[data-ui-size="xl"] #hud-cmd-paged .ui-cmd-util-btn {
+  height: 38px;
+  padding: 0 11px;
+  font-size: 12px;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-mm-recenter-txt {
+  display: none;
+}
+
+/* ====== 超宽屏 / 1080p+ 放大档（>= 1920px 雷达 272px~280px，右舱 3A 实况同步对齐，保持 compact 档缩尺有效） ====== */
+@media (min-width: 1920px) {
+  #canvas-host:not([data-ui-size="compact"]) .scv-radar-dock:not(.is-expanded-map) {
+    --scv-mm-size: 272px;
+  }
+  #canvas-host[data-ui-size="xl"] .scv-radar-dock:not(.is-expanded-map) {
+    --scv-mm-size: 280px;
+  }
+  #canvas-host:not([data-ui-size="compact"]) .scv-right-dock {
+    width: 440px;
+  }
+  #canvas-host:not([data-ui-size="compact"]) .scv-pip-hero {
+    grid-template-columns: 162px minmax(0, 1fr);
+  }
+  #canvas-host:not([data-ui-size="compact"]) .scv-pip-viewport {
+    height: 132px;
+  }
+  #canvas-host:not([data-ui-size="compact"]) .scv-tele-kv {
+    height: 27px;
+    padding: 0 7px;
+  }
+  #canvas-host:not([data-ui-size="compact"]) .scv-tele-roe-row .ui-select-trigger,
+  #canvas-host:not([data-ui-size="compact"]) .scv-tele-manual-badge {
+    min-height: 28px;
+    height: 28px;
+    font-size: 11.5px;
+  }
 }
 
 /* ====== Z-400 4A 二分景深暂停菜单（仅此层允许 backdrop-filter） ====== */
@@ -742,6 +2430,29 @@ button, input {
 .scv-pause-btn {
   width: 100%;
   justify-content: space-between;
+}
+
+.scv-pause-audio-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px 11px;
+  border-radius: var(--ui-r-control);
+  border: 1px solid var(--ui-line-subtle);
+  background: rgba(15, 16, 24, 0.72);
+}
+
+.scv-pause-audio-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: var(--ui-fs-xs);
+  color: var(--ui-text-secondary);
+}
+
+.scv-pause-audio-row .ui-range {
+  width: 126px;
 }
 
 .scv-pause-info {
@@ -808,42 +2519,742 @@ button, input {
   color: var(--ui-text-secondary);
 }
 
-/* ====== 680p 小窗 / 窄视口安全防碰撞保险丝（保持图 1 舒展比例与零文字重叠） ====== */
+/* ====== 680p 小窗 / 窄视口安全防碰撞保险丝（雷达 208px / 右舱 336px / 弹性中舱零撞车） ====== */
 @media (max-width: 1380px), (max-height: 750px) {
   .scv-tele-pod {
-    max-width: min(380px, 34vw);
+    max-width: min(310px, 26vw);
   }
-  .scv-minimap-shell,
-  .scv-minimap-box {
-    max-width: 242px;
+  .scv-radar-dock:not(.is-expanded-map) {
+    --scv-mm-size: 208px;
   }
-  .scv-minimap-box,
-  .scv-cg-strip {
-    max-height: 132px;
-  }
-  .scv-minimap-head .ui-prompt-btn .ui-outlined-text {
-    font-size: 12.5px;
-  }
-  .scv-inspector-card {
-    max-width: 332px;
-  }
-  .scv-cmd-shell {
-    max-width: 292px;
-  }
-  .scv-cmd-shell .ui-cmd-cell {
-    height: min(var(--ui-sz-cmd-cell-h, 58px), 58px);
-    padding: 17px 5px 5px;
-    gap: 1px;
-  }
-  .scv-cmd-shell .ui-cmd-cell .c-kbd {
+  .scv-radar-micro-btn {
+    height: 22px;
+    padding: 0 4px;
     font-size: 10px;
-    top: 3px;
-    left: 5px;
   }
-  .scv-cmd-shell .ui-cmd-cell .c-txt {
+  .scv-cg-btn {
+    height: 24px;
+    min-height: 22px;
+    font-size: 10.5px;
+  }
+  .scv-mm-recenter-txt {
+    display: none;
+  }
+  .scv-card-deck:not(.is-expanded) {
+    height: 126px;
+    min-width: min(300px, 100%);
+    padding: 5px 7px;
+  }
+  .scv-unit-card {
+    flex-basis: 60px;
+    min-width: 60px;
+    padding: 0;
+  }
+  .scv-right-dock {
+    width: 356px;
+    min-width: 332px;
+    padding: 7px 9px;
+    gap: 5px;
+  }
+  .scv-pip-hero {
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 7px;
+    padding-bottom: 5px;
+  }
+  .scv-pip-viewport {
+    height: 86px;
+  }
+  .scv-pip-tele {
+    gap: 3px;
+  }
+  .scv-insp-ico {
+    width: 21px;
+    height: 21px;
+  }
+  .scv-insp-name strong {
     font-size: 12px;
   }
-  .scv-cmd-shell .ui-cmd-cell .c-sub {
+  .scv-insp-name small {
+    font-size: 9.5px;
+  }
+  .scv-ch-pill {
+    font-size: 8.5px;
+    padding: 2px 4px;
+  }
+  .scv-tele-grid {
+    gap: 3px;
+  }
+  .scv-tele-kv {
+    height: 21px;
+    padding: 0 5px;
+  }
+  .scv-tele-roe-row .ui-select-trigger,
+  .scv-tele-manual-badge {
+    min-height: 22px;
+    height: 22px;
+    font-size: 10.5px;
+  }
+  .scv-deploy-rail {
+    width: 98px;
+    padding: 5px;
+    gap: 3px;
+  }
+  .scv-drail-btn {
+    padding: 4px 5px;
+  }
+  .scv-right-cmd-grid .ui-cmd-cell {
+    height: 52px;
+    padding: 14px 4px 4px;
+  }
+  .scv-right-cmd-grid .ui-cmd-cell .c-ico svg {
+    width: 18px;
+    height: 18px;
+  }
+  .scv-right-cmd-grid .ui-cmd-cell .c-txt {
+    font-size: 11px;
+  }
+  .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-card,
+  #hud-cmd-paged .ui-cmd-wep-card {
+    height: 48px;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 6px;
+    padding: 5px 6px;
+  }
+  .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-well,
+  #hud-cmd-paged .ui-cmd-wep-well {
+    width: 34px;
+    height: 34px;
+  }
+  .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-well .c-ico svg,
+  #hud-cmd-paged .ui-cmd-wep-well .c-ico svg {
+    width: 20px;
+    height: 20px;
+  }
+  .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-row1 .c-txt,
+  #hud-cmd-paged .ui-cmd-wep-row1 .c-txt {
+    font-size: 11px;
+  }
+  .scv-right-cmd-grid.is-partitioned .ui-cmd-wep-row2 .c-subtxt,
+  #hud-cmd-paged .ui-cmd-wep-row2 .c-subtxt {
+    font-size: 9.5px;
+  }
+  .scv-right-cmd-grid.is-partitioned .ui-cmd-util-btn,
+  #hud-cmd-paged .ui-cmd-util-btn {
+    height: 30px;
+    padding: 0 7px;
+    font-size: 11px;
+  }
+  .scv-right-cmd-grid.is-partitioned .ui-cmd-util-left .c-ico svg,
+  #hud-cmd-paged .ui-cmd-util-left .c-ico svg {
+    width: 16px;
+    height: 16px;
+  }
+  .scv-deck-tab {
+    padding: 0 5px;
     font-size: 10px;
   }
+}
+
+/* ====== 操作交互系统扩展（Z-105 高清标绘层、框选矩形、模式横幅、Z-300 8 槽轮盘） ====== */
+#scv-tactical-overlay.scv-tactical-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none;
+  z-index: 105;
+  image-rendering: auto !important;
+  filter: none !important;
+}
+
+.scv-drag-box {
+  position: absolute;
+  z-index: 115;
+  pointer-events: none;
+}
+
+.scv-mode-banner {
+  position: absolute;
+  left: 50%;
+  top: 88px;
+  transform: translateX(-50%);
+  z-index: var(--ui-z-drawer);
+  padding: 6px 14px;
+  border-radius: var(--ui-r-pill);
+  font-size: var(--ui-fs-xs);
+  font-weight: 700;
+  color: var(--ui-text-primary);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.scv-mode-banner[data-tone="danger"] {
+  border-color: var(--ui-state-danger);
+  color: var(--ui-state-danger);
+}
+
+.scv-mode-banner[data-tone="warn"] {
+  border-color: var(--ui-state-warn);
+  color: var(--ui-state-warn);
+}
+
+.scv-mode-banner[data-tone="safe"] {
+  border-color: var(--ui-state-safe);
+  color: var(--ui-state-safe);
+}
+
+.scv-mode-banner[data-tone="select"] {
+  border-color: var(--ui-state-select);
+  color: var(--ui-state-select);
+}
+
+.scv-wheel-host {
+  position: absolute;
+  inset: 0;
+  z-index: var(--ui-z-drawer);
+  pointer-events: auto;
+  background: rgba(6, 7, 11, 0.16);
+}
+
+.scv-wheel-host .ui-wheel {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  margin: 0;
+}
+
+.ui-btn.is-tool-active {
+  border-color: var(--ui-state-safe);
+  background: var(--ui-state-safe-fill);
+  color: var(--ui-state-safe);
+}
+
+.scv-mm-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ====== V2.2 方案 A：右下主选舱上浮共享宽体参数详情卡（同宽零撞顶栏、解放左半屏） ====== */
+.scv-insp-detail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 21px;
+  padding: 0 6px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid var(--ui-line-accent);
+  background: rgba(240, 211, 114, 0.12);
+  color: var(--ui-state-select);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  transition: border-color var(--ui-dur-micro), background var(--ui-dur-micro), color var(--ui-dur-micro);
+}
+
+.scv-insp-detail-btn:hover {
+  border-color: var(--ui-state-select);
+  background: rgba(240, 211, 114, 0.22);
+}
+
+.scv-insp-detail-btn.active {
+  background: var(--ui-accent-grad);
+  border-color: transparent;
+  color: var(--ui-text-inverse);
+}
+
+.scv-insp-detail-btn .scv-detail-kbd {
+  font-family: var(--ui-font-mono);
+  font-size: 9px;
+  padding: 0 3.5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.scv-insp-detail-btn.active .scv-detail-kbd {
+  background: rgba(13, 14, 19, 0.24);
+}
+
+.scv-unit-detail-card {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 7px);
+  z-index: calc(var(--ui-z-hud) + 14);
+  width: 100%;
+  min-width: 332px;
+  max-height: min(334px, max(120px, calc(var(--scv-stage-h, 680px) - 340px)));
+  overflow-y: auto;
+  border-color: var(--ui-line-accent);
+  pointer-events: auto;
+  scrollbar-width: thin;
+}
+
+#canvas-host[data-ui-size="compact"] .scv-unit-detail-card {
+  max-height: min(304px, max(110px, calc(var(--scv-stage-h, 680px) - 316px)));
+}
+
+#canvas-host[data-ui-size="xl"] .scv-unit-detail-card {
+  max-height: min(372px, max(130px, calc(var(--scv-stage-h, 680px) - 356px)));
+}
+
+.scv-detail-head {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--ui-line-subtle);
+}
+
+.scv-detail-portrait {
+  width: 44px;
+  height: 54px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid var(--ui-line-base);
+  background: linear-gradient(180deg, rgba(46, 36, 70, 0.90) 0%, rgba(12, 13, 21, 0.96) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.scv-detail-portrait[data-channel="ground"] {
+  background: linear-gradient(180deg, rgba(44, 54, 46, 0.90) 0%, rgba(12, 14, 18, 0.96) 100%);
+}
+
+.scv-detail-portrait[data-channel="heli"] {
+  background: linear-gradient(180deg, rgba(28, 52, 68, 0.90) 0%, rgba(11, 14, 20, 0.96) 100%);
+}
+
+.scv-detail-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.scv-detail-title {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scv-detail-title strong {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ui-state-select);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scv-detail-title small {
+  font-size: 10px;
+  color: var(--ui-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scv-detail-cost-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.scv-detail-hp-box {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.scv-detail-hp-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.scv-detail-hp-head span {
+  color: var(--ui-text-secondary);
+}
+
+.scv-detail-hp-head b {
+  font-family: var(--ui-font-mono);
+  color: var(--ui-text-primary);
+}
+
+.scv-detail-core-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.scv-detail-kv {
+  padding: 4px 6px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid var(--ui-line-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.scv-detail-kv span {
+  font-size: 9px;
+  color: var(--ui-text-muted);
+}
+
+.scv-detail-kv b {
+  font-family: var(--ui-font-mono);
+  font-size: 10.5px;
+  color: var(--ui-text-primary);
+  white-space: nowrap;
+}
+
+.scv-detail-sec-title {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--ui-text-muted);
+  text-transform: uppercase;
+}
+
+.scv-firepower-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px 6px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid var(--ui-line-subtle);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.scv-firepower-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--ui-text-secondary);
+}
+
+.scv-detail-weap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.scv-detail-weap-item {
+  padding: 5px 6px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid var(--ui-line-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scv-detail-weap-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 10.5px;
+}
+
+.scv-detail-weap-top strong {
+  color: var(--ui-text-primary);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scv-detail-weap-top b {
+  font-family: var(--ui-font-mono);
+  font-size: 10px;
+  color: var(--ui-state-select);
+  white-space: nowrap;
+}
+
+.scv-detail-weap-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: var(--ui-font-mono);
+  font-size: 9.5px;
+  color: var(--ui-text-secondary);
+}
+
+.scv-detail-source-foot {
+  font-size: 9px;
+  color: var(--ui-text-muted);
+  border-top: 1px solid var(--ui-line-subtle);
+  padding-top: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ====== V2 右下角翻页命令盘增强（方案 B 宽幅武器卡 + 坐标防截断 + 独立可拖拽 AIR LAB 调试控制台） ====== */
+#insp-pos {
+  font-size: 10.5px;
+  letter-spacing: -0.02em;
+}
+
+.scv-right-cmd-grid .ui-cmd-cell .c-charge {
+  font-size: 9px;
+  padding: 1px 4px;
+}
+
+.scv-right-cmd-grid .ui-cmd-cell.is-plane-cmd {
+  border-color: rgba(177, 151, 252, 0.36);
+}
+
+.scv-right-cmd-grid .ui-cmd-cell.is-plane-cmd:hover:not(:disabled) {
+  border-color: var(--ui-ch-plane);
+  background: var(--ui-ch-plane-fill);
+}
+
+.scv-right-cmd-grid .ui-cmd-cell.is-danger-cmd {
+  border-color: rgba(255, 82, 102, 0.42);
+  color: var(--ui-state-danger);
+}
+
+.scv-right-cmd-grid .ui-cmd-cell.is-danger-cmd:hover:not(:disabled) {
+  background: var(--ui-state-danger-fill);
+  border-color: var(--ui-state-danger);
+}
+
+.scv-airlab-top-pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--ui-r-control);
+  border: 1px solid rgba(177, 151, 252, 0.48);
+  background: rgba(19, 20, 30, 0.92);
+  box-shadow: var(--ui-rim-top), 0 6px 18px rgba(0, 0, 0, 0.48);
+  font-family: var(--ui-font-mono);
+  font-size: 10.5px;
+  color: var(--ui-ch-plane-inner);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.scv-airlab-top-pill:hover {
+  border-color: var(--ui-ch-plane);
+}
+
+.scv-airlab-top-pill .scv-airlab-tag {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(177, 151, 252, 0.22);
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+.scv-airlab-top-pill b {
+  color: var(--ui-state-select);
+}
+
+/* ====== 独立可拖拽可折叠 AIR LAB 调试控制台（仅 ?mode=air-lab 注入） ====== */
+.scv-airlab-debug-panel {
+  position: absolute;
+  top: 58px;
+  right: 16px;
+  width: 284px;
+  max-height: calc(100% - 354px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  z-index: calc(var(--ui-z-hud) + 16);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 7px 8px 8px;
+  border-radius: var(--ui-r-panel);
+  border: 1px solid rgba(177, 151, 252, 0.46);
+  background: rgba(16, 18, 28, 0.94);
+  box-shadow: var(--ui-rim-top), 0 12px 28px rgba(0, 0, 0, 0.56);
+  color: var(--ui-text-primary);
+  user-select: none;
+}
+
+.scv-airlab-debug-panel.is-dragging {
+  border-color: var(--ui-state-select);
+  box-shadow: var(--ui-rim-top), 0 16px 34px rgba(0, 0, 0, 0.72);
+}
+
+.scv-airlab-debug-panel.is-collapsed {
+  width: auto;
+  min-width: 196px;
+  padding: 6px 9px;
+  gap: 0;
+}
+
+.scv-airlab-debug-panel.is-collapsed .scv-airlab-panel-body {
+  display: none;
+}
+
+.scv-airlab-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: grab;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(177, 151, 252, 0.20);
+}
+
+.scv-airlab-debug-panel.is-collapsed .scv-airlab-panel-head {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.scv-airlab-debug-panel.is-dragging .scv-airlab-panel-head {
+  cursor: grabbing;
+}
+
+.scv-airlab-panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--ui-text-primary);
+  letter-spacing: 0.02em;
+}
+
+.scv-airlab-panel-title .scv-airlab-tag {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(177, 151, 252, 0.24);
+  color: #ffffff;
+  font-family: var(--ui-font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+.scv-airlab-panel-toggle {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ui-text-secondary);
+  border-radius: var(--ui-r-sm);
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.scv-airlab-panel-toggle:hover {
+  border-color: var(--ui-ch-plane);
+  color: var(--ui-text-primary);
+  background: rgba(177, 151, 252, 0.16);
+}
+
+.scv-airlab-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.scv-airlab-mini-kpi {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 5px 6px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid rgba(177, 151, 252, 0.28);
+  background: rgba(177, 151, 252, 0.08);
+  font-family: var(--ui-font-mono);
+  font-size: 10px;
+  color: var(--ui-ch-plane-inner);
+}
+
+.scv-airlab-mini-kpi .kpi-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.scv-airlab-mini-kpi strong {
+  color: var(--ui-state-select);
+  font-weight: 800;
+}
+
+.scv-airlab-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.scv-airlab-sec-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ui-text-muted);
+  text-transform: uppercase;
+}
+
+.scv-airlab-btn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.scv-airlab-btn-grid.is-4col {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.scv-airlab-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 27px;
+  padding: 0 4px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid rgba(177, 151, 252, 0.28);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ui-text-primary);
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.scv-airlab-btn:hover {
+  border-color: var(--ui-ch-plane);
+  background: var(--ui-ch-plane-fill);
+}
+
+.scv-airlab-btn.is-active {
+  border-color: var(--ui-state-select);
+  background: rgba(240, 211, 114, 0.16);
+  color: var(--ui-state-select);
+}
+
+.scv-airlab-btn.is-danger {
+  border-color: rgba(255, 82, 102, 0.44);
+  color: var(--ui-state-danger);
+}
+
+.scv-airlab-btn.is-danger:hover {
+  border-color: var(--ui-state-danger);
+  background: var(--ui-state-danger-fill);
+}
+
+.scv-airlab-btn-grid.is-4col .scv-airlab-btn {
+  font-size: 10px;
+  padding: 0 2px;
 }

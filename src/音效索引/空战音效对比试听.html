@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scavenger｜A-10C 机炮与火箭齐射音效 A/B 对比试听台</title>
+  <link rel="stylesheet" href="/ui/令牌.css" />
+  <link rel="stylesheet" href="/ui/组件.css" />
+  <style>
+    :root {
+      --ab-bg: #0f1318;
+      --ab-surface: #161c24;
+      --ab-surface-2: #1d2530;
+      --ab-border: rgba(255, 255, 255, 0.09);
+      --ab-border-hi: rgba(240, 211, 114, 0.55);
+      --ab-text: #e6edf5;
+      --ab-muted: #93a1b3;
+      --ab-accent: #f0d372;
+      --ab-ok: #5cd69a;
+      --ab-warn: #f59e42;
+      --ab-bad: #f06565;
+      --ab-blue: #6cb8ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 0%, #192230 0%, var(--ab-bg) 55%);
+      color: var(--ab-text);
+      font-family: "Segoe UI", "Microsoft YaHei UI", system-ui, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      padding-bottom: 92px;
+    }
+
+    /* 顶部吸顶总控条 */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(15, 19, 24, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--ab-border);
+      padding: 12px 20px;
+    }
+    .topbar-inner {
+      max-width: 1420px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px 20px;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: var(--ab-accent);
+    }
+    .brand p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--ab-muted);
+    }
+
+    .master-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+    .meter-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #0b0e12;
+      border: 1px solid var(--ab-border);
+      border-radius: 6px;
+      padding: 6px 10px;
+    }
+    #scopeCanvas {
+      width: 220px;
+      height: 36px;
+      display: block;
+      border-radius: 3px;
+      background: #07090c;
+    }
+    .peak-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 78px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 11px;
+    }
+    .peak-bar-bg {
+      width: 78px;
+      height: 7px;
+      background: #1c2430;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .peak-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--ab-ok) 0%, var(--ab-accent) 72%, var(--ab-bad) 95%);
+      transition: width 40ms linear;
+    }
+    .peak-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--ab-muted);
+    }
+    .clip-pill {
+      padding: 0 4px;
+      border-radius: 3px;
+      font-weight: 700;
+      color: #1a0b0b;
+      background: var(--ab-bad);
+      opacity: 0.18;
+      transition: opacity 80ms;
+    }
+    .clip-pill.hot { opacity: 1; }
+
+    .ctrl-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ab-surface);
+      border: 1px solid var(--ab-border);
+      border-radius: 6px;
+      padding: 5px 10px;
+    }
+    .ctrl-inline label {
+      color: var(--ab-muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .ctrl-inline input[type="range"] {
+      width: 90px;
+      accent-color: var(--ab-accent);
+      cursor: pointer;
+    }
+    .mono {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 12px;
+      color: var(--ab-text);
+    }
+
+    /* 通用按钮 */
+    .btn {
+      appearance: none;
+      border: 1px solid var(--ab-border);
+      background: var(--ab-surface-2);
+      color: var(--ab-text);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 120ms, border-color 120ms, transform 60ms;
+      white-space: nowrap;
+    }
+    .btn:hover { background: #263140; border-color: rgba(255, 255, 255, 0.22); }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary {
+      background: rgba(240, 211, 114, 0.16);
+      border-color: rgba(240, 211, 114, 0.55);
+      color: var(--ab-accent);
+    }
+    .btn-primary:hover { background: rgba(240, 211, 114, 0.25); }
+    .btn-danger {
+      background: rgba(240, 101, 101, 0.15);
+      border-color: rgba(240, 101, 101, 0.5);
+      color: #ff9c9c;
+    }
+    .btn-danger:hover { background: rgba(240, 101, 101, 0.28); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ab-muted);
+    }
+    .btn-ghost:hover { color: var(--ab-text); background: rgba(255, 255, 255, 0.06); }
+    .btn-pick.picked {
+      background: rgba(92, 214, 154, 0.2);
+      border-color: var(--ab-ok);
+      color: var(--ab-ok);
+    }
+
+    /* 分段切换 */
+    .seg-group {
+      display: inline-flex;
+      background: #0d1117;
+      border: 1px solid var(--ab-border);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .seg-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--ab-muted);
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 120ms, color 120ms;
+    }
+    .seg-btn:hover { color: var(--ab-text); }
+    .seg-btn.active {
+      background: var(--ab-surface-2);
+      color: var(--ab-accent);
+      font-weight: 600;
+    }
+
+    /* 主体区 */
+    .container {
+      max-width: 1420px;
+      margin: 18px auto 0;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .section {
+      background: rgba(22, 28, 36, 0.72);
+      border: 1px solid var(--ab-border);
+      border-radius: 10px;
+      padding: 16px 18px 18px;
+    }
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--ab-border);
+      margin-bottom: 14px;
+    }
+    .section-head h2 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-head p {
+      margin: 0;
+      color: var(--ab-muted);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+    }
+    .toolbar-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--ab-muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+      gap: 12px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--ab-surface);
+      border: 1px solid var(--ab-border);
+      border-radius: 8px;
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      transition: border-color 140ms, box-shadow 140ms;
+    }
+    .card.playing {
+      border-color: var(--ab-accent);
+      box-shadow: 0 0 0 1px rgba(240, 211, 114, 0.35), 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+    .card.picked-card {
+      border-color: rgba(92, 214, 154, 0.6);
+    }
+    .card.is-bug {
+      border-color: rgba(240, 101, 101, 0.35);
+      background: linear-gradient(180deg, rgba(240, 101, 101, 0.06), var(--ab-surface) 45%);
+    }
+    .card.is-rec {
+      border-color: rgba(240, 211, 114, 0.35);
+      background: linear-gradient(180deg, rgba(240, 211, 114, 0.06), var(--ab-surface) 45%);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .card-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .card-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ab-text);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .card-key {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 11px;
+      color: var(--ab-muted);
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.2px;
+    }
+    .badge-rec { background: rgba(240, 211, 114, 0.18); color: var(--ab-accent); border: 1px solid rgba(240, 211, 114, 0.45); }
+    .badge-bug { background: rgba(240, 101, 101, 0.18); color: #ff9c9c; border: 1px solid rgba(240, 101, 101, 0.45); }
+    .badge-alt { background: rgba(108, 184, 255, 0.14); color: var(--ab-blue); border: 1px solid rgba(108, 184, 255, 0.38); }
+    .badge-fix { background: rgba(92, 214, 154, 0.16); color: var(--ab-ok); border: 1px solid rgba(92, 214, 154, 0.42); }
+
+    .card-desc {
+      margin: 0;
+      font-size: 12px;
+      color: #b7c3d3;
+    }
+    .specs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 11px;
+      color: var(--ab-muted);
+    }
+    .specs span {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      padding: 1px 6px;
+    }
+
+    .sliders-box {
+      background: rgba(9, 12, 16, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .slider-row {
+      display: grid;
+      grid-template-columns: 112px 1fr 56px;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      color: var(--ab-muted);
+    }
+    .slider-row input[type="range"] {
+      width: 100%;
+      accent-color: var(--ab-accent);
+      cursor: pointer;
+    }
+    .slider-row .val {
+      text-align: right;
+      font-family: ui-monospace, Consolas, monospace;
+      color: var(--ab-text);
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 4px;
+    }
+
+    /* 加载与日志条 */
+    .status-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--ab-muted);
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: rgba(11, 14, 18, 0.65);
+      border: 1px solid var(--ab-border);
+    }
+    .status-strip strong { color: var(--ab-accent); }
+
+    /* 底部决策固定栏 */
+    .decision-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 45;
+      background: rgba(12, 16, 22, 0.96);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(240, 211, 114, 0.35);
+      padding: 10px 20px;
+    }
+    .decision-inner {
+      max-width: 1420px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .decision-summary {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      font-size: 12.5px;
+    }
+    .pick-slot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pick-slot .k { color: var(--ab-muted); }
+    .pick-slot .v {
+      color: var(--ab-ok);
+      font-weight: 700;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 66px;
+      background: #1b2a22;
+      color: var(--ab-ok);
+      border: 1px solid var(--ab-ok);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(6px);
+      transition: opacity 160ms, transform 160ms;
+      z-index: 60;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* V2 物理声学实验室置顶专区 */
+    .v2-hero {
+      background: linear-gradient(135deg, rgba(240, 211, 114, 0.10) 0%, rgba(22, 28, 36, 0.92) 48%, rgba(92, 214, 154, 0.06) 100%);
+      border: 1px solid rgba(240, 211, 114, 0.45);
+      border-radius: 10px;
+      padding: 16px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .v2-hero.playing {
+      box-shadow: 0 0 0 1px rgba(240, 211, 114, 0.55), 0 8px 26px rgba(0, 0, 0, 0.42);
+    }
+    .v2-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 980px) {
+      .v2-grid { grid-template-columns: 1fr; }
+    }
+    .v2-panel {
+      background: rgba(11, 15, 20, 0.72);
+      border: 1px solid var(--ab-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .dist-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .dist-readout {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ab-accent);
+    }
+    .dist-band-tag {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: rgba(240, 211, 114, 0.16);
+      color: var(--ab-accent);
+      border: 1px solid rgba(240, 211, 114, 0.42);
+    }
+    .dist-slider {
+      width: 100%;
+      accent-color: var(--ab-accent);
+      cursor: pointer;
+    }
+    .dist-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--ab-muted);
+      font-family: ui-monospace, Consolas, monospace;
+    }
+    .telemetry-chips {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+      gap: 8px;
+    }
+    .t-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 6px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .t-chip .tk { font-size: 11px; color: var(--ab-muted); }
+    .t-chip .tv { font-size: 13px; font-weight: 700; font-family: ui-monospace, Consolas, monospace; color: var(--ab-text); }
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <a class="ui-back-home" href="/" title="返回 Scavenger 作战大厅 (/)">
+          <span class="ui-back-home-arrow" aria-hidden="true">←</span><span>返回大厅</span>
+        </a>
+        <div class="brand">
+          <h1>A-10C 空战音效快速 A/B 对比试听台</h1>
+          <p>直连本机统一资料库 /media/*.ogg（零外部依赖）｜点击即切自动防叠音｜空格键一键停止</p>
+        </div>
+      </div>
+      <div class="master-controls">
+        <div class="meter-box" title="实时示波器与母线峰值表（观察削波与限幅）">
+          <canvas id="scopeCanvas" width="440" height="72"></canvas>
+          <div class="peak-wrap">
+            <div class="peak-label">
+              <span id="peakDb">-∞ dB</span>
+              <span id="clipLamp" class="clip-pill">CLIP</span>
+            </div>
+            <div class="peak-bar-bg"><div id="peakFill" class="peak-bar-fill"></div></div>
+          </div>
+        </div>
+        <div class="ctrl-inline">
+          <label for="masterVol">总音量</label>
+          <input id="masterVol" type="range" min="10" max="120" value="85" />
+          <span id="masterVolVal" class="mono">85%</span>
+        </div>
+        <div class="seg-group" role="group" aria-label="母线压缩器开关">
+          <button type="button" class="seg-btn active" data-comp="on">软限幅压缩: 开</button>
+          <button type="button" class="seg-btn" data-comp="off">直通无压缩</button>
+        </div>
+        <button type="button" id="stopAllBtn" class="btn btn-danger">■ 全部停止 (Space)</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="status-strip">
+      <div>当前状态：<strong id="nowPlaying">待机（点击任意试听按钮自动解码并播放）</strong></div>
+      <div id="cacheStatus" class="mono">已解码音轨：0 / 13</div>
+    </div>
+
+    <!-- 置顶专区：GAU-8/A V2 四层物理混合声学实验台（近/中/远距离实时演化） -->
+    <section id="v2Hero" class="v2-hero" data-card-id="gun_v2_physics" aria-labelledby="sec-v2-title">
+      <div class="section-head" style="margin-bottom:0;">
+        <div>
+          <h2 id="sec-v2-title">
+            <span class="badge badge-rec">★ 新方案 V2</span>
+            <span>GAU-8/A 30mm 四层物理混合声学模型（近 / 中 / 远距离实时变化 · 对标 DCS BV1mp4y1r7hE）</span>
+          </h2>
+          <p>65Hz 炮口 N-Wave 激波脉冲列 + 实采火药纹理（GSH30/GAU12）+ 音速先行弹着裂响 + 双阶大气低通与 3.6s 空域滚雷卷积尾音。播放过程中可直接拖动距离滑块实时听音色过渡。</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="seg-group" id="v2ImpactGroup">
+            <button type="button" class="seg-btn active" data-v2-impact="on">含地面弹着先行(声速错拍)</button>
+            <button type="button" class="seg-btn" data-v2-impact="off">纯听天空机炮</button>
+          </div>
+          <button type="button" class="btn btn-pick" id="pickV2Btn" data-pick-gun="gun_v2_physics">选为心仪</button>
+        </div>
+      </div>
+
+      <div class="v2-grid">
+        <div class="v2-panel">
+          <div class="dist-header">
+            <span style="color:var(--ab-muted);font-size:12px;">相机 ↔ A-10 机头观察距离（播放中可实时拖动）</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span id="v2DistBand" class="dist-band-tag">经典中距</span>
+              <span id="v2DistReadout" class="dist-readout">420 m</span>
+            </div>
+          </div>
+          <input id="v2DistSlider" class="dist-slider" type="range" min="80" max="1500" step="10" value="420" />
+          <div class="dist-ticks">
+            <span>80m 贴脸狂暴</span>
+            <span>250m 低空近景</span>
+            <span>420m 经典中距</span>
+            <span>800m 远空</span>
+            <span>1250m+ 山谷闷雷</span>
+          </div>
+          <div class="telemetry-chips">
+            <div class="t-chip"><span class="tk">声速延迟 (vs弹着)</span><span id="v2DelayVal" class="tv">1235 ms</span></div>
+            <div class="t-chip"><span class="tk">大气低通 LPF</span><span id="v2LpfVal" class="tv">1850 Hz</span></div>
+            <div class="t-chip"><span class="tk">胸腔低频补偿</span><span id="v2ShelfVal" class="tv">+2.4 dB</span></div>
+            <div class="t-chip"><span class="tk">空域滚雷湿声</span><span id="v2WetVal" class="tv">44%</span></div>
+          </div>
+          <div class="preset-row">
+            <button type="button" class="btn btn-primary" data-v2-preset="110">▶ 近距贴脸 (110m)</button>
+            <button type="button" class="btn btn-primary" data-v2-preset="420">▶ 经典中距 (420m)</button>
+            <button type="button" class="btn btn-primary" data-v2-preset="820">▶ 中远空域 (820m)</button>
+            <button type="button" class="btn btn-primary" data-v2-preset="1250">▶ 超远山谷 (1250m)</button>
+            <button type="button" class="btn" id="v2FlybyBtn" style="border-color:rgba(108,184,255,0.55);color:var(--ab-blue);">✈ 迎头低空飞越多普勒 (Flyby)</button>
+            <button type="button" class="btn" id="v2PlayCurrentBtn">▶ 按当前滑块距离试听</button>
+          </div>
+        </div>
+
+        <div class="v2-panel">
+          <div style="font-size:12px;font-weight:700;color:var(--ab-text);">四层声学混合配比微调</div>
+          <div class="sliders-box" style="background:transparent;border:0;padding:0;gap:10px;">
+            <div class="slider-row">
+              <span>65Hz 激波号角层</span>
+              <input id="v2ShockSlider" type="range" min="30" max="140" value="95" />
+              <span id="v2ShockVal" class="val">95%</span>
+            </div>
+            <div class="slider-row">
+              <span>实录火药撕裂层</span>
+              <input id="v2RealSlider" type="range" min="0" max="140" value="75" />
+              <span id="v2RealVal" class="val">75%</span>
+            </div>
+            <div class="slider-row">
+              <span>空域滚雷尾音</span>
+              <input id="v2TailSlider" type="range" min="0" max="140" value="95" />
+              <span id="v2TailVal" class="val">95%</span>
+            </div>
+          </div>
+          <div class="specs" style="margin-top:auto;">
+            <span>3970 RPM (66Hz) 锁相激波列</span>
+            <span>24dB/oct 空气高频吸收</span>
+            <span>3.6s 递减低通滚雷 Convolver</span>
+            <span>与实战代码同源复用</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- A 区：GAU-8 机炮 -->
+    <section class="section" aria-labelledby="sec-gun-title">
+      <div class="section-head">
+        <div>
+          <h2 id="sec-gun-title">A. A-10C GAU-8/A 30mm 机炮候选对比</h2>
+          <p>对比「现役错误切片」与《断箭》本地资料库精选单轨 / 双层融合方案，支持切换扫射时长与真实战场「地面弹幕先行 → 滞后 150ms 爆发机炮声」听感。</p>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar-item">
+            <span>扫射时长</span>
+            <div class="seg-group" id="burstDurGroup">
+              <button type="button" class="seg-btn" data-dur="1.2">1.2s 短射</button>
+              <button type="button" class="seg-btn active" data-dur="1.8">1.8s 标准</button>
+              <button type="button" class="seg-btn" data-dur="2.6">2.6s 长射</button>
+            </div>
+          </div>
+          <div class="toolbar-item">
+            <span>地面弹着伴音</span>
+            <div class="seg-group" id="impactToggleGroup">
+              <button type="button" class="seg-btn active" data-impact="off">纯听机炮</button>
+              <button type="button" class="seg-btn" data-impact="on">含地面命中声(+150ms延迟)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="gunGrid" class="grid"></div>
+    </section>
+
+    <!-- B 区：Hydra 70 火箭齐射 -->
+    <section class="section" aria-labelledby="sec-rocket-title">
+      <div class="section-head">
+        <div>
+          <h2 id="sec-rocket-title">B. Hydra 70 火箭齐射（7 连发）故障复现 vs 修复对比</h2>
+          <p>一耳验证旧版「前 7 帧 16ms 叠爆 + 98% 低频 38Hz 削波爆炸压死限幅器」问题，并与 70mm 专属发射/爆炸音轨 + 逐发防抖、随机音高及并发衰减修复版对比。</p>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar-item">
+            <span>逐发间隔</span>
+            <div class="seg-group" id="salvoIntervalGroup">
+              <button type="button" class="seg-btn" data-interval="0.08">0.08s 疾射</button>
+              <button type="button" class="seg-btn active" data-interval="0.11">0.11s 标准</button>
+              <button type="button" class="seg-btn" data-interval="0.15">0.15s 慢节奏</button>
+            </div>
+          </div>
+          <div class="toolbar-item">
+            <span>试听环节</span>
+            <div class="seg-group" id="salvoPhaseGroup">
+              <button type="button" class="seg-btn active" data-phase="both">发射 + 飞行 + 落地</button>
+              <button type="button" class="seg-btn" data-phase="launch">只听发射段</button>
+              <button type="button" class="seg-btn" data-phase="impact">只听落地段</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="rocketGrid" class="grid-2"></div>
+    </section>
+  </main>
+
+  <footer class="decision-bar">
+    <div class="decision-inner">
+      <div class="decision-summary">
+        <div class="pick-slot"><span class="k">机炮已选：</span><span id="pickedGunText" class="v">未标记（点击卡片右上「选为心仪」）</span></div>
+        <div class="pick-slot"><span class="k">火箭已选：</span><span id="pickedRocketText" class="v">未标记</span></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button type="button" id="copyPickBtn" class="btn btn-primary">复制选型结论</button>
+        <a href="/play" class="btn btn-ghost" style="text-decoration:none;">返回实战 (/play)</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast">已复制选型结果到剪贴板</div>
+
+  <script type="module">
+    import {
+      computeGau8DistanceProfile,
+      createGau8AcousticResources,
+      triggerGau8AcousticBurst,
+    } from './机炮物理声学引擎.mjs';
+
+    // ==================== 1. 本地统一资料库音轨清单（全部经 HEAD 200 实测） ====================
+    const AUDIO_CATALOG = {
+      GAU8_30mm: {
+        label: 'SFX_AIR_PLANEGUN_30mm_GAU8_US',
+        url: '/media/7a56d552df58ec4b6269fd42c31c4260aa68f4f6e58c1f003e06c10029a410fc.ogg',
+      },
+      GSH30_30mm: {
+        label: 'SFX_AIR_PLANEGUN_30mm_GSH30_RU',
+        url: '/media/93d08dc607473a4c0e25096c03d48a2c93b6b945b5238f700424892468a96428.ogg',
+      },
+      GAU12_25mm: {
+        label: 'SFX_AIR_AAG_25mm_GAU12_US',
+        url: '/media/b30b3c0a7f08ca8ea444aed092a6e38db2ec9b0f4b23297a02926a3c041b2105.ogg',
+      },
+      GSH23_23mm: {
+        label: 'SFX_AIR_PLANEGUN_23mm_GSH23_RU',
+        url: '/media/2a6e6dede187ddc6c34263664a9b7139fb990ab107563434204156f28fbb8985.ogg',
+      },
+      M61_AIR_20mm: {
+        label: 'SFX_AIR_PLANEGUN_20mm_M61_US',
+        url: '/media/0cd7be50d3029a279faccb464860ebbf571c0a2ed596a96aaca2e6d80d1a2216.ogg',
+      },
+      M61_VEH_20mm: {
+        label: 'SFX_VEH_AAG_20mm_M61_US',
+        url: '/media/c1dbae1931db81545c66ab9dc1c2b434b2f31b2adedc8e9e0c7aee97335faeab.ogg',
+      },
+      A238M_30mm: {
+        label: 'SFX_VEH_AAG_30mm_2A38M_RU',
+        url: '/media/7c5ac2a55a24098cc8a0639dd6fc9b044beacfa6e6d0258741fc5e7c118e6d73.ogg',
+      },
+      IMPACT_30mm: {
+        label: 'SFX_Explosion_20-30mm_SupFAST_HE',
+        url: '/media/0863ed9dc9cf18bcd8fccf8716fd016b0e4738862c85d08051a8bf9ef121bf84.ogg',
+      },
+      ROCKET_MED: {
+        label: 'SFX_GENERIC_ROCKETPOD_Medium',
+        url: '/media/b1450c02ab45ecd5ba22c27df6fd78e5919a2600ccf3a6eaa2828fe2c6fe3e2b.ogg',
+      },
+      ROCKET_SMALL: {
+        label: 'SFX_GENERIC_ROCKETPOD_Small',
+        url: '/media/358aed471d8072e31989b112bd1211d96f7b3d099e2ffcee71281eb73b693a6f.ogg',
+      },
+      ROCKET_BIG: {
+        label: 'SFX_GENERIC_ROCKETPOD_Big',
+        url: '/media/11cb67ba0e92d86e9e8b72bb4237097b7d9589f545d441d041759d9af7e53ee2.ogg',
+      },
+      EXPL_80_105: {
+        label: 'SFX_Expl_ROCKET_MISSILE-AT_80-105',
+        url: '/media/bf26a35a927ad0ecb2f63f35c2be4a18fe7add2cae2894c7e44c33f3991167e1.ogg',
+      },
+      EXPL_POD_62_77: {
+        label: 'SFX_Expl_ROCKETPOD_62-77',
+        url: '/media/82495050ef20941bc82950d42606facdb1be4332c576b0b47aede5b9c9fd52b3.ogg',
+      },
+    };
+
+    // ==================== 2. WebAudio 母线 + 实时示波器 ====================
+    let audioCtx = null;
+    let masterGain = null;
+    let compressor = null;
+    let analyser = null;
+    let compEnabled = true;
+    const bufferCache = new Map();
+    const activeNodes = new Set();
+    const activeTimers = new Set();
+    let v2Resources = null;
+    let activeV2Handle = null;
+
+    const state = {
+      burstDurSec: 1.8,
+      withGroundImpact: false,
+      salvoIntervalSec: 0.11,
+      salvoPhase: 'both',
+      playingCardId: null,
+      pickedGun: null,
+      pickedRocket: null,
+      v2: {
+        distanceMeters: 420,
+        withGroundImpact: true,
+        shockStrength: 0.95,
+        realTextureStrength: 0.75,
+        thunderTailStrength: 0.95,
+      },
+      // 融合方案 A 的可调参数
+      fusion: {
+        gshMix: 0.62,
+        gshRate: 0.86,
+        gau12Rate: 0.96,
+        presenceDb: 3.5,
+      },
+      // 各单轨卡片的可调倍率
+      cardRates: {
+        gun_gsh30_slow: 0.86,
+        gun_gau12: 0.96,
+        gun_gsh23: 0.82,
+        gun_m61: 0.90,
+        gun_2a38m: 0.95,
+      },
+    };
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        audioCtx = new AC();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = Number(document.getElementById('masterVol').value) / 100;
+
+        compressor = audioCtx.createDynamicsCompressor();
+        compressor.threshold.value = -8;
+        compressor.knee.value = 12;
+        compressor.ratio.value = 8;
+        compressor.attack.value = 0.004;
+        compressor.release.value = 0.14;
+
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.72;
+
+        rewireMasterBus();
+        startMeterLoop();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function rewireMasterBus() {
+      if (!audioCtx || !masterGain || !compressor || !analyser) return;
+      try { masterGain.disconnect(); } catch {}
+      try { compressor.disconnect(); } catch {}
+      try { analyser.disconnect(); } catch {}
+
+      if (compEnabled) {
+        masterGain.connect(compressor);
+        compressor.connect(analyser);
+        analyser.connect(audioCtx.destination);
+      } else {
+        masterGain.connect(analyser);
+        analyser.connect(audioCtx.destination);
+      }
+    }
+
+    async function loadBuf(key) {
+      const ctx = ensureAudio();
+      if (bufferCache.has(key)) return bufferCache.get(key);
+      const entry = AUDIO_CATALOG[key];
+      if (!entry) throw new Error(`未知音轨键: ${key}`);
+      const resp = await fetch(entry.url);
+      if (!resp.ok) throw new Error(`加载失败 HTTP ${resp.status}: ${entry.label}`);
+      const arr = await resp.arrayBuffer();
+      const decoded = await ctx.decodeAudioData(arr);
+      bufferCache.set(key, decoded);
+      document.getElementById('cacheStatus').textContent = `已解码音轨：${bufferCache.size} / ${Object.keys(AUDIO_CATALOG).length}`;
+      return decoded;
+    }
+
+    function trackNode(node) {
+      activeNodes.add(node);
+      if ('onended' in node) {
+        const prev = node.onended;
+        node.onended = () => {
+          activeNodes.delete(node);
+          if (prev) prev();
+        };
+      }
+      return node;
+    }
+
+    function setTimer(fn, ms) {
+      const id = window.setTimeout(() => {
+        activeTimers.delete(id);
+        fn();
+      }, ms);
+      activeTimers.add(id);
+      return id;
+    }
+
+    function stopAllAudio(clearLabel = true) {
+      for (const id of activeTimers) window.clearTimeout(id);
+      activeTimers.clear();
+
+      const now = audioCtx ? audioCtx.currentTime : 0;
+      for (const node of [...activeNodes]) {
+        try {
+          if (typeof node.stop === 'function') node.stop(now + 0.005);
+        } catch {}
+        try { node.disconnect(); } catch {}
+      }
+      activeNodes.clear();
+      activeV2Handle = null;
+
+      if (state.playingCardId) {
+        const el = document.querySelector(`[data-card-id="${state.playingCardId}"]`);
+        if (el) el.classList.remove('playing');
+        state.playingCardId = null;
+      }
+      if (clearLabel) {
+        document.getElementById('nowPlaying').textContent = '已停止';
+      }
+    }
+
+    function markPlaying(cardId, title, autoClearMs) {
+      stopAllAudio(false);
+      state.playingCardId = cardId;
+      const el = document.querySelector(`[data-card-id="${cardId}"]`);
+      if (el) el.classList.add('playing');
+      document.getElementById('nowPlaying').textContent = title;
+      if (Number.isFinite(autoClearMs) && autoClearMs > 0) {
+        setTimer(() => {
+          if (state.playingCardId === cardId) {
+            if (el) el.classList.remove('playing');
+            state.playingCardId = null;
+            document.getElementById('nowPlaying').textContent = '播放完成';
+          }
+        }, autoClearMs);
+      }
+    }
+
+    // ==================== 3. 音频切片器（等功率交叉淡化循环 + 尾音） ====================
+    function makeLoopedSlice(ctx, srcBuf, { startSec, endSec, loopStartOffset, loopEndOffset, releaseStartSec, releaseEndSec, xfadeSec = 0.022 }) {
+      const sr = srcBuf.sampleRate;
+      const chCount = srcBuf.numberOfChannels;
+      const total = srcBuf.length;
+
+      const sStart = Math.min(total - 1, Math.max(0, Math.round(startSec * sr)));
+      const sEnd = Math.min(total, Math.max(sStart + Math.round(0.12 * sr), Math.round(endSec * sr)));
+      const sLen = sEnd - sStart;
+      const sustainBuf = ctx.createBuffer(chCount, sLen, sr);
+
+      const loopStartSec = Math.max(0.01, Math.min(sLen / sr - 0.08, loopStartOffset));
+      const loopEndSec = Math.max(loopStartSec + 0.06, Math.min(sLen / sr - 0.01, loopEndOffset));
+      const xfadeSamples = Math.min(Math.round(xfadeSec * sr), Math.round((loopEndSec - loopStartSec) * 0.25 * sr));
+      const loopStartIdx = Math.round(loopStartSec * sr);
+      const loopEndIdx = Math.round(loopEndSec * sr);
+
+      for (let c = 0; c < chCount; c += 1) {
+        const src = srcBuf.getChannelData(c);
+        const dst = sustainBuf.getChannelData(c);
+        dst.set(src.subarray(sStart, sEnd), 0);
+        for (let i = 0; i < xfadeSamples; i += 1) {
+          const t = i / Math.max(1, xfadeSamples);
+          const wOut = Math.cos(t * Math.PI * 0.5);
+          const wIn = Math.sin(t * Math.PI * 0.5);
+          const tailIdx = loopEndIdx - xfadeSamples + i;
+          const headIdx = loopStartIdx + i;
+          if (tailIdx >= 0 && tailIdx < sLen && headIdx >= 0 && headIdx < sLen) {
+            dst[tailIdx] = dst[tailIdx] * wOut + dst[headIdx] * wIn;
+          }
+        }
+      }
+
+      const rStart = Math.min(total - 1, Math.max(0, Math.round(releaseStartSec * sr)));
+      const rEnd = Math.min(total, Math.max(rStart + Math.round(0.15 * sr), Math.round((releaseEndSec || srcBuf.duration) * sr)));
+      const rLen = rEnd - rStart;
+      const releaseBuf = ctx.createBuffer(chCount, rLen, sr);
+      const fadeInSamples = Math.min(rLen, Math.round(0.012 * sr));
+      for (let c = 0; c < chCount; c += 1) {
+        const src = srcBuf.getChannelData(c);
+        const dst = releaseBuf.getChannelData(c);
+        dst.set(src.subarray(rStart, rEnd), 0);
+        for (let i = 0; i < fadeInSamples; i += 1) {
+          dst[i] *= i / Math.max(1, fadeInSamples);
+        }
+      }
+
+      return { sustainBuf, releaseBuf, loopStartSec, loopEndSec };
+    }
+
+    // 播放原轨完整音频（跳过前 0.16s 静音头，便于直接听素材本色）
+    async function playRawClip(cardId, key, title, rate = 1.0) {
+      const ctx = ensureAudio();
+      const buf = await loadBuf(key);
+      const offset = Math.min(0.16, buf.duration * 0.1);
+      const dur = Math.max(0.2, (buf.duration - offset) / rate);
+      markPlaying(cardId, `原始完整试听：${title} (${rate.toFixed(2)}x)`, Math.round(dur * 1000) + 120);
+
+      const src = trackNode(ctx.createBufferSource());
+      src.buffer = buf;
+      src.playbackRate.value = rate;
+      const g = ctx.createGain();
+      g.gain.value = 0.92;
+      src.connect(g);
+      g.connect(masterGain);
+      src.start(ctx.currentTime + 0.01, offset);
+    }
+
+    // 地面 30mm 扫射弹幕伴音（音速先行 150ms）
+    async function scheduleGroundStrafeHits(startAt, durSec) {
+      if (!state.withGroundImpact) return;
+      const ctx = ensureAudio();
+      const impBuf = await loadBuf('IMPACT_30mm');
+      const pulseInterval = 0.24;
+      const count = Math.max(2, Math.floor(durSec / pulseInterval));
+      for (let i = 0; i < count; i += 1) {
+        const t = startAt + i * pulseInterval + (Math.random() - 0.5) * 0.03;
+        const src = trackNode(ctx.createBufferSource());
+        src.buffer = impBuf;
+        src.playbackRate.value = 0.93 + Math.random() * 0.14;
+        const g = ctx.createGain();
+        g.gain.value = 0.42;
+        src.connect(g);
+        g.connect(masterGain);
+        src.start(t, 0.14, 0.36);
+      }
+    }
+
+    // 通用机炮循环扫射播放器
+    async function playLoopGunBurst({ cardId, title, key, sliceCfg, rate = 1.0, gainVal = 0.90, presenceDb = 0 }) {
+      const ctx = ensureAudio();
+      const buf = await loadBuf(key);
+      const durSec = state.burstDurSec;
+      const gunDelay = state.withGroundImpact ? 0.15 : 0.01;
+      const slices = makeLoopedSlice(ctx, buf, sliceCfg);
+      const tailSec = Math.min(2.2, slices.releaseBuf.duration / rate);
+      markPlaying(cardId, `${title}｜扫射 ${durSec.toFixed(1)}s (${rate.toFixed(2)}x)`, Math.round((gunDelay + durSec + tailSec) * 1000) + 120);
+
+      const t0 = ctx.currentTime + 0.02;
+      if (state.withGroundImpact) {
+        scheduleGroundStrafeHits(t0, durSec);
+      }
+
+      const gunStart = t0 + gunDelay;
+      const gunStop = gunStart + durSec;
+
+      const outTarget = presenceDb !== 0 ? (() => {
+        const eq = ctx.createBiquadFilter();
+        eq.type = 'peaking';
+        eq.frequency.value = 2300;
+        eq.Q.value = 0.9;
+        eq.gain.value = presenceDb;
+        eq.connect(masterGain);
+        return eq;
+      })() : masterGain;
+
+      const src = trackNode(ctx.createBufferSource());
+      src.buffer = slices.sustainBuf;
+      src.playbackRate.value = rate;
+      src.loop = true;
+      src.loopStart = slices.loopStartSec;
+      src.loopEnd = slices.loopEndSec;
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.001, gunStart);
+      g.gain.linearRampToValueAtTime(gainVal, gunStart + 0.018);
+      g.gain.setValueAtTime(gainVal, gunStop - 0.02);
+      g.gain.linearRampToValueAtTime(0.001, gunStop + 0.035);
+      src.connect(g);
+      g.connect(outTarget);
+      src.start(gunStart);
+      src.stop(gunStop + 0.05);
+
+      const rel = trackNode(ctx.createBufferSource());
+      rel.buffer = slices.releaseBuf;
+      rel.playbackRate.value = rate;
+      const rg = ctx.createGain();
+      rg.gain.setValueAtTime(gainVal * 0.92, gunStop - 0.015);
+      rel.connect(rg);
+      rg.connect(outTarget);
+      rel.start(gunStop - 0.015);
+    }
+
+    // 推荐方案 A：GAU-12 (70Hz 连续加特林嘶吼) + GSH-30 (0.86x 重炮撕裂与混响尾音) 双层融合
+    async function playFusionGau8(cardId) {
+      const ctx = ensureAudio();
+      const [bufGau12, bufGsh30] = await Promise.all([loadBuf('GAU12_25mm'), loadBuf('GSH30_30mm')]);
+      const durSec = state.burstDurSec;
+      const gunDelay = state.withGroundImpact ? 0.15 : 0.01;
+      const { gshMix, gshRate, gau12Rate, presenceDb } = state.fusion;
+
+      const s12 = makeLoopedSlice(ctx, bufGau12, {
+        startSec: 0.20,
+        endSec: 1.18,
+        loopStartOffset: 0.08,
+        loopEndOffset: 0.92,
+        releaseStartSec: 1.12,
+        releaseEndSec: 2.6,
+      });
+      const s30 = makeLoopedSlice(ctx, bufGsh30, {
+        startSec: 0.20,
+        endSec: 0.62,
+        loopStartOffset: 0.05,
+        loopEndOffset: 0.38,
+        releaseStartSec: 0.58,
+        releaseEndSec: 2.9,
+      });
+
+      const tailSec = Math.min(2.3, s30.releaseBuf.duration / gshRate);
+      markPlaying(
+        cardId,
+        `主推双层融合 A｜GAU12(${gau12Rate.toFixed(2)}x) + GSH30(${gshRate.toFixed(2)}x, 占比${Math.round(gshMix * 100)}%)`,
+        Math.round((gunDelay + durSec + tailSec) * 1000) + 120
+      );
+
+      const t0 = ctx.currentTime + 0.02;
+      if (state.withGroundImpact) scheduleGroundStrafeHits(t0, durSec);
+
+      const gunStart = t0 + gunDelay;
+      const gunStop = gunStart + durSec;
+
+      // 统一激励母线（Presence + 轻微高架突出撕裂空气感）
+      const presence = ctx.createBiquadFilter();
+      presence.type = 'peaking';
+      presence.frequency.value = 2400;
+      presence.Q.value = 0.85;
+      presence.gain.value = presenceDb;
+      presence.connect(masterGain);
+
+      // 层 1：GAU-12 连续加特林核心（70Hz 基频，低切 55Hz 防与 GSH30 低频打架）
+      const hp12 = ctx.createBiquadFilter();
+      hp12.type = 'highpass';
+      hp12.frequency.value = 55;
+      hp12.connect(presence);
+
+      const g12Gain = (1 - gshMix * 0.45) * 0.84;
+      const src12 = trackNode(ctx.createBufferSource());
+      src12.buffer = s12.sustainBuf;
+      src12.playbackRate.value = gau12Rate;
+      src12.loop = true;
+      src12.loopStart = s12.loopStartSec;
+      src12.loopEnd = s12.loopEndSec;
+      const g12 = ctx.createGain();
+      g12.gain.setValueAtTime(0.001, gunStart);
+      g12.gain.linearRampToValueAtTime(g12Gain, gunStart + 0.016);
+      g12.gain.setValueAtTime(g12Gain, gunStop - 0.02);
+      g12.gain.linearRampToValueAtTime(0.001, gunStop + 0.035);
+      src12.connect(g12);
+      g12.connect(hp12);
+      src12.start(gunStart);
+      src12.stop(gunStop + 0.05);
+
+      // 层 2：GSH-30 重炮撕裂 + 饱满尾音
+      const g30Gain = gshMix * 0.92;
+      const src30 = trackNode(ctx.createBufferSource());
+      src30.buffer = s30.sustainBuf;
+      src30.playbackRate.value = gshRate;
+      src30.loop = true;
+      src30.loopStart = s30.loopStartSec;
+      src30.loopEnd = s30.loopEndSec;
+      const g30 = ctx.createGain();
+      g30.gain.setValueAtTime(0.001, gunStart);
+      g30.gain.linearRampToValueAtTime(g30Gain, gunStart + 0.014);
+      g30.gain.setValueAtTime(g30Gain, gunStop - 0.02);
+      g30.gain.linearRampToValueAtTime(0.001, gunStop + 0.035);
+      src30.connect(g30);
+      g30.connect(presence);
+      src30.start(gunStart);
+      src30.stop(gunStop + 0.05);
+
+      // 混合停火尾音（以 GSH-30 饱满空域回响为主，叠少量 GAU-12 尾段）
+      const rel30 = trackNode(ctx.createBufferSource());
+      rel30.buffer = s30.releaseBuf;
+      rel30.playbackRate.value = gshRate;
+      const rg30 = ctx.createGain();
+      rg30.gain.setValueAtTime(Math.max(0.55, g30Gain * 0.95), gunStop - 0.015);
+      rel30.connect(rg30);
+      rg30.connect(presence);
+      rel30.start(gunStop - 0.015);
+
+      const rel12 = trackNode(ctx.createBufferSource());
+      rel12.buffer = s12.releaseBuf;
+      rel12.playbackRate.value = gau12Rate;
+      const rg12 = ctx.createGain();
+      rg12.gain.setValueAtTime(g12Gain * 0.45, gunStop - 0.015);
+      rel12.connect(rg12);
+      rg12.connect(hp12);
+      rel12.start(gunStop - 0.015);
+    }
+
+    // 新方案 V2：GAU-8/A 四层物理混合引擎（支持近/中/远实时拖动与低空飞越多普勒）
+    async function ensureV2Resources() {
+      const ctx = ensureAudio();
+      if (v2Resources) return v2Resources;
+      const [gsh30Buf, gau12Buf, impactBuf] = await Promise.all([
+        loadBuf('GSH30_30mm'),
+        loadBuf('GAU12_25mm'),
+        loadBuf('IMPACT_30mm'),
+      ]);
+      v2Resources = createGau8AcousticResources(ctx, { gsh30Buf, gau12Buf, impactBuf });
+      return v2Resources;
+    }
+
+    async function playV2Physics({ distanceMeters = state.v2.distanceMeters, flybyDoppler = false } = {}) {
+      const ctx = ensureAudio();
+      const res = await ensureV2Resources();
+      const prof = computeGau8DistanceProfile(distanceMeters);
+      const label = flybyDoppler
+        ? `V2 物理模型｜迎头低空飞越多普勒（620m → 95m 掠过 → 480m 拉起）`
+        : `V2 物理模型｜${prof.bandLabel} ${prof.distanceMeters}m（LPF ${prof.lpfCutoffHz}Hz · 延迟 ${Math.round(prof.soundDelaySec * 1000)}ms）`;
+      const durSec = flybyDoppler ? Math.max(2.2, state.burstDurSec) : state.burstDurSec;
+
+      markPlaying('gun_v2_physics', label, Math.round((durSec + (state.v2.withGroundImpact ? prof.soundDelaySec : 0) + 3.7) * 1000));
+      activeV2Handle = triggerGau8AcousticBurst(ctx, masterGain, res, {
+        distanceMeters,
+        durationSec: durSec,
+        withGroundImpact: state.v2.withGroundImpact,
+        realismDelay: true,
+        shockStrength: state.v2.shockStrength,
+        realTextureStrength: state.v2.realTextureStrength,
+        thunderTailStrength: state.v2.thunderTailStrength,
+        flybyDoppler,
+        onNodeCreated: (n) => trackNode(n),
+      });
+    }
+
+    function refreshV2Telemetry(distMeters) {
+      const p = computeGau8DistanceProfile(distMeters);
+      document.getElementById('v2DistReadout').textContent = `${p.distanceMeters} m`;
+      document.getElementById('v2DistBand').textContent = p.bandLabel;
+      document.getElementById('v2DelayVal').textContent = `${Math.round(p.soundDelaySec * 1000)} ms`;
+      document.getElementById('v2LpfVal').textContent = `${p.lpfCutoffHz} Hz`;
+      document.getElementById('v2ShelfVal').textContent = `+${p.lowShelfDb.toFixed(1)} dB`;
+      document.getElementById('v2WetVal').textContent = `${Math.round(p.wetGain * state.v2.thunderTailStrength * 100)}%`;
+      if (activeV2Handle && state.playingCardId === 'gun_v2_physics') {
+        activeV2Handle.updateDistance(distMeters);
+      }
+    }
+
+    // ==================== 4. 火箭齐射（7 连发）仿真引擎 ====================
+    async function playRocketSalvo(cardId, mode) {
+      const ctx = ensureAudio();
+      const count = 7;
+      const interval = state.salvoIntervalSec;
+      const phase = state.salvoPhase;
+      const flightSec = phase === 'both' ? 0.85 : 0.0;
+      const t0 = ctx.currentTime + 0.03;
+
+      if (mode === 'bug_current') {
+        const [launchBuf, explBuf] = await Promise.all([loadBuf('ROCKET_MED'), loadBuf('EXPL_80_105')]);
+        const totalMs = Math.round(((phase === 'launch' ? 1.8 : flightSec + count * interval + 2.3)) * 1000);
+        markPlaying(cardId, '旧版故障复现｜前7帧16ms叠爆 + 7发38Hz削波压死限幅器', totalMs);
+
+        if (phase !== 'impact') {
+          // 精确复现固定翼底座.mjs:2534-2548 的 7 帧 16ms 疯狂叠播 Bug（无随机音高、无衰减）
+          for (let f = 0; f < 7; f += 1) {
+            const src = trackNode(ctx.createBufferSource());
+            src.buffer = launchBuf;
+            const g = ctx.createGain();
+            g.gain.value = 0.85;
+            src.connect(g);
+            g.connect(masterGain);
+            src.start(t0 + f * 0.016, 0.14);
+          }
+        }
+        if (phase !== 'launch') {
+          const impBase = phase === 'both' ? t0 + flightSec : t0;
+          for (let i = 0; i < count; i += 1) {
+            const src = trackNode(ctx.createBufferSource());
+            src.buffer = explBuf;
+            const g = ctx.createGain();
+            g.gain.value = 0.90;
+            src.connect(g);
+            g.connect(masterGain);
+            src.start(impBase + i * interval, 0.18);
+          }
+        }
+        return;
+      }
+
+      // 修复版三种组合
+      const launchKey = mode === 'fix_small' ? 'ROCKET_SMALL' : (mode === 'fix_big' ? 'ROCKET_BIG' : 'ROCKET_MED');
+      const [launchBuf, explBuf] = await Promise.all([loadBuf(launchKey), loadBuf('EXPL_POD_62_77')]);
+      const titleMap = {
+        fix_small: '主推修复 R1｜70mm专属 Small 逐发 + 62-77mm 专属爆炸（防抖+随机音高+1/√n衰减）',
+        fix_big: '备选方案 R2｜整串 ROCKETPOD_Big 呼啸 + 62-77mm 逐发清脆爆炸',
+        fix_med: '备选方案 R3｜修复后逐发 ROCKETPOD_Medium + 62-77mm 逐发爆炸',
+      };
+      const totalMs = Math.round(((phase === 'launch' ? count * interval + 1.4 : flightSec + count * interval + 1.8)) * 1000);
+      markPlaying(cardId, titleMap[mode], totalMs);
+
+      if (phase !== 'impact') {
+        if (mode === 'fix_big') {
+          // 整串连射呼啸音轨（裁剪至齐射窗口并柔和淡出）
+          const src = trackNode(ctx.createBufferSource());
+          src.buffer = launchBuf;
+          src.playbackRate.value = 1.03;
+          const g = ctx.createGain();
+          const span = Math.max(0.9, count * interval + 0.35);
+          g.gain.setValueAtTime(0.84, t0);
+          g.gain.setValueAtTime(0.84, t0 + span - 0.18);
+          g.gain.linearRampToValueAtTime(0.001, t0 + span + 0.15);
+          src.connect(g);
+          g.connect(masterGain);
+          src.start(t0, 0.18, span + 0.2);
+        } else {
+          // 逐发触发 + ±5% 随机音高 + 1/sqrt(n) 并发自动衰减
+          for (let i = 0; i < count; i += 1) {
+            const src = trackNode(ctx.createBufferSource());
+            src.buffer = launchBuf;
+            src.playbackRate.value = 0.95 + Math.random() * 0.10;
+            const overlap = Math.min(3.5, 1 + i * 0.45);
+            const g = ctx.createGain();
+            g.gain.value = (mode === 'fix_small' ? 0.86 : 0.72) / Math.sqrt(overlap);
+            src.connect(g);
+            g.connect(masterGain);
+            const maxDur = mode === 'fix_small' ? 0.55 : 0.62;
+            src.start(t0 + i * interval, 0.18, maxDur);
+          }
+        }
+      }
+
+      if (phase !== 'launch') {
+        const impBase = phase === 'both' ? t0 + flightSec : t0;
+        for (let i = 0; i < count; i += 1) {
+          const jitter = (Math.random() - 0.5) * 0.025;
+          const at = Math.max(t0, impBase + i * interval + jitter);
+          const src = trackNode(ctx.createBufferSource());
+          src.buffer = explBuf;
+          src.playbackRate.value = 0.94 + Math.random() * 0.12;
+          const concurrent = Math.min(4.0, 1 + i * 0.55);
+          const g = ctx.createGain();
+          g.gain.value = 0.84 / Math.sqrt(concurrent);
+          src.connect(g);
+          g.connect(masterGain);
+          src.start(at, 0.22, 1.05);
+        }
+      }
+    }
+
+    // ==================== 5. 渲染卡片列表 ====================
+    const GUN_CARDS = [
+      {
+        id: 'gun_current_bug',
+        kind: 'bug',
+        badge: '现役故障版',
+        badgeClass: 'badge-bug',
+        title: '① 现役 GAU-8（错误衰退尾段循环）',
+        keyLabel: 'SFX_AIR_PLANEGUN_30mm_GAU8_US · loop [0.345s–0.685s]',
+        desc: '100% 还原当前实战代码：循环窗错切在衰退混响尾段，完美避开前 0.15s 强音，导致听感发闷像机械电钻。',
+        specs: ['原轨强能仅 0.15s', '低/中/高 61/32/7%', '主频 64Hz', 'pk=0.58'],
+        play: () => playLoopGunBurst({
+          cardId: 'gun_current_bug',
+          title: '现役错误切片 GAU-8',
+          key: 'GAU8_30mm',
+          sliceCfg: { startSec: 0.205, endSec: 0.720, loopStartOffset: 0.14, loopEndOffset: 0.48, releaseStartSec: 0.68, releaseEndSec: 3.20 },
+          rate: 1.0,
+          gainVal: 0.88,
+        }),
+        rawKey: 'GAU8_30mm',
+      },
+      {
+        id: 'gun_gau8_fixed',
+        kind: 'alt',
+        badge: '同源纠偏对照',
+        badgeClass: 'badge-alt',
+        title: '② 同源 GAU-8（改切前段强音窗 + 激励）',
+        keyLabel: 'SFX_AIR_PLANEGUN_30mm_GAU8_US · loop [0.215s–0.365s]',
+        desc: '不换素材，仅把循环窗移回原轨前 0.15s 高能区并加 +4dB 中高频激励；可听出短窗循环仍有轻微机械感。',
+        specs: ['强音循环窗 0.15s', '+4dB @ 2.3kHz', '与现役同源'],
+        play: () => playLoopGunBurst({
+          cardId: 'gun_gau8_fixed',
+          title: '同源纠偏 GAU-8',
+          key: 'GAU8_30mm',
+          sliceCfg: { startSec: 0.205, endSec: 0.420, loopStartOffset: 0.015, loopEndOffset: 0.165, releaseStartSec: 0.36, releaseEndSec: 3.20, xfadeSec: 0.018 },
+          rate: 1.0,
+          gainVal: 0.92,
+          presenceDb: 4.0,
+        }),
+        rawKey: 'GAU8_30mm',
+      },
+      {
+        id: 'gun_fusion_a',
+        kind: 'rec',
+        badge: '★ 主推方案 A',
+        badgeClass: 'badge-rec',
+        title: '③ 双层融合：GAU-12 (70Hz 长嘶吼) + GSH-30 (重炮撕裂)',
+        keyLabel: 'GAU12_25mm + GSH30_30mm · WebAudio 零额外资源实时混音',
+        desc: 'GAU-12 提供 1.0s 不断档的 70Hz 加特林“BRRRRT”连续核心，叠 GSH-30 降速 30mm 金属撕裂与空域余音，压迫感最足。',
+        specs: ['70Hz 加特林基频', '30mm 撕裂高频 18%', '支持实时微调配比'],
+        hasFusionSliders: true,
+        play: () => playFusionGau8('gun_fusion_a'),
+      },
+      {
+        id: 'gun_gsh30_slow',
+        kind: 'rec',
+        badge: '★ 主推单轨 B',
+        badgeClass: 'badge-rec',
+        title: '④ GSH-30 30mm 重炮（推荐 0.86x 降速撕裂版）',
+        keyLabel: 'SFX_AIR_PLANEGUN_30mm_GSH30_RU',
+        desc: '本地库能量最满、高频最透（18%）的 30mm 航空重炮；降速至 0.86x 后主频落至 ~88Hz，金属撕裂感与厚度极佳。',
+        specs: ['满能 0.40s', '低/中/高 46/36/18%', 'pk=0.88', '原主频 102Hz'],
+        rateKey: 'gun_gsh30_slow',
+        rateMin: 0.72,
+        rateMax: 1.05,
+        play: () => playLoopGunBurst({
+          cardId: 'gun_gsh30_slow',
+          title: 'GSH-30 30mm 重炮',
+          key: 'GSH30_30mm',
+          sliceCfg: { startSec: 0.20, endSec: 0.64, loopStartOffset: 0.05, loopEndOffset: 0.40, releaseStartSec: 0.58, releaseEndSec: 2.9 },
+          rate: state.cardRates.gun_gsh30_slow,
+          gainVal: 0.90,
+          presenceDb: 1.5,
+        }),
+        rawKey: 'GSH30_30mm',
+      },
+      {
+        id: 'gun_gau12',
+        kind: 'rec',
+        badge: '★ 主推单轨 C',
+        badgeClass: 'badge-rec',
+        title: '⑤ GAU-12 25mm 加特林（原生 70Hz 1.0s 长连射）',
+        keyLabel: 'SFX_AIR_AAG_25mm_GAU12_US',
+        desc: '原生 70Hz 基频最贴近真机 GAU-8 65 发/秒“电锯嘶吼”音色，连续饱满达 1.0 秒几乎听不出循环接缝。',
+        specs: ['连续 1.00s', '低/中/高 26/63/12%', '主频 70Hz', 'pk=0.66'],
+        rateKey: 'gun_gau12',
+        rateMin: 0.78,
+        rateMax: 1.08,
+        play: () => playLoopGunBurst({
+          cardId: 'gun_gau12',
+          title: 'GAU-12 25mm 加特林',
+          key: 'GAU12_25mm',
+          sliceCfg: { startSec: 0.20, endSec: 1.18, loopStartOffset: 0.08, loopEndOffset: 0.92, releaseStartSec: 1.12, releaseEndSec: 2.6 },
+          rate: state.cardRates.gun_gau12,
+          gainVal: 0.92,
+          presenceDb: 2.0,
+        }),
+        rawKey: 'GAU12_25mm',
+      },
+      {
+        id: 'gun_gsh23',
+        kind: 'alt',
+        badge: '备选 D',
+        badgeClass: 'badge-alt',
+        title: '⑥ GSH-23 23mm 双管炮（支持降速模拟 30mm）',
+        keyLabel: 'SFX_AIR_PLANEGUN_23mm_GSH23_RU',
+        desc: '峰值高达 0.90、中频打击颗粒非常清晰；原速偏尖锐，将滑块降到 0.80x–0.85x 时更有重型机炮味道。',
+        specs: ['满能 0.40s', '低/中/高 28/58/13%', '主频 145Hz', 'pk=0.90'],
+        rateKey: 'gun_gsh23',
+        rateMin: 0.72,
+        rateMax: 1.05,
+        play: () => playLoopGunBurst({
+          cardId: 'gun_gsh23',
+          title: 'GSH-23 双管炮',
+          key: 'GSH23_23mm',
+          sliceCfg: { startSec: 0.20, endSec: 0.62, loopStartOffset: 0.05, loopEndOffset: 0.38, releaseStartSec: 0.56, releaseEndSec: 2.8 },
+          rate: state.cardRates.gun_gsh23,
+          gainVal: 0.86,
+        }),
+        rawKey: 'GSH23_23mm',
+      },
+      {
+        id: 'gun_m61',
+        kind: 'alt',
+        badge: '备选 E',
+        badgeClass: 'badge-alt',
+        title: '⑦ M61 20mm 火神炮（空战版 / 地面防空版）',
+        keyLabel: 'SFX_AIR_PLANEGUN_20mm_M61_US & SFX_VEH_AAG_20mm_M61_US',
+        desc: '典型美军转管加特林“嗡鸣”风格，可分别对比机载版与地面防空版（后者更有颗粒感）。',
+        specs: ['长连射 0.80s', '主频 100Hz', '空载 pk=0.56 / 车载 pk=0.71'],
+        rateKey: 'gun_m61',
+        rateMin: 0.75,
+        rateMax: 1.05,
+        play: () => playLoopGunBurst({
+          cardId: 'gun_m61',
+          title: 'M61 火神（机载版）',
+          key: 'M61_AIR_20mm',
+          sliceCfg: { startSec: 0.20, endSec: 0.98, loopStartOffset: 0.06, loopEndOffset: 0.72, releaseStartSec: 0.92, releaseEndSec: 2.6 },
+          rate: state.cardRates.gun_m61,
+          gainVal: 0.90,
+        }),
+        extraBtn: {
+          label: '▶ 听车载防空版',
+          onClick: () => playLoopGunBurst({
+            cardId: 'gun_m61',
+            title: 'M61 火神（车载防空版）',
+            key: 'M61_VEH_20mm',
+            sliceCfg: { startSec: 0.20, endSec: 0.82, loopStartOffset: 0.05, loopEndOffset: 0.55, releaseStartSec: 0.76, releaseEndSec: 2.5 },
+            rate: state.cardRates.gun_m61,
+            gainVal: 0.88,
+          }),
+        },
+        rawKey: 'M61_AIR_20mm',
+      },
+      {
+        id: 'gun_2a38m',
+        kind: 'alt',
+        badge: '备选 F',
+        badgeClass: 'badge-alt',
+        title: '⑧ 2A38M 双联 30mm（通古斯卡重机炮）',
+        keyLabel: 'SFX_VEH_AAG_30mm_2A38M_RU',
+        desc: '低频与中高频分布较均衡（48/38/14%），节奏略慢于加特林，偏向沉稳重型机炮扫射听感。',
+        specs: ['核心 0.45s', '低/中/高 48/38/14%', 'pk=0.46'],
+        rateKey: 'gun_2a38m',
+        rateMin: 0.80,
+        rateMax: 1.15,
+        play: () => playLoopGunBurst({
+          cardId: 'gun_2a38m',
+          title: '2A38M 双联 30mm',
+          key: 'A238M_30mm',
+          sliceCfg: { startSec: 0.20, endSec: 0.64, loopStartOffset: 0.05, loopEndOffset: 0.40, releaseStartSec: 0.58, releaseEndSec: 2.4 },
+          rate: state.cardRates.gun_2a38m,
+          gainVal: 0.95,
+        }),
+        rawKey: 'A238M_30mm',
+      },
+    ];
+
+    const ROCKET_CARDS = [
+      {
+        id: 'rocket_bug_current',
+        kind: 'bug',
+        badge: '现役故障复现',
+        badgeClass: 'badge-bug',
+        title: '① 旧版故障：前 7 帧 16ms 叠爆 + 7 发 38Hz 削波爆炸',
+        keyLabel: 'ROCKETPOD_Medium (×7 @16ms) + Expl_80-105 (pk=1.21 ×7)',
+        desc: '注意右上示波器与 CLIP 红灯！前 0.1s 连续 7 帧叠播造成刺耳金属爆音，后 6 发全哑；落地 7 发 38Hz 巨低频叠炸把压缩器彻底压死。',
+        specs: ['16ms 梳状滤波爆音', '2~7 发哑火', '爆炸 98% 低频 38Hz', '无防抖无衰减'],
+        mode: 'bug_current',
+      },
+      {
+        id: 'rocket_fix_small',
+        kind: 'rec',
+        badge: '★ 主推修复 R1',
+        badgeClass: 'badge-fix',
+        title: '② 主推修复：70mm 专属 Small 逐发 + 62-77mm 专属爆炸',
+        keyLabel: 'SFX_GENERIC_ROCKETPOD_Small + SFX_Expl_ROCKETPOD_62-77',
+        desc: '按真实冷却逐发触发，每发自带 ±5% 随机音高防相位干涉与 1/√n 并发平滑；发射“咻-咻-咻”清脆利落，落地炸裂层次分明不糊底。',
+        specs: ['发射高频 16% (0.3s)', '62-77mm 紧凑爆炸', '±5% 随机音高', '1/√n 增益平滑'],
+        mode: 'fix_small',
+      },
+      {
+        id: 'rocket_fix_big',
+        kind: 'alt',
+        badge: '备选方案 R2',
+        badgeClass: 'badge-alt',
+        title: '③ 整串呼啸：ROCKETPOD_Big 连射尾音 + 62-77mm 逐发爆炸',
+        keyLabel: 'SFX_GENERIC_ROCKETPOD_Big + SFX_Expl_ROCKETPOD_62-77',
+        desc: '发射阶段使用一条完整多发连射呼啸音轨（更接近大火箭巢齐射的连贯气浪声），落地仍为 62-77mm 逐发清晰炸响。',
+        specs: ['连贯多发发射音轨', '零叠音风险', '62-77mm 清晰落地'],
+        mode: 'fix_big',
+      },
+      {
+        id: 'rocket_fix_med',
+        kind: 'alt',
+        badge: '备选方案 R3',
+        badgeClass: 'badge-alt',
+        title: '④ 保留原发射源：修复逐发 ROCKETPOD_Medium + 62-77mm 爆炸',
+        keyLabel: 'SFX_GENERIC_ROCKETPOD_Medium (修复逐发) + SFX_Expl_ROCKETPOD_62-77',
+        desc: '仅修复 7 帧叠爆与落地爆炸音轨，发射声保留原 Medium 素材但改为逐发与衰减，供对比 Small vs Medium 质感差异。',
+        specs: ['发射偏低沉厚重', '高频 3%', '62-77mm 清晰落地'],
+        mode: 'fix_med',
+      },
+    ];
+
+    function renderGunGrid() {
+      const root = document.getElementById('gunGrid');
+      root.innerHTML = '';
+      for (const item of GUN_CARDS) {
+        const card = document.createElement('article');
+        card.className = `card ${item.kind === 'bug' ? 'is-bug' : item.kind === 'rec' ? 'is-rec' : ''}`;
+        card.dataset.cardId = item.id;
+
+        const slidersHtml = item.hasFusionSliders
+          ? `
+            <div class="sliders-box">
+              <div class="slider-row">
+                <span>GSH-30 融合占比</span>
+                <input type="range" min="10" max="90" value="${Math.round(state.fusion.gshMix * 100)}" data-fusion="gshMix" />
+                <span class="val" data-val="gshMix">${Math.round(state.fusion.gshMix * 100)}%</span>
+              </div>
+              <div class="slider-row">
+                <span>GSH-30 音高倍率</span>
+                <input type="range" min="72" max="105" value="${Math.round(state.fusion.gshRate * 100)}" data-fusion="gshRate" />
+                <span class="val" data-val="gshRate">${state.fusion.gshRate.toFixed(2)}x</span>
+              </div>
+              <div class="slider-row">
+                <span>GAU-12 音高倍率</span>
+                <input type="range" min="80" max="110" value="${Math.round(state.fusion.gau12Rate * 100)}" data-fusion="gau12Rate" />
+                <span class="val" data-val="gau12Rate">${state.fusion.gau12Rate.toFixed(2)}x</span>
+              </div>
+              <div class="slider-row">
+                <span>中高频激励 (2.4kHz)</span>
+                <input type="range" min="0" max="80" value="${Math.round(state.fusion.presenceDb * 10)}" data-fusion="presenceDb" />
+                <span class="val" data-val="presenceDb">+${state.fusion.presenceDb.toFixed(1)}dB</span>
+              </div>
+            </div>
+          `
+          : item.rateKey
+            ? `
+              <div class="sliders-box">
+                <div class="slider-row">
+                  <span>音高 / 射速倍率</span>
+                  <input type="range" min="${Math.round(item.rateMin * 100)}" max="${Math.round(item.rateMax * 100)}" value="${Math.round(state.cardRates[item.rateKey] * 100)}" data-rate-key="${item.rateKey}" />
+                  <span class="val" data-rate-val="${item.rateKey}">${state.cardRates[item.rateKey].toFixed(2)}x</span>
+                </div>
+              </div>
+            `
+            : '';
+
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-title-wrap">
+              <div class="card-title"><span class="badge ${item.badgeClass}">${item.badge}</span><span>${item.title}</span></div>
+              <div class="card-key">${item.keyLabel}</div>
+            </div>
+            <button type="button" class="btn btn-pick" data-pick-gun="${item.id}">选为心仪</button>
+          </div>
+          <p class="card-desc">${item.desc}</p>
+          <div class="specs">${item.specs.map(s => `<span>${s}</span>`).join('')}</div>
+          ${slidersHtml}
+          <div class="card-actions">
+            <button type="button" class="btn btn-primary" data-play-gun="${item.id}">▶ 扫射试听</button>
+            ${item.extraBtn ? `<button type="button" class="btn" data-extra-gun="${item.id}">${item.extraBtn.label}</button>` : ''}
+            ${item.rawKey ? `<button type="button" class="btn btn-ghost" data-raw-gun="${item.id}">听原轨本色</button>` : ''}
+          </div>
+        `;
+        root.appendChild(card);
+
+        card.querySelector(`[data-play-gun="${item.id}"]`).addEventListener('click', () => {
+          item.play().catch(err => showError(err));
+        });
+        if (item.extraBtn) {
+          card.querySelector(`[data-extra-gun="${item.id}"]`).addEventListener('click', () => {
+            item.extraBtn.onClick().catch(err => showError(err));
+          });
+        }
+        if (item.rawKey) {
+          card.querySelector(`[data-raw-gun="${item.id}"]`).addEventListener('click', () => {
+            const rate = item.rateKey ? state.cardRates[item.rateKey] : 1.0;
+            playRawClip(item.id, item.rawKey, item.title, rate).catch(err => showError(err));
+          });
+        }
+        card.querySelector(`[data-pick-gun="${item.id}"]`).addEventListener('click', () => {
+          selectPick('gun', item);
+        });
+      }
+
+      // 绑定滑块
+      root.querySelectorAll('[data-fusion]').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const k = inp.dataset.fusion;
+          const v = Number(inp.value);
+          if (k === 'gshMix') {
+            state.fusion.gshMix = v / 100;
+            root.querySelector('[data-val="gshMix"]').textContent = `${v}%`;
+          } else if (k === 'gshRate') {
+            state.fusion.gshRate = v / 100;
+            root.querySelector('[data-val="gshRate"]').textContent = `${(v / 100).toFixed(2)}x`;
+          } else if (k === 'gau12Rate') {
+            state.fusion.gau12Rate = v / 100;
+            root.querySelector('[data-val="gau12Rate"]').textContent = `${(v / 100).toFixed(2)}x`;
+          } else if (k === 'presenceDb') {
+            state.fusion.presenceDb = v / 10;
+            root.querySelector('[data-val="presenceDb"]').textContent = `+${(v / 10).toFixed(1)}dB`;
+          }
+          if (state.pickedGun?.id === 'gun_fusion_a') updateDecisionBar();
+        });
+      });
+
+      root.querySelectorAll('[data-rate-key]').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const k = inp.dataset.rateKey;
+          const rate = Number(inp.value) / 100;
+          state.cardRates[k] = rate;
+          root.querySelector(`[data-rate-val="${k}"]`).textContent = `${rate.toFixed(2)}x`;
+          if (state.pickedGun?.rateKey === k) updateDecisionBar();
+        });
+      });
+    }
+
+    function renderRocketGrid() {
+      const root = document.getElementById('rocketGrid');
+      root.innerHTML = '';
+      for (const item of ROCKET_CARDS) {
+        const card = document.createElement('article');
+        card.className = `card ${item.kind === 'bug' ? 'is-bug' : item.kind === 'rec' ? 'is-rec' : ''}`;
+        card.dataset.cardId = item.id;
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-title-wrap">
+              <div class="card-title"><span class="badge ${item.badgeClass}">${item.badge}</span><span>${item.title}</span></div>
+              <div class="card-key">${item.keyLabel}</div>
+            </div>
+            <button type="button" class="btn btn-pick" data-pick-rocket="${item.id}">选为心仪</button>
+          </div>
+          <p class="card-desc">${item.desc}</p>
+          <div class="specs">${item.specs.map(s => `<span>${s}</span>`).join('')}</div>
+          <div class="card-actions">
+            <button type="button" class="btn btn-primary" data-play-rocket="${item.id}">▶ 7 连发齐射试听</button>
+          </div>
+        `;
+        root.appendChild(card);
+
+        card.querySelector(`[data-play-rocket="${item.id}"]`).addEventListener('click', () => {
+          playRocketSalvo(item.id, item.mode).catch(err => showError(err));
+        });
+        card.querySelector(`[data-pick-rocket="${item.id}"]`).addEventListener('click', () => {
+          selectPick('rocket', item);
+        });
+      }
+    }
+
+    function selectPick(group, item) {
+      if (group === 'gun') {
+        state.pickedGun = item;
+        document.querySelectorAll('[data-pick-gun]').forEach(btn => {
+          const active = btn.dataset.pickGun === item.id;
+          btn.classList.toggle('picked', active);
+          btn.textContent = active ? '✓ 已选' : '选为心仪';
+          const box = btn.closest('.card, .v2-hero');
+          if (box) box.classList.toggle('picked-card', active);
+        });
+      } else {
+        state.pickedRocket = item;
+        document.querySelectorAll('[data-pick-rocket]').forEach(btn => {
+          const active = btn.dataset.pickRocket === item.id;
+          btn.classList.toggle('picked', active);
+          btn.textContent = active ? '✓ 已选' : '选为心仪';
+          const box = btn.closest('.card, .v2-hero');
+          if (box) box.classList.toggle('picked-card', active);
+        });
+      }
+      updateDecisionBar();
+    }
+
+    function formatPickSummary() {
+      let gunStr = '未选';
+      if (state.pickedGun) {
+        gunStr = state.pickedGun.title;
+        if (state.pickedGun.id === 'gun_v2_physics') {
+          gunStr += ` [65Hz激波=${Math.round(state.v2.shockStrength * 100)}%, 实录火药=${Math.round(state.v2.realTextureStrength * 100)}%, 滚雷尾音=${Math.round(state.v2.thunderTailStrength * 100)}%, 地面弹着先行=${state.v2.withGroundImpact ? '开' : '关'}]`;
+        } else if (state.pickedGun.id === 'gun_fusion_a') {
+          gunStr += ` [GSH30占比=${Math.round(state.fusion.gshMix * 100)}%, GSH30倍率=${state.fusion.gshRate.toFixed(2)}x, GAU12倍率=${state.fusion.gau12Rate.toFixed(2)}x, Presence=+${state.fusion.presenceDb.toFixed(1)}dB]`;
+        } else if (state.pickedGun.rateKey) {
+          gunStr += ` [倍率=${state.cardRates[state.pickedGun.rateKey].toFixed(2)}x]`;
+        }
+      }
+      const rocketStr = state.pickedRocket
+        ? `${state.pickedRocket.title} [间隔=${state.salvoIntervalSec.toFixed(2)}s]`
+        : '未选';
+      return { gunStr, rocketStr };
+    }
+
+    function updateDecisionBar() {
+      const { gunStr, rocketStr } = formatPickSummary();
+      document.getElementById('pickedGunText').textContent = gunStr;
+      document.getElementById('pickedRocketText').textContent = rocketStr;
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      window.setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    function showError(err) {
+      document.getElementById('nowPlaying').textContent = `播放异常：${err?.message || err}`;
+      console.error(err);
+    }
+
+    // ==================== 6. 示波器 & 峰值表 ====================
+    function startMeterLoop() {
+      const canvas = document.getElementById('scopeCanvas');
+      const g2d = canvas.getContext('2d');
+      const timeData = new Float32Array(analyser.fftSize);
+      const peakDbEl = document.getElementById('peakDb');
+      const peakFillEl = document.getElementById('peakFill');
+      const clipLampEl = document.getElementById('clipLamp');
+      let clipHoldUntil = 0;
+
+      const draw = () => {
+        analyser.getFloatTimeDomainData(timeData);
+        let peak = 0;
+        for (let i = 0; i < timeData.length; i += 1) {
+          const a = Math.abs(timeData[i]);
+          if (a > peak) peak = a;
+        }
+        const db = peak > 1e-5 ? 20 * Math.log10(peak) : -Infinity;
+        peakDbEl.textContent = Number.isFinite(db) ? `${db.toFixed(1)} dB` : '-∞ dB';
+        const pct = Math.max(0, Math.min(100, ((db + 48) / 48) * 100));
+        peakFillEl.style.width = `${Number.isFinite(pct) ? pct : 0}%`;
+
+        const nowMs = performance.now();
+        if (peak >= 0.96) clipHoldUntil = nowMs + 700;
+        clipLampEl.classList.toggle('hot', nowMs < clipHoldUntil);
+
+        const w = canvas.width;
+        const h = canvas.height;
+        g2d.fillStyle = '#07090c';
+        g2d.fillRect(0, 0, w, h);
+
+        g2d.strokeStyle = 'rgba(255,255,255,0.08)';
+        g2d.beginPath();
+        g2d.moveTo(0, h / 2);
+        g2d.lineTo(w, h / 2);
+        g2d.stroke();
+
+        g2d.strokeStyle = peak >= 0.96 ? '#f06565' : '#f0d372';
+        g2d.lineWidth = 1.6;
+        g2d.beginPath();
+        const step = timeData.length / w;
+        for (let x = 0; x < w; x += 1) {
+          const v = timeData[Math.floor(x * step)] || 0;
+          const y = (0.5 - Math.max(-1, Math.min(1, v)) * 0.46) * h;
+          if (x === 0) g2d.moveTo(x, y);
+          else g2d.lineTo(x, y);
+        }
+        g2d.stroke();
+
+        window.requestAnimationFrame(draw);
+      };
+      window.requestAnimationFrame(draw);
+    }
+
+    // ==================== 7. 全局控件绑定 ====================
+    function bindSegment(containerSel, attr, onChange) {
+      const buttons = document.querySelectorAll(`${containerSel} [${attr}]`);
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.toggle('active', b === btn));
+          onChange(btn.getAttribute(attr));
+        });
+      });
+    }
+
+    document.getElementById('masterVol').addEventListener('input', (e) => {
+      const v = Number(e.target.value);
+      document.getElementById('masterVolVal').textContent = `${v}%`;
+      if (masterGain && audioCtx) {
+        masterGain.gain.setTargetAtTime(v / 100, audioCtx.currentTime, 0.015);
+      }
+    });
+
+    bindSegment('.topbar', 'data-comp', (val) => {
+      compEnabled = val === 'on';
+      rewireMasterBus();
+    });
+    bindSegment('#burstDurGroup', 'data-dur', (val) => { state.burstDurSec = Number(val) || 1.8; });
+    bindSegment('#impactToggleGroup', 'data-impact', (val) => { state.withGroundImpact = val === 'on'; });
+    bindSegment('#salvoIntervalGroup', 'data-interval', (val) => {
+      state.salvoIntervalSec = Number(val) || 0.11;
+      if (state.pickedRocket) updateDecisionBar();
+    });
+    bindSegment('#salvoPhaseGroup', 'data-phase', (val) => { state.salvoPhase = val; });
+    bindSegment('#v2ImpactGroup', 'data-v2-impact', (val) => {
+      state.v2.withGroundImpact = val === 'on';
+      if (state.pickedGun?.id === 'gun_v2_physics') updateDecisionBar();
+    });
+
+    // V2 距离与配比控件绑定
+    const v2DistSlider = document.getElementById('v2DistSlider');
+    v2DistSlider.addEventListener('input', () => {
+      state.v2.distanceMeters = Number(v2DistSlider.value) || 420;
+      refreshV2Telemetry(state.v2.distanceMeters);
+    });
+    document.querySelectorAll('[data-v2-preset]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const d = Number(btn.getAttribute('data-v2-preset')) || 420;
+        state.v2.distanceMeters = d;
+        v2DistSlider.value = String(d);
+        refreshV2Telemetry(d);
+        playV2Physics({ distanceMeters: d, flybyDoppler: false }).catch(err => showError(err));
+      });
+    });
+    document.getElementById('v2PlayCurrentBtn').addEventListener('click', () => {
+      playV2Physics({ distanceMeters: state.v2.distanceMeters, flybyDoppler: false }).catch(err => showError(err));
+    });
+    document.getElementById('v2FlybyBtn').addEventListener('click', () => {
+      playV2Physics({ distanceMeters: 220, flybyDoppler: true }).catch(err => showError(err));
+    });
+    document.getElementById('v2ShockSlider').addEventListener('input', (e) => {
+      const v = Number(e.target.value);
+      state.v2.shockStrength = v / 100;
+      document.getElementById('v2ShockVal').textContent = `${v}%`;
+      if (state.pickedGun?.id === 'gun_v2_physics') updateDecisionBar();
+    });
+    document.getElementById('v2RealSlider').addEventListener('input', (e) => {
+      const v = Number(e.target.value);
+      state.v2.realTextureStrength = v / 100;
+      document.getElementById('v2RealVal').textContent = `${v}%`;
+      if (state.pickedGun?.id === 'gun_v2_physics') updateDecisionBar();
+    });
+    document.getElementById('v2TailSlider').addEventListener('input', (e) => {
+      const v = Number(e.target.value);
+      state.v2.thunderTailStrength = v / 100;
+      document.getElementById('v2TailVal').textContent = `${v}%`;
+      refreshV2Telemetry(state.v2.distanceMeters);
+      if (state.pickedGun?.id === 'gun_v2_physics') updateDecisionBar();
+    });
+    document.getElementById('pickV2Btn').addEventListener('click', () => {
+      selectPick('gun', { id: 'gun_v2_physics', title: '★ 新方案 V2：GAU-8/A 四层物理混合模型（近/中/远动态声学）' });
+    });
+
+    document.getElementById('stopAllBtn').addEventListener('click', () => stopAllAudio(true));
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+        e.preventDefault();
+        stopAllAudio(true);
+      }
+    });
+
+    document.getElementById('copyPickBtn').addEventListener('click', async () => {
+      const { gunStr, rocketStr } = formatPickSummary();
+      const text = `A-10C 音效试听拍板：\n- 机炮方案：${gunStr}\n- 火箭方案：${rocketStr}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('已复制选型结论到剪贴板');
+      } catch {
+        window.prompt('复制以下选型结论：', text);
+      }
+    });
+
+    // 暴露诊断接口供自动化验证
+    window.__airAudioAB = {
+      catalogCount: Object.keys(AUDIO_CATALOG).length,
+      gunCardsCount: GUN_CARDS.length,
+      rocketCardsCount: ROCKET_CARDS.length,
+      v2Ready: true,
+      computeGau8DistanceProfile,
+      stopAll: () => stopAllAudio(true),
+    };
+
+    refreshV2Telemetry(state.v2.distanceMeters);
+    renderGunGrid();
+    renderRocketGrid();
+  </script>
+</body>
+</html>

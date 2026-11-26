@@ -29,12 +29,25 @@ UI_SPEC_FILES = {
     "交互控件.mjs": "交互控件.mjs",
     "规范页.css": "规范页.css",
     "规范页.mjs": "规范页.mjs",
+    "favicon.svg": "favicon.svg",
 }
-UI_FAVICON_SVG = (
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" '
-    'stroke="#f0d372" stroke-width="1.8"><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>'
-    '<circle cx="12" cy="12" r="4"/></svg>'
+UI_FAVICON_FILE = UI_SPEC_DIR / "favicon.svg"
+UI_FAVICON_FALLBACK_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+    '<rect width="24" height="24" rx="4" fill="#0d0e13"/>'
+    '<path fill="#f0d372" fill-opacity="0.16" stroke="#f0d372" stroke-width="1.6" stroke-linejoin="round" '
+    'd="M4.5 5.2 L12 3 L19.5 5.2 V13.2 C19.5 16.2 16.2 18.8 12 20.8 C7.8 18.8 4.5 16.2 4.5 13.2 Z"/>'
+    '<path fill="#f0d372" d="M9.1 7.6 L12 6.5 L14.9 7.6 L13.4 10.6 L12 10.0 L10.6 10.6 Z '
+    'M17.5 12.1 L17.0 15.1 L14.6 17.0 L13.0 14.3 L14.2 13.4 L14.3 12.0 Z '
+    'M6.5 12.1 L9.7 12.0 L9.8 13.4 L11.0 14.3 L9.4 17.0 L7.0 15.1 Z"/>'
+    '<path fill="#ffb800" d="M12 10.6 L13.5 12.1 L12 13.6 L10.5 12.1 Z"/></svg>'
 ).encode("utf-8")
+
+
+def read_ui_favicon_svg() -> bytes:
+    if UI_FAVICON_FILE.is_file():
+        return UI_FAVICON_FILE.read_bytes()
+    return UI_FAVICON_FALLBACK_SVG
 VEHICLES_MAP = {
     "/vehicles/US_M1A2.glb": ROOT / "local-data/资源库/当前资源/模型/地面载具/US_M1A2-M1A2-Abrams/M1A2-Abrams-256默认.glb",
     "/vehicles/US_AH64D.glb": ROOT / "local-data/资源库/当前资源/模型/空中载具/US_AH64D-AH-64D-Apache/AH-64D-Apache-256默认.glb",
@@ -62,10 +75,6 @@ class ProceduralMapHTTPHandler(SimpleHTTPRequestHandler):
             if rel_name:
                 return (UI_SPEC_DIR / rel_name).resolve()
             return None
-        if raw_path in ("/compare", "/visual-compare", "/视觉升级对比台.html"):
-            return ROOT / "src/程序化地图/视觉升级对比台.html"
-        if raw_path in ("/res-compare", "/resolution-compare", "/分辨率风格对比台.html"):
-            return ROOT / "src/程序化地图/分辨率风格对比台.html"
         if raw_path == "/compressed-loader.mjs":
             return LOADER_MJS
         if raw_path in VEHICLES_MAP:
@@ -105,13 +114,14 @@ class ProceduralMapHTTPHandler(SimpleHTTPRequestHandler):
             return
 
         if raw_path == "/favicon.svg":
+            fav_bytes = read_ui_favicon_svg()
             self.send_response(200)
             self.send_header("Content-Type", "image/svg+xml; charset=utf-8")
-            self.send_header("Content-Length", str(len(UI_FAVICON_SVG)))
+            self.send_header("Content-Length", str(len(fav_bytes)))
             self.send_header("Cache-Control", "no-store")
             self.end_headers()
             if send_body:
-                self.wfile.write(UI_FAVICON_SVG)
+                self.wfile.write(fav_bytes)
             return
         if raw_path == "/favicon.ico":
             self.send_response(204)

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {LOD_TRANSITION_CONFIG, createSharedTransitionUniforms} from './过渡动画管线.mjs?v=680p-v9';
 
 /**
  * 解码 SCVT 全图 343,234 棵树 72x72 (125m 格) 空间分块索引。
@@ -87,6 +88,15 @@ export function enhanceFoliageMaterial(material, {
   calibratedRGB = null,
   sharedUniforms,
 }) {
+  const fCfg = LOD_TRANSITION_CONFIG.foliage;
+  const nd0 = fCfg.nearDist[0].toFixed(1), nd1 = fCfg.nearDist[1].toFixed(1);
+  const ns0 = fCfg.nearSpan[0].toFixed(1), ns1 = fCfg.nearSpan[1].toFixed(1);
+  const md0 = fCfg.midDist[0].toFixed(1), md1 = fCfg.midDist[1].toFixed(1);
+  const ms0 = fCfg.midSpan[0].toFixed(1), ms1 = fCfg.midSpan[1].toFixed(1);
+  const cd0 = fCfg.canopyDist[0].toFixed(1), cd1 = fCfg.canopyDist[1].toFixed(1);
+  const cs0 = fCfg.canopySpan[0].toFixed(1), cs1 = fCfg.canopySpan[1].toFixed(1);
+  const ht = fCfg.handoffT.toFixed(3);
+
   material.side = fadeMode === 'mid' ? THREE.FrontSide : THREE.DoubleSide;
   if (material.roughness !== undefined) material.roughness = 0.90;
   if (material.metalness !== undefined) material.metalness = 0.0;
@@ -103,6 +113,8 @@ export function enhanceFoliageMaterial(material, {
   material.onBeforeCompile = shader => {
     shader.uniforms.uCameraCenter = sharedUniforms.uCameraCenter;
     shader.uniforms.uCameraSpan = sharedUniforms.uCameraSpan;
+    shader.uniforms.uSmoothSpan = sharedUniforms.uSmoothSpan || sharedUniforms.uCameraSpan;
+    shader.uniforms.uHazeStrength = sharedUniforms.uHazeStrength || {value: 0.0};
     shader.uniforms.uWindTime = sharedUniforms.uWindTime;
     shader.uniforms.uDitherEnabled = sharedUniforms.uDitherEnabled;
     shader.uniforms.uCrownHeight = {value: crownHeight};
@@ -115,6 +127,7 @@ export function enhanceFoliageMaterial(material, {
     shader.vertexShader = `
       uniform vec3 uCameraCenter;
       uniform float uCameraSpan;
+      uniform float uSmoothSpan;
       uniform float uWindTime;
       uniform float uCrownHeight;
       uniform float uDitherEnabled;
@@ -128,12 +141,17 @@ export function enhanceFoliageMaterial(material, {
       #ifdef USE_INSTANCING
         vec4 instOriginF = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
         float fDist = length(instOriginF.xz - uCameraCenter.xz);
-        float fT = uDitherEnabled > 0.5 ? max(smoothstep(300.0, 370.0, fDist), smoothstep(320.0, 390.0, uCameraSpan)) : 0.0;
+        float fT = uDitherEnabled > 0.5 ? max(smoothstep(${nd0}, ${nd1}, fDist), smoothstep(${ns0}, ${ns1}, uSmoothSpan)) : 0.0;
         vFoliageMorph = fT;
-        float windWeight = smoothstep(0.15, 0.85, vLocalHeightFrac);
+        float windWeight = smoothstep(0.15, 0.85, vLocalHeightFrac) * (1.0 - smoothstep(0.65, ${ht}, fT));
         float phase = uWindTime * 1.85 + instOriginF.x * 0.43 + instOriginF.z * 0.31;
         transformed.x += sin(phase) * 0.16 * windWeight;
         transformed.z += cos(phase * 0.87) * 0.12 * windWeight;
+        // 近景树在切换末段柔和向核心收缩，消除瞬间切换锯齿感
+        if (fT > 0.62) {
+          float crownShrink = 1.0 - 0.32 * smoothstep(0.62, ${ht}, fT);
+          transformed *= crownShrink;
+        }
         vec4 instW = modelMatrix * instanceMatrix * vec4(transformed, 1.0);
         vFoliageWorldPos = instW.xyz;
       #else
@@ -147,10 +165,10 @@ export function enhanceFoliageMaterial(material, {
       #ifdef USE_INSTANCING
         vec4 instOriginF = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
         float fDist = length(instOriginF.xz - uCameraCenter.xz);
-        float nearT = max(smoothstep(300.0, 370.0, fDist), smoothstep(320.0, 390.0, uCameraSpan));
-        float farT = max(smoothstep(480.0, 620.0, fDist), smoothstep(490.0, 635.0, uCameraSpan));
-        vFoliageMorph = uDitherEnabled > 0.5 ? (nearT < 0.96 ? -1.0 : farT) : 0.0;
-        // T3 实体无缝沉降：0 打孔、0 灰黑纱窗！中景树冠在 490m–635m 平滑向下收拢融进远景林冠或地表
+        float nearT = max(smoothstep(${nd0}, ${nd1}, fDist), smoothstep(${ns0}, ${ns1}, uSmoothSpan));
+        float farT = max(smoothstep(${md0}, ${md1}, fDist), smoothstep(${ms0}, ${ms1}, uSmoothSpan));
+        // 与 near 严格在 ${ht} 互补接棒（0 重叠 Z-fighting 打架）
+        vFoliageMorph = uDitherEnabled > 0.5 ? (nearT < ${ht} ? -1.0 : farT) : 0.0;
         if (uDitherEnabled > 0.5 && farT > 0.01) {
           float sink = 1.0 - smoothstep(0.0, 0.96, farT);
           transformed.y *= max(0.01, sink);
@@ -167,9 +185,8 @@ export function enhanceFoliageMaterial(material, {
       : `
       vec4 wPos0 = modelMatrix * vec4(transformed, 1.0);
       float cDist = length(wPos0.xz - uCameraCenter.xz);
-      // 远景实心林冠壳在 440m–570m 从地面平滑向上隆起接管，全程 100% 实心无打孔、无过早锯齿突现
       float rise = uDitherEnabled > 0.5
-        ? max(smoothstep(430.0, 560.0, cDist), smoothstep(450.0, 575.0, uCameraSpan))
+        ? max(smoothstep(${cd0}, ${cd1}, cDist), smoothstep(${cs0}, ${cs1}, uSmoothSpan))
         : 1.0;
       vFoliageMorph = rise;
       transformed.y -= (1.0 - rise) * 16.0;
@@ -189,6 +206,7 @@ export function enhanceFoliageMaterial(material, {
       uniform vec3 uCameraCenter;
       uniform float uCameraSpan;
       uniform float uDitherEnabled;
+      uniform float uHazeStrength;
       uniform vec3 uCalibratedTint;
       varying vec3 vFoliageWorldPos;
       varying float vLocalHeightFrac;
@@ -197,24 +215,32 @@ export function enhanceFoliageMaterial(material, {
 
     const fadeLogic = fadeMode === 'near'
       ? `
-        if (uDitherEnabled > 0.5 && vFoliageMorph >= 0.985) discard;
-        // 冠层底部温和 AO + 顶部柔和阳光提亮（既无死黑又绝不过曝发白）
+        if (uDitherEnabled > 0.5 && vFoliageMorph >= ${ht}) discard;
         float sssGlow = smoothstep(0.18, 0.95, vLocalHeightFrac);
         diffuseColor.rgb *= mix(0.86, 1.12, sssGlow);
+        // 交接末段柔和向校准色调融合，平滑衔接中景代理
+        if (uDitherEnabled > 0.5 && vFoliageMorph > 0.35) {
+          vec3 nearEndTint = max(uCalibratedTint * uCalibratedTint * 1.12, vec3(0.045, 0.095, 0.025));
+          diffuseColor.rgb = mix(diffuseColor.rgb, nearEndTint, smoothstep(0.35, ${ht}, vFoliageMorph) * 0.42);
+        }
       `
       : fadeMode === 'mid'
       ? `
         if (uDitherEnabled > 0.5 && (vFoliageMorph < -0.5 || vFoliageMorph >= 0.95)) discard;
-        // 中景实心微缩树冠在线性安全色调下向对应树种远景基色平滑过渡，零发黑
         vec3 canopyTint = max(uCalibratedTint * uCalibratedTint * 1.15, vec3(0.045, 0.095, 0.025));
         diffuseColor.rgb = mix(diffuseColor.rgb * mix(0.92, 1.16, vLocalHeightFrac), canopyTint, clamp(vFoliageMorph, 0.0, 1.0) * 0.65);
+        if (uDitherEnabled > 0.5 && uHazeStrength > 0.002) {
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.68, 0.72, 0.64), clamp(uHazeStrength * 0.55, 0.0, 0.20));
+        }
       `
       : `
         if (uDitherEnabled > 0.5 && vFoliageMorph < 0.04) discard;
-        // 为远景常驻集群林冠壳增加双尺度树冠球面起伏明暗
         float canopyMicro = 0.92 + 0.14 * sin(vFoliageWorldPos.x * 0.22 + cos(vFoliageWorldPos.z * 0.19))
                                   + 0.08 * cos(vFoliageWorldPos.z * 0.55 - vFoliageWorldPos.x * 0.47);
         diffuseColor.rgb *= canopyMicro;
+        if (uDitherEnabled > 0.5 && uHazeStrength > 0.002) {
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.68, 0.72, 0.64), clamp(uHazeStrength * 0.55, 0.0, 0.20));
+        }
       `;
 
     shader.fragmentShader = shader.fragmentShader.replace(
@@ -232,7 +258,8 @@ export function enhanceFoliageMaterial(material, {
         '#include <normal_fragment_begin>',
         `
         float faceDirection = 1.0;
-        vec3 normal = normalize( vNormal );
+        float scvFoliageNLenSq = dot( vNormal, vNormal );
+        vec3 normal = scvFoliageNLenSq > 1e-10 ? vNormal * inversesqrt( scvFoliageNLenSq ) : vec3( 0.0, 0.0, 1.0 );
         vec3 nonPerturbedNormal = normal;
         `
       );
@@ -246,7 +273,64 @@ export function enhanceFoliageMaterial(material, {
       );
     }
   };
-  material.customProgramCacheKey = () => `scavenger-b2-foliage-${fadeMode}-v7-solidmid`;
+  material.customProgramCacheKey = () => `scavenger-b2-foliage-${fadeMode}-v8-solidmid`;
+}
+
+/**
+ * 为高大近景乔木生成与主体裁剪同步的 DepthMaterial，使每棵树阴影随距离渐收退场，消除 385m 整屏阴影硬切闪烁。
+ */
+function createFoliageDepthMaterial(srcMaterial, sharedUniforms) {
+  const fCfg = LOD_TRANSITION_CONFIG.foliage;
+  const nd0 = fCfg.nearDist[0].toFixed(1), nd1 = fCfg.nearDist[1].toFixed(1);
+  const ns0 = fCfg.nearSpan[0].toFixed(1), ns1 = fCfg.nearSpan[1].toFixed(1);
+  const ht = fCfg.handoffT.toFixed(3);
+  const dm = new THREE.MeshDepthMaterial({
+    depthPacking: THREE.RGBADepthPacking,
+    map: srcMaterial.map || null,
+    alphaMap: srcMaterial.alphaMap || null,
+    alphaTest: srcMaterial.alphaTest || 0.26,
+    side: THREE.DoubleSide,
+  });
+  dm.onBeforeCompile = shader => {
+    shader.uniforms.uCameraCenter = sharedUniforms.uCameraCenter;
+    shader.uniforms.uSmoothSpan = sharedUniforms.uSmoothSpan || sharedUniforms.uCameraSpan;
+    shader.uniforms.uDitherEnabled = sharedUniforms.uDitherEnabled;
+    shader.vertexShader = `
+      uniform vec3 uCameraCenter;
+      uniform float uSmoothSpan;
+      uniform float uDitherEnabled;
+      varying float vDepthNearT;
+    ` + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `#include <begin_vertex>
+      #ifdef USE_INSTANCING
+        vec4 instOriginFD = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+        float fdDist = length(instOriginFD.xz - uCameraCenter.xz);
+        float fdNearT = uDitherEnabled > 0.5 ? max(smoothstep(${nd0}, ${nd1}, fdDist), smoothstep(${ns0}, ${ns1}, uSmoothSpan)) : 0.0;
+        vDepthNearT = fdNearT;
+        if (fdNearT > 0.62) {
+          float crownShrinkD = 1.0 - 0.32 * smoothstep(0.62, ${ht}, fdNearT);
+          transformed *= crownShrinkD;
+        }
+      #else
+        vDepthNearT = 0.0;
+      #endif
+      `
+    );
+    shader.fragmentShader = `
+      uniform float uDitherEnabled;
+      varying float vDepthNearT;
+    ` + shader.fragmentShader;
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <alphatest_fragment>',
+      `#include <alphatest_fragment>
+      if (uDitherEnabled > 0.5 && vDepthNearT >= ${ht}) discard;
+      `
+    );
+  };
+  dm.customProgramCacheKey = () => 'scavenger-b2-foliage-depth-v8';
+  return dm;
 }
 
 /**
@@ -469,12 +553,14 @@ export class ProceduralGrassField {
     grassFieldTex = null,
     terrainGrassStrengthUniform = null,
     maxInstances = 3600,
+    linearOutput = false,
   }) {
     this.maxInstances = maxInstances;
     this.tier = 'high'; // 'high' (地表草绒+3D草团) | 'medium' (仅地表草绒) | 'off' (全关)
     this.activeBlades = maxInstances;
     this.activeShellLayers = 1; // 1 表示地表融合草绒已启用，0 表示已关闭
     this.terrainGrassStrengthUniform = terrainGrassStrengthUniform;
+    this.linearOutput = Boolean(linearOutput);
 
     this.root = new THREE.Group();
     this.root.name = 'ProceduralStylizedGrassRoot';
@@ -495,7 +581,8 @@ export class ProceduralGrassField {
       uGrassMask: {value: grassMaskTex},
       uMacroTint: {value: macroTintTex},
       uGrassFieldTex: {value: this.grassFieldTex},
-      uBladeWindowSize: {value: 175.0},
+      uBladeWindowSize: {value: LOD_TRANSITION_CONFIG.grass.fixedWindowSize},
+      uLinearOutput: {value: this.linearOutput ? 1.0 : 0.0},
     };
 
     this._buildClusteredBladeMesh();
@@ -642,7 +729,7 @@ export class ProceduralGrassField {
 
           float dist = sqrt(distSq);
           float distFade = 1.0 - smoothstep(safeMaxR * 0.66, safeMaxR, dist);
-          float spanFade = 1.0 - smoothstep(118.0, 152.0, uCameraSpan);
+          float spanFade = 1.0 - smoothstep(${LOD_TRANSITION_CONFIG.grass.fadeSpan[0].toFixed(1)}, ${LOD_TRANSITION_CONFIG.grass.fadeSpan[1].toFixed(1)}, uCameraSpan);
           float activeScale = smoothstep(0.28, 0.56, grassWeight) * distFade * spanFade;
 
           if (activeScale < 0.04) {
@@ -695,6 +782,7 @@ export class ProceduralGrassField {
         }
       `,
       fragmentShader: `
+        uniform float uLinearOutput;
         varying float vHeightFrac;
         varying vec3 vBaseLin;
         varying float vWindWave;
@@ -713,10 +801,15 @@ export class ProceduralGrassField {
           float gust = smoothstep(0.25, 0.85, vWindWave) * h * 0.12;
           colLin = colLin * ao * vShade + vec3(0.050, 0.068, 0.015) * gust;
 
-          // ACES 柔和压抑高光并与地形 MeshStandardMaterial 输出色调自然接轨
-          vec3 mapped = colLin / (colLin + vec3(0.62));
-          vec3 colSRGB = sqrt(max(mapped * 1.34, vec3(0.0)));
-          gl_FragColor = vec4(colSRGB, 1.0);
+          if (uLinearOutput > 0.5) {
+            // 680p HDR Bloom 管线：直接输出物理线性光交由 OutputPass 统一 ACES + sRGB，根治双伽马惨白过曝
+            gl_FragColor = vec4(max(colLin * 1.16, vec3(0.0)), 1.0);
+          } else {
+            // 直渲 sRGB 管线：单次柔和压抑高光并与地形 MeshStandardMaterial 输出色调自然接轨
+            vec3 mapped = colLin / (colLin + vec3(0.62));
+            vec3 colSRGB = sqrt(max(mapped * 1.34, vec3(0.0)));
+            gl_FragColor = vec4(colSRGB, 1.0);
+          }
         }
       `,
     });
@@ -728,6 +821,16 @@ export class ProceduralGrassField {
   }
 
   /**
+   * 同步切换线性 HDR / 直渲 sRGB 输出模式，避免 EffectComposer OutputPass 对 3D 草团二次伽马编码发白。
+   */
+  setLinearOutput(flag) {
+    this.linearOutput = Boolean(flag);
+    if (this.uniforms?.uLinearOutput) {
+      this.uniforms.uLinearOutput.value = this.linearOutput ? 1.0 : 0.0;
+    }
+  }
+
+  /**
    * 同步刷新 1152x1152 精确草地权重掩码（流式升级完成后调用，确保跑道/道路/水泥地零杂草）。
    */
   setGrassMaskTexture(tex) {
@@ -735,12 +838,13 @@ export class ProceduralGrassField {
   }
 
   /**
-   * 方案 A 远距离裁剪与动态滑窗：
+   * 方案 A 远距离裁剪与固定滑窗（消除 115m 临界全屏草团洗牌瞬移）：
    * - 'off'：关闭地形草绒与 3D 草团（0 DC / 0 面）；
-   * - 'medium' 或 span > 155m：仅保留地形融合草绒，关闭 3D 草团（0 DC / 0 面）；
-   * - span <= 115m：130m 滑窗 / 2,200 个草团；115–155m：175m 滑窗 / 3,200 个草团。
+   * - 'medium' 或 span > hardCullSpan (185m)：草团高度已平滑归 0，关闭提交省下无效开销；
+   * - 永久锁定 162.0m 环形窗口与固定实例总数，随相机跨度在 120–175m 平滑压低淡出。
    */
   updateDistanceLOD(span) {
+    const gCfg = LOD_TRANSITION_CONFIG.grass;
     if (this.tier === 'off') {
       if (this.terrainGrassStrengthUniform) this.terrainGrassStrengthUniform.value = 0.0;
       this.bladeMesh.visible = false;
@@ -752,16 +856,14 @@ export class ProceduralGrassField {
     if (this.terrainGrassStrengthUniform) this.terrainGrassStrengthUniform.value = 1.0;
     this.activeShellLayers = 1;
 
-    if (this.tier === 'medium' || span > 155) {
+    if (this.tier === 'medium' || span > gCfg.hardCullSpan) {
       this.bladeMesh.visible = false;
       this.activeBlades = 0;
     } else {
       this.bladeMesh.visible = true;
-      const tight = span <= 115;
-      this.uniforms.uBladeWindowSize.value = tight ? 130.0 : 175.0;
-      const count = tight ? Math.min(2600, this.maxInstances) : this.maxInstances;
-      this.bladeGeo.instanceCount = count;
-      this.activeBlades = count;
+      this.uniforms.uBladeWindowSize.value = gCfg.fixedWindowSize;
+      this.bladeGeo.instanceCount = this.maxInstances;
+      this.activeBlades = this.maxInstances;
     }
   }
 
@@ -798,6 +900,8 @@ export class ThreeTierFoliageSystem {
     support,
     grassFieldTex = null,
     terrainGrassStrengthUniform = null,
+    sharedUniforms = null,
+    linearOutput = false,
   }) {
     this.manifest = b2Manifest;
     this.treeIndex = treeSpatialIndex;
@@ -805,12 +909,7 @@ export class ThreeTierFoliageSystem {
     this.root = new THREE.Group();
     this.root.name = 'ThreeTierFoliageRoot';
 
-    this.sharedUniforms = {
-      uCameraCenter: {value: new THREE.Vector3(0, 0, 85)},
-      uCameraSpan: {value: 140.0},
-      uWindTime: {value: 0.0},
-      uDitherEnabled: {value: 1.0},
-    };
+    this.sharedUniforms = sharedUniforms || createSharedTransitionUniforms();
 
     // 1. 远景与总览常驻立体集群林冠壳 (> 220m 至 9000m 全程常驻)
     this.canopyRoot = canopyGlb.scene;
@@ -854,8 +953,11 @@ export class ThreeTierFoliageSystem {
         sharedUniforms: this.sharedUniforms,
       });
       const nearInst = new THREE.InstancedMesh(nearSrcMesh.geometry, nearMat, this.nearMaxPerProto);
-      // 高大乔木投射真实树影，贴地矮灌木 (shrub) 关闭硬阴影以消除草坪黑斑并显著降低阴影贴图开销
+      // 高大乔木投射真实树影并绑定同步逐棵渐缩 DepthMaterial（消除 385m 整屏阴影硬切）
       nearInst.castShadow = meta.kind !== 'shrub';
+      if (nearInst.castShadow) {
+        nearInst.customDepthMaterial = createFoliageDepthMaterial(nearMat, this.sharedUniforms);
+      }
       nearInst.receiveShadow = false;
       nearInst.frustumCulled = false;
       nearInst.count = 0;
@@ -893,6 +995,7 @@ export class ThreeTierFoliageSystem {
       grassFieldTex,
       terrainGrassStrengthUniform,
       maxInstances: 3600,
+      linearOutput,
     });
     this.root.add(this.grassField.mesh);
 
@@ -918,6 +1021,10 @@ export class ThreeTierFoliageSystem {
     this.sharedUniforms.uWindTime.value = t;
   }
 
+  setLinearOutput(flag) {
+    this.grassField?.setLinearOutput?.(flag);
+  }
+
   /**
    * 同步更新 1152x1152 真实草地权重掩码（供流式升级后调用，避免跑道/道路/水泥广场长草）。
    */
@@ -938,11 +1045,11 @@ export class ThreeTierFoliageSystem {
    * 根据相机焦点与视野跨度更新近景/中景树木实例缓冲与 G4 草地四级远距离裁剪。
    */
   update(center, span, force = false) {
+    const fCfg = LOD_TRANSITION_CONFIG.foliage;
     this.sharedUniforms.uCameraCenter.value.set(center.x, center.y ?? 0, center.z);
     this.sharedUniforms.uCameraSpan.value = span;
-    // 当 span < 350m 时，视口内全部点距离相机中心 < 240m，远小于远景林冠壳隆起下限 (430m)，关闭林冠壳提交省下数十万无效顶点
     if (this.canopyRoot) {
-      this.canopyRoot.visible = span >= 350 || (this.sharedUniforms.uDitherEnabled?.value ?? 1.0) < 0.5;
+      this.canopyRoot.visible = span >= fCfg.canopyMinSpan || (this.sharedUniforms.uDitherEnabled?.value ?? 1.0) < 0.5;
     }
     this.grassField.updateDistanceLOD(span);
     this.stats.grassTufts = this.grassField.activeBlades;
@@ -951,7 +1058,7 @@ export class ThreeTierFoliageSystem {
     const {gridX, gridZ, minX, minZ, chunkM, cellOffsets, cellCounts, recordsView} = this.treeIndex;
     const subCellX = Math.floor(((center.x - minX) / chunkM) * 2);
     const subCellZ = Math.floor(((center.z - minZ) / chunkM) * 2);
-    const spanBucket = span > 650 ? 2 : span > 385 ? 1 : span > 210 ? 0 : -1;
+    const spanBucket = span > fCfg.midMaxSpan ? 2 : span > fCfg.nearMaxSpan ? 1 : span > 210 ? 0 : -1;
 
     if (!force && subCellX === this._lastCellX && subCellZ === this._lastCellZ && spanBucket === this._lastSpanBucket) {
       return this.stats;
@@ -960,8 +1067,7 @@ export class ThreeTierFoliageSystem {
     this._lastCellZ = subCellZ;
     this._lastSpanBucket = spanBucket;
 
-    // 当视野跨度 > 650m 时，近景单棵树与中景代理已通过 T3 实体沉降完整交接给常驻立体集群林冠壳
-    if (span > 650) {
+    if (span > fCfg.midMaxSpan) {
       for (let i = 0; i < 8; i++) {
         this.nearMeshes[i].count = 0;
         this.nearMeshes[i].visible = false;
@@ -977,7 +1083,7 @@ export class ThreeTierFoliageSystem {
 
     const cxCenter = Math.floor((center.x - minX) / chunkM);
     const czCenter = Math.floor((center.z - minZ) / chunkM);
-    const cellRadius = 7; // 7 * 125m = 875m 半径，覆盖全部近景 [0, 325m] 与中景 [250, 900m]
+    const cellRadius = 7;
 
     const nearCounts = new Int32Array(8);
     const midCounts = new Int32Array(8);
@@ -997,9 +1103,9 @@ export class ThreeTierFoliageSystem {
     }
     cells.sort((a, b) => a.d2 - b.d2);
 
-    const showNear = span <= 385;
-    // 动态近景视距：兼顾 21:9 (Hor+) 横向视野广角对角线 + 树影安全缓冲，防止宽画幅左右角缺树
-    const nearRadius = Math.min(375.0, Math.max(245.0, span * 1.65));
+    const showNear = span <= fCfg.nearMaxSpan;
+    // 动态近景视距：覆盖过 nearDist[1] (390m) 及 21:9 远角
+    const nearRadius = Math.min(430.0, Math.max(260.0, span * 1.65));
 
     for (const {cx, cz} of cells) {
       const cellIdx = cz * gridX + cx;
@@ -1057,7 +1163,7 @@ export class ThreeTierFoliageSystem {
       te[1] = 0;    te[5] = t.sy; te[9] = 0;     te[13] = t.y;
       te[2] = syaw; te[6] = 0;    te[10] = cy;   te[14] = t.z;
       te[3] = 0;    te[7] = 0;    te[11] = 0;    te[15] = 1;
-      if (showNear && dist <= 325.0 && nearCounts[proto] < this.nearMaxPerProto) {
+      if (showNear && dist <= nearRadius && nearCounts[proto] < this.nearMaxPerProto) {
         this.nearMeshes[proto].setMatrixAt(nearCounts[proto]++, dummy);
       }
       if (dist >= 250.0 && dist <= 900.0 && midCounts[proto] < this.midMaxPerProto) {
@@ -1099,6 +1205,7 @@ export class ThreeTierFoliageSystem {
     for (const m of this.nearMeshes) {
       m.geometry.dispose();
       m.material.dispose();
+      m.customDepthMaterial?.dispose?.();
     }
     for (const m of this.midMeshes) {
       m.geometry.dispose();

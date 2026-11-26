@@ -1,22 +1,32 @@
 import * as THREE from 'three';
-import {syncPackedHeightTexture, buildCustomRoadRibbonMesh} from './程序化地形.mjs?v=680p-v7';
-import {deriveWorldOBB} from './自动物理派生.mjs?v=680p-v7';
+import {syncPackedHeightTexture, buildCustomRoadRibbonMesh} from './程序化地形.mjs?v=680p-v9';
+import {deriveWorldOBB} from './自动物理派生.mjs?v=680p-v9';
+import {LOD_TRANSITION_CONFIG} from './过渡动画管线.mjs?v=680p-v9';
 
 /**
- * T3 实体无缝形变（100% 实心不透明、0 挖洞、0 Bayer 纱窗）：
- * - 主体建筑近景在过渡区间 (dist 400–560m / span 420–600m) 保持 100% 实心不透明，贴图高对比度细节平滑柔化收敛至
- *   该原型的远景主色调 uOverviewColor，并在色调完全一致的 600m 处无感交接给常驻远景立体包络 macroMesh；
- * - 不进入远景包络的小型道具在过渡后半段平滑向下沉降收拢进地表，彻底告别图 3 白色点阵纱窗！
+ * 方案 1 建筑实体平滑交接 + 原型就绪锁（100% 同锚点、0 半边重影、0 异步空窗）：
+ * - near 与 far（含 macroMesh / far-kit）在顶点着色器内使用同一建筑锚点 (tx, tz) 与时间缓动跨度 uSmoothSpan 计算同一 vMorphT；
+ * - 未就绪时 uBuildingNearReady = 0 强制锁定 vMorphT = 1.0，确保远景包络在 GLB 解码完成前绝不提前退场；
+ * - 交接区间内近景贴图平滑收敛至远景主色调，并叠加极克制高空过渡微雾消除跳变。
  */
 export function enhanceBuildingMaterial(material, sharedUniforms, fadeMode = 'near', opts = {}) {
   const overviewColor = opts.overviewColor || [0.55, 0.54, 0.52];
   const isSmallProp = Boolean(opts.isSmallProp);
-  const protoKey = opts.protoKey || 'default';
+  const useAnchorAttr = Boolean(opts.useAnchorAttr);
+  const bCfg = LOD_TRANSITION_CONFIG.building;
+  const d0 = bCfg.morphDist[0].toFixed(1);
+  const d1 = bCfg.morphDist[1].toFixed(1);
+  const s0 = bCfg.morphSpan[0].toFixed(1);
+  const s1 = bCfg.morphSpan[1].toFixed(1);
+  const ht = bCfg.handoffT.toFixed(3);
 
   material.side = THREE.DoubleSide;
   material.onBeforeCompile = shader => {
     shader.uniforms.uCameraCenter = sharedUniforms.uCameraCenter;
     shader.uniforms.uCameraSpan = sharedUniforms.uCameraSpan;
+    shader.uniforms.uSmoothSpan = sharedUniforms.uSmoothSpan || sharedUniforms.uCameraSpan;
+    shader.uniforms.uBuildingNearReady = sharedUniforms.uBuildingNearReady || {value: 1.0};
+    shader.uniforms.uHazeStrength = sharedUniforms.uHazeStrength || {value: 0.0};
     shader.uniforms.uDitherEnabled = sharedUniforms.uDitherEnabled;
     shader.uniforms.uOverviewColor = {
       value: new THREE.Color(overviewColor[0], overviewColor[1], overviewColor[2]),
@@ -24,49 +34,48 @@ export function enhanceBuildingMaterial(material, sharedUniforms, fadeMode = 'ne
     shader.uniforms.uIsSmallProp = {value: isSmallProp ? 1.0 : 0.0};
 
     shader.vertexShader = `
+      ${useAnchorAttr ? 'attribute vec2 aInstAnchor;' : ''}
       uniform vec3 uCameraCenter;
       uniform float uCameraSpan;
+      uniform float uSmoothSpan;
+      uniform float uBuildingNearReady;
       uniform float uDitherEnabled;
       uniform float uIsSmallProp;
-      varying vec3 vBldgWorldPos;
       varying float vMorphT;
     ` + shader.vertexShader;
 
-    shader.vertexShader = shader.vertexShader.replace(
-      '#include <begin_vertex>',
-      `#include <begin_vertex>
-      #ifdef USE_INSTANCING
+    const anchorExpr = useAnchorAttr
+      ? 'vec2 bAnchorXZ = aInstAnchor;'
+      : `#ifdef USE_INSTANCING
         vec4 instOrigin = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
       #else
         vec4 instOrigin = modelMatrix * vec4(0.0, 0.0, 0.0, 1.0);
       #endif
-      float bDist = length(instOrigin.xz - uCameraCenter.xz);
-      float morphD = smoothstep(500.0, 680.0, bDist);
-      float morphS = smoothstep(520.0, 740.0, uCameraSpan);
-      vMorphT = uDitherEnabled > 0.5 ? clamp(max(morphD, morphS), 0.0, 1.0) : 0.0;
+      vec2 bAnchorXZ = instOrigin.xz;`;
 
-      // 小型道具（路障/货箱/围栏等）在过渡带平滑向下沉降收拢进地表，无打孔、无突变
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `#include <begin_vertex>
+      ${anchorExpr}
+      float bDist = length(bAnchorXZ - uCameraCenter.xz);
+      float morphD = smoothstep(${d0}, ${d1}, bDist);
+      float morphS = smoothstep(${s0}, ${s1}, uSmoothSpan);
+      float rawMorph = clamp(max(morphD, morphS), 0.0, 1.0);
+      vMorphT = uDitherEnabled > 0.5 ? mix(1.0, rawMorph, clamp(uBuildingNearReady, 0.0, 1.0)) : 0.0;
+
+      // 小型道具（路障/货箱/围栏等）平滑向下沉降收拢进地表，无突变
       if (uIsSmallProp > 0.5 && vMorphT > 0.40) {
         float sink = 1.0 - smoothstep(0.40, 0.94, vMorphT);
         transformed *= max(0.001, sink);
       }
-
-      #ifdef USE_INSTANCING
-        vec4 wPosB = modelMatrix * instanceMatrix * vec4(transformed, 1.0);
-      #else
-        vec4 wPosB = modelMatrix * vec4(transformed, 1.0);
-      #endif
-      vBldgWorldPos = wPosB.xyz;
       `
     );
 
     shader.fragmentShader = `
-      uniform vec3 uCameraCenter;
-      uniform float uCameraSpan;
       uniform float uDitherEnabled;
+      uniform float uHazeStrength;
       uniform vec3 uOverviewColor;
       uniform float uIsSmallProp;
-      varying vec3 vBldgWorldPos;
       varying float vMorphT;
     ` + shader.fragmentShader;
 
@@ -78,31 +87,30 @@ export function enhanceBuildingMaterial(material, sharedUniforms, fadeMode = 'ne
           if (uIsSmallProp > 0.5) {
             if (vMorphT >= 0.94) discard;
           } else {
-            // T3 实体无缝形变：100% 实心不打孔！高对比度门窗/墙面纹理平滑柔化至远景体块主色调
-            if (vMorphT >= 0.992) discard;
+            if (vMorphT >= ${ht}) discard;
             float colorMelt = smoothstep(0.12, 0.92, vMorphT);
             diffuseColor.rgb = mix(diffuseColor.rgb, uOverviewColor, colorMelt);
+          }
+          if (uHazeStrength > 0.002) {
+            diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.68, 0.72, 0.64), clamp(uHazeStrength * 0.65, 0.0, 0.25));
           }
         }
         `
       );
     } else {
-      // 远景常驻建筑立体包络：仅在近景建筑已平滑柔化到同色终点 (morphT >= 0.99) 处无缝接棒，0 纱窗重叠
+      // 远景包络与近景使用完全同一个 vMorphT，在 ${ht} 处严格互补无缝接棒（0 重影、0 空洞）
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <alphatest_fragment>',
         `#include <alphatest_fragment>
-        if (uDitherEnabled > 0.5) {
-          float dist = length(vBldgWorldPos.xz - uCameraCenter.xz);
-          float mD = smoothstep(500.0, 680.0, dist);
-          float mS = smoothstep(520.0, 740.0, uCameraSpan);
-          float mT = max(mD, mS);
-          if (mT < 0.985) discard;
+        if (uDitherEnabled > 0.5 && vMorphT < ${ht}) discard;
+        if (uDitherEnabled > 0.5 && uHazeStrength > 0.002) {
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.68, 0.72, 0.64), clamp(uHazeStrength * 0.65, 0.0, 0.25));
         }
         `
       );
     }
   };
-  material.customProgramCacheKey = () => `scavenger-b3-bldg-t3-${fadeMode}-${isSmallProp ? 'prop' : 'main'}`;
+  material.customProgramCacheKey = () => `scavenger-b3-bldg-v8-${fadeMode}-${isSmallProp ? 'prop' : 'main'}-${useAnchorAttr ? 'anc' : 'org'}`;
 }
 
 /**
@@ -146,6 +154,7 @@ export class ModularBuildingSystem {
 
     this.protoMeta = b3Manifest.building_prototypes;
     this.loadedNearProtos = new Map(); // protoIdx -> Promise<THREE.Group>
+    this._readyProtoSet = new Set();
     this.nearBatches = new Map();      // protoIdx -> THREE.Group of InstancedMeshes
     this._macroFarKitMatrices = new Map(); // protoIdx -> Array<THREE.Matrix4>
 
@@ -153,6 +162,8 @@ export class ModularBuildingSystem {
     this._buildMacroBuildingEnvelopeMesh();
     this.macroFarKitReady = this._buildMacroFarKitMeshes();
 
+    this.isNearReady = false;
+    this._updateSeq = 0;
     this._lastCellX = -999;
     this._lastCellZ = -999;
     this._lastSpanBucket = -1;
@@ -218,13 +229,16 @@ export class ModularBuildingSystem {
 
     const boxGeo = new THREE.BoxGeometry(1, 1, 1);
     boxGeo.translate(0, 0.5, 0); // 底面中心在 (0,0,0)
+    const count = eligibleIndices.length;
+    const anchorArray = new Float32Array(Math.max(1, count) * 2);
+    boxGeo.setAttribute('aInstAnchor', new THREE.InstancedBufferAttribute(anchorArray, 2));
+
     const macroMat = new THREE.MeshStandardMaterial({
       roughness: 0.88,
       metalness: 0.08,
     });
-    enhanceBuildingMaterial(macroMat, this.sharedUniforms, 'far');
+    enhanceBuildingMaterial(macroMat, this.sharedUniforms, 'far', {useAnchorAttr: true});
 
-    const count = eligibleIndices.length;
     this.macroCount = count;
     this.macroMesh = new THREE.InstancedMesh(boxGeo, macroMat, count);
     this.macroMesh.frustumCulled = false;
@@ -252,6 +266,9 @@ export class ModularBuildingSystem {
       const tx = recordsView.getFloat32(off + 44, true);
       const ty = recordsView.getFloat32(off + 48, true);
       const tz = recordsView.getFloat32(off + 52, true);
+
+      anchorArray[k * 2 + 0] = tx;
+      anchorArray[k * 2 + 1] = tz;
 
       const bMin = meta.bounds_min;
       const bMax = meta.bounds_max;
@@ -413,31 +430,34 @@ export class ModularBuildingSystem {
         }
       });
       return subMeshes;
-    }).catch(() => []);
+    }).catch(() => []).then(res => {
+      this._readyProtoSet.add(protoIdx);
+      return res;
+    });
 
     this.loadedNearProtos.set(protoIdx, promise);
     return promise;
   }
 
   /**
-   * 更新相机焦点周围近中景 (< 580m) 的模块化建筑实例批，以及编辑器新增/修改实例。
+   * 更新相机焦点周围近中景的模块化建筑实例批，采用 840m 提前预热与原型就绪锁彻底消除空窗闪灭。
    */
   async update(center, span, force = false) {
+    const bCfg = LOD_TRANSITION_CONFIG.building;
     this.sharedUniforms.uCameraCenter.value.set(center.x, center.y ?? 0, center.z);
     this.sharedUniforms.uCameraSpan.value = span;
 
-    // 零视觉损耗远景裁剪：当 span < 460m 时，全视口最大半径 < 280m，远小于远景包络接管下限 (500m)，
-    // 直接关闭远景方盒与 far-kit 岩石群提交，近景可省下 150 万+ 无效顶点与 8 个 Draw Call！
-    const showMacro = span >= 460 || (this.sharedUniforms.uDitherEnabled?.value ?? 1.0) < 0.5;
+    // 仅当近景已完全就绪且跨度缩进 macroHideSpan 以下时才裁剪远景包络，确保宽画幅远角与加载期间绝不闪空
+    const showMacro = span >= bCfg.macroHideSpan || !this.isNearReady || (this.sharedUniforms.uDitherEnabled?.value ?? 1.0) < 0.5;
     if (this.macroMesh) this.macroMesh.visible = showMacro;
     if (this.macroFarKitGroup) this.macroFarKitGroup.visible = showMacro;
 
     const {gridX, gridZ, minX, minZ, chunkM, cellOffsets, cellCounts, recordsView} = this.buildingIndex;
     const cxCenter = Math.floor((center.x - minX) / chunkM);
     const czCenter = Math.floor((center.z - minZ) / chunkM);
-    // 按视距动态调整建筑加载半径：214m 城镇区从 580m 收紧至 ~395m (扫描格数降 65%，高密城镇平移建筑数降 60%+，零画质损失)
-    const bldgRadius = Math.min(580.0, Math.max(260.0, span * 1.85));
-    const spanBucket = span > 760 ? 3 : span > 360 ? 2 : span > 200 ? 1 : 0;
+    // 放宽加载半径覆盖过 morphDist[1] (720m)，杜绝视野外缘建筑提前丢失
+    const bldgRadius = Math.min(bCfg.radiusMax, Math.max(bCfg.radiusMin, span * 1.95));
+    const spanBucket = span > bCfg.unloadSpan ? 4 : span > bCfg.preloadSpan ? 3 : span > 420 ? 2 : span > 220 ? 1 : 0;
 
     if (!force && cxCenter === this._lastCellX && czCenter === this._lastCellZ && spanBucket === this._lastSpanBucket) {
       return this.stats;
@@ -446,12 +466,14 @@ export class ModularBuildingSystem {
     this._lastCellZ = czCenter;
     this._lastSpanBucket = spanBucket;
 
-    if (span > 760) {
+    if (span > bCfg.unloadSpan || (span > bCfg.preloadSpan && !this.nearGroup.visible)) {
+      this._updateSeq++;
       this.nearGroup.visible = false;
+      this.isNearReady = false;
       this.stats.nearBuildingInstances = 0;
       return this.stats;
     }
-    this.nearGroup.visible = true;
+    const seq = ++this._updateSeq;
 
     // 复用矩阵对象池消除平移跨格时的大量 Matrix4 GC 抖动
     if (!this._matPool) this._matPool = [];
@@ -465,7 +487,7 @@ export class ModularBuildingSystem {
     };
 
     const byProto = new Map(); // protoIdx -> Array<THREE.Matrix4>
-    const cellRadius = Math.min(4, Math.max(2, Math.ceil(bldgRadius / chunkM)));
+    const cellRadius = Math.min(6, Math.max(2, Math.ceil(bldgRadius / chunkM)));
 
     for (let dz = -cellRadius; dz <= cellRadius; dz++) {
       const cz = czCenter + dz;
@@ -527,9 +549,14 @@ export class ModularBuildingSystem {
       }
     }
 
-    // 并行加载当前视区所需的原型 GLB
+    // 并行加载当前视区所需的原型 GLB；从远景首次切入前先保持 nearGroup 隐藏与远景锁死，防止闪出空窗或旧残影
     const neededProtos = Array.from(byProto.keys());
+    const allCachedReady = neededProtos.every(pIdx => this._readyProtoSet.has(pIdx));
+    if (!this.nearGroup.visible && !allCachedReady) {
+      this.isNearReady = false;
+    }
     await Promise.all(neededProtos.map(pIdx => this.ensurePrototypeLoaded(pIdx)));
+    if (seq !== this._updateSeq) return this.stats;
 
     // 隐藏不在当前视区的旧批次
     for (const [pIdx, grp] of this.nearBatches.entries()) {
@@ -539,6 +566,7 @@ export class ModularBuildingSystem {
     let totalNearInst = 0;
     for (const [pIdx, matrices] of byProto.entries()) {
       const subMeshes = await this.ensurePrototypeLoaded(pIdx);
+      if (seq !== this._updateSeq) return this.stats;
       if (!subMeshes || subMeshes.length === 0) continue;
 
       let grp = this.nearBatches.get(pIdx);
@@ -581,6 +609,14 @@ export class ModularBuildingSystem {
     }
 
     await this.rebuildEditorDynamicMeshes();
+    if (seq !== this._updateSeq) return this.stats;
+
+    this.nearGroup.visible = true;
+    this.isNearReady = true;
+    const finalShowMacro = span >= bCfg.macroHideSpan || (this.sharedUniforms.uDitherEnabled?.value ?? 1.0) < 0.5;
+    if (this.macroMesh) this.macroMesh.visible = finalShowMacro;
+    if (this.macroFarKitGroup) this.macroFarKitGroup.visible = finalShowMacro;
+
     this.stats.nearActivePrototypes = neededProtos.length;
     this.stats.nearBuildingInstances = totalNearInst;
     return this.stats;

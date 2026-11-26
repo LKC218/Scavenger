@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {decodeSCVHHeightfield, decodeSCVPPatch, HybridTerrainSupport} from './高度支撑.mjs?v=680p-v7';
+import {decodeSCVHHeightfield, decodeSCVPPatch, HybridTerrainSupport} from './高度支撑.mjs?v=680p-v9';
 export {decodeSCVHHeightfield, decodeSCVPPatch, HybridTerrainSupport};
 
 /**
@@ -141,10 +141,17 @@ export async function loadTerrainArrayTexture(url) {
  * 解码无损 SCVS Splatmap 控制文件（top4_idx RGBA8 + top4_wgt RGBA8 + grass_channel R8），
  * 避免 HTML5 Canvas 2D 预乘 Alpha 导致 Alpha=0 时 RGB 归零变黑。
  */
-export async function loadSCVSSplatControl(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('无法加载 SCVS Splat 控制包: ' + url);
-  const compBuf = await response.arrayBuffer();
+export async function loadSCVSSplatControl(urlOrBuffer) {
+  let compBuf;
+  if (urlOrBuffer instanceof ArrayBuffer) {
+    compBuf = urlOrBuffer;
+  } else if (ArrayBuffer.isView(urlOrBuffer)) {
+    compBuf = urlOrBuffer.buffer.slice(urlOrBuffer.byteOffset, urlOrBuffer.byteOffset + urlOrBuffer.byteLength);
+  } else {
+    const response = await fetch(urlOrBuffer);
+    if (!response.ok) throw new Error('无法加载 SCVS Splat 控制包: ' + urlOrBuffer);
+    compBuf = await response.arrayBuffer();
+  }
   let rawBuf = compBuf;
   const check = new DataView(compBuf);
   if (check.byteLength < 16 || check.getUint32(0, true) !== 0x53564353) {
@@ -284,6 +291,49 @@ export function syncPackedHeightTexture(packed, hf, region = null) {
 }
 
 /**
+ * 异步分片更新 GPU 打包高度纹理（专供后台全精度升级消除长任务，原同步接口保持兼容）。
+ */
+export async function syncPackedHeightTextureAsync(
+  packed,
+  hf,
+  { region = null, yieldFn = null, sliceRows = 256, shouldAbort = null } = {},
+) {
+  const {data, width: w, height: h} = packed;
+  const {width: sw, height: sh, qGrid, nyGrid, roleGrid, roleGridHalf, halfWidth} = hf;
+  const iz0 = region ? Math.max(0, Math.floor(region.iz0 / 2)) : 0;
+  const iz1 = region ? Math.min(h - 1, Math.ceil(region.iz1 / 2)) : h - 1;
+  const ix0 = region ? Math.max(0, Math.floor(region.ix0 / 2)) : 0;
+  const ix1 = region ? Math.min(w - 1, Math.ceil(region.ix1 / 2)) : w - 1;
+  const stepRows = Math.max(32, Number(sliceRows) || 256);
+
+  for (let izStart = iz0; izStart <= iz1; izStart += stepRows) {
+    if (shouldAbort?.()) return false;
+    const izEnd = Math.min(iz1, izStart + stepRows - 1);
+    for (let iz = izStart; iz <= izEnd; iz++) {
+      const sz = Math.min(sh - 1, iz * 2);
+      const srcRow = sz * sw;
+      const dstRow = iz * w;
+      for (let ix = ix0; ix <= ix1; ix++) {
+        const sx = Math.min(sw - 1, ix * 2);
+        const q = qGrid[srcRow + sx];
+        const di = (dstRow + ix) * 4;
+        data[di] = q & 0xff;
+        data[di + 1] = (q >> 8) & 0xff;
+        if (nyGrid) data[di + 2] = nyGrid[srcRow + sx];
+        if (roleGrid) data[di + 3] = roleGrid[srcRow + sx];
+        else if (roleGridHalf) data[di + 3] = roleGridHalf[Math.min(halfWidth - 1, iz) * halfWidth + Math.min(halfWidth - 1, ix)];
+      }
+    }
+    if (yieldFn && izEnd < iz1) {
+      await yieldFn();
+    }
+  }
+  if (shouldAbort?.()) return false;
+  packed.texture.needsUpdate = true;
+  return true;
+}
+
+/**
  * 创建基于 WebGL2 DataArrayTexture + Top-4 Splatmap + 随机哈希防平铺（Stochastic Tiling）
  * + GPU 16-bit 顶点位移的程序化地形材质。
  */
@@ -330,6 +380,19 @@ export function createProceduralTerrainMaterial({
     effectiveGrassMaskTex.needsUpdate = true;
   }
 
+  const fallbackFogData = new Uint8Array([
+    255, 255, 255, 0, 255, 255, 255, 0,
+    255, 255, 255, 0, 255, 255, 255, 0,
+  ]);
+  const fallbackFogTex = new THREE.DataTexture(fallbackFogData, 2, 2, THREE.RGBAFormat);
+  fallbackFogTex.magFilter = THREE.LinearFilter;
+  fallbackFogTex.minFilter = THREE.LinearFilter;
+  fallbackFogTex.wrapS = THREE.ClampToEdgeWrapping;
+  fallbackFogTex.wrapT = THREE.ClampToEdgeWrapping;
+  fallbackFogTex.flipY = false;
+  fallbackFogTex.colorSpace = THREE.NoColorSpace;
+  fallbackFogTex.needsUpdate = true;
+
   const uniforms = {
     uHeightMap: {value: heightTex.texture},
     uHeightTexSize: {value: new THREE.Vector2(heightTex.width, heightTex.height)},
@@ -341,6 +404,10 @@ export function createProceduralTerrainMaterial({
     uMacroTint: {value: macroTintGrassTex},
     uGrassFieldTex: {value: effectiveGrassFieldTex},
     uGrassMask: {value: effectiveGrassMaskTex},
+    uFogPrevTex: {value: fallbackFogTex},
+    uFogCurrTex: {value: fallbackFogTex},
+    uFogBlendT: {value: 1.0},
+    uFogEnabled: {value: 0.0},
     uWindTime: windTimeUniform || {value: 0.0},
     uTerrainGrassStrength: {value: terrainGrassStrength},
     uLayerScales: {value: uvScales},
@@ -439,6 +506,10 @@ export function createProceduralTerrainMaterial({
       uniform sampler2D uMacroTint;
       uniform sampler2D uGrassFieldTex;
       uniform sampler2D uGrassMask;
+      uniform sampler2D uFogPrevTex;
+      uniform sampler2D uFogCurrTex;
+      uniform float uFogBlendT;
+      uniform float uFogEnabled;
       uniform float uWindTime;
       uniform float uTerrainGrassStrength;
       uniform vec4 uMapBounds;
@@ -561,6 +632,20 @@ export function createProceduralTerrainMaterial({
         finalAlbedo = mix(macroLinear, calibratedDetail, detailBlend);
       }
 
+      // 直渲回退模式下的地表战争迷雾柔边混合（开启 EffectComposer FogOfWarPass 时 uFogEnabled=0 避免双重压暗）
+      if (uFogEnabled > 0.5) {
+        vec4 fogPrev = texture2D(uFogPrevTex, mapUV);
+        vec4 fogCurr = texture2D(uFogCurrTex, mapUV);
+        vec2 fogRG = mix(fogPrev.rg, fogCurr.rg, clamp(uFogBlendT, 0.0, 1.0));
+        float fogLive = smoothstep(0.04, 0.92, fogRG.r);
+        float fogExplored = smoothstep(0.04, 0.85, fogRG.g);
+        float greyLuma = dot(finalAlbedo, vec3(0.2126, 0.7152, 0.0722));
+        vec3 exploredTint = mix(finalAlbedo, vec3(greyLuma), 0.42) * 0.44 + vec3(0.016, 0.024, 0.034);
+        vec3 unexploredTint = vec3(greyLuma) * 0.09 + vec3(0.007, 0.011, 0.018);
+        vec3 fogBase = mix(unexploredTint, exploredTint, fogExplored);
+        finalAlbedo = mix(fogBase, finalAlbedo, fogLive);
+      }
+
       diffuseColor.rgb = finalAlbedo;
       `
     );
@@ -607,20 +692,22 @@ export class ProceduralTerrainPool {
     }
   }
 
-  update(center, span) {
+  update(center, span, terrainTier = null) {
     const {minX, maxX, minZ, maxZ} = this.bounds;
     this.material.userData.proceduralUniforms.uCameraCenter.value.set(center.x, center.y ?? 0, center.z);
     this.material.userData.proceduralUniforms.uCameraSpan.value = span;
 
-    // 当视野跨度很大（> 1800m）时，仅使用全图连续网格底座即可，省去 25 个局部块提交
-    if (span > 1800) {
+    // 接入 terrainTier 滞回状态；仅当真正切入宏观态时关闭 25 个精细块
+    const useMacroOnly = terrainTier ? (terrainTier === 'macro') : (span > 1800);
+    if (useMacroOnly) {
       this.baseMesh.position.y = 0;
       for (const mesh of this.tiles) mesh.visible = false;
       return 1;
     }
 
-    // 近中景时下沉全图粗底座 2.5m，防止 47m 粗三角形在山坡凸起处刺穿 3.9m 精细块
-    this.baseMesh.position.y = -2.5;
+    // 1500m → 2070m 区间连续平滑调节全图粗底座下沉量 (-2.5m → -0.12m)，消除 1800m 切换瞬时跳闪
+    const tRise = Math.max(0.0, Math.min(1.0, (span - 1500.0) / 570.0));
+    this.baseMesh.position.y = -2.5 + tRise * (2.5 - 0.12);
     const baseTx = Math.max(2, Math.min(33, Math.floor((center.x - minX) / 250)));
     const baseTz = Math.max(2, Math.min(33, Math.floor((center.z - minZ) / 250)));
 
@@ -734,61 +821,254 @@ export function buildCustomRoadRibbonMesh(splines, heightAt, existingMaterial = 
 }
 
 /**
- * 构建 9km 作战区外围 4.5km 海拔无缝衔接 + 镜像噪声去拉丝远景丘陵裙边 + 战术禁区细界标（仅 1 DC）：
- * - 几何体采用 72 段 × 7 环共角回字形细分网格（4,032 三角面），直接读取主地形 16-bit RG 高度图实现内缘 0 落差咬合；
- * - 片元禁用边缘 1px clamp 拉伸，改为镜像折叠 UV + 双频有机噪声打散，叠加低对比远丘微纹理与克制 45° 禁区斜纹；
- * - 采用与主地形同源的 MeshStandardMaterial PBR 光照管线，外缘在 2200m–4450m 平滑渐隐融入场景背景。
+ * 构建 9km 作战区外围「方案 A+B 混搭：3D 实体地层剖面金属边框 + 外部深烟炭全息等高线动态战术沙盘」（仅 2 DC，零额外贴图）：
+ * - Mesh 1 (`OutskirtsCutawayBezel`)：沿 9km 边界构筑扣边金属框（内搭 1.5m 压住毛边 + 外扩 12m 刻尺边框）及垂直三层实体地层剖面侧壁（表土→页岩→深炭底座），严格对齐主地形 16-bit RG 边缘海拔；
+ * - Mesh 2 (`OutskirtsHolographicTerrain`)：外围 5.5km 连续起伏深烟炭战术沙盘，利用 WebGL2 `fwidth()` 屏幕导数实时渲染 1px 抗锯齿双级等高线（10m 香槟金主线 + 3.33m 青绿次线）、MGRS 战术网格与交叉准星、7s 周期性外扩高程扫描脉冲、桌面 AO 压暗落影及镜头焦点动态微亮响应；
+ * - 兼容旧版 5 参数签名，新增第 6 可选参数 `sharedUniforms` 同步时间 `uWindTime`、相机中心 `uCameraCenter` 与跨度 `uCameraSpan`。
  */
-export function createMapOutskirtsSkirtMesh(bounds, macroTintTex, skirtWidth = 4500.0, heightTex = null, grassFieldTex = null) {
+export function createMapOutskirtsSkirtMesh(bounds, macroTintTex, skirtWidth = 5500.0, heightTex = null, grassFieldTex = null, sharedUniforms = null) {
   const {minX, maxX, minZ, maxZ} = bounds;
-  const ringDists = [0.0, 60.0, 180.0, 420.0, 900.0, 1800.0, 3100.0, skirtWidth];
-  const segPerSide = 72;
-  const ringCount = ringDists.length;
+  const minH = bounds.minH ?? -40.0;
+  // 确保沙盘底座底面低于全图四周最低边沿，保证 3D 剖面壁四面完整立体露出
+  const tableY = minH - 24.0;
+  const spanXZ = Math.max(1.0, maxX - minX, maxZ - minZ);
+  const segPerSide = 96;
   const perimeterCount = segPerSide * 4;
 
+  // 兜底共享 Uniform（兼容脱离主循环的独立 5 参数调用）
+  const animUniforms = sharedUniforms || {
+    uWindTime: {value: 0.0},
+    uCameraCenter: {value: new THREE.Vector3(0, 0, 85)},
+    uCameraSpan: {value: 140.0},
+  };
+
+  // 安全纹理兜底
+  const createFallbackTex = (rgba) => {
+    const t = new THREE.DataTexture(new Uint8Array(rgba), 2, 2, THREE.RGBAFormat);
+    t.colorSpace = THREE.NoColorSpace;
+    t.needsUpdate = true;
+    return t;
+  };
+  const hasHeightTex = Boolean(heightTex && heightTex.texture);
+  const effHeightTex = hasHeightTex ? heightTex.texture : createFallbackTex([0, 128, 255, 1, 0, 128, 255, 1, 0, 128, 255, 1, 0, 128, 255, 1]);
+  const effHeightSize = hasHeightTex ? new THREE.Vector2(heightTex.width, heightTex.height) : new THREE.Vector2(2, 2);
+
+  // 共享 16-bit RG 边沿高度解码 GLSL
+  const glslDecodeHeight = `
+    uniform sampler2D uHeightMap;
+    uniform vec2 uHeightTexSize;
+    uniform float uHasHeightTex;
+    uniform vec4 uMapBounds;
+    uniform vec2 uHeightRange;
+    uniform float uTableY;
+
+    float decodeSkirtEdgeHeight(vec2 clampedXZ) {
+      if (uHasHeightTex < 0.5) return 0.0;
+      vec2 uv = clamp((clampedXZ - uMapBounds.xy) / uMapBounds.zw, 0.0, 1.0);
+      vec2 texel = uv * (uHeightTexSize - 1.0);
+      vec2 i0 = floor(texel);
+      vec2 f = texel - i0;
+      vec2 i1 = min(i0 + 1.0, uHeightTexSize - 1.0);
+      vec4 s00 = texture2D(uHeightMap, (i0 + 0.5) / uHeightTexSize);
+      vec4 s10 = texture2D(uHeightMap, (vec2(i1.x, i0.y) + 0.5) / uHeightTexSize);
+      vec4 s01 = texture2D(uHeightMap, (vec2(i0.x, i1.y) + 0.5) / uHeightTexSize);
+      vec4 s11 = texture2D(uHeightMap, (i1 + 0.5) / uHeightTexSize);
+      float q00 = floor(s00.r * 255.0 + 0.5) + floor(s00.g * 255.0 + 0.5) * 256.0;
+      float q10 = floor(s10.r * 255.0 + 0.5) + floor(s10.g * 255.0 + 0.5) * 256.0;
+      float q01 = floor(s01.r * 255.0 + 0.5) + floor(s01.g * 255.0 + 0.5) * 256.0;
+      float q11 = floor(s11.r * 255.0 + 0.5) + floor(s11.g * 255.0 + 0.5) * 256.0;
+      float q = mix(mix(q00, q10, f.x), mix(q01, q11, f.x), f.y);
+      return uHeightRange.x + (min(q, 65534.0) / 65534.0) * uHeightRange.y;
+    }
+  `;
+
+  // 辅助：沿四边按环偏移量生成闭合顶点坐标 + 外向单位法线
+  const samplePerimeterPt = (s, d) => {
+    const side = Math.floor(s / segPerSide);
+    const t = (s % segPerSide) / segPerSide;
+    const x0 = minX - d;
+    const x1 = maxX + d;
+    const z0 = minZ - d;
+    const z1 = maxZ + d;
+    let wx = 0, wz = 0, nx = 0, nz = 0;
+    if (side === 0) {
+      wx = x0 + (x1 - x0) * t; wz = z0; nx = 0; nz = -1;
+    } else if (side === 1) {
+      wx = x1; wz = z0 + (z1 - z0) * t; nx = 1; nz = 0;
+    } else if (side === 2) {
+      wx = x1 - (x1 - x0) * t; wz = z1; nx = 0; nz = 1;
+    } else {
+      wx = x0; wz = z1 - (z1 - z0) * t; nx = -1; nz = 0;
+    }
+    return {wx, wz, nx, nz};
+  };
+
+  // =========================================================================
+  // 1) Mesh 1：9km 3D 实体地层剖面侧壁 + 顶缘扣边金属刻尺框
+  // =========================================================================
+  const bezelRings = [
+    {d: -1.5, part: 0.0, topBias: 0.24},  // 轻微内扣压住 9km 主地形毛边
+    {d: 12.0, part: 0.0, topBias: 0.24},  // 顶缘拉丝金属边框外缘
+    {d: 12.0, part: 0.02, topBias: 0.24}, // 硬转折垂直切面顶部
+    {d: 12.0, part: 1.0, topBias: 0.0},   // 垂落至指挥台底座底面 tableY
+  ];
+  const bRingCount = bezelRings.length;
+  const bPos = new Float32Array(bRingCount * perimeterCount * 3);
+  const bNorm = new Float32Array(bRingCount * perimeterCount * 3);
+  const bPart = new Float32Array(bRingCount * perimeterCount);
+  const bBias = new Float32Array(bRingCount * perimeterCount);
+  const bIdx = [];
+
+  for (let r = 0; r < bRingCount; r++) {
+    const spec = bezelRings[r];
+    const rowBase = r * perimeterCount;
+    for (let s = 0; s < perimeterCount; s++) {
+      const {wx, wz, nx, nz} = samplePerimeterPt(s, spec.d);
+      const vi = rowBase + s;
+      bPos[vi * 3 + 0] = wx;
+      bPos[vi * 3 + 1] = 0.0;
+      bPos[vi * 3 + 2] = wz;
+      if (spec.part < 0.01) {
+        bNorm[vi * 3 + 0] = 0; bNorm[vi * 3 + 1] = 1; bNorm[vi * 3 + 2] = 0;
+      } else {
+        bNorm[vi * 3 + 0] = nx; bNorm[vi * 3 + 1] = 0; bNorm[vi * 3 + 2] = nz;
+      }
+      bPart[vi] = spec.part;
+      bBias[vi] = spec.topBias;
+    }
+  }
+  for (let r = 0; r < bRingCount - 1; r++) {
+    // 跳过 Ring 1 -> Ring 2 的零宽度退化环
+    if (r === 1) continue;
+    const r0 = r * perimeterCount;
+    const r1 = (r + 1) * perimeterCount;
+    for (let s = 0; s < perimeterCount; s++) {
+      const sNext = (s + 1) % perimeterCount;
+      const a = r0 + s;
+      const b = r0 + sNext;
+      const c = r1 + s;
+      const d = r1 + sNext;
+      bIdx.push(a, d, b, a, c, d);
+    }
+  }
+
+  const bezelGeo = new THREE.BufferGeometry();
+  bezelGeo.setAttribute('position', new THREE.BufferAttribute(bPos, 3));
+  bezelGeo.setAttribute('normal', new THREE.BufferAttribute(bNorm, 3));
+  bezelGeo.setAttribute('aRimPart', new THREE.BufferAttribute(bPart, 1));
+  bezelGeo.setAttribute('aTopBias', new THREE.BufferAttribute(bBias, 1));
+  bezelGeo.setIndex(bIdx);
+
+  const bezelUniforms = {
+    uHeightMap: {value: effHeightTex},
+    uHeightTexSize: {value: effHeightSize},
+    uHasHeightTex: {value: hasHeightTex ? 1.0 : 0.0},
+    uMapBounds: {value: new THREE.Vector4(minX, minZ, maxX - minX, maxZ - minZ)},
+    uHeightRange: {value: new THREE.Vector2(minH, (bounds.maxH ?? 120.0) - minH)},
+    uTableY: {value: tableY},
+    uWindTime: animUniforms.uWindTime,
+  };
+
+  const bezelMat = new THREE.MeshStandardMaterial({
+    roughness: 0.72,
+    metalness: 0.35,
+    side: THREE.DoubleSide,
+  });
+  bezelMat.userData.proceduralBezelUniforms = bezelUniforms;
+  bezelMat.onBeforeCompile = shader => {
+    Object.assign(shader.uniforms, bezelUniforms);
+    shader.vertexShader = `
+      attribute float aRimPart;
+      attribute float aTopBias;
+      varying float vRimPart;
+      varying vec3 vBezelWorldPos;
+      varying vec3 vBezelNorm;
+      ${glslDecodeHeight}
+    ` + shader.vertexShader;
+
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `vec2 maxB = uMapBounds.xy + uMapBounds.zw;
+      vec2 clampedXZ = clamp(position.xz, uMapBounds.xy, maxB);
+      float edgeY = decodeSkirtEdgeHeight(clampedXZ) + aTopBias;
+      float targetY = mix(edgeY, uTableY - 0.5, smoothstep(0.015, 1.0, aRimPart));
+      vec3 transformed = vec3(position.x, targetY, position.z);
+      vRimPart = aRimPart;
+      vBezelNorm = normal;
+      vBezelWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
+      `
+    );
+
+    shader.fragmentShader = `
+      uniform float uWindTime;
+      uniform vec4 uMapBounds;
+      varying float vRimPart;
+      varying vec3 vBezelWorldPos;
+      varying vec3 vBezelNorm;
+    ` + shader.fragmentShader;
+
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <map_fragment>',
+      `#include <map_fragment>
+      vec2 maxB = uMapBounds.xy + uMapBounds.zw;
+      vec2 outVec = max(vec2(0.0), max(uMapBounds.xy - vBezelWorldPos.xz, vBezelWorldPos.xz - maxB));
+      float dOut = length(outVec);
+      float alongPos = abs(vBezelNorm.z) > 0.5 ? vBezelWorldPos.x : vBezelWorldPos.z;
+
+      if (vRimPart < 0.015) {
+        // 顶缘拉丝枪灰金属刻尺边框 + 流动香槟金战术光带 + 250m/1000m 刻齿
+        vec3 metalBase = vec3(0.085, 0.098, 0.112);
+        float majorTick = smoothstep(2.4, 0.4, abs(mod(alongPos + 125.0, 250.0) - 125.0));
+        float flowPos = fract(alongPos * 0.016 - uWindTime * 0.22);
+        float flowDash = smoothstep(0.42, 0.48, flowPos) * (1.0 - smoothstep(0.86, 0.92, flowPos));
+        float goldBand = smoothstep(1.2, 3.0, dOut) * (1.0 - smoothstep(6.2, 8.8, dOut));
+        vec3 goldGlow = vec3(0.85, 0.68, 0.24) * (goldBand * flowDash * 0.78 + majorTick * 0.50);
+        diffuseColor.rgb = metalBase + goldGlow * 0.35;
+        totalEmissiveRadiance += vec3(0.012, 0.015, 0.018) + goldGlow * 0.55;
+      } else {
+        // 3D 实体地层剖面侧壁：表土层 -> 岩石页岩层 -> 深炭金属底托 + 底部金收口线（带温和托底自发光防止背光侧死黑）
+        vec3 soilCol = vec3(0.145, 0.108, 0.068);
+        vec3 rockCol = vec3(0.068, 0.074, 0.085);
+        vec3 baseCol = vec3(0.024, 0.029, 0.036);
+        vec3 strata = mix(soilCol, rockCol, smoothstep(0.16, 0.30, vRimPart));
+        strata = mix(strata, baseCol, smoothstep(0.62, 0.74, vRimPart));
+        float microGrain = 0.92 + 0.14 * sin(vBezelWorldPos.x * 0.08 + vBezelWorldPos.z * 0.08 + vRimPart * 18.0);
+        diffuseColor.rgb = strata * microGrain;
+        float rimLine = smoothstep(0.92, 0.985, vRimPart);
+        totalEmissiveRadiance += strata * microGrain * 0.52 + vec3(0.62, 0.48, 0.18) * rimLine * 0.45;
+      }
+      `
+    );
+  };
+  bezelMat.customProgramCacheKey = () => `scavenger-sandtable-bezel-v1-${hasHeightTex ? 'h' : 'noh'}`;
+  const bezelMesh = new THREE.Mesh(bezelGeo, bezelMat);
+  bezelMesh.frustumCulled = false;
+  bezelMesh.receiveShadow = true;
+  bezelMesh.renderOrder = -1;
+  bezelMesh.name = 'OutskirtsCutawayBezel';
+
+  // =========================================================================
+  // 2) Mesh 2：外围 5.5km 深烟炭动态全息等高线战术沙盘地形
+  // =========================================================================
+  const ringDists = [11.5, 45.0, 140.0, 340.0, 750.0, 1400.0, 2400.0, 3800.0, skirtWidth];
+  const ringCount = ringDists.length;
   const positions = new Float32Array(ringCount * perimeterCount * 3);
   const uvs = new Float32Array(ringCount * perimeterCount * 2);
   const indices = [];
 
   for (let r = 0; r < ringCount; r++) {
     const d = ringDists[r];
-    const x0 = minX - d;
-    const x1 = maxX + d;
-    const z0 = minZ - d;
-    const z1 = maxZ + d;
     const rowBase = r * perimeterCount;
-
     for (let s = 0; s < perimeterCount; s++) {
-      const side = Math.floor(s / segPerSide);
-      const t = (s % segPerSide) / segPerSide;
-      let wx = 0;
-      let wz = 0;
-      if (side === 0) {
-        // 北边：西 -> 东
-        wx = x0 + (x1 - x0) * t;
-        wz = z0;
-      } else if (side === 1) {
-        // 东边：北 -> 南
-        wx = x1;
-        wz = z0 + (z1 - z0) * t;
-      } else if (side === 2) {
-        // 南边：东 -> 西
-        wx = x1 - (x1 - x0) * t;
-        wz = z1;
-      } else {
-        // 西边：南 -> 北
-        wx = x0;
-        wz = z1 - (z1 - z0) * t;
-      }
+      const {wx, wz} = samplePerimeterPt(s, d);
       const vi = rowBase + s;
-      positions[vi * 3] = wx;
+      positions[vi * 3 + 0] = wx;
       positions[vi * 3 + 1] = 0.0;
       positions[vi * 3 + 2] = wz;
-      uvs[vi * 2] = (wx - minX) / Math.max(1.0, maxX - minX);
-      uvs[vi * 2 + 1] = (wz - minZ) / Math.max(1.0, maxZ - minZ);
+      uvs[vi * 2 + 0] = (wx - minX) / spanXZ;
+      uvs[vi * 2 + 1] = (wz - minZ) / spanXZ;
     }
   }
-
   for (let r = 0; r < ringCount - 1; r++) {
     const r0 = r * perimeterCount;
     const r1 = (r + 1) * perimeterCount;
@@ -802,39 +1082,28 @@ export function createMapOutskirtsSkirtMesh(bounds, macroTintTex, skirtWidth = 4
     }
   }
 
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-  geo.setIndex(indices);
-
-  // 兜底安全纹理，确保向后兼容旧版 3 参数调用不产生 WebGL 告警
-  const createFallbackTex = (rgba) => {
-    const t = new THREE.DataTexture(new Uint8Array(rgba), 2, 2, THREE.RGBAFormat);
-    t.colorSpace = THREE.NoColorSpace;
-    t.needsUpdate = true;
-    return t;
-  };
-  const hasHeightTex = Boolean(heightTex && heightTex.texture);
-  const effHeightTex = hasHeightTex ? heightTex.texture : createFallbackTex([0, 128, 255, 1, 0, 128, 255, 1, 0, 128, 255, 1, 0, 128, 255, 1]);
-  const effHeightSize = hasHeightTex ? new THREE.Vector2(heightTex.width, heightTex.height) : new THREE.Vector2(2, 2);
-  const hasGrassField = Boolean(grassFieldTex);
-  const effGrassFieldTex = hasGrassField ? grassFieldTex : createFallbackTex([160, 160, 128, 128, 160, 160, 128, 128, 160, 160, 128, 128, 160, 160, 128, 128]);
+  const holoGeo = new THREE.BufferGeometry();
+  holoGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  holoGeo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+  holoGeo.setIndex(indices);
 
   const uniforms = {
     uMacroTint: {value: macroTintTex},
     uHeightMap: {value: effHeightTex},
     uHeightTexSize: {value: effHeightSize},
     uHasHeightTex: {value: hasHeightTex ? 1.0 : 0.0},
-    uGrassFieldTex: {value: effGrassFieldTex},
-    uHasGrassField: {value: hasGrassField ? 1.0 : 0.0},
     uMapBounds: {value: new THREE.Vector4(minX, minZ, maxX - minX, maxZ - minZ)},
-    uHeightRange: {value: new THREE.Vector2(bounds.minH ?? -40.0, (bounds.maxH ?? 120.0) - (bounds.minH ?? -40.0))},
+    uHeightRange: {value: new THREE.Vector2(minH, (bounds.maxH ?? 120.0) - minH)},
+    uTableY: {value: tableY},
     uSkirtWidth: {value: skirtWidth},
+    uWindTime: animUniforms.uWindTime,
+    uCameraCenter: animUniforms.uCameraCenter,
+    uCameraSpan: animUniforms.uCameraSpan,
   };
 
   const mat = new THREE.MeshStandardMaterial({
-    roughness: 0.94,
-    metalness: 0.02,
+    roughness: 0.90,
+    metalness: 0.08,
     transparent: true,
     depthWrite: true,
     side: THREE.DoubleSide,
@@ -845,85 +1114,64 @@ export function createMapOutskirtsSkirtMesh(bounds, macroTintTex, skirtWidth = 4
     Object.assign(shader.uniforms, uniforms);
 
     shader.vertexShader = `
-      uniform sampler2D uHeightMap;
-      uniform vec2 uHeightTexSize;
-      uniform float uHasHeightTex;
-      uniform vec4 uMapBounds;
-      uniform vec2 uHeightRange;
       varying vec3 vSkirtWorldPos;
+      varying float vOutDist;
+      varying float vSandElev;
+      ${glslDecodeHeight}
 
-      float decodeSkirtEdgeHeight(vec2 clampedXZ) {
-        if (uHasHeightTex < 0.5) return 0.0;
-        vec2 uv = clamp((clampedXZ - uMapBounds.xy) / uMapBounds.zw, 0.0, 1.0);
-        vec2 texel = uv * (uHeightTexSize - 1.0);
-        vec2 i0 = floor(texel);
-        vec2 f = texel - i0;
-        vec2 i1 = min(i0 + 1.0, uHeightTexSize - 1.0);
-        vec4 s00 = texture2D(uHeightMap, (i0 + 0.5) / uHeightTexSize);
-        vec4 s10 = texture2D(uHeightMap, (vec2(i1.x, i0.y) + 0.5) / uHeightTexSize);
-        vec4 s01 = texture2D(uHeightMap, (vec2(i0.x, i1.y) + 0.5) / uHeightTexSize);
-        vec4 s11 = texture2D(uHeightMap, (i1 + 0.5) / uHeightTexSize);
-        float q00 = floor(s00.r * 255.0 + 0.5) + floor(s00.g * 255.0 + 0.5) * 256.0;
-        float q10 = floor(s10.r * 255.0 + 0.5) + floor(s10.g * 255.0 + 0.5) * 256.0;
-        float q01 = floor(s01.r * 255.0 + 0.5) + floor(s01.g * 255.0 + 0.5) * 256.0;
-        float q11 = floor(s11.r * 255.0 + 0.5) + floor(s11.g * 255.0 + 0.5) * 256.0;
-        float q = mix(mix(q00, q10, f.x), mix(q01, q11, f.x), f.y);
-        return uHeightRange.x + (min(q, 65534.0) / 65534.0) * uHeightRange.y;
-      }
-
-      float sampleOutskirtsHeight(vec2 pXZ) {
+      float sampleOutskirtsHeight(vec2 pXZ, out float outDist) {
         vec2 maxB = uMapBounds.xy + uMapBounds.zw;
-        vec2 clampedXZ = clamp(pXZ, uMapBounds.xy, maxB);
         vec2 outVec = max(vec2(0.0), max(uMapBounds.xy - pXZ, pXZ - maxB));
-        float distOut = length(outVec);
-        float edgeY = decodeSkirtEdgeHeight(clampedXZ);
-        float baseEdgeY = mix(edgeY, 6.0, smoothstep(0.0, 2200.0, distOut));
-        float hillAmp = smoothstep(140.0, 1100.0, distOut) * (1.0 - smoothstep(2600.0, 4400.0, distOut));
+        outDist = length(outVec);
+        // 内缘紧贴指挥台面 tableY 让 3D 剖面壁充分立起；外围 32m 后柔和抬升 0..38m 张弛有序的战术等高丘陵
+        float riseMask = smoothstep(32.0, 560.0, outDist) * (1.0 - smoothstep(3400.0, 5200.0, outDist));
         float hill = (
-          sin(pXZ.x * 0.00145) * cos(pXZ.y * 0.00135) +
-          0.52 * sin((pXZ.x - pXZ.y) * 0.00215) +
-          0.25 * cos((pXZ.x + pXZ.y) * 0.00340)
-        ) * 18.0 * hillAmp;
-        // 统一微沉 0.03m 贴合地形外沿，避免 0–50m 局部折面产生高亮带
-        return baseEdgeY + hill - 0.03;
+          0.52 + 0.48 * sin(pXZ.x * 0.00110 + cos(pXZ.y * 0.00095) * 0.85) * cos(pXZ.y * 0.00120)
+        ) * 28.0
+        + sin((pXZ.x - pXZ.y) * 0.00180) * 9.0
+        + cos((pXZ.x + pXZ.y) * 0.00290) * 4.2;
+        return uTableY + riseMask * max(0.0, hill + 9.0);
       }
     ` + shader.vertexShader;
 
     shader.vertexShader = shader.vertexShader.replace(
       '#include <beginnormal_vertex>',
       `#include <beginnormal_vertex>
-      float hL = sampleOutskirtsHeight(position.xz + vec2(-18.0, 0.0));
-      float hR = sampleOutskirtsHeight(position.xz + vec2(18.0, 0.0));
-      float hD = sampleOutskirtsHeight(position.xz + vec2(0.0, -18.0));
-      float hU = sampleOutskirtsHeight(position.xz + vec2(0.0, 18.0));
-      objectNormal = normalize(vec3(hL - hR, 36.0, hD - hU));
+      float dTmp0 = 0.0, dTmp1 = 0.0, dTmp2 = 0.0, dTmp3 = 0.0;
+      float hL = sampleOutskirtsHeight(position.xz + vec2(-22.0, 0.0), dTmp0);
+      float hR = sampleOutskirtsHeight(position.xz + vec2(22.0, 0.0), dTmp1);
+      float hD = sampleOutskirtsHeight(position.xz + vec2(0.0, -22.0), dTmp2);
+      float hU = sampleOutskirtsHeight(position.xz + vec2(0.0, 22.0), dTmp3);
+      objectNormal = normalize(vec3(hL - hR, 44.0, hD - hU));
       `
     );
 
     shader.vertexShader = shader.vertexShader.replace(
       '#include <begin_vertex>',
-      `float outY = sampleOutskirtsHeight(position.xz);
+      `float outD = 0.0;
+      float outY = sampleOutskirtsHeight(position.xz, outD);
       vec3 transformed = vec3(position.x, outY, position.z);
+      vOutDist = outD;
+      vSandElev = outY - uTableY;
       vSkirtWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
       `
     );
 
     shader.fragmentShader = `
-      uniform sampler2D uMacroTint;
-      uniform sampler2D uGrassFieldTex;
-      uniform float uHasGrassField;
       uniform vec4 uMapBounds;
       uniform float uSkirtWidth;
+      uniform float uWindTime;
+      uniform vec3 uCameraCenter;
+      uniform float uCameraSpan;
       varying vec3 vSkirtWorldPos;
+      varying float vOutDist;
+      varying float vSandElev;
 
-      vec2 skirtMirrorUV(vec2 rawUV) {
-        return 1.0 - abs(fract(rawUV * 0.5) * 2.0 - 1.0);
-      }
-
-      float skirtOrganicNoise(vec2 p) {
-        return 0.55 * sin(p.x * 0.0031 + cos(p.y * 0.0027))
-             + 0.30 * cos(p.y * 0.0067 - sin(p.x * 0.0059))
-             + 0.15 * sin((p.x + p.y) * 0.0115);
+      // 硬件 fwidth 抗锯齿网格线函数
+      float aaGridLine(float coord, float stepM, float pxWidth) {
+        float scaled = coord / stepM;
+        float dist = abs(fract(scaled - 0.5) - 0.5) / max(1e-5, fwidth(scaled));
+        return 1.0 - smoothstep(pxWidth * 0.5, pxWidth * 0.5 + 1.05, dist);
       }
     ` + shader.fragmentShader;
 
@@ -934,57 +1182,74 @@ export function createMapOutskirtsSkirtMesh(bounds, macroTintTex, skirtWidth = 4
       vec2 outVec = max(vec2(0.0), max(uMapBounds.xy - vSkirtWorldPos.xz, vSkirtWorldPos.xz - maxB));
       float distOut = length(outVec);
 
-      vec2 rawUV = (vSkirtWorldPos.xz - uMapBounds.xy) / uMapBounds.zw;
-      float nA = skirtOrganicNoise(vSkirtWorldPos.xz);
-      float nB = skirtOrganicNoise(vSkirtWorldPos.xz * 1.7 + vec2(137.0, 293.0));
-      // 边界 0m 处零扰动精确接色，2m–160m 快速展开强有机偏移破除镜像对称感
-      float warpAmp = 0.085 * smoothstep(2.0, 160.0, distOut);
-      vec2 mUV = skirtMirrorUV(rawUV + vec2(nA, nB) * warpAmp);
-      vec2 mUVFar = skirtMirrorUV(rawUV.yx * 0.72 + vec2(0.31, 0.57) + vec2(nB, -nA) * 0.12);
+      // 1) 深烟炭战术山体基底 (#0e151a -> #18232c) + 紧贴 3D 剖面壁外脚的柔和 AO 桌面投影
+      float aoShadow = mix(0.36, 1.0, smoothstep(8.0, 125.0, distOut));
+      float elevTone = smoothstep(0.0, 42.0, vSandElev);
+      vec3 charcoalBase = mix(vec3(0.011, 0.017, 0.022), vec3(0.024, 0.036, 0.044), elevTone) * aoShadow;
 
-      vec3 macroNear = pow(max(texture2D(uMacroTint, clamp(mUV, 0.002, 0.998)).rgb, vec3(0.02)), vec3(2.2));
-      vec3 macroCross = pow(max(texture2D(uMacroTint, clamp(mUVFar, 0.002, 0.998)).rgb, vec3(0.02)), vec3(2.2));
-      float crossBlend = smoothstep(18.0, 280.0, distOut) * 0.48;
-      vec3 macroLinear = mix(macroNear, macroCross, crossBlend);
+      // 2) 外扩周期高程扫描脉冲（约 7 秒一轮自战区边界向外推开；避免负数 pow 产生 GLSL 未定义 NaN）
+      float wavePhase = fract(uWindTime * 0.14);
+      float waveFront = wavePhase * 3400.0;
+      float waveDelta = (distOut - waveFront) / 145.0;
+      float waveBand = exp(-(waveDelta * waveDelta));
 
-      // 叠加低对比郊野大色块变化与轻量草绒质感，融合微缩手绘感
-      float farVariation = clamp(0.86 + 0.18 * nA + 0.10 * nB, 0.72, 1.14);
-      vec3 baseLinear = macroLinear * farVariation;
-      if (uHasGrassField > 0.5) {
-        float gDetail = texture2D(uGrassFieldTex, vSkirtWorldPos.xz * 0.016).b;
-        baseLinear *= mix(0.92, 1.08, gDetail);
-      }
+      // 3) 围绕镜头中心产生的柔和全息聚焦响应
+      float focusRadius = clamp(uCameraSpan * 0.95, 420.0, 2200.0);
+      float camDist = length(vSkirtWorldPos.xz - uCameraCenter.xz);
+      float focusGlow = exp(-pow(camDist / focusRadius, 2.0));
 
-      // 作战区外围柔和降饱和/压暗约 14% 与主战场形成克制区分
-      float outerWeight = smoothstep(0.0, 80.0, distOut);
-      float baseLuma = dot(baseLinear, vec3(0.299, 0.587, 0.114));
-      vec3 mutedLinear = mix(baseLinear, vec3(baseLuma) * 0.84, outerWeight * 0.40);
+      // 4) 硬件抗锯齿双级地形等高线（主线 11.0m 香槟金，次线 3.67m 冷青绿）
+      float elevFade = smoothstep(1.2, 5.2, vSandElev);
+      float mainContour = aaGridLine(vSandElev, 11.0, 1.15) * elevFade;
+      float subContour = aaGridLine(vSandElev, 3.667, 0.90) * elevFade * (1.0 - mainContour);
 
-      // 界外 10–650m 叠加极克制 45° 战术禁区微斜纹
-      float stripePhase = fract((vSkirtWorldPos.x + vSkirtWorldPos.z) * 0.036);
-      float stripeBand = smoothstep(0.45, 0.50, stripePhase) * (1.0 - smoothstep(0.56, 0.61, stripePhase));
-      float stripeZone = smoothstep(8.0, 42.0, distOut) * (1.0 - smoothstep(380.0, 860.0, distOut));
-      mutedLinear = mix(mutedLinear, mutedLinear * 0.84, stripeBand * stripeZone * 0.42);
+      // 5) 1000m / 250m MGRS 战术坐标网格、平行外环安全线与交叉准星
+      float grid1kX = aaGridLine(vSkirtWorldPos.x - uMapBounds.x, 1000.0, 1.1);
+      float grid1kZ = aaGridLine(vSkirtWorldPos.z - uMapBounds.y, 1000.0, 1.1);
+      float grid1k = max(grid1kX, grid1kZ);
+      float gridCross = grid1kX * grid1kZ;
+      float subGridFade = 1.0 - smoothstep(1400.0, 4000.0, uCameraSpan);
+      float grid250 = max(
+        aaGridLine(vSkirtWorldPos.x - uMapBounds.x, 250.0, 0.85),
+        aaGridLine(vSkirtWorldPos.z - uMapBounds.y, 250.0, 0.85)
+      ) * subGridFade * (1.0 - grid1k);
+      float rimRingA = smoothstep(2.5, 0.6, abs(distOut - 46.0));
+      float rimRingB = smoothstep(2.5, 0.6, abs(distOut - 165.0)) * 0.65;
 
-      // 紧贴 9km 作战界线的精致香槟金细虚线战术边界线（收紧至 6m 宽，绝不泛白）
-      float dashMask = step(0.42, fract((vSkirtWorldPos.x - vSkirtWorldPos.z) * 0.026));
-      float borderBand = smoothstep(0.0, 1.5, distOut) * (1.0 - smoothstep(4.0, 7.5, distOut));
-      vec3 borderColLinear = vec3(0.76, 0.62, 0.22);
-      vec3 finalCol = mix(mutedLinear, borderColLinear, borderBand * dashMask * 0.62);
+      // 6) 距离渐隐防止最外端生硬切断
+      float distFade = 1.0 - smoothstep(uSkirtWidth * 0.56, uSkirtWidth * 0.98, distOut);
 
-      // 外缘 2200m 至裙边外端平滑透明渐隐，无缝融入场景大气底色
-      float alphaFade = 1.0 - smoothstep(uSkirtWidth * 0.48, uSkirtWidth * 0.985, distOut);
-      diffuseColor.rgb = finalCol;
-      diffuseColor.a = alphaFade;
+      vec3 goldLin = vec3(0.86, 0.68, 0.24);
+      vec3 cyanLin = vec3(0.09, 0.72, 0.56);
+
+      float contourEnergy = (0.34 + 0.72 * waveBand + 0.54 * focusGlow) * distFade;
+      float gridEnergy = (0.24 + 0.55 * waveBand + 0.45 * focusGlow) * distFade;
+
+      vec3 holoEmit = vec3(0.0);
+      holoEmit += goldLin * mainContour * contourEnergy * 0.76;
+      holoEmit += cyanLin * subContour * contourEnergy * 0.46;
+      holoEmit += cyanLin * grid1k * gridEnergy * 0.50;
+      holoEmit += cyanLin * grid250 * gridEnergy * 0.34;
+      holoEmit += cyanLin * max(rimRingA, rimRingB) * gridEnergy * 0.55;
+      holoEmit += goldLin * gridCross * (0.50 + waveBand) * distFade * 0.70;
+      holoEmit += cyanLin * waveBand * distFade * 0.055;
+
+      diffuseColor.rgb = charcoalBase + holoEmit * 0.35;
+      totalEmissiveRadiance += holoEmit;
+      diffuseColor.a = distFade;
       `
     );
   };
-  mat.customProgramCacheKey = () => `scavenger-outskirts-hills-v2-${hasHeightTex ? 'h' : 'noh'}`;
+  mat.customProgramCacheKey = () => `scavenger-sandtable-holo-v1-${hasHeightTex ? 'h' : 'noh'}`;
 
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.frustumCulled = false;
-  mesh.receiveShadow = true;
-  mesh.renderOrder = -2;
-  mesh.name = 'MapOutskirtsEndlessSkirt';
-  return mesh;
+  const holoMesh = new THREE.Mesh(holoGeo, mat);
+  holoMesh.frustumCulled = false;
+  holoMesh.receiveShadow = true;
+  holoMesh.renderOrder = -2;
+  holoMesh.name = 'OutskirtsHolographicTerrain';
+
+  const group = new THREE.Group();
+  group.name = 'MapOutskirtsTacticalSandtable';
+  group.add(holoMesh, bezelMesh);
+  return group;
 }

@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scavenger · 正式战术指挥主入口</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/ui/令牌.css" />
+  <link rel="stylesheet" href="/ui/组件.css" />
+  <link rel="stylesheet" href="/ui/场内视觉.css" />
+  <link rel="stylesheet" href="/src/主入口/主入口.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/vendor/build/three.module.js",
+      "three/addons/": "/vendor/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body class="app-body">
+  <div id="app-shell" class="app-shell" data-ui-size="lg">
+    <!-- 顶部主导航栏 -->
+    <header class="ui-pod ui-pod--elevated app-topbar">
+      <a class="app-brand" href="/" data-goto="/" title="返回作战大厅 (/)">
+        <span class="app-sigil" id="app-brand-sigil" aria-hidden="true"></span>
+        <div>
+          <strong class="ui-display app-title">SCAVENGER</strong>
+          <span class="app-sub">AIRBASE 9KM · 战术指挥中心</span>
+        </div>
+      </a>
+
+      <nav class="ui-skew-tabs" id="app-nav-tabs" aria-label="主界面功能切换">
+        <button type="button" class="ui-skew-tab is-active" data-route="/" aria-current="page"><span>作战大厅</span></button>
+        <button type="button" class="ui-skew-tab" data-route="/armory"><span>武器库 129 车</span></button>
+        <button type="button" class="ui-skew-tab" data-route="/settings"><span>系统设置</span></button>
+      </nav>
+
+      <div class="app-top-actions">
+        <span class="ui-badge armory-hide-dev" id="app-health-badge" data-tone="select">单端口 8800 就绪检查中…</span>
+        <a class="ui-btn ui-btn--sm ui-btn--primary" href="/play">进入 9km 战场</a>
+      </div>
+    </header>
+
+    <!-- 视图 1：4A 主菜单大厅 (/) -->
+    <main class="app-main" id="view-lobby" data-view="/">
+      <section class="lobby-grid">
+        <aside class="ui-pod lobby-menu-pod">
+          <div class="ui-pod-head">
+            <span class="ui-eyebrow">COMMAND CENTER // UNIFIED PORT 8800</span>
+            <span class="ui-badge" data-tone="ground">单一正式入口</span>
+          </div>
+          <h1 class="ui-display lobby-hero-title">前线清剿行动 · AIRBASE 9KM</h1>
+          <p class="lobby-desc">统一挂载 680p 复古微缩 3D 战场、129 辆实装载具武器库与全局 UI/UX V2.2 规范单源。</p>
+
+          <a class="ui-btn ui-btn--large ui-btn--primary lobby-cta" id="btn-deploy-main" href="/play">
+            <span>部署至 9km 战场（680p）</span>
+            <kbd class="ui-kbd">ENTER</kbd>
+          </a>
+
+          <div class="ui-sweep-list" id="lobby-sweep-menu">
+            <button type="button" class="ui-sweep-row" data-goto="/armory">
+              <span>武器库与 129 车全景整备台</span>
+              <span class="ui-mono">/armory</span>
+            </button>
+            <a class="ui-sweep-row" href="/editor">
+              <span>9km 地图编辑器与实时物理派生</span>
+              <span class="ui-mono">/editor</span>
+            </a>
+            <button type="button" class="ui-sweep-row" data-goto="/settings">
+              <span>680p 画幅、物理尺码与音效设置</span>
+              <span class="ui-mono">/settings</span>
+            </button>
+          </div>
+
+          <div class="lobby-baseline-foot">
+            <span>渲染基线 <strong>680p Stylized</strong></span>
+            <span>·</span>
+            <span>规范单源 <strong>Code SSOT V2.2</strong></span>
+            <span>·</span>
+            <span><kbd class="ui-kbd">ENTER</kbd> 快速出击</span>
+          </div>
+        </aside>
+
+        <section class="ui-pod lobby-brief-pod">
+          <div class="ui-pod-head">
+            <span class="ui-eyebrow">DEPLOYMENT BRIEFING // 战备简报</span>
+            <span class="ui-badge" id="brief-sha-badge" data-tone="select">SHA 校验中</span>
+          </div>
+
+          <div class="brief-kpi-grid">
+            <div class="brief-kpi">
+              <span class="ui-eyebrow">流式载具总库</span>
+              <strong class="ui-display" id="kpi-veh-total">--</strong>
+              <small>`.scvveh` 武器库与战场同源直载</small>
+            </div>
+            <div class="brief-kpi">
+              <span class="ui-eyebrow">战场纵深</span>
+              <strong class="ui-display">9 × 9 KM</strong>
+              <small>`.scvmap` 2m 高精支撑</small>
+            </div>
+            <div class="brief-kpi">
+              <span class="ui-eyebrow">默认画幅与尺码</span>
+              <strong class="ui-mono" id="kpi-pref-summary">16:9 · lg</strong>
+              <small>全局偏好跨页面自动同步</small>
+            </div>
+          </div>
+
+          <div class="brief-roster-box">
+            <div class="ui-pod-head">
+              <span class="ui-eyebrow">当前作战编队（3 × 2 槽位 · 固定翼支持单机试飞）</span>
+              <button type="button" class="ui-btn ui-btn--sm" data-goto="/armory">前往武器库选编</button>
+            </div>
+            <div class="brief-roster-grid" id="lobby-roster-preview"></div>
+          </div>
+
+          <div class="brief-dev-box" id="lobby-dev-workbench">
+            <div class="ui-pod-head">
+              <span class="ui-eyebrow">DEV &amp; QA WORKBENCH // 研发与调试工作台</span>
+              <button type="button" class="ui-btn ui-btn--sm ui-btn--ghost" id="lobby-dev-toggle" aria-expanded="true" aria-controls="lobby-dev-grid">收起 ▴</button>
+            </div>
+            <div class="dev-card-grid" id="lobby-dev-grid">
+              <a class="dev-card" data-tone="plane" href="/air-lab">
+                <div class="dev-card-head">
+                  <strong>固定翼试飞台 (A-10C)</strong>
+                  <span class="ui-mono">/air-lab</span>
+                </div>
+                <small>单机靶场 · 武器投放 / VFX / 空战声学调试</small>
+              </a>
+              <a class="dev-card" data-tone="ground" href="/dev/battlefield">
+                <div class="dev-card-head">
+                  <strong>129 车混编演训场</strong>
+                  <span class="ui-mono">/dev/battlefield</span>
+                </div>
+                <small>百车同屏压测 · 70m↔9000m 连续缩放</small>
+              </a>
+              <a class="dev-card" data-tone="select" href="/ui-spec">
+                <div class="dev-card-head">
+                  <strong>UI/UX 活体规范台 V2.2</strong>
+                  <span class="ui-mono">/ui-spec</span>
+                </div>
+                <small>全套共享设计令牌、剪影与标绘单源</small>
+              </a>
+              <a class="dev-card" href="/dev/library/">
+                <div class="dev-card-head">
+                  <strong>前线资产库检索</strong>
+                  <span class="ui-mono">/dev/library/</span>
+                </div>
+                <small>全量模型 / 贴图 / 声音只读索引检验</small>
+              </a>
+              <a class="dev-card" href="/dev/audio/">
+                <div class="dev-card-head">
+                  <strong>载具音效索引验证</strong>
+                  <span class="ui-mono">/dev/audio/</span>
+                </div>
+                <small>载具绑定关系与 3D 空间声场样例台</small>
+              </a>
+              <a class="dev-card" data-tone="plane" href="/dev/air-audio">
+                <div class="dev-card-head">
+                  <strong>空战音效对比试听</strong>
+                  <span class="ui-mono">/dev/air-audio</span>
+                </div>
+                <small>GAU-8 机炮与火箭齐射物理声学 A/B 台</small>
+              </a>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <!-- 视图 2：4B 129 车武器库全景沉浸式 680p 沙盘整备台 (/armory) -->
+    <main class="app-main armory-main" id="view-armory" data-view="/armory" hidden>
+      <div class="armory-canvas-wrap" id="armory-canvas-wrap">
+        <!-- 底层：100% 全幅铺满 680p full 复古微缩 3D 沙盘展台 -->
+        <canvas id="armory-3d-canvas"></canvas>
+        <div class="armory-vignette" aria-hidden="true"></div>
+
+        <!-- 顶部中央：轻盈载具名称战术铭牌 -->
+        <div class="armory-hero-row">
+          <div class="armory-hero-badge">
+            <span class="armory-hero-icon" id="armory-hero-icon" aria-hidden="true"></span>
+            <div class="armory-hero-meta">
+              <h2 class="ui-display armory-stage-title" id="armory-stage-title">正在准备载具…</h2>
+              <span class="armory-stage-sub" id="armory-stage-sub">前线武器库 // 沙盘实装检视</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 左上悬浮唤醒按钮（左栏收起后显现） -->
+        <button type="button" class="ui-btn ui-btn--sm armory-catalog-open" id="armory-catalog-open" hidden>
+          <span>展开载具目录</span>
+          <span aria-hidden="true">▸</span>
+        </button>
+
+        <!-- 左栏悬浮毛玻璃：129 车载具目录检索 -->
+        <aside class="ui-pod armory-drawer armory-drawer--left" id="armory-drawer-left" aria-label="载具目录">
+          <div class="ui-pod-head armory-drawer-head">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <strong style="font-size:var(--ui-fs-md)">载具武器库</strong>
+              <span class="ui-badge" id="armory-count-badge" data-tone="select">加载中…</span>
+            </div>
+            <button type="button" class="ui-btn ui-btn--sm ui-btn--ghost" id="armory-catalog-close" title="收起目录全屏赏车">收起 ◂</button>
+          </div>
+
+          <div class="ui-seg" id="armory-cat-seg">
+            <button type="button" class="active" data-cat="all">全部</button>
+            <button type="button" data-cat="ground">地面</button>
+            <button type="button" data-cat="heli">旋翼</button>
+            <button type="button" data-cat="plane">固定翼</button>
+          </div>
+
+          <div class="armory-filter-bar">
+            <input type="search" class="ui-input" id="armory-search" placeholder="搜索型号/名称/代号（如 M1A2 / F18）" aria-label="搜索武器库载具" />
+            <div class="ui-select" id="armory-sort-select" data-value="index">
+              <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="载具排序方式">
+                <span class="ui-select-val"><span class="ui-select-txt">默认编号排序</span></span>
+                <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+              </button>
+              <div class="ui-select-menu" role="listbox" hidden>
+                <button type="button" class="ui-select-option" role="option" data-val="index" aria-selected="true"><span class="ui-select-option-title">默认编号排序</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+                <button type="button" class="ui-select-option" role="option" data-val="name" aria-selected="false"><span class="ui-select-option-title">按名称 A-Z</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+                <button type="button" class="ui-select-option" role="option" data-val="ground" aria-selected="false"><span class="ui-select-option-title">地面载具优先</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+                <button type="button" class="ui-select-option" role="option" data-val="air" aria-selected="false"><span class="ui-select-option-title">空中载具优先</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="armory-list-scroll" id="armory-list"></div>
+          <div class="ui-empty" id="armory-empty" hidden>
+            <strong>未检索到匹配载具</strong>
+            <span>请检查关键词拼写或重置分类过滤条件。</span>
+            <button type="button" class="ui-btn ui-btn--sm" id="armory-reset-filter">重置过滤</button>
+          </div>
+        </aside>
+
+        <!-- 右栏悬浮毛玻璃：战术档案与 6 槽出击编队 -->
+        <aside class="ui-pod armory-drawer armory-drawer--right" id="armory-drawer-right" aria-label="战术档案与出击编队">
+          <div class="ui-pod-head armory-drawer-head">
+            <strong style="font-size:var(--ui-fs-md);white-space:nowrap;">战术档案</strong>
+            <button type="button" class="ui-btn ui-btn--sm ui-btn--primary" id="armory-toggle-roster">加入作战编队</button>
+          </div>
+
+          <div class="armory-dossier" id="armory-dossier"></div>
+
+          <div class="armory-roster-section">
+            <div class="ui-pod-head armory-drawer-head">
+              <span class="ui-eyebrow">出击编队（<b id="armory-roster-count">0</b>/6）</span>
+              <button type="button" class="ui-btn ui-btn--sm ui-btn--danger" id="armory-clear-roster">恢复默认</button>
+            </div>
+            <div class="armory-roster-slots" id="armory-roster-slots"></div>
+          </div>
+
+          <a class="ui-btn armory-airlab-btn" id="armory-airlab-btn" href="/air-lab?unit=US_A10" hidden>
+            <span>固定翼单机试飞</span>
+            <span class="ui-mono">/air-lab →</span>
+          </a>
+
+          <a class="ui-btn ui-btn--primary armory-deploy-btn" href="/play">
+            <span>携编队部署 9km 战场</span>
+            <span class="ui-mono">/play →</span>
+          </a>
+        </aside>
+
+        <!-- 底部中央悬浮操控胶囊 -->
+        <div class="armory-dock-row" id="armory-dock-row">
+          <div class="armory-dock" role="toolbar" aria-label="展台视角与演示控制">
+            <button type="button" class="ui-btn ui-btn--sm is-active" data-cam-view="hero" aria-pressed="true">3/4 检视</button>
+            <button type="button" class="ui-btn ui-btn--sm" data-cam-view="side" aria-pressed="false">侧视轮廓</button>
+            <button type="button" class="ui-btn ui-btn--sm" data-cam-view="top" aria-pressed="false">沙盘俯视</button>
+            <button type="button" class="ui-btn ui-btn--sm" id="armory-cam-reset">视角复位</button>
+            <span class="ui-divider"></span>
+            <button type="button" class="ui-btn ui-btn--sm" id="armory-demo-toggle" aria-pressed="false">部件演示</button>
+            <button type="button" class="ui-btn ui-btn--sm is-active" id="armory-autorotate-toggle" aria-pressed="true">自动旋转</button>
+            <span class="ui-divider"></span>
+            <button type="button" class="ui-btn ui-btn--sm ui-btn--primary" id="armory-lighting-toggle">沙盘日光</button>
+          </div>
+        </div>
+
+        <!-- 载具加载提示 -->
+        <div class="ui-skeleton armory-loading-overlay" id="armory-loading" hidden>
+          <div class="ui-skel-line" style="width:68%"></div>
+          <div class="ui-skel-line" style="width:92%"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 视图 3：系统与渲染设置 (/settings) -->
+    <main class="app-main" id="view-settings" data-view="/settings" hidden>
+      <section class="settings-grid">
+        <div class="ui-pod settings-pod">
+          <div class="ui-pod-head">
+            <div>
+              <span class="ui-eyebrow">SYSTEM &amp; RENDER BASELINE</span>
+              <h2 style="margin:3px 0 0;font-size:var(--ui-fs-xl)">系统、画幅与全局 UI 偏好设置</h2>
+            </div>
+            <span class="ui-badge" data-tone="select">即时持久化</span>
+          </div>
+
+          <div class="settings-rows">
+            <div class="ui-field-row">
+              <div>
+                <strong>默认 680p 渲染画幅</strong>
+                <small class="settings-hint">固定垂直 680px，21:9 (1588×680 Hor+) 横向拓展视野</small>
+              </div>
+              <div class="ui-select" id="set-aspect-select" data-value="16:9" style="width:210px">
+                <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="默认 680p 画幅">
+                  <span class="ui-select-val"><span class="ui-select-txt">16:9 (1208×680)</span></span>
+                  <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <div class="ui-select-menu" role="listbox" hidden>
+                  <button type="button" class="ui-select-option" role="option" data-val="16:9" aria-selected="true"><span class="ui-select-option-title">16:9 (1208×680)</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+                  <button type="button" class="ui-select-option" role="option" data-val="21:9" aria-selected="false"><span class="ui-select-option-title">21:9 (1588×680 Hor+)</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ui-field-row">
+              <div>
+                <strong>自发光后期辉光（680p HDR Bloom）</strong>
+                <small class="settings-hint">仅对超亮爆炸、枪口焰、曳光弹与导弹尾焰溢光，保留 680p 锐利微缩画风</small>
+              </div>
+              <button type="button" class="ui-toggle" id="set-bloom-toggle" role="switch" aria-checked="true" aria-label="开关自发光后期辉光"></button>
+            </div>
+
+            <div class="ui-field-row">
+              <div>
+                <strong>远景自然景深（Far-Only 3D DoF）</strong>
+                <small class="settings-hint">按真实 3D 深度仅柔化焦平面之后的远景并配合轻空气透视，前景、高空固定翼与同栋建筑零误伤，拉高至战略视角自动归 0%（绝不模糊 2D 名牌/HUD）</small>
+              </div>
+              <div class="ui-size-seg" id="set-dof-seg" role="group" aria-label="远景自然景深强度">
+                <button type="button" class="ui-size-seg-btn" data-dof="off">关闭</button>
+                <button type="button" class="ui-size-seg-btn active" data-dof="soft">柔和</button>
+                <button type="button" class="ui-size-seg-btn" data-dof="standard">标准</button>
+              </div>
+            </div>
+
+            <div class="ui-field-row">
+              <div>
+                <strong>界面物理尺码（无缩放失真）</strong>
+                <small class="settings-hint">驱动全站 CSS `--ui-sz-*` 原生字号、按钮高度与 HUD 面板尺度</small>
+              </div>
+              <div class="ui-size-seg" id="set-size-seg" role="group" aria-label="默认物理尺码">
+                <button type="button" class="ui-size-seg-btn" data-size="compact">紧凑 680p</button>
+                <button type="button" class="ui-size-seg-btn active" data-size="lg">标准大号</button>
+                <button type="button" class="ui-size-seg-btn" data-size="xl">超大高分</button>
+              </div>
+            </div>
+
+            <div class="ui-field-row">
+              <div>
+                <strong>UI 交互提示音效（Web Audio）</strong>
+                <small class="settings-hint">点击切换与下令时输出低延迟战术确认提示音</small>
+              </div>
+              <button type="button" class="ui-toggle" id="set-sfx-toggle" role="switch" aria-checked="true" aria-label="开关 UI 交互提示音"></button>
+            </div>
+
+            <div class="ui-field-row">
+              <div>
+                <strong>UI 提示音主音量</strong>
+                <small class="settings-hint" id="set-vol-txt">35%</small>
+              </div>
+              <input type="range" class="ui-range" id="set-vol-range" min="0" max="100" value="35" style="width:210px" />
+            </div>
+
+            <div class="ui-field-row">
+              <div>
+                <strong>载具引擎环境音（3D 空间混音）</strong>
+                <small class="settings-hint">9km 战场最多 8 声部真实载具引擎声（拉远自动淡出，点选下令零 UI 提示音）</small>
+              </div>
+              <button type="button" class="ui-toggle" id="set-veh-audio-toggle" role="switch" aria-checked="true" aria-label="开关载具引擎环境音"></button>
+            </div>
+
+            <div class="ui-field-row">
+              <div>
+                <strong>载具引擎环境音量</strong>
+                <small class="settings-hint" id="set-veh-vol-txt">45%</small>
+              </div>
+              <input type="range" class="ui-range" id="set-veh-vol-range" min="0" max="100" value="45" style="width:210px" />
+            </div>
+          </div>
+
+          <div class="settings-actions">
+            <button type="button" class="ui-btn" id="set-test-sfx">试听确认音效</button>
+            <button type="button" class="ui-btn ui-btn--danger" id="set-reset-prefs">恢复默认设置</button>
+            <button type="button" class="ui-btn ui-btn--primary" data-goto="/">保存并返回大厅</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 全局 Toast 通知栈 -->
+    <div class="ui-toast-stack" id="app-toast-stack" aria-live="polite"></div>
+  </div>
+
+  <script type="module" src="/src/主入口/主入口.mjs"></script>
+</body>
+</html>
