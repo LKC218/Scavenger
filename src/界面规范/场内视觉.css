@@ -50,11 +50,11 @@
   pointer-events: none;
 }
 
-/* 仅底层 3D/模拟画布开启像素化对比，场内双环/标绘/名牌始终保持原生 DPR 矢量锐利 */
+/* 仅底层 3D/模拟画布开启 680p 复古微缩暖滤镜，场内双环/标绘/名牌始终保持原生 DPR 无滤镜矢量锐利 */
 .tactical-stage.is-pixel-3d .tactical-ground-canvas,
 .tactical-stage.is-pixel-3d .tactical-vehicle-canvas {
   image-rendering: pixelated;
-  image-rendering: crisp-edges;
+  filter: contrast(1.08) saturate(1.10) sepia(0.06);
 }
 
 .tactical-drag-box {

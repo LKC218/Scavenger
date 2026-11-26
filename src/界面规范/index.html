@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Scavenger 全局 UI/UX 活体规范台 · V2.1</title>
+  <title>Scavenger 全局 UI/UX 活体规范台 · V2.2</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/ui/令牌.css">
   <link rel="stylesheet" href="/ui/组件.css">
@@ -13,10 +13,13 @@
 <body>
   <header class="spec-topbar">
     <div class="spec-brand">
+      <a class="ui-back-home" href="/" title="返回 Scavenger 作战大厅 (/)">
+        <span class="ui-back-home-arrow" aria-hidden="true">←</span><span>返回大厅</span>
+      </a>
       <span class="spec-sigil" id="brand-sigil" aria-hidden="true"></span>
       <div>
-        <h1>SCAVENGER 全局 UI/UX 活体规范台 · V2.1</h1>
-        <p>暗夜映画高反差 × 生化警戒黄黑（A3 烟炭双金 · B2 微描边 · C4 外柔内锐 · 原生三档物理尺码）· 单源同源渲染</p>
+        <h1>SCAVENGER 全局 UI/UX 活体规范台 · V2.2</h1>
+        <p>暗夜映画高反差 × 生化警戒黄黑（A3 烟炭双金 · B2 微描边 · C4 外柔内锐 · 680p 复古微缩）· 全组件单源同源</p>
       </div>
     </div>
 
@@ -27,7 +30,8 @@
       <a href="#sec-components">04 平面战术舱</a>
       <a href="#sec-sandbox">05 场内双层沙盒</a>
       <a href="#sec-cluster">06 防叠字试验</a>
-      <a href="#sec-hud-scale">07 三档尺码与 HUD</a>
+      <a href="#sec-hud-scale">07 尺码与安全区</a>
+      <a href="#sec-combat-hud">08 实战扩展</a>
     </nav>
 
     <div class="spec-topbar-right">
@@ -79,14 +83,14 @@
       </div>
     </section>
 
-    <!-- 03 武器库载具剪影、情景警示与 HUD 图标源 -->
+    <!-- 03 品牌标识、武器库载具剪影、4 大通用武器剪影、情景警示与 HUD 图标源 -->
     <section id="sec-icons" class="ui-pod spec-section" aria-labelledby="title-icons">
       <div class="spec-section-head">
         <div>
-          <span class="ui-eyebrow">Section 03 / Arsenal Silhouettes · ISO Hazards · HUD Actions</span>
-          <h2 id="title-icons">03 武器库 12 兵种剪影、情景警示与 HUD 图标源（35 项导出）</h2>
+          <span class="ui-eyebrow">Section 03 / Brand Identity · Arsenal Silhouettes · Universal Weapons · ISO Hazards · HUD Actions</span>
+          <h2 id="title-icons">03 品牌标识（生化肃清三楔盾）与 5 大程序化矢量资产族（47 项导出）</h2>
         </div>
-        <p class="spec-section-desc">按在库 129 款实装载具重划 12 大兵种负空间剪影（保留 tank/heli/plane 兼容别名）＋ 4 枚 ISO 7010 与高直觉情景警示图标 ＋ 19 枚统一 1.75px 功能图标，唯一源自 <code>图标与标绘.mjs</code>。</p>
+        <p class="spec-section-desc">全站唯一程序化矢量体系：正式品牌标识 <code>bio-purge-triad-shield</code>（4 级光学尺码 + 3 种语义色调 + <code>Path2D</code> 贴花绘制 + <code>/favicon.svg</code> 单源）＋ 12 大武器库兵种剪影 ＋ 4 大通用武器剪影 ＋ 4 枚 ISO 情景警示 ＋ 26 枚统一圆角线宽功能图标，全部源自 <code>图标与标绘.mjs</code>。</p>
       </div>
       <div class="icon-toolbar">
         <div class="sandbox-ctrl-group">
@@ -98,9 +102,28 @@
             <button type="button" data-bg="paper">暖米图纸</button>
           </div>
         </div>
-        <span class="ui-badge" data-tone="select">12 类载具剪影 + 4 枚情景图标 + 19 枚功能图标</span>
+        <span class="ui-badge" data-tone="select">品牌标识 4 档光学尺码 + 12 兵种 + 4 武器 + 4 情景 + 26 功能图标</span>
+      </div>
+      <div class="brand-spec-panel" id="brand-identity-panel">
+        <div class="brand-spec-bar">
+          <div class="brand-spec-title">
+            <span class="ui-eyebrow">BRAND IDENTITY // BIO-PURGE TRIAD SHIELD (OPTION B)</span>
+            <strong>生化肃清三楔盾 · 4 级光学尺码与 Canvas 贴花检视台</strong>
+          </div>
+          <div class="brand-spec-ctrls">
+            <div class="ui-seg" id="brand-tone-seg" role="group" aria-label="品牌标识语义色调切换">
+              <button type="button" data-tone="a3" class="active">A3 烟炭双金</button>
+              <button type="button" data-tone="tridomain">三域彩蛋（陆/旋/固）</button>
+              <button type="button" data-tone="toxic">生化洗消</button>
+              <button type="button" data-tone="mono">纯单色</button>
+            </div>
+            <button type="button" class="ui-btn ui-btn--sm" id="brand-anim-toggle" aria-pressed="false">加载锁定动效：关</button>
+          </div>
+        </div>
+        <div class="brand-spec-grid" id="brand-identity-mount"></div>
       </div>
       <div class="silhouette-grid" id="silhouette-mount"></div>
+      <div class="weapon-icon-grid" id="weapon-icon-mount"></div>
       <div class="hazard-grid" id="hazard-icon-mount"></div>
       <div class="hud-icon-strip" id="hud-icon-mount"></div>
     </section>
@@ -175,11 +198,25 @@
               <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" class="ui-radio" name="spec-nav"> 动态隐退</label>
             </div>
           </div>
+          <div class="v22-form-row">
+            <div style="flex:1;min-width:190px">
+              <input type="text" class="ui-input" id="v22-callsign-input" value="铁砧 01 · 主战群" aria-label="编队呼号输入示例" placeholder="输入呼号（不含非法字符）">
+              <span class="ui-field-error" id="v22-input-err" hidden>无效坐标/呼号：不可为空或超过 20 字符</span>
+            </div>
+            <label style="display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--ui-text-secondary)">
+              <span>UI 交互音效</span>
+              <button type="button" class="ui-toggle" id="v22-sfx-toggle" role="switch" aria-checked="true" aria-label="切换 UI 交互音效"></button>
+            </label>
+            <span class="ui-tip-host">
+              <button type="button" class="ui-btn ui-btn--sm">悬停 Tooltip</button>
+              <span class="ui-tip-bubble">B2 微描边 · 5px 控件圆角 · 100ms 响应</span>
+            </span>
+          </div>
         </div>
 
         <div class="ui-pod hud-showcase-card">
           <div class="ui-pod-head">
-            <span class="ui-eyebrow">编队单位卡 · 兵种通道左标</span>
+            <span class="ui-eyebrow">编队单位卡 · 5 类光标 · 6 类交互音效</span>
             <span class="ui-badge" data-tone="ground">零模糊实底</span>
           </div>
           <div class="hud-unit-grid" id="unit-card-mount"></div>
@@ -189,13 +226,49 @@
             <span class="ui-badge ui-cur-move" data-tone="ground">移动</span>
             <span class="ui-badge ui-cur-attack" data-tone="danger">攻击</span>
             <span class="ui-badge ui-cur-invalid" data-tone="warn">不可达</span>
+            <span class="ui-badge ui-cur-action" data-tone="select">部署/互动</span>
+          </div>
+          <div class="hud-row">
+            <span class="ui-eyebrow">Web Audio 音效契约试听：</span>
+            <button type="button" class="ui-btn ui-btn--sm" data-sfx="hover">悬停</button>
+            <button type="button" class="ui-btn ui-btn--sm" data-sfx="confirm">确认</button>
+            <button type="button" class="ui-btn ui-btn--sm" data-sfx="toggle">切换</button>
+            <button type="button" class="ui-btn ui-btn--sm" data-sfx="denied">拒收</button>
+            <button type="button" class="ui-btn ui-btn--sm" data-sfx="alert">警报</button>
+            <button type="button" class="ui-btn ui-btn--sm" data-sfx="back">返回</button>
           </div>
         </div>
 
         <div class="ui-pod hud-showcase-card">
           <div class="ui-pod-head">
-            <span class="ui-eyebrow">指令队列、延迟血条与镜头胶囊</span>
+            <span class="ui-eyebrow">指令队列 · 延迟双段血条 · 5 态指令槽 · 夺点条</span>
             <button type="button" class="ui-btn ui-btn--sm" id="btn-demo-drawer-inline">打开调试抽屉</button>
+          </div>
+          <div class="v22-hp-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;">
+              <span>双段血条（白条延迟 + 反应甲蓝段 + 危急脉冲）</span>
+              <div style="display:flex;gap:6px;">
+                <button type="button" class="ui-btn ui-btn--sm" id="v22-hp-hit">模拟受击 -28%</button>
+                <button type="button" class="ui-btn ui-btn--sm" id="v22-hp-reset">回满</button>
+              </div>
+            </div>
+            <div class="ui-hp-track" id="v22-hp-track">
+              <div class="ui-hp-trail" id="v22-hp-trail" style="width:76%"></div>
+              <div class="ui-hp-fill" id="v22-hp-fill" style="width:76%;background:var(--ui-ch-ground)"></div>
+              <div class="ui-hp-bonus" id="v22-hp-bonus" style="left:76%;width:14%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ui-text-secondary);margin-top:4px;">
+              <span>A 停机坪夺点进度</span>
+              <span class="ui-mono" id="v22-cap-pct">68%</span>
+            </div>
+            <div class="ui-cap-bar"><div class="ui-cap-fill" id="v22-cap-fill" style="width:68%"></div></div>
+          </div>
+          <div class="v22-slot-strip">
+            <div class="ui-cmd-slot"><span class="ui-kbd ui-slot-key">Q</span><span class="ui-slot-charge">×3</span><strong>齐射</strong></div>
+            <div class="ui-cmd-slot is-low"><span class="ui-kbd ui-slot-key">W</span><span class="ui-slot-charge">×1</span><strong>烟雾</strong></div>
+            <div class="ui-cmd-slot is-empty"><span class="ui-kbd ui-slot-key">E</span><span class="ui-slot-charge">×0</span><strong>耗尽</strong></div>
+            <div class="ui-cmd-slot is-cooling"><span class="ui-kbd ui-slot-key">R</span><strong>冷却</strong><div class="ui-cd-mask" style="--cd-deg:145deg"><span class="ui-cd-sec">4s</span></div></div>
+            <div class="ui-cmd-slot is-alerting"><span class="ui-kbd ui-slot-key">F</span><strong>拦截告警</strong></div>
           </div>
           <ul class="ui-command-list">
             <li><strong>铁砧 01 · 移动中</strong><span>当前：移动（18, -18米） · 已设朝向 → 后续1：移动（34, -2米）</span></li>
@@ -214,6 +287,52 @@
             </div>
           </div>
         </div>
+
+        <div class="ui-pod hud-showcase-card">
+          <div class="ui-pod-head">
+            <span class="ui-eyebrow">8 槽战术轮盘 · 4A/4B 导航 · 模态窗 · 空态/骨架屏</span>
+            <button type="button" class="ui-btn ui-btn--danger ui-btn--sm" id="v22-open-modal">打开模态确认窗</button>
+          </div>
+          <div class="ui-skew-tabs" id="v22-skew-tabs" role="tablist">
+            <button type="button" class="ui-skew-tab is-active" role="tab" aria-selected="true" data-tab="wheel"><span>8 槽轮盘</span></button>
+            <button type="button" class="ui-skew-tab" role="tab" aria-selected="false" data-tab="menu"><span>4A 扫光菜单</span></button>
+            <button type="button" class="ui-skew-tab" role="tab" aria-selected="false" data-tab="empty"><span>空态与骨架屏</span></button>
+          </div>
+          <div id="v22-panel-wheel">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:8px;">
+              <div class="ui-seg" id="v22-wheel-unit-seg" aria-label="轮盘兵种演示">
+                <button type="button" class="active" data-unit="ground">地面</button>
+                <button type="button" data-unit="heli">旋翼</button>
+                <button type="button" data-unit="plane">固定翼</button>
+                <button type="button" data-unit="mixed">混选</button>
+              </div>
+              <div class="ui-seg" id="v22-wheel-state-seg" aria-label="轮盘四态演示">
+                <button type="button" class="active" data-wstate="normal">常规/激活</button>
+                <button type="button" data-wstate="cooling">冷却</button>
+                <button type="button" data-wstate="disabled">禁用</button>
+              </div>
+            </div>
+            <div class="ui-wheel" id="v22-wheel" aria-label="8 槽战术指令轮盘"></div>
+          </div>
+          <div id="v22-panel-menu" hidden>
+            <div class="ui-sweep-list">
+              <button type="button" class="ui-sweep-row is-focus"><span>继续作战演训</span><kbd class="ui-kbd">ENTER</kbd></button>
+              <button type="button" class="ui-sweep-row"><span>前往 129 车武器库</span><kbd class="ui-kbd">B</kbd></button>
+              <button type="button" class="ui-sweep-row"><span>系统与 680p 渲染设置</span><kbd class="ui-kbd">S</kbd></button>
+            </div>
+          </div>
+          <div id="v22-panel-empty" hidden style="display:flex;flex-direction:column;gap:10px;">
+            <div class="ui-empty">
+              <strong>未检索到匹配单位</strong>
+              <span>当前过滤条件下无在库载具，请清空关键词或切换分类条件。</span>
+            </div>
+            <div class="ui-skeleton" aria-label="流式资产加载骨架屏">
+              <div class="ui-skel-line" style="width:58%"></div>
+              <div class="ui-skel-line" style="width:86%"></div>
+              <div class="ui-skel-line" style="width:42%"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -221,10 +340,10 @@
     <section id="sec-sandbox" class="ui-pod spec-section" aria-labelledby="title-sandbox">
       <div class="spec-section-head">
         <div>
-          <span class="ui-eyebrow">Section 05 / Diegetic Sandbox &amp; Dual-Layer HiDPI</span>
-          <h2 id="title-sandbox">05 世界内贴地 UI、线框幽灵与双层分离高清沙盒</h2>
+          <span class="ui-eyebrow">Section 05 / Diegetic Sandbox &amp; 680p Stylized Dual-Layer HiDPI</span>
+          <h2 id="title-sandbox">05 世界内贴地 UI、线框幽灵与 680p 双层分离高清沙盒</h2>
         </div>
-        <p class="spec-section-desc">地面与直升机保留正交贴地双环，固定翼仅留地面十字锚点＋垂直高度虚线＋100m 高空盘旋轨＋选中四角框；开启 640px 画布模拟后，仅底层 3D 模拟降为 640px，场内贴地双环、名牌与幽灵叠加层保持原生 DPR 高清锐利。</p>
+        <p class="spec-section-desc">地面与直升机保留正交贴地双环，固定翼仅留地面十字锚点＋垂直高度虚线＋100m 高空盘旋轨＋选中四角框；开启「680p 复古微缩暖滤镜模拟」后，仅底层 3D 画布锁定 680p 像素化与暖调微缩滤镜，场内贴地双环、名牌与幽灵叠加层始终保持原生 DPR 高清无滤镜锐利。</p>
       </div>
 
       <div class="sandbox-controls">
@@ -253,7 +372,7 @@
             <button type="button" data-span="540">远景 540m</button>
           </div>
         </div>
-        <button type="button" class="ui-btn ui-btn--sm" id="sandbox-pixel-toggle" aria-pressed="false">640px 3D 画布模拟：关</button>
+        <button type="button" class="ui-btn ui-btn--sm" id="sandbox-pixel-toggle" aria-pressed="false">680p 复古微缩暖滤镜模拟：关</button>
         <button type="button" class="ui-btn ui-btn--sm" id="sb-reset">重置示范编队</button>
       </div>
 
@@ -274,7 +393,7 @@
         </div>
 
         <div class="sandbox-hud-bottom">
-          <div class="ui-pod ui-pod--chamfer sandbox-status-pod">
+          <div class="ui-pod sandbox-status-pod">
             <strong id="sb-status-line">就绪 · 左键点选/框选，右键按住拖动预览线框幽灵与朝向</strong>
             <small><kbd class="ui-kbd">1</kbd>/<kbd class="ui-kbd">2</kbd>/<kbd class="ui-kbd">3</kbd> 图层 · <kbd class="ui-kbd">左键</kbd> 选择 · <kbd class="ui-kbd">右键拖动</kbd> 混选下令 · <kbd class="ui-kbd">Shift</kbd> 排队 · <kbd class="ui-kbd">X</kbd> 停止 · <kbd class="ui-kbd">WASD</kbd>/<kbd class="ui-kbd">Q</kbd><kbd class="ui-kbd">E</kbd>/<kbd class="ui-kbd">滚轮</kbd> 观察</small>
           </div>
@@ -384,7 +503,9 @@
               <div class="scale-rail-item"><span>重甲</span><b class="ui-mono">2</b></div>
               <div class="scale-rail-item"><span>旋翼</span><b class="ui-mono">2</b></div>
             </aside>
-            <div class="scale-corridor-hint">中间核心战场透空安全区（零常驻遮挡 · 零 backdrop-filter）</div>
+            <div class="scale-corridor-hint">
+              <span id="scale-aspect-hint">全屏自由安全区 · 中央 60% 严禁常驻实心面板</span>
+            </div>
           </div>
 
           <!-- ROW 3 示范底中净空双翼 -->
@@ -491,6 +612,169 @@
           </div>
         </div>
       </div>
+
+      <!-- 4px 空间栅格 & 五级 Z-Index 契约对照卡 -->
+      <div class="v22-contract-strip">
+        <div class="v22-spacing-bar">
+          <span class="ui-eyebrow">4px 空间栅格 (--ui-sp-*)：</span>
+          <span class="v22-sp-chip"><i style="width:4px"></i>4</span>
+          <span class="v22-sp-chip"><i style="width:8px"></i>8</span>
+          <span class="v22-sp-chip"><i style="width:12px"></i>12</span>
+          <span class="v22-sp-chip"><i style="width:16px"></i>16</span>
+          <span class="v22-sp-chip"><i style="width:24px"></i>24</span>
+          <span class="v22-sp-chip"><i style="width:32px"></i>32</span>
+        </div>
+        <div class="v22-z-bar">
+          <span class="ui-eyebrow">Z-Index 5 级：</span>
+          <span class="ui-badge" data-tone="ground">100 世界标绘</span>
+          <span class="ui-badge" data-tone="select">200 常驻HUD</span>
+          <span class="ui-badge" data-tone="warn">300 抽屉/轮盘</span>
+          <span class="ui-badge" data-tone="danger">400 模态/暂停</span>
+          <span class="ui-badge" data-tone="toxic">500 Toast警报</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 V2.2 实战扩展基元、4 级视距图标与固定翼贴地标绘 -->
+    <section id="sec-combat-hud" class="ui-pod spec-section" aria-labelledby="title-combat-hud">
+      <div class="spec-section-head">
+        <div>
+          <span class="ui-eyebrow">Section 08 / V2.2 Combat HUD Primitives · 4-Tier Zoom Icons · Ground Orbit</span>
+          <h2 id="title-combat-hud">08 V2.2 实战扩展基元、4 级视距图标与固定翼贴地标绘</h2>
+        </div>
+        <p class="spec-section-desc">同步沉淀 <code>/play</code> 实战版新增的全战竖长条兵牌、10 格火力评定条、右下竖向翻页命令栏、4 级视距 <code>span</code> 战术图标簇聚合、固定翼贴地主范围圈/转向虚弧及独立载具空间引擎音偏好。</p>
+      </div>
+
+      <div class="v22-combat-grid">
+        <!-- 8.1 全战竖长条兵牌 & 10 格火力评定条 -->
+        <div class="v22-combat-card">
+          <div class="ui-pod-head">
+            <div>
+              <span class="ui-eyebrow">.ui-banner-card + .ui-rating-pips</span>
+              <h3>全战竖长条兵牌与 10 格火力评定条</h3>
+            </div>
+            <span class="ui-badge" id="v22-banner-selected-badge" data-tone="select">M1A2 SEP v3</span>
+          </div>
+          <div class="v22-banner-stage">
+            <div class="v22-banner-strip" id="v22-banner-strip" role="listbox" aria-label="竖长条兵牌示例"></div>
+            <div class="v22-rating-panel" id="v22-rating-panel">
+              <div class="v22-rating-title">
+                <strong id="v22-rating-unit-name">M1A2 SEP v3 主战坦克</strong>
+                <span class="ui-mono" id="v22-rating-unit-role">地面装甲通道</span>
+              </div>
+              <div class="v22-rating-rows" id="v22-rating-rows"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8.2 右下竖向翻页命令栏（全页统一方案 B + 切页动效与滑块指示条） -->
+        <div class="v22-combat-card">
+          <div class="ui-pod-head">
+            <div>
+              <span class="ui-eyebrow">.ui-cmd-shell-paged + .ui-cmd-viewport + .ui-cmd-pager-indicator + .ui-cmd-wep-grid + .ui-cmd-util-bar</span>
+              <h3>右下竖向翻页命令栏（全页统一方案 B + 切页动效）</h3>
+            </div>
+            <span class="ui-badge" id="v22-pager-badge" data-tone="select">当前页：攻击</span>
+          </div>
+          <div class="ui-cmd-shell-paged" id="v22-paged-cmd-demo">
+            <div class="ui-cmd-viewport">
+              <div class="ui-cmd-exit-layer" id="v22-paged-cmd-exit" aria-hidden="true"></div>
+              <div class="ui-cmd-grid is-partitioned" id="v22-paged-cmd-grid"></div>
+            </div>
+            <div class="ui-cmd-pager" id="v22-cmd-pager" role="tablist" aria-label="命令栏翻页签">
+              <button type="button" class="ui-cmd-pager-tab active" role="tab" aria-selected="true" data-page="attack">攻击</button>
+              <button type="button" class="ui-cmd-pager-tab" role="tab" aria-selected="false" data-page="move">机动</button>
+              <button type="button" class="ui-cmd-pager-tab" role="tab" aria-selected="false" data-page="debug" data-tone="plane">调试</button>
+            </div>
+          </div>
+          <p class="spec-section-desc">点击右侧竖向翻页签体验滑块指示器与方向性 <code>translateY</code> 切页动效：攻击、机动与调试三页全面统一为方案 B「上区 2×2 深槽双行战术卡（含 <code>.is-danger-cmd</code> 撤离警示与中性/通道修饰）＋ 下区 2×1 扁平视角/辅助条」，高度严格锁定零跳动。</p>
+        </div>
+
+        <!-- 8.3 4 级视距 span 战术图标分层与密集簇聚合 -->
+        <div class="v22-combat-card">
+          <div class="ui-pod-head">
+            <div>
+              <span class="ui-eyebrow">resolveZoomIconTier + clusterScreenUnits + drawZoomTierUnitIcon</span>
+              <h3>4 级视距战术图标分层与同通道簇聚合</h3>
+            </div>
+            <span class="ui-badge" id="v22-zoom-tier-badge" data-tone="ground">L2 · 战术筹码</span>
+          </div>
+          <div class="v22-zoom-controls">
+            <label class="ui-field-row" style="flex:1;min-width:210px">
+              <span>视距 span：<strong class="ui-mono" id="v22-zoom-span-val">960 m</strong></span>
+              <input type="range" class="ui-range" id="v22-zoom-span-range" min="120" max="3200" step="20" value="960">
+            </label>
+            <button type="button" class="ui-btn ui-btn--sm" id="v22-zoom-expand-btn" aria-pressed="true">簇悬停放射：开</button>
+          </div>
+          <div class="v22-canvas-wrap">
+            <canvas id="v22-zoom-canvas" width="520" height="210" aria-label="4级视距战术图标分层与簇聚合沙盒"></canvas>
+          </div>
+        </div>
+
+        <!-- 8.4 固定翼贴地主范围圈、35°转向虚弧与载具空间音效偏好 -->
+        <div class="v22-combat-card">
+          <div class="ui-pod-head">
+            <div>
+              <span class="ui-eyebrow">drawGroundOrbitZone + drawAirTurnArc + vehicleAudioEnabled</span>
+              <h3>固定翼贴地范围圈、35°转向虚弧与空间音效偏好</h3>
+            </div>
+            <button type="button" class="ui-btn ui-btn--sm" id="v22-orbit-hl-btn" aria-pressed="true">选中高亮：开</button>
+          </div>
+          <div class="v22-canvas-wrap">
+            <canvas id="v22-orbit-canvas" width="520" height="170" aria-label="固定翼贴地主范围圈与35度转向虚弧沙盒"></canvas>
+          </div>
+          <div class="v22-audio-pref-row">
+            <div class="ui-field-row" style="gap:10px">
+              <span>载具空间引擎音 (<code>vehicleAudioEnabled</code>)</span>
+              <button type="button" class="ui-toggle" id="v22-veh-audio-toggle" role="switch" aria-checked="true" aria-label="载具空间引擎音开关"></button>
+            </div>
+            <label class="ui-field-row" style="gap:10px">
+              <span>引擎音量 (<span class="ui-mono" id="v22-veh-audio-vol-val">45%</span>)</span>
+              <input type="range" class="ui-range" id="v22-veh-audio-vol" min="0" max="100" value="45" style="max-width:130px">
+            </label>
+            <div class="ui-field-row" style="gap:10px">
+              <span>远景自然景深 (<code>dofMode</code>)</span>
+              <div class="ui-size-seg" id="v22-dof-seg" role="group" aria-label="远景自然景深偏好">
+                <button type="button" class="ui-size-seg-btn" data-dof="off">关闭</button>
+                <button type="button" class="ui-size-seg-btn active" data-dof="soft">柔和</button>
+                <button type="button" class="ui-size-seg-btn" data-dof="standard">标准</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8.5 跨页共享载具参数详情卡与兵牌悬停精简浮卡（SCAV-12 方案 A） -->
+        <div class="v22-combat-card" style="grid-column:1 / -1">
+          <div class="ui-pod-head">
+            <div>
+              <span class="ui-eyebrow">.ui-vd-card + .ui-vd-hover + renderVehicleDetailCard + renderVehicleHoverCard + attachDeckHoverCardController</span>
+              <h3>跨页共享载具参数详情组件（/play 右下舱上浮宽体 · 兵牌悬停精简浮卡 · /armory 右栏同源）</h3>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+              <div class="ui-seg" id="v22-vd-unit-seg" aria-label="切换载具兵种模板">
+                <button type="button" class="active" data-vd-unit="ground">M1A2 地面</button>
+                <button type="button" data-vd-unit="heli">AH-64D 旋翼</button>
+                <button type="button" data-vd-unit="plane">A-10C 固定翼(燃油)</button>
+              </div>
+              <button type="button" class="ui-btn ui-btn--sm" id="v22-vd-bingo-btn" aria-pressed="false" hidden>模拟低油 Bingo</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:minmax(320px,1.2fr) minmax(240px,0.85fr) minmax(260px,1fr);gap:12px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+              <span class="ui-eyebrow">/play 右下主选舱上浮宽体卡（2 列武器零滚动）</span>
+              <div id="v22-vd-full-mount"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+              <span class="ui-eyebrow">/play 底部兵牌悬停精简浮卡（单机 / 聚合）</span>
+              <div id="v22-vd-hover-mount"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+              <span class="ui-eyebrow">/armory 4B 武器库右侧参数卡（静态满编窄栏）</span>
+              <div id="v22-vd-armory-mount"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -506,18 +790,18 @@
     </div>
     <div class="ui-drawer-body">
       <div class="ui-drawer-section">
-        <h3>渲染与画质对照</h3>
+        <h3>渲染基线与 680p 复古微缩对照</h3>
         <div class="ui-field-row">
           <span>3D 内部画质</span>
           <div class="ui-select" id="drawer-quality" data-value="native" style="max-width:196px">
             <button type="button" class="ui-select-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-label="3D 内部画质">
-              <span class="ui-select-val"><span class="ui-select-txt">原生高清（推荐主线）</span></span>
+              <span class="ui-select-val"><span class="ui-select-txt">原生高清对照</span></span>
               <svg class="ui-select-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
             </button>
             <div class="ui-select-menu" role="listbox" hidden>
-              <button type="button" class="ui-select-option" role="option" data-val="native" aria-selected="true"><span class="ui-select-option-title">原生高清（推荐主线）</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
-              <button type="button" class="ui-select-option" role="option" data-val="640" aria-selected="false"><span class="ui-select-option-title">640宽 · 标准像素</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
-              <button type="button" class="ui-select-option" role="option" data-val="480" aria-selected="false"><span class="ui-select-option-title">480宽 · 粗颗粒</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              <button type="button" class="ui-select-option" role="option" data-val="native" aria-selected="true"><span class="ui-select-option-title">原生高清对照</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              <button type="button" class="ui-select-option" role="option" data-val="680p-16x9" aria-selected="false"><span class="ui-select-option-title">680p 16:9 (1208×680)</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
+              <button type="button" class="ui-select-option" role="option" data-val="680p-21x9" aria-selected="false"><span class="ui-select-option-title">680p 21:9 (1588×680)</span><svg class="ui-select-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.2 8.4l3.1 3.1 6.5-6.8"/></svg></button>
             </div>
           </div>
         </div>
@@ -555,10 +839,10 @@
         </div>
         <label class="ui-field-row">
           <span>总音量</span>
-          <input type="range" class="ui-range" id="drawer-vol" min="0" max="100" value="25">
+          <input type="range" class="ui-range" id="drawer-vol" min="0" max="100" value="35">
         </label>
         <div class="hud-row" style="margin-top:10px;">
-          <button type="button" class="ui-btn ui-btn--sm" id="drawer-sync-pixel">切换沙盒 640px 对照</button>
+          <button type="button" class="ui-btn ui-btn--sm" id="drawer-sync-pixel">切换沙盒 680p 模拟</button>
           <button type="button" class="ui-btn ui-btn--sm ui-btn--ghost" id="drawer-copy-sha">复制源码摘要</button>
         </div>
       </div>
@@ -568,6 +852,24 @@
       </div>
     </div>
   </aside>
+
+  <!-- V2.2 模态二次确认弹窗演示 -->
+  <div class="ui-modal-backdrop" id="v22-modal-backdrop" hidden>
+    <div class="ui-modal" id="v22-modal" role="dialog" aria-modal="true" aria-labelledby="v22-modal-title">
+      <div class="ui-modal-head">
+        <div>
+          <span class="ui-eyebrow">Z-400 毛玻璃高反差模态框</span>
+          <h3 id="v22-modal-title">确认清空全部动态演训单位？</h3>
+        </div>
+        <button type="button" class="ui-btn ui-btn--sm" id="v22-modal-close">关闭 Esc</button>
+      </div>
+      <p class="spec-section-desc">模态 confirm 层允许使用 `backdrop-filter: blur(18px)`，按 `Esc` 优先退栈关闭此模态框而非直接触发底层切换。</p>
+      <div class="ui-modal-actions">
+        <button type="button" class="ui-btn" id="v22-modal-cancel">取消操作</button>
+        <button type="button" class="ui-btn ui-btn--danger" id="v22-modal-confirm">确认清空</button>
+      </div>
+    </div>
+  </div>
 
   <div class="spec-toast" id="spec-toast" role="status" hidden></div>
   <script type="module" src="/ui/规范页.mjs"></script>

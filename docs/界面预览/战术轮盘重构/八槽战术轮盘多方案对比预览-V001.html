@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scavenger · 8 槽战术轮盘多方案对比预览 V001（SCAV-11）</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      /* Code SSOT V2.2 同源语义令牌（离线自包含） */
+      --slate-950: #0a0b10;
+      --slate-900: #0d0e13;
+      --slate-850: #13141c;
+      --slate-800: #1b1c24;
+      --slate-750: #232530;
+      --slate-700: #2e303e;
+      --slate-600: #46495c;
+      --slate-400: #838896;
+      --slate-200: #b6bac5;
+      --slate-50: #f5f6f9;
+
+      --ui-bg-canvas: #0d0e13;
+      --ui-bg-pod: rgba(19, 20, 28, 0.93);
+      --ui-bg-pod-elevated: #14151e;
+      --ui-bg-slot: rgba(35, 37, 48, 0.88);
+      --ui-bg-hover: rgba(255, 255, 255, 0.085);
+
+      --ui-line-subtle: rgba(255, 255, 255, 0.09);
+      --ui-line-base: rgba(255, 255, 255, 0.19);
+      --ui-line-strong: rgba(255, 255, 255, 0.34);
+      --ui-line-accent: rgba(240, 211, 114, 0.54);
+
+      --ui-text-primary: #f5f6f9;
+      --ui-text-secondary: #b6bac5;
+      --ui-text-muted: #838896;
+      --ui-text-inverse: #0d0e13;
+
+      --ui-accent-grad: linear-gradient(135deg, #f6de86 0%, #e5b73e 100%);
+      --ui-rim-top: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+      --ui-shadow-pod: 0 14px 36px rgba(4, 5, 10, 0.56), 0 4px 12px rgba(0, 0, 0, 0.34);
+
+      /* Tier 3 七维零撞色通道 */
+      --ui-ch-ground: #38e5c0;
+      --ui-ch-ground-inner: #9bf5e0;
+      --ui-ch-ground-fill: rgba(56, 229, 192, 0.15);
+
+      --ui-ch-heli: #68c8ff;
+      --ui-ch-heli-inner: #bae4ff;
+      --ui-ch-heli-fill: rgba(104, 200, 255, 0.15);
+
+      --ui-ch-plane: #b197fc;
+      --ui-ch-plane-inner: #dcd0ff;
+      --ui-ch-plane-fill: rgba(177, 151, 252, 0.15);
+
+      --ui-state-select: #f0d372;
+      --ui-state-select-inner: #f6de86;
+      --ui-state-select-fill: rgba(240, 211, 114, 0.18);
+
+      --ui-state-warn: #ffb800;
+      --ui-state-warn-fill: rgba(255, 184, 0, 0.16);
+
+      --ui-state-danger: #ff5266;
+      --ui-state-danger-fill: rgba(255, 82, 102, 0.18);
+
+      --ui-state-safe: #3cd69f;
+      --ui-state-safe-fill: rgba(60, 214, 159, 0.16);
+
+      --ui-font-display: "Bahnschrift Condensed", "DIN Condensed", "HarmonyOS Sans SC", "Microsoft YaHei UI", sans-serif;
+      --ui-font-sans: "Bahnschrift", "DIN Alternate", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+      --ui-font-mono: "Cascadia Mono", "Consolas", "JetBrains Mono", "Microsoft YaHei UI", monospace;
+
+      --ui-r-surface: 12px;
+      --ui-r-control: 5px;
+      --ui-r-sm: 4px;
+      --ui-r-pill: 9999px;
+      --ui-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--ui-bg-canvas);
+      color: var(--ui-text-primary);
+      font-family: var(--ui-font-sans);
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ======================== 顶栏与工况控制栏（零模糊实底） ======================== */
+    .top-bar {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 12px;
+      padding: 8px 14px;
+      background: var(--ui-bg-pod-elevated);
+      border-bottom: 1px solid var(--ui-line-base);
+      z-index: 30;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      padding: 3px 8px;
+      font-family: var(--ui-font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--ui-text-inverse);
+      background: var(--ui-accent-grad);
+      border-radius: var(--ui-r-sm);
+      white-space: nowrap;
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ui-text-primary);
+      white-space: nowrap;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--ui-text-muted);
+      white-space: nowrap;
+    }
+
+    .bar-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sub-bar {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 14px;
+      padding: 6px 14px;
+      background: rgba(15, 16, 23, 0.96);
+      border-bottom: 1px solid var(--ui-line-subtle);
+      z-index: 25;
+    }
+
+    .ctrl-cluster {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .ctrl-label {
+      font-family: var(--ui-font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--ui-text-muted);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .seg {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px;
+      border-radius: var(--ui-r-control);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--ui-line-subtle);
+    }
+
+    .seg button, .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 26px;
+      padding: 0 9px;
+      border: 1px solid transparent;
+      border-radius: var(--ui-r-sm);
+      background: transparent;
+      color: var(--ui-text-secondary);
+      font-family: var(--ui-font-sans);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 100ms var(--ui-ease-out), border-color 100ms var(--ui-ease-out), color 100ms var(--ui-ease-out);
+    }
+
+    .btn {
+      height: 28px;
+      padding: 0 10px;
+      background: var(--ui-bg-slot);
+      border-color: var(--ui-line-base);
+    }
+
+    .seg button:hover, .btn:hover {
+      background: var(--ui-bg-hover);
+      color: var(--ui-text-primary);
+      border-color: var(--ui-line-strong);
+    }
+
+    .seg button.active, .btn.active {
+      background: var(--ui-state-select-fill);
+      border-color: var(--ui-state-select);
+      color: var(--ui-state-select);
+    }
+
+    .btn.is-rec.active {
+      background: var(--ui-accent-grad);
+      border-color: transparent;
+      color: var(--ui-text-inverse);
+    }
+
+    .seg button.active[data-ch="ground"] {
+      background: var(--ui-ch-ground-fill);
+      border-color: var(--ui-ch-ground);
+      color: var(--ui-ch-ground);
+    }
+    .seg button.active[data-ch="heli"] {
+      background: var(--ui-ch-heli-fill);
+      border-color: var(--ui-ch-heli);
+      color: var(--ui-ch-heli);
+    }
+    .seg button.active[data-ch="plane"] {
+      background: var(--ui-ch-plane-fill);
+      border-color: var(--ui-ch-plane);
+      color: var(--ui-ch-plane);
+    }
+
+    .ch-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    .kbd-mini {
+      display: inline-grid;
+      place-items: center;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      border-radius: 3px;
+      background: rgba(10, 11, 16, 0.85);
+      border: 1px solid var(--ui-line-base);
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      font-weight: 800;
+      color: var(--ui-text-secondary);
+      line-height: 1;
+    }
+
+    .btn.is-rec.active .kbd-mini {
+      background: rgba(13, 14, 19, 0.22);
+      border-color: rgba(13, 14, 19, 0.35);
+      color: var(--ui-text-inverse);
+    }
+
+    /* ======================== 主演训视口容器（支持 16:9 / 21:9 精确框定） ======================== */
+    .stage-outer {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      background: radial-gradient(circle at 50% 44%, #151722 0%, #0b0c11 100%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .stage-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      transition: max-width 180ms var(--ui-ease-out), aspect-ratio 180ms var(--ui-ease-out);
+    }
+
+    .stage-frame.is-split {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stage-frame.ratio-16-9 {
+      width: min(100%, calc((100vh - 188px) * 16 / 9));
+      height: min(100%, calc((100vw - 28px) * 9 / 16));
+      max-height: 100%;
+    }
+
+    .stage-frame.ratio-21-9 {
+      width: min(100%, calc((100vh - 188px) * 21 / 9));
+      height: min(100%, calc((100vw - 28px) * 9 / 21));
+      max-height: 100%;
+    }
+
+    .viewport-pane {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      border-radius: var(--ui-r-surface);
+      border: 1px solid var(--ui-line-base);
+      background: #12151a;
+      overflow: hidden;
+      box-shadow: var(--ui-shadow-pod);
+    }
+
+    /* 底层 680p 复古微缩滤镜画布（严格与原生高清 HUD/轮盘分离） */
+    .battle-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+      filter: contrast(1.08) saturate(1.10) sepia(0.06);
+      pointer-events: none;
+    }
+
+    /* 原生 DPR 无滤镜 HUD 叠加层 */
+    .hud-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .safe-guide {
+      position: absolute;
+      inset: 24px;
+      border: 1px dashed rgba(240, 211, 114, 0.34);
+      border-radius: 6px;
+      pointer-events: none;
+      display: none;
+    }
+    .safe-guide.is-visible {
+      display: block;
+    }
+    .safe-guide::after {
+      content: "24px 双画幅安全边距 · 轮盘自动内推零裁切边界";
+      position: absolute;
+      top: 4px;
+      left: 8px;
+      font-family: var(--ui-font-mono);
+      font-size: 10px;
+      color: rgba(240, 211, 114, 0.72);
+      background: rgba(13, 14, 19, 0.76);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    .pane-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 14;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 10px;
+      border-radius: var(--ui-r-control);
+      background: var(--ui-bg-pod);
+      border: 1px solid var(--ui-line-base);
+      box-shadow: var(--ui-rim-top), 0 6px 18px rgba(0, 0, 0, 0.45);
+      pointer-events: none;
+    }
+
+    .pane-tag strong {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--ui-text-primary);
+    }
+
+    .pane-tag span {
+      font-family: var(--ui-font-mono);
+      font-size: 10.5px;
+      color: var(--ui-text-muted);
+    }
+
+    .pane-tag.is-baseline {
+      border-color: rgba(255, 82, 102, 0.44);
+    }
+    .pane-tag.is-baseline strong {
+      color: #ff8c9a;
+    }
+
+    .pane-tag.is-candidate {
+      border-color: var(--ui-line-accent);
+    }
+    .pane-tag.is-candidate strong {
+      color: var(--ui-state-select);
+    }
+
+    /* 顶部中岛模式/执行反馈条（零提示音轻反馈） */
+    .mode-toast {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 16;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: var(--ui-r-control);
+      background: var(--ui-bg-pod-elevated);
+      border: 1px solid var(--ui-line-base);
+      box-shadow: var(--ui-shadow-pod);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--ui-text-primary);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0.96;
+    }
+
+    .mode-toast .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ui-state-select);
+    }
+
+    .mode-toast[data-tone="safe"] { border-color: var(--ui-state-safe); }
+    .mode-toast[data-tone="safe"] .dot { background: var(--ui-state-safe); }
+    .mode-toast[data-tone="warn"] { border-color: var(--ui-state-warn); }
+    .mode-toast[data-tone="warn"] .dot { background: var(--ui-state-warn); }
+    .mode-toast[data-tone="danger"] { border-color: var(--ui-state-danger); }
+    .mode-toast[data-tone="danger"] .dot { background: var(--ui-state-danger); }
+    .mode-toast[data-tone="plane"] { border-color: var(--ui-ch-plane); }
+    .mode-toast[data-tone="plane"] .dot { background: var(--ui-ch-plane); }
+    .mode-toast[data-tone="ground"] { border-color: var(--ui-ch-ground); }
+    .mode-toast[data-tone="ground"] .dot { background: var(--ui-ch-ground); }
+    .mode-toast[data-tone="heli"] { border-color: var(--ui-ch-heli); }
+    .mode-toast[data-tone="heli"] .dot { background: var(--ui-ch-heli); }
+
+    /* ======================== 右下角方案 B 同源命令栏（实时双向同步验证） ======================== */
+    .scheme-b-dock {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      z-index: 12;
+      width: 292px;
+      padding: 8px;
+      border-radius: var(--ui-r-surface);
+      background: var(--ui-bg-pod);
+      border: 1px solid var(--ui-line-base);
+      box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+      pointer-events: auto;
+    }
+
+    .stage-frame.is-split .scheme-b-dock {
+      width: 244px;
+      right: 10px;
+      bottom: 10px;
+      padding: 6px;
+    }
+
+    .dock-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--ui-line-subtle);
+      font-family: var(--ui-font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--ui-text-secondary);
+      letter-spacing: 0.04em;
+    }
+
+    .dock-sync-pill {
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: var(--ui-state-safe-fill);
+      border: 1px solid rgba(60, 214, 159, 0.42);
+      color: var(--ui-state-safe);
+      font-size: 9.5px;
+    }
+
+    .dock-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .dock-card {
+      position: relative;
+      height: 44px;
+      padding: 4px 7px;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-base);
+      background: var(--ui-bg-slot);
+      color: var(--ui-text-primary);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      text-align: left;
+      overflow: hidden;
+      transition: border-color 100ms, background 100ms;
+    }
+
+    .dock-card:hover:not(:disabled) {
+      border-color: var(--ui-state-select);
+      background: var(--ui-bg-hover);
+    }
+
+    .dock-card.is-active {
+      border-color: var(--ui-state-safe);
+      background: var(--ui-state-safe-fill);
+    }
+    .dock-card.is-active .dc-ico,
+    .dock-card.is-active .dc-title {
+      color: var(--ui-state-safe);
+    }
+
+    .dock-card.is-danger {
+      border-color: rgba(255, 82, 102, 0.44);
+      background: rgba(255, 82, 102, 0.10);
+    }
+
+    .dock-card.is-disabled {
+      opacity: 0.50;
+      cursor: not-allowed;
+      background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 0 5px, transparent 5px 10px), rgba(14, 15, 22, 0.92);
+    }
+
+    .dock-card.is-cooling {
+      cursor: wait;
+      border-color: rgba(255, 184, 0, 0.42);
+    }
+
+    .dock-card .dc-ico {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      color: var(--ui-text-secondary);
+    }
+
+    .dock-card .dc-info {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .dock-card .dc-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .dock-card .dc-title {
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dock-card .dc-kbd {
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      font-weight: 900;
+      color: var(--ui-text-muted);
+    }
+
+    .dock-card .dc-sub {
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      color: var(--ui-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dock-card .dc-cd-bar {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2.5px;
+      background: var(--ui-state-warn);
+      pointer-events: none;
+    }
+
+    .dock-utils {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    .dock-util-btn {
+      height: 27px;
+      padding: 0 8px;
+      border-radius: var(--ui-r-sm);
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(22, 24, 34, 0.90);
+      color: var(--ui-text-secondary);
+      font-family: var(--ui-font-sans);
+      font-size: 10.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      cursor: pointer;
+      transition: border-color 100ms, color 100ms, background 100ms;
+    }
+    .dock-util-btn:hover {
+      border-color: var(--ui-state-select);
+      color: var(--ui-state-select);
+    }
+    .dock-util-btn.is-active {
+      border-color: var(--ui-state-safe);
+      background: var(--ui-state-safe-fill);
+      color: var(--ui-state-safe);
+    }
+    .dock-util-btn .du-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    /* 左下角实战呼出指引微卡 */
+    .hint-pod {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      z-index: 12;
+      padding: 7px 10px;
+      border-radius: var(--ui-r-control);
+      background: var(--ui-bg-pod);
+      border: 1px solid var(--ui-line-subtle);
+      font-size: 11px;
+      color: var(--ui-text-secondary);
+      line-height: 1.5;
+      pointer-events: none;
+      max-width: 268px;
+    }
+    .hint-pod strong {
+      color: var(--ui-state-select);
+    }
+    .stage-frame.is-split .hint-pod {
+      display: none;
+    }
+
+    /* ======================== 轮盘层（原生高清无滤镜） ======================== */
+    .wheel-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      pointer-events: auto;
+    }
+
+    /* 光标原点 & 射线辅助层 */
+    .ray-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .wheel-anchor {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+    }
+
+    .wheel-anchor.is-hidden {
+      display: none;
+    }
+
+    /* ---------- 0 现状基线：旧离散矩形按钮环（真实复现当前 src/界面规范/组件.css） ---------- */
+    .legacy-wheel {
+      position: relative;
+      width: 288px;
+      height: 266px;
+      display: grid;
+      place-items: center;
+    }
+    .legacy-slot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      min-width: 78px;
+      padding: 6px 8px;
+      transform: translate(calc(-50% + var(--wx, 0px)), calc(-50% + var(--wy, 0px)));
+      border: 1px solid var(--ui-line-base);
+      border-radius: var(--ui-r-control);
+      background: var(--ui-bg-pod-elevated);
+      color: var(--ui-text-primary);
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-family: var(--ui-font-sans);
+      font-size: 11px;
+      font-weight: 700;
+      transition: border-color 100ms, background 100ms, color 100ms;
+    }
+    .legacy-slot small {
+      font-family: var(--ui-font-mono);
+      font-size: 10px;
+      color: var(--ui-text-muted);
+    }
+    .legacy-slot.is-pending {
+      opacity: 0.56;
+      border-style: dashed;
+    }
+    .legacy-slot:hover {
+      border-color: var(--ui-state-select);
+      background: var(--ui-state-select-fill);
+      color: var(--ui-state-select);
+    }
+    .legacy-center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 82px;
+      height: 82px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px solid var(--ui-line-strong);
+      background: var(--ui-bg-pod-elevated);
+      color: var(--ui-text-secondary);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 11px;
+    }
+    .legacy-center strong {
+      color: var(--ui-state-select);
+    }
+
+    /* ---------- 方案 A / B / C 共享基础（绝对禁止 backdrop-filter 与 scale() 缩放容器） ---------- */
+    .wheel-svg {
+      display: block;
+      overflow: visible;
+    }
+
+    .sector-hit {
+      cursor: pointer;
+      transition: fill 90ms var(--ui-ease-out), stroke 90ms var(--ui-ease-out), opacity 90ms;
+    }
+    .sector-hit.is-empty {
+      cursor: default;
+    }
+    .sector-hit.is-disabled {
+      cursor: not-allowed;
+    }
+    .sector-hit.is-cooling {
+      cursor: wait;
+    }
+
+    /* 方案 B 悬浮环轨微舱 */
+    .wheel-b-root {
+      position: relative;
+      width: 288px;
+      height: 288px;
+    }
+    .wb-pod {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 78px;
+      min-height: 46px;
+      padding: 5px 6px;
+      transform: translate(calc(-50% + var(--wx)), calc(-50% + var(--wy)));
+      border-radius: 6px;
+      border: 1px solid var(--ui-line-base);
+      background: rgba(18, 19, 27, 0.94);
+      box-shadow: var(--ui-rim-top), 0 6px 16px rgba(0, 0, 0, 0.46);
+      color: var(--ui-text-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      transition: border-color 90ms, background 90ms, box-shadow 90ms;
+    }
+    .wb-pod.is-empty {
+      width: 30px;
+      min-height: 12px;
+      padding: 0;
+      border-radius: 99px;
+      background: rgba(18, 19, 27, 0.56);
+      border: 1px dashed rgba(255, 255, 255, 0.14);
+      box-shadow: none;
+      cursor: default;
+    }
+    .wb-pod.is-active-cmd {
+      border-color: rgba(60, 214, 159, 0.65);
+      box-shadow: inset 0 2.5px 0 var(--ui-state-safe), 0 6px 16px rgba(0, 0, 0, 0.48);
+    }
+    .wb-pod.is-danger-cmd {
+      border-color: rgba(255, 82, 102, 0.45);
+    }
+    .wb-pod.is-disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      background: repeating-linear-gradient(-45deg, rgba(255,255,255,0.04) 0 4px, transparent 4px 8px), rgba(14, 15, 22, 0.92);
+    }
+    .wb-pod.is-cooling {
+      border-color: rgba(255, 184, 0, 0.52);
+      cursor: wait;
+    }
+    .wb-pod.is-hovered {
+      border-color: var(--ui-state-select);
+      background: rgba(34, 32, 24, 0.96);
+      box-shadow: 0 0 0 1px var(--ui-state-select), 0 0 18px rgba(240, 211, 114, 0.28);
+      z-index: 4;
+    }
+    .wb-pod.is-hovered.is-disabled,
+    .wb-pod.is-hovered.is-cooling {
+      border-color: var(--ui-state-danger);
+      box-shadow: 0 0 0 1px var(--ui-state-danger), 0 0 14px rgba(255, 82, 102, 0.24);
+    }
+    .wb-top {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 3px;
+    }
+    .wb-kbd {
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      font-weight: 900;
+      padding: 0 4px;
+      height: 15px;
+      line-height: 15px;
+      border-radius: 3px;
+      background: rgba(10, 11, 16, 0.92);
+      border: 1px solid var(--ui-line-base);
+      color: var(--ui-text-secondary);
+    }
+    .wb-pod.is-hovered .wb-kbd {
+      background: var(--ui-state-select);
+      border-color: var(--ui-state-select);
+      color: var(--ui-text-inverse);
+    }
+    .wb-tag {
+      font-family: var(--ui-font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--ui-text-muted);
+    }
+    .wb-pod.is-active-cmd .wb-tag { color: var(--ui-state-safe); }
+    .wb-pod.is-cooling .wb-tag { color: var(--ui-state-warn); }
+    .wb-pod.is-disabled .wb-tag { color: var(--ui-state-danger); }
+    .wb-main {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      max-width: 100%;
+    }
+    .wb-ico {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+      display: inline-flex;
+      color: var(--ui-text-primary);
+    }
+    .wb-pod.is-active-cmd .wb-ico { color: var(--ui-state-safe); }
+    .wb-pod.is-hovered .wb-ico { color: var(--ui-state-select); }
+    .wb-pod.is-danger-cmd .wb-ico { color: var(--ui-state-danger); }
+    .wb-lbl {
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .wb-pod.is-hovered .wb-lbl { color: var(--ui-state-select-inner); }
+
+    .wb-center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 92px;
+      height: 92px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: rgba(14, 15, 22, 0.96);
+      border: 1.5px solid var(--ui-line-strong);
+      box-shadow: var(--ui-shadow-pod);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6px;
+      gap: 2px;
+      cursor: pointer;
+    }
+    .wb-center.has-target { border-color: var(--ui-state-select); }
+    .wb-center.is-blocked { border-color: var(--ui-state-danger); }
+    .wb-center-ch {
+      font-family: var(--ui-font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .wb-center-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--ui-text-primary);
+      line-height: 1.15;
+    }
+    .wb-center-sub {
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      color: var(--ui-text-muted);
+      line-height: 1.2;
+    }
+
+    /* ======================== 底部方案评估与实时遥测栏 ======================== */
+    .bottom-bar {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: 12px;
+      padding: 8px 14px;
+      background: var(--ui-bg-pod-elevated);
+      border-top: 1px solid var(--ui-line-base);
+      z-index: 30;
+    }
+
+    .spec-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .spec-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .spec-head strong {
+      font-size: 12.5px;
+      color: var(--ui-state-select);
+    }
+
+    .spec-pill {
+      padding: 1px 6px;
+      border-radius: 3px;
+      border: 1px solid var(--ui-line-base);
+      background: var(--ui-bg-slot);
+      font-family: var(--ui-font-mono);
+      font-size: 10px;
+      color: var(--ui-text-secondary);
+    }
+
+    .spec-desc {
+      font-size: 11.5px;
+      color: var(--ui-text-secondary);
+      line-height: 1.42;
+    }
+
+    .telemetry-strip {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-family: var(--ui-font-mono);
+      font-size: 11px;
+      color: var(--ui-text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tel-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: var(--ui-r-sm);
+      background: rgba(10, 11, 16, 0.72);
+      border: 1px solid var(--ui-line-subtle);
+      white-space: nowrap;
+    }
+
+    .tel-item b {
+      color: var(--ui-text-primary);
+      font-weight: 800;
+    }
+    .tel-item.is-gold b { color: var(--ui-state-select); }
+    .tel-item.is-safe b { color: var(--ui-state-safe); }
+
+    @media (max-width: 1020px) {
+      .bottom-bar {
+        grid-template-columns: 1fr;
+      }
+      .telemetry-strip {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- 顶栏：标题 + 方案切换 + 双屏对比 + 画幅切换 -->
+    <header class="top-bar">
+      <div class="brand-group">
+        <span class="brand-badge">SCAV-11</span>
+        <span class="brand-title">8 槽战术轮盘多方案对比预览 V001</span>
+        <span class="brand-sub">Code SSOT V2.2 · Q12-A 按住 Space 甩选 + 单击兼容 · 零 UI 提示音</span>
+      </div>
+      <div class="bar-group">
+        <div class="seg" id="scheme-seg" role="tablist" aria-label="轮盘方案切换">
+          <button type="button" data-scheme="0"><span class="kbd-mini">0</span>现状基线</button>
+          <button type="button" data-scheme="1" class="active"><span class="kbd-mini">1</span>方案 A · 连续扇区仪表盘（推荐）</button>
+          <button type="button" data-scheme="2"><span class="kbd-mini">2</span>方案 B · 悬浮环轨低遮挡</button>
+          <button type="button" data-scheme="3"><span class="kbd-mini">3</span>方案 C · 双环航电罗盘</button>
+        </div>
+        <button type="button" class="btn" id="btn-split"><span class="kbd-mini">C</span>左右对比</button>
+        <div class="seg" id="ratio-seg" aria-label="画幅比例">
+          <button type="button" data-ratio="full" class="active">自适应</button>
+          <button type="button" data-ratio="16:9">16:9</button>
+          <button type="button" data-ratio="21:9">21:9</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 二级工况测试栏：兵种、四态、呼出锚点、交互模式 -->
+    <section class="sub-bar">
+      <div class="ctrl-cluster">
+        <span class="ctrl-label">选中兵种</span>
+        <div class="seg" id="unit-seg">
+          <button type="button" data-unit="ground" data-ch="ground" class="active">
+            <span class="ch-dot" style="background:var(--ui-ch-ground)"></span>地面 M1A2
+          </button>
+          <button type="button" data-unit="heli" data-ch="heli">
+            <span class="ch-dot" style="background:var(--ui-ch-heli)"></span>旋翼 AH-64D
+          </button>
+          <button type="button" data-unit="plane" data-ch="plane">
+            <span class="ch-dot" style="background:var(--ui-ch-plane)"></span>固定翼 A-10C
+          </button>
+          <button type="button" data-unit="mixed" data-ch="mixed">
+            <span class="ch-dot" style="background:var(--ui-state-select)"></span>混选 3 单位
+          </button>
+        </div>
+      </div>
+
+      <div class="ctrl-cluster">
+        <span class="ctrl-label">四态工况</span>
+        <div class="seg" id="state-seg">
+          <button type="button" data-state="normal" class="active">常规就绪</button>
+          <button type="button" data-state="active">激活对比</button>
+          <button type="button" data-state="cooling">实时冷却</button>
+          <button type="button" data-state="disabled">禁用 / 耗尽</button>
+        </div>
+      </div>
+
+      <div class="ctrl-cluster">
+        <span class="ctrl-label">边角防裁切</span>
+        <div class="seg" id="anchor-seg">
+          <button type="button" data-anchor="center" class="active">中心</button>
+          <button type="button" data-anchor="tl">左上</button>
+          <button type="button" data-anchor="tr">右上</button>
+          <button type="button" data-anchor="bl">左下</button>
+          <button type="button" data-anchor="br">右下</button>
+        </div>
+        <button type="button" class="btn" id="btn-safe">安全区框</button>
+      </div>
+
+      <div class="ctrl-cluster">
+        <span class="ctrl-label">测试方式</span>
+        <div class="seg" id="playmode-seg">
+          <button type="button" data-playmode="pinned" class="active">审阅常驻</button>
+          <button type="button" data-playmode="live">按住 Space 实战甩选</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 主演训画布区 -->
+    <main class="stage-outer">
+      <div class="stage-frame" id="stage-frame">
+        <!-- 左侧面板（仅对比模式显示，固定为 0 现状基线） -->
+        <div class="viewport-pane" id="pane-left" hidden>
+          <canvas class="battle-canvas" id="canvas-left"></canvas>
+          <div class="hud-overlay">
+            <div class="safe-guide" id="safe-left"></div>
+            <div class="pane-tag is-baseline">
+              <strong>0 · 现状基线（旧离散按钮环）</strong>
+              <span>仅单击 · 含 3 项占位 · 无扇区方向锁 · 无兵种适配</span>
+            </div>
+          </div>
+          <div class="wheel-stage" id="wheel-stage-left">
+            <svg class="ray-svg" id="ray-left"></svg>
+            <div class="wheel-anchor" id="anchor-left"></div>
+          </div>
+        </div>
+
+        <!-- 主/右侧面板（显示当前选中的方案） -->
+        <div class="viewport-pane" id="pane-main">
+          <canvas class="battle-canvas" id="canvas-main"></canvas>
+          <div class="hud-overlay">
+            <div class="safe-guide" id="safe-main"></div>
+            <div class="pane-tag is-candidate" id="main-pane-tag">
+              <strong id="main-tag-title">1 · 方案 A · 连续扇区军工仪表盘（推荐）</strong>
+              <span id="main-tag-sub">8 等分无缝环扇 · 无限外延甩选 · 激活绿弧 vs 悬停金边</span>
+            </div>
+            <div class="mode-toast" id="mode-toast" data-tone="select">
+              <span class="dot"></span>
+              <span id="mode-toast-text">审阅常驻：直接划动鼠标预览 8 扇区反馈，或随时按住 Space 体验 Q12-A 实战甩选</span>
+            </div>
+            <div class="hint-pod" id="hint-pod">
+              <div><strong>按住 Space</strong> 在鼠标位置呼出 → 甩向任意方向（越过死区无限外延）→ <strong>松开即触发</strong></div>
+              <div><strong>轻按 Space</strong> 不越死区保持展开供点击；回中心 / <strong>Esc</strong> / 失焦取消</div>
+            </div>
+            <!-- 右下角方案 B 同源命令栏 -->
+            <aside class="scheme-b-dock" id="scheme-b-dock" aria-label="右下角方案 B 同源命令栏">
+              <div class="dock-head">
+                <span id="dock-scope">COMMAND · M1A2 SEP v3</span>
+                <span class="dock-sync-pill">与轮盘同源</span>
+              </div>
+              <div class="dock-grid" id="dock-grid"></div>
+              <div class="dock-utils" id="dock-utils"></div>
+            </aside>
+          </div>
+          <div class="wheel-stage" id="wheel-stage-main">
+            <svg class="ray-svg" id="ray-main"></svg>
+            <div class="wheel-anchor" id="anchor-main"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底栏：方案评估摘要 + 实时状态机遥测 -->
+    <footer class="bottom-bar">
+      <div class="spec-summary">
+        <div class="spec-head">
+          <strong id="spec-title">方案 A（推荐）：连续八扇区军工仪表盘</strong>
+          <span class="spec-pill" id="spec-size">外径 272px · 死区 R38px</span>
+          <span class="spec-pill" id="spec-occlusion">遮挡度：中低</span>
+          <span class="spec-pill" id="spec-readability">可读性：高</span>
+        </div>
+        <div class="spec-desc" id="spec-desc">
+          真实 8 等分 SVG 环形扇区，以 2.4px 暗色径向缝隙明确划分 45° 方向边界；已激活指令使用内弧安全绿/通道色标示，与香槟金悬停高亮完全分离；空槽退隐为低对比度暗弧避免误触；中心盘集中呈现兵种、悬停指令名、激活态/禁用原因与实时冷却读秒。
+        </div>
+      </div>
+      <div class="telemetry-strip">
+        <span class="tel-item is-gold">状态 <b id="tel-mode">审阅常驻</b></span>
+        <span class="tel-item">方位 <b id="tel-sector">死区（取消）</b></span>
+        <span class="tel-item is-safe">最近指令 <b id="tel-last">待命（0 提示音）</b></span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /* ========================================================================
+         1. Code SSOT V2.2 同源 SVG 图标路径（摘自 src/界面规范/图标与标绘.mjs）
+         ======================================================================== */
+      const HUD_ICONS = {
+        attack: ['M12 3v4', 'M12 17v4', 'M3 12h4', 'M17 12h4', 'M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0-10 0'],
+        shield: ['M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6Z'],
+        stop: ['M8.3 3.5h7.4L20.5 8.3v7.4l-4.8 4.8H8.3l-4.8-4.8V8.3Z', 'M8.5 12h7'],
+        reset: ['M4 12a8 8 0 1 0 2.4-5.7L4 8.5', 'M4 4v4.5h4.5'],
+        follow: ['M4 8V4h4', 'M20 8V4h-4', 'M4 16v4h4', 'M20 16v4h-4', 'M12 8.2a3.8 3.8 0 1 0 0 7.6a3.8 3.8 0 1 0 0-7.6', 'M12 12h.01'],
+        focus: ['M4 9V4h5', 'M20 9V4h-5', 'M4 15v5h5', 'M20 15v5h-5', 'M12 9.5v5', 'M9.5 12h5'],
+        sprint: ['M3.5 9h4.5', 'M2.5 12h5.5', 'M3.5 15h4.5', 'M10.5 6.5L16 12l-5.5 5.5', 'M15.5 6.5L21 12l-5.5 5.5'],
+        evacuate: ['M10 4H5v16h5', 'M9 12h11', 'M15.5 7.5L20 12l-4.5 4.5', 'M13 8.5l2.5 3.5-2.5 3.5'],
+        flare: [
+          'M12 3l3.6 5.2L12 7 8.4 8.2Z',
+          'M9.8 10.6c-2.8 1.5-4.8 3.8-5.6 6.8',
+          'M14.2 10.6c2.8 1.5 4.8 3.8 5.6 6.8',
+          'M12 10.8v6.2',
+          'M3.8 19.6h.01', 'M12 20.2h.01', 'M20.2 19.6h.01', 'M7.4 16.8h.01', 'M16.6 16.8h.01',
+        ],
+        altitude: [
+          'M6.2 4v16', 'M3.6 6.6L6.2 4l2.6 2.6', 'M3.6 17.4L6.2 20l2.6-2.6',
+          'M11.5 5.5h9', 'M11.5 18.5h9', 'M12 12h2.8l1.2-1.8 1.2 1.8H20', 'M16 12v2.4',
+        ],
+      };
+
+      const WEAPON_ICONS = {
+        cannon: 'M12 2.1 C13.5 4.2 14.1 6.3 14.1 8.4 H9.9 C9.9 6.3 10.5 4.2 12 2.1 Z M9.6 9.5 H14.4 V18.7 H9.6 Z M9.0 19.6 H15.0 V21.4 H9.0 Z M5.2 4.8 C6.5 6.6 7.0 8.4 7.0 10.2 H3.4 C3.4 8.4 3.9 6.6 5.2 4.8 Z M3.2 11.2 H7.2 V18.9 H3.2 Z M2.7 19.7 H7.7 V21.4 H2.7 Z M18.8 4.8 C20.1 6.6 20.6 8.4 20.6 10.2 H17.0 C17.0 8.4 17.5 6.6 18.8 4.8 Z M16.8 11.2 H20.8 V18.9 H16.8 Z M16.3 19.7 H21.3 V21.4 H16.3 Z',
+      };
+
+      function iconMarkup(iconType, iconName, size = 18) {
+        if (iconType === 'weapon' && WEAPON_ICONS[iconName]) {
+          return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true"><path d="${WEAPON_ICONS[iconName]}" fill="currentColor" fill-rule="evenodd"/></svg>`;
+        }
+        const paths = HUD_ICONS[iconName] || HUD_ICONS.focus;
+        const inner = paths.map(d => `<path d="${d}"/>`).join('');
+        return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+      }
+
+      function iconSvgGroup(iconType, iconName, cx, cy, size, color) {
+        const scale = size / 24;
+        const tx = (cx - size / 2).toFixed(2);
+        const ty = (cy - size / 2).toFixed(2);
+        if (iconType === 'weapon' && WEAPON_ICONS[iconName]) {
+          return `<g transform="translate(${tx},${ty}) scale(${scale.toFixed(4)})"><path d="${WEAPON_ICONS[iconName]}" fill="${color}" fill-rule="evenodd"/></g>`;
+        }
+        const paths = HUD_ICONS[iconName] || HUD_ICONS.focus;
+        const inner = paths.map(d => `<path d="${d}"/>`).join('');
+        return `<g transform="translate(${tx},${ty}) scale(${scale.toFixed(4)})" fill="none" stroke="${color}" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">${inner}</g>`;
+      }
+
+      /* ========================================================================
+         2. 方案元数据与 8 方位固定角度约定（跨兵种保持同一命令同方位肌肉记忆）
+         ======================================================================== */
+      const SECTOR_ANGLES = [-90, -45, 0, 45, 90, 135, 180, -135];
+      const COMPASS_LABELS = ['000°', '045°', '090°', '135°', '180°', '225°', '270°', '315°'];
+      const DEADZONE_PX = 38;
+
+      const SCHEMES = {
+        0: {
+          title: '0 · 现状基线（旧离散按钮环）',
+          sub: '仅单击 · 含 3 项未接入占位 · 固定 160/150 内推 · 无方向扇区锁',
+          sizeText: '外框 288×266px · 无甩选死区',
+          occText: '遮挡度：中',
+          readText: '可读性：偏低',
+          desc: '复现当前 src/交互系统/指令与标绘层.mjs 实现：8 枚分离式小矩形卡，缺少矢量图标、扇区分隔线与四态视觉区分；包含 3 个未接入占位槽位；Space 仅开关不识别按住甩选；不区分兵种且与右下角命令栏状态口径不一致。',
+          outerRadius: 146,
+        },
+        1: {
+          title: '1 · 方案 A · 连续扇区军工仪表盘（推荐）',
+          sub: '8 等分无缝环扇 · 无限外延甩选 · 激活绿弧 vs 悬停金边',
+          sizeText: '外径 272px · 死区 R38px',
+          occText: '遮挡度：中低',
+          readText: '可读性：高（均衡推荐）',
+          desc: '真实 8 等分 SVG 环形扇区，以 2.4px 暗色径向缝隙明确划分 45° 方向边界；已激活指令用内弧安全绿/通道色标示，与香槟金悬停高亮完全分离；空槽退隐为低对比度暗弧避免误触；中心盘实时显示兵种、悬停指令、禁用原因与冷却读秒。',
+          outerRadius: 144,
+        },
+        2: {
+          title: '2 · 方案 B · 悬浮环轨低遮挡胶囊',
+          sub: '镂空战术环轨 + 紧凑微舱 · 最大化保留 680p 战场视野',
+          sizeText: '外径 282px · 死区 R38px',
+          occText: '遮挡度：最低',
+          readText: '可读性：中高',
+          desc: '取消实心大面积扇面，改用极细暗色战术环轨 + 8 枚紧凑倒角微舱，空槽收缩为静默刻度胶囊，约 45% 内部面积直接透出 680p 战场载具与尸群；悬停时由中心发射精准激光导引线并点亮 45° 环轨弧段，兼顾微操视野与无限外延甩选。',
+          outerRadius: 146,
+        },
+        3: {
+          title: '3 · 方案 C · 双环军用航电罗盘',
+          sub: '内环键帽与状态带 + 外环图标与指令名 · 零元素撞车',
+          sizeText: '外径 296px · 死区 R40px',
+          occText: '遮挡度：中高',
+          readText: '可读性：最高（高信息密度）',
+          desc: '仿现代装甲火控/航电双环结构：内环（R54–74）专职承载快捷键帽与颜色编码状态弧，外环（R77–142）专职承载 20px 矢量图标、指令名与弹药/模式角标，外沿附 45° 方位刻度与物理锁定括弧；满配 8 槽（如 A-10C）下仍保持零重叠高辨识度。',
+          outerRadius: 156,
+        },
+      };
+
+      const UNIT_META = {
+        ground: {
+          label: 'M1A2 SEP v3',
+          short: 'M1A2 · 地面',
+          channel: 'ground',
+          color: '#38e5c0',
+          scope: 'COMMAND · M1A2 SEP v3',
+        },
+        heli: {
+          label: 'AH-64D 阿帕奇',
+          short: 'AH-64D · 旋翼',
+          channel: 'heli',
+          color: '#68c8ff',
+          scope: 'COMMAND · AH-64D',
+        },
+        plane: {
+          label: 'A-10C 雷电 II',
+          short: 'A-10C · 固定翼',
+          channel: 'plane',
+          color: '#b197fc',
+          scope: 'COMMAND · A-10C',
+        },
+        mixed: {
+          label: '混选编队（3 单位）',
+          short: '混选 · 3 单位',
+          channel: 'select',
+          color: '#f0d372',
+          scope: 'COMMAND · 3 单位（混选）',
+        },
+      };
+
+      const LEGACY_SLOTS = [
+        { id: 'move', label: '机动部署', sub: '右键预览', angleDeg: -90, implemented: true },
+        { id: 'attackGround', label: '强制攻地', sub: 'K / 落点', angleDeg: -45, implemented: true },
+        { id: 'stop', label: '急停清队', sub: 'X 键', angleDeg: 0, implemented: true },
+        { id: 'guard', label: '地面警戒', sub: '状态切换', angleDeg: 45, implemented: true },
+        { id: 'follow', label: '持续跟随', sub: 'G 键', angleDeg: 90, implemented: true },
+        { id: 'smoke', label: '烟雾遮蔽', sub: '待战斗接入', angleDeg: 135, implemented: false },
+        { id: 'airstrike', label: '空袭呼号', sub: '待战斗接入', angleDeg: 180, implemented: false },
+        { id: 'resupply', label: '后勤补给', sub: '待战斗接入', angleDeg: -135, implemented: false },
+      ];
+
+      /* ========================================================================
+         3. 同源战术命令状态中心（轮盘与右下角方案 B 命令栏唯一数据源）
+         ======================================================================== */
+      const sim = {
+        scheme: 1,
+        split: false,
+        ratio: 'full',
+        unit: 'ground',
+        scenario: 'normal',
+        anchor: 'center',
+        showSafe: false,
+        playMode: 'pinned', // 'pinned' | 'live'
+
+        // 实时战斗指令同源状态
+        targetingCmd: null,   // 'attackGround' | 'gau8' | 'sprint' | null
+        guardOn: false,
+        followOn: false,
+        lowAltOn: false,
+        rtbOn: false,
+        gau8Ammo: 1150,
+        flareCharges: 6,
+        cooldowns: {
+          flare: { rem: 0, total: 8.0 },
+          attackGround: { rem: 0, total: 4.5 },
+          sprint: { rem: 0, total: 6.0 },
+        },
+        disabledReasons: {},
+
+        // Q12-A 轮盘状态机
+        wheelOpen: true,
+        interactionKind: 'pinned', // 'pinned' | 'hold_flick' | 'tap_click'
+        spaceDown: false,
+        spacePassedDeadzone: false,
+        originPt: { x: 0, y: 0 },      // 按键瞬间鼠标原点（防边角静止误触）
+        visualCenter: { x: 0, y: 0 },  // 自动内推后的轮盘视觉圆心
+        pointerPt: { x: 0, y: 0 },     // 视口内实时光标
+        hoveredSector: -1,             // -1 = 死区取消，0..7 = 对应 45° 扇区
+        lastActionText: '待命（0 提示音）',
+
+        // 战场视觉特效队列（纯视觉反馈，零音频）
+        fxPulses: [],
+      };
+
+      function getWheelSlotsForCurrentUnit() {
+        const u = sim.unit;
+        const ch = UNIT_META[u].channel;
+        const cdFlare = sim.cooldowns.flare;
+        const cdAtk = sim.cooldowns.attackGround;
+        const cdSprint = sim.cooldowns.sprint;
+
+        const mkState = (id, { active = false, cd = null, disabledReason = '' } = {}) => {
+          if (disabledReason) return { status: 'disabled', reason: disabledReason };
+          if (cd && cd.rem > 0.05) return { status: 'cooling', rem: cd.rem, total: cd.total, reason: `冷却中 ${cd.rem.toFixed(1)}s` };
+          if (active) return { status: 'active', reason: '已激活 · 再次触发关闭' };
+          return { status: 'ready', reason: '就绪 · 松开 Space 触发' };
+        };
+
+        if (u === 'ground' || u === 'heli') {
+          const isHeli = u === 'heli';
+          return [
+            {
+              id: 'attackGround', label: '强制攻地', key: 'K', modeTag: '瞄准',
+              iconType: 'hud', iconName: 'attack', tone: ch,
+              charge: sim.targetingCmd === 'attackGround' ? '瞄准' : '',
+              ...mkState('attackGround', {
+                active: sim.targetingCmd === 'attackGround',
+                cd: cdAtk,
+                disabledReason: sim.disabledReasons.attackGround || '',
+              }),
+            },
+            {
+              id: 'guard', label: '警戒守备', key: 'Z', modeTag: '开关',
+              iconType: 'hud', iconName: 'shield', tone: ch,
+              charge: sim.guardOn ? '已开' : '',
+              ...mkState('guard', {
+                active: sim.guardOn,
+                disabledReason: sim.disabledReasons.guard || '',
+              }),
+            },
+            {
+              id: 'stop', label: '停航待命', key: 'X', modeTag: '瞬发',
+              iconType: 'hud', iconName: 'stop', tone: 'neutral',
+              ...mkState('stop', { disabledReason: sim.disabledReasons.stop || '' }),
+            },
+            {
+              id: 'resetView', label: '视野复位', key: 'R', modeTag: '瞬发',
+              iconType: 'hud', iconName: 'reset', tone: 'neutral',
+              ...mkState('resetView'),
+            },
+            {
+              id: 'follow', label: '持续跟随', key: 'G', modeTag: '开关',
+              iconType: 'hud', iconName: 'follow', tone: 'neutral',
+              charge: sim.followOn ? '跟随' : '',
+              ...mkState('follow', { active: sim.followOn }),
+            },
+            {
+              id: 'focus', label: '聚焦视野', key: 'F', modeTag: '瞬发',
+              iconType: 'hud', iconName: 'focus', tone: 'neutral',
+              ...mkState('focus'),
+            },
+            null, // 180° 左：地面/旋翼无专属技能，留空防误触
+            null, // -135° 左上：留空
+          ];
+        }
+
+        if (u === 'plane') {
+          const gau8Empty = sim.gau8Ammo <= 0;
+          const flareEmpty = sim.flareCharges <= 0;
+          return [
+            {
+              id: 'gau8', label: 'GAU-8 扫射', key: '1', modeTag: '拖线',
+              iconType: 'weapon', iconName: 'cannon', tone: 'plane',
+              charge: `${sim.gau8Ammo}`,
+              ...mkState('gau8', {
+                active: sim.targetingCmd === 'gau8',
+                disabledReason: gau8Empty ? '主炮弹药耗尽（0 发）' : (sim.disabledReasons.gau8 || ''),
+              }),
+            },
+            {
+              id: 'sprint', label: '高速直飞', key: 'M', modeTag: '点选',
+              iconType: 'hud', iconName: 'sprint', tone: 'plane',
+              charge: sim.targetingCmd === 'sprint' ? '选点' : '',
+              ...mkState('sprint', {
+                active: sim.targetingCmd === 'sprint',
+                cd: cdSprint,
+                disabledReason: sim.disabledReasons.sprint || '',
+              }),
+            },
+            {
+              id: 'stop', label: '停航待命', key: 'X', modeTag: '瞬发',
+              iconType: 'hud', iconName: 'stop', tone: 'neutral',
+              ...mkState('stop'),
+            },
+            {
+              id: 'evacuate', label: sim.rtbOn ? '取消撤离' : '撤离战区', key: 'T', modeTag: 'RTB',
+              iconType: 'hud', iconName: 'evacuate', tone: 'danger',
+              charge: sim.rtbOn ? '返航' : '',
+              ...mkState('evacuate', {
+                active: sim.rtbOn,
+                disabledReason: sim.disabledReasons.evacuate || '',
+              }),
+            },
+            {
+              id: 'follow', label: '持续跟随', key: 'G', modeTag: '开关',
+              iconType: 'hud', iconName: 'follow', tone: 'neutral',
+              charge: sim.followOn ? '跟随' : '',
+              ...mkState('follow', { active: sim.followOn }),
+            },
+            {
+              id: 'focus', label: '聚焦视野', key: 'F', modeTag: '瞬发',
+              iconType: 'hud', iconName: 'focus', tone: 'neutral',
+              ...mkState('focus'),
+            },
+            {
+              id: 'flare', label: '热诱弹', key: 'C', modeTag: '瞬发',
+              iconType: 'hud', iconName: 'flare', tone: 'plane',
+              charge: `${sim.flareCharges}`,
+              ...mkState('flare', {
+                cd: cdFlare,
+                disabledReason: flareEmpty ? '热诱弹已耗尽' : (sim.disabledReasons.flare || ''),
+              }),
+            },
+            {
+              id: 'altitude', label: sim.lowAltOn ? '低空 135m' : '高空 215m', key: 'V', modeTag: '开关',
+              iconType: 'hud', iconName: 'altitude', tone: 'plane',
+              charge: sim.lowAltOn ? '低空' : '高空',
+              ...mkState('altitude', { active: sim.lowAltOn }),
+            },
+          ];
+        }
+
+        // 混选：仅保留对全部选中单位语义一致的通用命令，其余留空
+        return [
+          null,
+          null,
+          {
+            id: 'stop', label: '停航待命', key: 'X', modeTag: '全组',
+            iconType: 'hud', iconName: 'stop', tone: 'neutral',
+            ...mkState('stop', { disabledReason: sim.disabledReasons.stop || '' }),
+          },
+          {
+            id: 'resetView', label: '视野复位', key: 'R', modeTag: '瞬发',
+            iconType: 'hud', iconName: 'reset', tone: 'neutral',
+            ...mkState('resetView'),
+          },
+          {
+            id: 'follow', label: '持续跟随', key: 'G', modeTag: '主选',
+            iconType: 'hud', iconName: 'follow', tone: 'neutral',
+            charge: sim.followOn ? '跟随' : '',
+            ...mkState('follow', { active: sim.followOn }),
+          },
+          {
+            id: 'focus', label: '聚焦视野', key: 'F', modeTag: '选区',
+            iconType: 'hud', iconName: 'focus', tone: 'neutral',
+            ...mkState('focus'),
+          },
+          null,
+          null,
+        ];
+      }
+
+      function applyScenarioPreset(scenario) {
+        sim.scenario = scenario;
+        sim.disabledReasons = {};
+        sim.cooldowns.flare.rem = 0;
+        sim.cooldowns.attackGround.rem = 0;
+        sim.cooldowns.sprint.rem = 0;
+        sim.gau8Ammo = 1150;
+        sim.flareCharges = 6;
+
+        if (scenario === 'normal') {
+          sim.targetingCmd = null;
+          sim.guardOn = false;
+          sim.followOn = false;
+          sim.lowAltOn = false;
+          sim.rtbOn = false;
+        } else if (scenario === 'active') {
+          sim.guardOn = true;
+          sim.followOn = true;
+          sim.lowAltOn = true;
+          sim.rtbOn = false;
+          sim.targetingCmd = sim.unit === 'plane' ? 'gau8' : 'attackGround';
+        } else if (scenario === 'cooling') {
+          sim.guardOn = true;
+          sim.followOn = false;
+          sim.cooldowns.flare = { rem: 6.4, total: 8.0 };
+          sim.cooldowns.attackGround = { rem: 3.8, total: 4.5 };
+          sim.cooldowns.sprint = { rem: 4.9, total: 6.0 };
+        } else if (scenario === 'disabled') {
+          sim.gau8Ammo = 0;
+          sim.flareCharges = 0;
+          sim.disabledReasons = {
+            attackGround: '主炮装填中 / 无有效射界',
+            guard: '引擎受损 · 无法展开警戒',
+            evacuate: '正在起飞进场阶段',
+            stop: '选区处于待命无队列',
+          };
+        }
+        renderAll();
+      }
+
+      function executeCommand(slot, sourceLabel = '轮盘') {
+        if (!slot) {
+          showToast('空槽位：当前兵种无对应指令，未执行', 'select');
+          return false;
+        }
+        if (slot.status === 'disabled') {
+          showToast(`已阻止触发「${slot.label}」：${slot.reason}`, 'danger');
+          sim.lastActionText = `拒绝:${slot.label}`;
+          updateTelemetry();
+          return false;
+        }
+        if (slot.status === 'cooling') {
+          showToast(`「${slot.label}」冷却中（剩余 ${slot.rem.toFixed(1)}s），释放不触发`, 'warn');
+          sim.lastActionText = `冷却中:${slot.label}`;
+          updateTelemetry();
+          return false;
+        }
+
+        const now = performance.now();
+        switch (slot.id) {
+          case 'attackGround':
+            sim.targetingCmd = sim.targetingCmd === 'attackGround' ? null : 'attackGround';
+            showToast(
+              sim.targetingCmd ? `[${sourceLabel}] 进入强制攻地瞄准模式（落点由左键确认）` : `[${sourceLabel}] 已退出强制攻地瞄准`,
+              sim.unit === 'heli' ? 'heli' : 'ground'
+            );
+            sim.fxPulses.push({ kind: 'target', t0: now, dur: 900, color: UNIT_META[sim.unit].color });
+            break;
+          case 'guard':
+            sim.guardOn = !sim.guardOn;
+            showToast(
+              `[${sourceLabel}] 警戒守备：${sim.guardOn ? '已开启（主武器射程圈展开）' : '已关闭'}`,
+              sim.guardOn ? 'safe' : 'select'
+            );
+            sim.fxPulses.push({ kind: 'guard', t0: now, dur: 800, color: '#3cd69f' });
+            break;
+          case 'stop':
+            sim.targetingCmd = null;
+            sim.rtbOn = false;
+            showToast(`[${sourceLabel}] 停航待命：已清空当前航路与打击队列`, 'select');
+            sim.fxPulses.push({ kind: 'stop', t0: now, dur: 650, color: '#f0d372' });
+            break;
+          case 'resetView':
+            sim.followOn = false;
+            showToast(`[${sourceLabel}] 视野已复位至 9km 跑道核心战区`, 'select');
+            break;
+          case 'follow':
+            sim.followOn = !sim.followOn;
+            showToast(`[${sourceLabel}] 持续跟随：${sim.followOn ? '已开启' : '已关闭'}`, sim.followOn ? 'safe' : 'select');
+            break;
+          case 'focus':
+            showToast(`[${sourceLabel}] 镜头已居中聚焦当前选区`, 'select');
+            sim.fxPulses.push({ kind: 'focus', t0: now, dur: 700, color: '#f0d372' });
+            break;
+          case 'gau8':
+            sim.targetingCmd = sim.targetingCmd === 'gau8' ? null : 'gau8';
+            showToast(
+              sim.targetingCmd ? `[${sourceLabel}] GAU-8 扫射进入拖线瞄准（松开不直接开火，待左键画线）` : `[${sourceLabel}] 已退出扫射瞄准`,
+              'plane'
+            );
+            break;
+          case 'sprint':
+            sim.targetingCmd = sim.targetingCmd === 'sprint' ? null : 'sprint';
+            showToast(
+              sim.targetingCmd ? `[${sourceLabel}] 高速直飞进入选点模式` : `[${sourceLabel}] 已取消高速直飞选点`,
+              'plane'
+            );
+            break;
+          case 'flare':
+            sim.flareCharges = Math.max(0, sim.flareCharges - 1);
+            sim.cooldowns.flare = { rem: 8.0, total: 8.0 };
+            showToast(`[${sourceLabel}] 抛洒 6 发红外热诱弹！进入 8.0s 冷却（剩余 ${sim.flareCharges} 组）`, 'plane');
+            sim.fxPulses.push({ kind: 'flare', t0: now, dur: 1200, color: '#ffb800' });
+            break;
+          case 'altitude':
+            sim.lowAltOn = !sim.lowAltOn;
+            showToast(`[${sourceLabel}] 高度层切换：${sim.lowAltOn ? '低空突防 135m' : '高空巡航 215m'}`, 'plane');
+            break;
+          case 'evacuate':
+            sim.rtbOn = !sim.rtbOn;
+            showToast(`[${sourceLabel}] ${sim.rtbOn ? '撤离战区 RTB：抛焰爬升离场' : '已取消撤离，召回空域盘旋'}`, sim.rtbOn ? 'danger' : 'plane');
+            if (sim.rtbOn) sim.fxPulses.push({ kind: 'flare', t0: now, dur: 1200, color: '#ff5266' });
+            break;
+          default:
+            showToast(`[${sourceLabel}] 已触发：${slot.label}`, 'select');
+        }
+        sim.lastActionText = `${slot.label} [${slot.key || '-'}]`;
+        renderAll();
+        return true;
+      }
+
+      /* ========================================================================
+         4. 几何与 SVG 扇区生成工具
+         ======================================================================== */
+      function degToRad(d) { return (d * Math.PI) / 180; }
+
+      function annularSectorPath(rIn, rOut, startDeg, endDeg) {
+        const a0 = degToRad(startDeg);
+        const a1 = degToRad(endDeg);
+        const x0 = rOut * Math.cos(a0), y0 = rOut * Math.sin(a0);
+        const x1 = rOut * Math.cos(a1), y1 = rOut * Math.sin(a1);
+        const x2 = rIn * Math.cos(a1), y2 = rIn * Math.sin(a1);
+        const x3 = rIn * Math.cos(a0), y3 = rIn * Math.sin(a0);
+        const largeArc = Math.abs(endDeg - startDeg) > 180 ? 1 : 0;
+        return `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${rOut} ${rOut} 0 ${largeArc} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} L ${x2.toFixed(2)} ${y2.toFixed(2)} A ${rIn} ${rIn} 0 ${largeArc} 0 ${x3.toFixed(2)} ${y3.toFixed(2)} Z`;
+      }
+
+      function arcStrokePath(r, startDeg, endDeg) {
+        const a0 = degToRad(startDeg);
+        const a1 = degToRad(endDeg);
+        const x0 = r * Math.cos(a0), y0 = r * Math.sin(a0);
+        const x1 = r * Math.cos(a1), y1 = r * Math.sin(a1);
+        const largeArc = Math.abs(endDeg - startDeg) > 180 ? 1 : 0;
+        return `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+      }
+
+      function resolveSectorFromVector(dx, dy, deadzone = DEADZONE_PX) {
+        const dist = Math.hypot(dx, dy);
+        if (dist < deadzone) return { idx: -1, dist, angleDeg: 0 };
+        const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+        const rel = (((angleDeg + 90 + 22.5) % 360) + 360) % 360;
+        const idx = Math.floor(rel / 45) % 8;
+        return { idx, dist, angleDeg };
+      }
+
+      function clampWheelCenter(originPt, stageW, stageH, outerRadius, isLegacy = false) {
+        if (isLegacy) {
+          // 复现旧代码固定 160 / 150 硬编码钳位（在窄视口或极端边角容易压边/挤占安全区）
+          return {
+            x: Math.max(122, Math.min(stageW - 122, originPt.x)),
+            y: Math.max(118, Math.min(stageH - 118, originPt.y)),
+          };
+        }
+        const safePad = outerRadius + 16;
+        const minX = Math.min(stageW * 0.5, safePad);
+        const maxX = Math.max(stageW * 0.5, stageW - safePad);
+        const minY = Math.min(stageH * 0.5, safePad);
+        const maxY = Math.max(stageH * 0.5, stageH - safePad);
+        return {
+          x: Math.max(minX, Math.min(maxX, originPt.x)),
+          y: Math.max(minY, Math.min(maxY, originPt.y)),
+        };
+      }
+
+      function getAnchorPoint(stageW, stageH, anchorKey) {
+        switch (anchorKey) {
+          case 'tl': return { x: 26, y: 26 };
+          case 'tr': return { x: stageW - 26, y: 26 };
+          case 'bl': return { x: 26, y: stageH - 26 };
+          case 'br': return { x: stageW - 26, y: stageH - 26 };
+          default: return { x: stageW * 0.5, y: stageH * 0.48 };
+        }
+      }
+
+      function toneColor(tone) {
+        if (tone === 'ground') return '#38e5c0';
+        if (tone === 'heli') return '#68c8ff';
+        if (tone === 'plane') return '#b197fc';
+        if (tone === 'danger') return '#ff5266';
+        return '#b6bac5';
+      }
+
+      /* ========================================================================
+         5. 四套轮盘渲染器（0 现状基线 / 1 方案 A / 2 方案 B / 3 方案 C）
+         ======================================================================== */
+      function renderLegacyWheel(container) {
+        const html = [
+          `<div class="legacy-wheel" role="menu" aria-label="现状基线轮盘">`,
+          ...LEGACY_SLOTS.map(s => {
+            const rad = degToRad(s.angleDeg);
+            const wx = Math.round(Math.cos(rad) * 96);
+            const wy = Math.round(Math.sin(rad) * 90);
+            return `<button type="button" class="legacy-slot${s.implemented ? '' : ' is-pending'}" data-legacy-id="${s.id}" style="--wx:${wx}px;--wy:${wy}px">
+              <span>${s.label}</span><small>${s.sub}</small>
+            </button>`;
+          }),
+          `<button type="button" class="legacy-center" data-wheel-cancel="1"><strong>取消</strong><span>死区 / ESC</span></button>`,
+          `</div>`,
+        ].join('');
+        container.innerHTML = html;
+        container.querySelectorAll('.legacy-slot').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const id = btn.dataset.legacyId;
+            const found = LEGACY_SLOTS.find(s => s.id === id);
+            showToast(
+              found?.implemented
+                ? `[现状基线] 单击触发：${found.label}（旧版不支持按住 Space 甩选）`
+                : `[现状基线] ${found?.label} 仅为占位按钮（未接入实装）`,
+              found?.implemented ? 'select' : 'warn'
+            );
+          });
+        });
+      }
+
+      function getCenterReadout(slots, hoveredIdx) {
+        const uMeta = UNIT_META[sim.unit];
+        if (hoveredIdx < 0 || hoveredIdx > 7) {
+          return {
+            eyebrow: uMeta.short,
+            eyebrowColor: uMeta.color,
+            title: sim.interactionKind === 'hold_flick' ? '死区取消' : '战术轮盘',
+            sub: sim.interactionKind === 'hold_flick' ? '松开无动作 · 划向扇区' : '划选或点击 · ESC 关闭',
+            subColor: '#838896',
+            ringColor: 'rgba(255,255,255,0.28)',
+            modeTag: '',
+          };
+        }
+        const s = slots[hoveredIdx];
+        if (!s) {
+          return {
+            eyebrow: `${uMeta.short} · ${COMPASS_LABELS[hoveredIdx]}`,
+            eyebrowColor: '#838896',
+            title: '空置槽位',
+            sub: '当前兵种无对应指令',
+            subColor: '#838896',
+            ringColor: 'rgba(255,255,255,0.16)',
+            modeTag: '空置',
+          };
+        }
+        if (s.status === 'disabled') {
+          return {
+            eyebrow: `${s.key} · 不可用`,
+            eyebrowColor: '#ff5266',
+            title: s.label,
+            sub: s.reason,
+            subColor: '#ff8c9a',
+            ringColor: '#ff5266',
+            modeTag: '禁用',
+          };
+        }
+        if (s.status === 'cooling') {
+          return {
+            eyebrow: `${s.key} · 冷却中`,
+            eyebrowColor: '#ffb800',
+            title: s.label,
+            sub: `剩余 ${s.rem.toFixed(1)}s · 不可触发`,
+            subColor: '#ffb800',
+            ringColor: '#ffb800',
+            modeTag: '冷却',
+          };
+        }
+        if (s.status === 'active') {
+          return {
+            eyebrow: `${s.key} · 已激活`,
+            eyebrowColor: '#3cd69f',
+            title: s.label,
+            sub: sim.interactionKind === 'hold_flick' ? '松开 Space 切换关闭' : '点击切换关闭',
+            subColor: '#3cd69f',
+            ringColor: '#f0d372',
+            modeTag: s.modeTag,
+          };
+        }
+        return {
+          eyebrow: `${s.key} · ${s.modeTag}`,
+          eyebrowColor: '#f0d372',
+          title: s.label,
+          sub: sim.interactionKind === 'hold_flick' ? '松开 Space 执行' : '点击立即执行',
+          subColor: '#f6de86',
+          ringColor: '#f0d372',
+          modeTag: s.modeTag,
+        };
+      }
+
+      /* 方案 A（推荐）：连续八扇区军工仪表盘 */
+      function renderSchemeA(container, slots, hoveredIdx, pointerAngleDeg, hasPointerAngle) {
+        const rIn = 55;
+        const rOut = 134;
+        const gapDeg = 2.0;
+        const uMeta = UNIT_META[sim.unit];
+        const center = getCenterReadout(slots, hoveredIdx);
+
+        const defs = `
+          <defs>
+            <pattern id="hatch-a" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+              <line x1="0" y1="0" x2="0" y2="7" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+            </pattern>
+          </defs>
+        `;
+
+        // 外沿微刻度环（每 15° 一小刻度，45° 扇区界主刻度）
+        let outerTicks = `<circle cx="0" cy="0" r="${rOut + 6}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
+        for (let a = 0; a < 360; a += 15) {
+          const isBoundary = ((a + 22.5) % 45) === 0;
+          const r1 = rOut + 3;
+          const r2 = rOut + (isBoundary ? 9 : 6);
+          const rad = degToRad(a);
+          outerTicks += `<line x1="${(r1 * Math.cos(rad)).toFixed(1)}" y1="${(r1 * Math.sin(rad)).toFixed(1)}" x2="${(r2 * Math.cos(rad)).toFixed(1)}" y2="${(r2 * Math.sin(rad)).toFixed(1)}" stroke="${isBoundary ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.10)'}" stroke-width="${isBoundary ? 1.2 : 1}"/>`;
+        }
+
+        const sectorParts = SECTOR_ANGLES.map((cDeg, i) => {
+          const s = slots[i];
+          const a0 = cDeg - 22.5 + gapDeg / 2;
+          const a1 = cDeg + 22.5 - gapDeg / 2;
+          const isHov = hoveredIdx === i;
+          const pathD = annularSectorPath(rIn, rOut, a0, a1);
+
+          if (!s) {
+            return `
+              <g data-sector-idx="${i}" class="sector-hit is-empty">
+                <path d="${pathD}" fill="rgba(13,14,20,0.52)" stroke="${isHov ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.06)'}" stroke-width="1"/>
+                <path d="${arcStrokePath((rIn + rOut) / 2, cDeg - 7, cDeg + 7)}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" stroke-dasharray="2 3"/>
+              </g>
+            `;
+          }
+
+          const isAct = s.status === 'active';
+          const isCool = s.status === 'cooling';
+          const isDis = s.status === 'disabled';
+          const isDanger = s.tone === 'danger';
+
+          let fill = 'rgba(19, 20, 28, 0.93)';
+          let stroke = 'rgba(255, 255, 255, 0.16)';
+          let strokeW = 1;
+          if (isDis) {
+            fill = 'rgba(14, 15, 22, 0.92)';
+            stroke = 'rgba(255, 82, 102, 0.24)';
+          } else if (isAct) {
+            fill = 'rgba(20, 34, 34, 0.94)';
+            stroke = 'rgba(60, 214, 159, 0.56)';
+          } else if (isDanger) {
+            fill = 'rgba(34, 18, 24, 0.93)';
+            stroke = 'rgba(255, 82, 102, 0.36)';
+          }
+
+          if (isHov) {
+            if (isDis || isCool) {
+              fill = 'rgba(42, 19, 26, 0.96)';
+              stroke = '#ff5266';
+              strokeW = 1.8;
+            } else {
+              fill = 'rgba(46, 41, 24, 0.96)';
+              stroke = '#f0d372';
+              strokeW = 1.8;
+            }
+          }
+
+          // 质心内容定位
+          const midR = 95;
+          const rad = degToRad(cDeg);
+          const mx = midR * Math.cos(rad);
+          const my = midR * Math.sin(rad);
+
+          const iconColor = isDis
+            ? '#606575'
+            : (isHov && !isCool)
+              ? '#f6de86'
+              : isAct
+                ? '#3cd69f'
+                : isDanger
+                  ? '#ff6b7c'
+                  : (s.tone === 'neutral' ? '#d8dce6' : toneColor(s.tone));
+
+          const textColor = isDis ? '#727788' : (isHov && !isCool ? '#f6de86' : '#f5f6f9');
+
+          // 激活状态内弧指示条（与金色悬停严格区分）
+          const activeInnerArc = isAct
+            ? `<path d="${annularSectorPath(rIn + 1.5, rIn + 6.5, a0 + 1.5, a1 - 1.5)}" fill="#3cd69f"/>`
+            : '';
+
+          // 悬停外沿香槟金锁定弧
+          const hoverOuterArc = isHov
+            ? `<path d="${arcStrokePath(rOut + 1.5, a0, a1)}" fill="none" stroke="${(isDis || isCool) ? '#ff5266' : '#f0d372'}" stroke-width="3.2" stroke-linecap="round"/>`
+            : '';
+
+          // 冷却进度扇区遮罩
+          let coolOverlay = '';
+          if (isCool) {
+            const ratio = Math.max(0.04, Math.min(1, s.rem / Math.max(0.1, s.total)));
+            const sweepEnd = a0 + (a1 - a0) * ratio;
+            coolOverlay = `
+              <path d="${annularSectorPath(rIn + 1, rOut - 1, a0, sweepEnd)}" fill="rgba(255, 184, 0, 0.22)"/>
+              <path d="${arcStrokePath(rIn + 4, a0, sweepEnd)}" fill="none" stroke="#ffb800" stroke-width="3"/>
+            `;
+          }
+
+          // 禁用斜纹覆盖
+          const hatchOverlay = isDis ? `<path d="${pathD}" fill="url(#hatch-a)"/>` : '';
+
+          // 键帽与角标位于扇区上/外侧微定位
+          const kbdR = 120;
+          const kx = kbdR * Math.cos(rad);
+          const ky = kbdR * Math.sin(rad);
+          const kbdBg = isHov && !isDis && !isCool ? '#f0d372' : 'rgba(10,11,16,0.92)';
+          const kbdFg = isHov && !isDis && !isCool ? '#0d0e13' : '#b6bac5';
+
+          const subText = isCool
+            ? `${s.rem.toFixed(1)}s`
+            : isDis
+              ? (s.charge === '0' ? '0 发' : '禁用')
+              : (s.charge || '');
+          const subColor = isCool ? '#ffb800' : isDis ? '#ff5266' : (isAct ? '#3cd69f' : '#9aa0b0');
+
+          return `
+            <g data-sector-idx="${i}" class="sector-hit ${isDis ? 'is-disabled' : ''} ${isCool ? 'is-cooling' : ''}">
+              <path d="${pathD}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>
+              ${hatchOverlay}
+              ${coolOverlay}
+              ${activeInnerArc}
+              ${hoverOuterArc}
+              ${iconSvgGroup(s.iconType, s.iconName, mx, my - 11, 18, iconColor)}
+              <text x="${mx.toFixed(1)}" y="${(my + 9).toFixed(1)}" text-anchor="middle" fill="${textColor}" font-size="11" font-weight="800" font-family="var(--ui-font-sans)">${s.label}</text>
+              ${subText ? `<text x="${mx.toFixed(1)}" y="${(my + 21).toFixed(1)}" text-anchor="middle" fill="${subColor}" font-size="9.5" font-weight="800" font-family="var(--ui-font-mono)">${subText}</text>` : ''}
+              <g transform="translate(${kx.toFixed(1)},${ky.toFixed(1)})">
+                <rect x="-9" y="-7.5" width="18" height="15" rx="3" fill="${kbdBg}" stroke="${isHov && !isDis ? '#f0d372' : 'rgba(255,255,255,0.22)'}" stroke-width="1"/>
+                <text x="0" y="3.3" text-anchor="middle" fill="${kbdFg}" font-size="9.5" font-weight="900" font-family="var(--ui-font-mono)">${s.key}</text>
+              </g>
+            </g>
+          `;
+        }).join('');
+
+        // 中心方向指针（跟踪真实指针角）
+        let pointerNeedle = '';
+        if (hasPointerAngle && hoveredIdx >= 0) {
+          const pr = degToRad(pointerAngleDeg);
+          const p1x = (50 * Math.cos(pr)).toFixed(1), p1y = (50 * Math.sin(pr)).toFixed(1);
+          const p2x = (43 * Math.cos(pr - 0.14)).toFixed(1), p2y = (43 * Math.sin(pr - 0.14)).toFixed(1);
+          const p3x = (43 * Math.cos(pr + 0.14)).toFixed(1), p3y = (43 * Math.sin(pr + 0.14)).toFixed(1);
+          pointerNeedle = `<polygon points="${p1x},${p1y} ${p2x},${p2y} ${p3x},${p3y}" fill="${center.ringColor}"/>`;
+        }
+
+        const hubHtml = `
+          <g data-wheel-cancel="1" style="cursor:pointer">
+            <circle cx="0" cy="0" r="49" fill="#12131b" stroke="${center.ringColor}" stroke-width="1.6"/>
+            <circle cx="0" cy="0" r="38" fill="none" stroke="rgba(255,255,255,0.08)" stroke-dasharray="3 3" stroke-width="1"/>
+            ${pointerNeedle}
+            <text x="0" y="-15" text-anchor="middle" fill="${center.eyebrowColor}" font-size="9.5" font-weight="800" font-family="var(--ui-font-mono)">${center.eyebrow}</text>
+            <text x="0" y="4" text-anchor="middle" fill="#f5f6f9" font-size="13" font-weight="800" font-family="var(--ui-font-sans)">${center.title}</text>
+            <text x="0" y="19" text-anchor="middle" fill="${center.subColor}" font-size="9.2" font-weight="700" font-family="var(--ui-font-mono)">${center.sub.slice(0, 14)}</text>
+          </g>
+        `;
+
+        container.innerHTML = `<svg class="wheel-svg" width="296" height="296" viewBox="-148 -148 296 296" role="menu" aria-label="方案 A 连续八扇区轮盘">${defs}${outerTicks}${sectorParts}${hubHtml}</svg>`;
+        bindSectorClickEvents(container, slots);
+      }
+
+      /* 方案 B：悬浮环轨低遮挡胶囊 */
+      function renderSchemeB(container, slots, hoveredIdx, pointerAngleDeg, hasPointerAngle) {
+        const railR = 102;
+        const center = getCenterReadout(slots, hoveredIdx);
+        const hovSlot = hoveredIdx >= 0 ? slots[hoveredIdx] : null;
+        const hovBlocked = hovSlot && (hovSlot.status === 'disabled' || hovSlot.status === 'cooling');
+
+        // 背景环轨 + 45° 选中弧 + 激光指向线
+        let activeRailArc = '';
+        let laserLine = '';
+        if (hoveredIdx >= 0) {
+          const cDeg = SECTOR_ANGLES[hoveredIdx];
+          const strokeCol = hovSlot ? (hovBlocked ? '#ff5266' : '#f0d372') : 'rgba(255,255,255,0.22)';
+          activeRailArc = `<path d="${arcStrokePath(railR, cDeg - 21, cDeg + 21)}" fill="none" stroke="${strokeCol}" stroke-width="4" stroke-linecap="round"/>`;
+          const rad = degToRad(hasPointerAngle ? pointerAngleDeg : cDeg);
+          laserLine = `<line x1="${(46 * Math.cos(rad)).toFixed(1)}" y1="${(46 * Math.sin(rad)).toFixed(1)}" x2="${((railR - 22) * Math.cos(rad)).toFixed(1)}" y2="${((railR - 22) * Math.sin(rad)).toFixed(1)}" stroke="${strokeCol}" stroke-width="1.6" stroke-dasharray="3 2"/>`;
+        }
+
+        let ticks = '';
+        for (let i = 0; i < 8; i++) {
+          const bDeg = SECTOR_ANGLES[i] - 22.5;
+          const rad = degToRad(bDeg);
+          ticks += `<line x1="${(95 * Math.cos(rad)).toFixed(1)}" y1="${(95 * Math.sin(rad)).toFixed(1)}" x2="${(109 * Math.cos(rad)).toFixed(1)}" y2="${(109 * Math.sin(rad)).toFixed(1)}" stroke="rgba(255,255,255,0.20)" stroke-width="1.2"/>`;
+        }
+
+        const railSvg = `
+          <svg class="wheel-svg" width="288" height="288" viewBox="-144 -144 288 288" style="position:absolute;inset:0;pointer-events:none">
+            <circle cx="0" cy="0" r="${railR}" fill="none" stroke="rgba(16,18,26,0.82)" stroke-width="9"/>
+            <circle cx="0" cy="0" r="${railR}" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+            <circle cx="0" cy="0" r="38" fill="none" stroke="rgba(255,255,255,0.10)" stroke-dasharray="3 3" stroke-width="1"/>
+            ${ticks}
+            ${activeRailArc}
+            ${laserLine}
+          </svg>
+        `;
+
+        const podsHtml = SECTOR_ANGLES.map((cDeg, i) => {
+          const s = slots[i];
+          const rad = degToRad(cDeg);
+          const wx = Math.round(Math.cos(rad) * railR);
+          const wy = Math.round(Math.sin(rad) * railR);
+          const isHov = hoveredIdx === i;
+
+          if (!s) {
+            return `<div class="wb-pod is-empty" data-sector-idx="${i}" style="--wx:${wx}px;--wy:${wy}px"></div>`;
+          }
+
+          const cls = [
+            'wb-pod',
+            s.status === 'active' ? 'is-active-cmd' : '',
+            s.status === 'disabled' ? 'is-disabled' : '',
+            s.status === 'cooling' ? 'is-cooling' : '',
+            s.tone === 'danger' ? 'is-danger-cmd' : '',
+            isHov ? 'is-hovered' : '',
+          ].filter(Boolean).join(' ');
+
+          const tag = s.status === 'cooling'
+            ? `${s.rem.toFixed(1)}s`
+            : s.status === 'disabled'
+              ? '禁用'
+              : s.status === 'active'
+                ? '已开'
+                : (s.charge || s.modeTag);
+
+          return `
+            <button type="button" class="${cls}" data-sector-idx="${i}" style="--wx:${wx}px;--wy:${wy}px">
+              <div class="wb-top">
+                <span class="wb-kbd">${s.key}</span>
+                <span class="wb-tag">${tag}</span>
+              </div>
+              <div class="wb-main">
+                <span class="wb-ico">${iconMarkup(s.iconType, s.iconName, 14)}</span>
+                <span class="wb-lbl">${s.label}</span>
+              </div>
+            </button>
+          `;
+        }).join('');
+
+        const centerCls = ['wb-center', hovSlot && !hovBlocked ? 'has-target' : '', hovBlocked ? 'is-blocked' : ''].filter(Boolean).join(' ');
+        const centerHtml = `
+          <button type="button" class="${centerCls}" data-wheel-cancel="1">
+            <span class="wb-center-ch" style="color:${center.eyebrowColor}">${center.eyebrow}</span>
+            <span class="wb-center-title">${center.title}</span>
+            <span class="wb-center-sub" style="color:${center.subColor}">${center.sub.slice(0, 12)}</span>
+          </button>
+        `;
+
+        container.innerHTML = `<div class="wheel-b-root" role="menu" aria-label="方案 B 悬浮环轨轮盘">${railSvg}${podsHtml}${centerHtml}</div>`;
+        bindSectorClickEvents(container, slots);
+      }
+
+      /* 方案 C：双环军用航电罗盘（内环键帽+状态带 / 外环图标+指令名） */
+      function renderSchemeC(container, slots, hoveredIdx, pointerAngleDeg, hasPointerAngle) {
+        const rIn1 = 52, rOut1 = 74;   // 内环：键帽与状态色带
+        const rIn2 = 77, rOut2 = 142;  // 外环：矢量图标与指令名称
+        const gapDeg = 2.0;
+        const center = getCenterReadout(slots, hoveredIdx);
+
+        const defs = `
+          <defs>
+            <pattern id="hatch-c" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+              <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(255,255,255,0.09)" stroke-width="2"/>
+            </pattern>
+          </defs>
+        `;
+
+        // 外沿航电方位刻度与度数标尺
+        let compassMarks = `<circle cx="0" cy="0" r="${rOut2 + 5}" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>`;
+        SECTOR_ANGLES.forEach((cDeg, i) => {
+          const rad = degToRad(cDeg);
+          const lx = (rOut2 + 12) * Math.cos(rad);
+          const ly = (rOut2 + 12) * Math.sin(rad);
+          compassMarks += `<text x="${lx.toFixed(1)}" y="${(ly + 3).toFixed(1)}" text-anchor="middle" fill="${hoveredIdx === i ? '#f0d372' : 'rgba(255,255,255,0.24)'}" font-size="8" font-weight="700" font-family="var(--ui-font-mono)">${COMPASS_LABELS[i]}</text>`;
+        });
+
+        const sectorParts = SECTOR_ANGLES.map((cDeg, i) => {
+          const s = slots[i];
+          const a0 = cDeg - 22.5 + gapDeg / 2;
+          const a1 = cDeg + 22.5 - gapDeg / 2;
+          const isHov = hoveredIdx === i;
+          const innerD = annularSectorPath(rIn1, rOut1, a0, a1);
+          const outerD = annularSectorPath(rIn2, rOut2, a0, a1);
+
+          if (!s) {
+            return `
+              <g data-sector-idx="${i}" class="sector-hit is-empty">
+                <path d="${innerD}" fill="rgba(12,13,19,0.58)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <path d="${outerD}" fill="rgba(12,13,19,0.44)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+              </g>
+            `;
+          }
+
+          const isAct = s.status === 'active';
+          const isCool = s.status === 'cooling';
+          const isDis = s.status === 'disabled';
+          const isDanger = s.tone === 'danger';
+
+          const statusAccent = isDis
+            ? '#ff5266'
+            : isCool
+              ? '#ffb800'
+              : isAct
+                ? '#3cd69f'
+                : isDanger
+                  ? '#ff5266'
+                  : toneColor(s.tone);
+
+          const innerFill = isHov && !isDis && !isCool
+            ? 'rgba(240, 211, 114, 0.24)'
+            : isAct
+              ? 'rgba(60, 214, 159, 0.20)'
+              : 'rgba(15, 16, 24, 0.96)';
+
+          let outerFill = 'rgba(20, 22, 31, 0.94)';
+          let outerStroke = 'rgba(255,255,255,0.16)';
+          if (isDis) {
+            outerFill = 'rgba(14, 15, 22, 0.92)';
+            outerStroke = 'rgba(255,82,102,0.28)';
+          } else if (isAct) {
+            outerFill = 'rgba(19, 32, 32, 0.94)';
+            outerStroke = 'rgba(60, 214, 159, 0.48)';
+          }
+          if (isHov) {
+            outerFill = (isDis || isCool) ? 'rgba(44, 19, 27, 0.96)' : 'rgba(45, 40, 23, 0.96)';
+            outerStroke = (isDis || isCool) ? '#ff5266' : '#f0d372';
+          }
+
+          const rad = degToRad(cDeg);
+          const kR = (rIn1 + rOut1) / 2;
+          const kx = kR * Math.cos(rad);
+          const ky = kR * Math.sin(rad);
+
+          const oR = (rIn2 + rOut2) / 2;
+          const ox = oR * Math.cos(rad);
+          const oy = oR * Math.sin(rad);
+
+          const icoColor = isDis ? '#606575' : (isHov && !isCool ? '#f6de86' : (isAct ? '#3cd69f' : statusAccent));
+          const lblColor = isDis ? '#707585' : (isHov && !isCool ? '#f6de86' : '#f5f6f9');
+
+          // 内环状态色条（冷却时为动态比例弧，常规/激活为满宽状态条）
+          let stateBand = '';
+          if (isCool) {
+            const ratio = Math.max(0.05, Math.min(1, s.rem / Math.max(0.1, s.total)));
+            stateBand = `<path d="${arcStrokePath(rIn1 + 2.5, a0 + 1, a0 + 1 + (a1 - a0 - 2) * ratio)}" fill="none" stroke="#ffb800" stroke-width="3.5"/>`;
+          } else {
+            stateBand = `<path d="${arcStrokePath(rIn1 + 2.5, a0 + 2, a1 - 2)}" fill="none" stroke="${statusAccent}" stroke-width="${isAct ? 3.5 : 2.2}" opacity="${isAct ? 1 : 0.72}"/>`;
+          }
+
+          // 外环悬停物理锁定括弧
+          const lockBracket = isHov
+            ? `<path d="${arcStrokePath(rOut2 + 2.5, a0 - 0.5, a1 + 0.5)}" fill="none" stroke="${(isDis || isCool) ? '#ff5266' : '#f0d372'}" stroke-width="3.4"/>`
+            : '';
+
+          const metaText = isCool
+            ? `${s.rem.toFixed(1)}s`
+            : isDis
+              ? '不可用'
+              : (s.charge || s.modeTag);
+          const metaColor = isCool ? '#ffb800' : isDis ? '#ff5266' : (isAct ? '#3cd69f' : '#8d93a3');
+
+          return `
+            <g data-sector-idx="${i}" class="sector-hit ${isDis ? 'is-disabled' : ''} ${isCool ? 'is-cooling' : ''}">
+              <path d="${innerD}" fill="${innerFill}" stroke="${isHov ? outerStroke : 'rgba(255,255,255,0.14)'}" stroke-width="1"/>
+              ${stateBand}
+              <text x="${kx.toFixed(1)}" y="${(ky + 3.5).toFixed(1)}" text-anchor="middle" fill="${isHov && !isDis ? '#f6de86' : '#f5f6f9'}" font-size="10.5" font-weight="900" font-family="var(--ui-font-mono)">${s.key}</text>
+              <path d="${outerD}" fill="${outerFill}" stroke="${outerStroke}" stroke-width="${isHov ? 1.8 : 1}"/>
+              ${isDis ? `<path d="${outerD}" fill="url(#hatch-c)"/>` : ''}
+              ${lockBracket}
+              ${iconSvgGroup(s.iconType, s.iconName, ox, oy - 12, 19, icoColor)}
+              <text x="${ox.toFixed(1)}" y="${(oy + 8).toFixed(1)}" text-anchor="middle" fill="${lblColor}" font-size="11" font-weight="800" font-family="var(--ui-font-sans)">${s.label}</text>
+              <text x="${ox.toFixed(1)}" y="${(oy + 20).toFixed(1)}" text-anchor="middle" fill="${metaColor}" font-size="9" font-weight="800" font-family="var(--ui-font-mono)">${metaText}</text>
+            </g>
+          `;
+        }).join('');
+
+        let reticleTick = '';
+        if (hasPointerAngle && hoveredIdx >= 0) {
+          const pr = degToRad(pointerAngleDeg);
+          reticleTick = `<line x1="${(41 * Math.cos(pr)).toFixed(1)}" y1="${(41 * Math.sin(pr)).toFixed(1)}" x2="${(49 * Math.cos(pr)).toFixed(1)}" y2="${(49 * Math.sin(pr)).toFixed(1)}" stroke="${center.ringColor}" stroke-width="2.4" stroke-linecap="round"/>`;
+        }
+
+        const hubHtml = `
+          <g data-wheel-cancel="1" style="cursor:pointer">
+            <circle cx="0" cy="0" r="47" fill="#11121a" stroke="${center.ringColor}" stroke-width="1.8"/>
+            <circle cx="0" cy="0" r="39" fill="none" stroke="rgba(255,255,255,0.09)" stroke-dasharray="2 3" stroke-width="1"/>
+            ${reticleTick}
+            <text x="0" y="-17" text-anchor="middle" fill="${center.eyebrowColor}" font-size="9" font-weight="800" font-family="var(--ui-font-mono)">${center.eyebrow}</text>
+            <text x="0" y="2" text-anchor="middle" fill="#f5f6f9" font-size="12.5" font-weight="800" font-family="var(--ui-font-sans)">${center.title}</text>
+            <text x="0" y="17" text-anchor="middle" fill="${center.subColor}" font-size="9" font-weight="700" font-family="var(--ui-font-mono)">${center.sub.slice(0, 14)}</text>
+            <text x="0" y="30" text-anchor="middle" fill="#686d7d" font-size="8" font-family="var(--ui-font-mono)">ESC / 死区取消</text>
+          </g>
+        `;
+
+        container.innerHTML = `<svg class="wheel-svg" width="320" height="320" viewBox="-160 -160 320 320" role="menu" aria-label="方案 C 双环航电罗盘">${defs}${compassMarks}${sectorParts}${hubHtml}</svg>`;
+        bindSectorClickEvents(container, slots);
+      }
+
+      function bindSectorClickEvents(container, slots) {
+        container.querySelectorAll('[data-sector-idx]').forEach(el => {
+          el.addEventListener('click', e => {
+            e.stopPropagation();
+            const idx = Number(el.dataset.sectorIdx);
+            const slot = slots[idx];
+            const ok = executeCommand(slot, sim.interactionKind === 'tap_click' ? '单击模式' : '轮盘点击');
+            if (ok && sim.playMode === 'live') {
+              closeWheel('点击触发完成');
+            }
+          });
+        });
+        container.querySelector('[data-wheel-cancel]')?.addEventListener('click', e => {
+          e.stopPropagation();
+          if (sim.playMode === 'live') {
+            closeWheel('中心死区取消');
+          } else {
+            sim.hoveredSector = -1;
+            showToast('中心死区：释放或点击取消，不触发任何指令', 'select');
+            renderWheelsOnly();
+          }
+        });
+      }
+
+      /* ========================================================================
+         6. 右下角方案 B 命令栏渲染（与轮盘共享同一指令数据源）
+         ======================================================================== */
+      function renderSchemeBDock() {
+        const uMeta = UNIT_META[sim.unit];
+        document.getElementById('dock-scope').textContent = uMeta.scope;
+        const slots = getWheelSlotsForCurrentUnit();
+
+        const byId = id => slots.find(s => s && s.id === id);
+        let cards = [];
+        let utils = [];
+
+        if (sim.unit === 'plane') {
+          cards = [byId('gau8'), byId('sprint'), byId('stop'), byId('evacuate')];
+          utils = [byId('flare'), byId('altitude')];
+        } else if (sim.unit === 'mixed') {
+          cards = [
+            byId('stop'),
+            byId('resetView'),
+            { id: '_empty1', label: '无跨兵种攻击', key: '', iconType: 'hud', iconName: 'attack', status: 'disabled', reason: '混选隐藏' },
+            { id: '_empty2', label: '无跨兵种警戒', key: '', iconType: 'hud', iconName: 'shield', status: 'disabled', reason: '混选隐藏' },
+          ];
+          utils = [byId('focus'), byId('follow')];
+        } else {
+          cards = [byId('attackGround'), byId('guard'), byId('stop'), byId('resetView')];
+          utils = [byId('focus'), byId('follow')];
+        }
+
+        const gridEl = document.getElementById('dock-grid');
+        gridEl.innerHTML = cards.map(c => {
+          if (!c) return '';
+          const cls = [
+            'dock-card',
+            c.status === 'active' ? 'is-active' : '',
+            c.status === 'disabled' ? 'is-disabled' : '',
+            c.status === 'cooling' ? 'is-cooling' : '',
+            c.tone === 'danger' ? 'is-danger' : '',
+          ].filter(Boolean).join(' ');
+          const sub = c.status === 'cooling'
+            ? `冷却 ${c.rem.toFixed(1)}s`
+            : c.status === 'disabled'
+              ? c.reason
+              : (c.charge ? `${c.modeTag} · ${c.charge}` : c.modeTag);
+          const cdPct = c.status === 'cooling' ? Math.max(0, Math.min(100, (c.rem / c.total) * 100)) : 0;
+          return `
+            <button type="button" class="${cls}" data-dock-cmd="${c.id}" ${c.id.startsWith('_') ? 'disabled' : ''}>
+              <span class="dc-ico">${iconMarkup(c.iconType, c.iconName, 17)}</span>
+              <span class="dc-info">
+                <span class="dc-row">
+                  <span class="dc-title">${c.label}</span>
+                  <span class="dc-kbd">${c.key}</span>
+                </span>
+                <span class="dc-sub">${sub}</span>
+              </span>
+              ${cdPct > 0 ? `<span class="dc-cd-bar" style="width:${cdPct.toFixed(1)}%"></span>` : ''}
+            </button>
+          `;
+        }).join('');
+
+        const utilsEl = document.getElementById('dock-utils');
+        utilsEl.innerHTML = utils.filter(Boolean).map(b => {
+          const cls = ['dock-util-btn', b.status === 'active' ? 'is-active' : ''].filter(Boolean).join(' ');
+          const extra = b.status === 'cooling' ? ` ${b.rem.toFixed(1)}s` : (b.charge && sim.unit === 'plane' && b.id === 'flare' ? ` ×${b.charge}` : '');
+          return `
+            <button type="button" class="${cls}" data-dock-cmd="${b.id}">
+              <span class="du-left">${iconMarkup(b.iconType, b.iconName, 13)}<span>${b.label}${extra}</span></span>
+              <span class="dc-kbd">${b.key}</span>
+            </button>
+          `;
+        }).join('');
+
+        document.querySelectorAll('[data-dock-cmd]').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const id = btn.dataset.dockCmd;
+            const slot = slots.find(s => s && s.id === id);
+            if (slot) executeCommand(slot, '右下命令栏');
+          });
+        });
+      }
+
+      /* ========================================================================
+         7. 射线与边角内推可视化 + 轮盘更新
+         ======================================================================== */
+      function drawRayOverlay(svgEl, originPt, visualCenter, pointerPt, hoveredIdx, slots, isLiveFlick) {
+        if (!sim.wheelOpen) {
+          svgEl.innerHTML = '';
+          return;
+        }
+        const parts = [];
+        const offsetDist = Math.hypot(visualCenter.x - originPt.x, visualCenter.y - originPt.y);
+
+        // 若因屏幕边角发生自动内推，显示「按键原点 → 内推视觉中心」虚线与十字，直观证明静止零误触
+        if (offsetDist > 2) {
+          parts.push(`
+            <line x1="${originPt.x.toFixed(1)}" y1="${originPt.y.toFixed(1)}" x2="${visualCenter.x.toFixed(1)}" y2="${visualCenter.y.toFixed(1)}"
+                  stroke="rgba(56, 229, 192, 0.58)" stroke-width="1.2" stroke-dasharray="4 3"/>
+            <g transform="translate(${originPt.x.toFixed(1)},${originPt.y.toFixed(1)})">
+              <circle cx="0" cy="0" r="4" fill="none" stroke="#38e5c0" stroke-width="1.5"/>
+              <line x1="-8" y1="0" x2="8" y2="0" stroke="#38e5c0" stroke-width="1.2"/>
+              <line x1="0" y1="-8" x2="0" y2="8" stroke="#38e5c0" stroke-width="1.2"/>
+              <text x="9" y="-6" fill="#9bf5e0" font-size="10" font-weight="800" font-family="var(--ui-font-mono)">按键原点(防误触)</text>
+            </g>
+          `);
+        }
+
+        // 甩选方向射线（超过死区时画出无限外延方向提示线）
+        const refCenter = isLiveFlick ? originPt : visualCenter;
+        const dx = pointerPt.x - refCenter.x;
+        const dy = pointerPt.y - refCenter.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist >= DEADZONE_PX && hoveredIdx >= 0) {
+          const s = slots[hoveredIdx];
+          const rayCol = !s
+            ? 'rgba(255,255,255,0.22)'
+            : (s.status === 'disabled' || s.status === 'cooling')
+              ? 'rgba(255, 82, 102, 0.72)'
+              : 'rgba(240, 211, 114, 0.75)';
+          parts.push(`
+            <line x1="${refCenter.x.toFixed(1)}" y1="${refCenter.y.toFixed(1)}" x2="${pointerPt.x.toFixed(1)}" y2="${pointerPt.y.toFixed(1)}"
+                  stroke="${rayCol}" stroke-width="1.5" stroke-dasharray="5 4"/>
+            <circle cx="${pointerPt.x.toFixed(1)}" cy="${pointerPt.y.toFixed(1)}" r="3.5" fill="${rayCol}"/>
+          `);
+        }
+        svgEl.innerHTML = parts.join('');
+      }
+
+      function renderWheelsOnly() {
+        const slots = getWheelSlotsForCurrentUnit();
+        const paneMain = document.getElementById('pane-main');
+        const mainRect = paneMain.getBoundingClientRect();
+        const mw = mainRect.width || 960;
+        const mh = mainRect.height || 540;
+
+        const schemeMeta = SCHEMES[sim.scheme];
+        if (sim.playMode === 'pinned' && sim.interactionKind === 'pinned') {
+          sim.originPt = getAnchorPoint(mw, mh, sim.anchor);
+        }
+        sim.visualCenter = clampWheelCenter(sim.originPt, mw, mh, schemeMeta.outerRadius, sim.scheme === 0);
+
+        const anchorMain = document.getElementById('anchor-main');
+        anchorMain.classList.toggle('is-hidden', !sim.wheelOpen);
+        anchorMain.style.left = `${sim.visualCenter.x}px`;
+        anchorMain.style.top = `${sim.visualCenter.y}px`;
+
+        const refPt = sim.interactionKind === 'hold_flick' ? sim.originPt : sim.visualCenter;
+        const vecDx = sim.pointerPt.x - refPt.x;
+        const vecDy = sim.pointerPt.y - refPt.y;
+        const hasAngle = Math.hypot(vecDx, vecDy) >= DEADZONE_PX;
+        const ptrAngle = (Math.atan2(vecDy, vecDx) * 180) / Math.PI;
+
+        if (sim.wheelOpen) {
+          if (sim.scheme === 0) renderLegacyWheel(anchorMain);
+          else if (sim.scheme === 1) renderSchemeA(anchorMain, slots, sim.hoveredSector, ptrAngle, hasAngle);
+          else if (sim.scheme === 2) renderSchemeB(anchorMain, slots, sim.hoveredSector, ptrAngle, hasAngle);
+          else renderSchemeC(anchorMain, slots, sim.hoveredSector, ptrAngle, hasAngle);
+        }
+
+        drawRayOverlay(
+          document.getElementById('ray-main'),
+          sim.originPt,
+          sim.visualCenter,
+          sim.pointerPt,
+          sim.hoveredSector,
+          slots,
+          sim.interactionKind === 'hold_flick'
+        );
+
+        // 左右对比模式下同步渲染左侧现状基线
+        if (sim.split) {
+          const paneLeft = document.getElementById('pane-left');
+          const lr = paneLeft.getBoundingClientRect();
+          const lw = lr.width || 480;
+          const lh = lr.height || 540;
+          const lOrigin = sim.playMode === 'pinned'
+            ? getAnchorPoint(lw, lh, sim.anchor)
+            : { x: (sim.originPt.x / Math.max(1, mw)) * lw, y: (sim.originPt.y / Math.max(1, mh)) * lh };
+          const lCenter = clampWheelCenter(lOrigin, lw, lh, SCHEMES[0].outerRadius, true);
+          const anchorLeft = document.getElementById('anchor-left');
+          anchorLeft.classList.toggle('is-hidden', !sim.wheelOpen);
+          anchorLeft.style.left = `${lCenter.x}px`;
+          anchorLeft.style.top = `${lCenter.y}px`;
+          if (sim.wheelOpen) renderLegacyWheel(anchorLeft);
+          document.getElementById('ray-left').innerHTML = '';
+        }
+
+        updateTelemetry();
+      }
+
+      /* ========================================================================
+         8. 680p 复古微缩模拟战场画布渲染（Airbase 跑道 + 三域载具 + 尸群红点）
+         ======================================================================== */
+      function drawBattlefield(canvas, nowMs) {
+        if (!canvas || canvas.offsetParent === null) return;
+        const rect = canvas.getBoundingClientRect();
+        const w = Math.max(1, Math.round(rect.width));
+        const h = Math.max(1, Math.round(rect.height));
+        // 按 680p 微缩分辨率思路：垂直高度最多 680px，保持像素微缩质感
+        const scale = Math.min(1, 680 / Math.max(1, h));
+        const cw = Math.max(1, Math.round(w * scale));
+        const ch = Math.max(1, Math.round(h * scale));
+        if (canvas.width !== cw || canvas.height !== ch) {
+          canvas.width = cw;
+          canvas.height = ch;
+        }
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+
+        // 1) Airbase 荒原草土基底
+        const bgGrad = ctx.createLinearGradient(0, 0, cw, ch);
+        bgGrad.addColorStop(0, '#2a3028');
+        bgGrad.addColorStop(0.55, '#252a25');
+        bgGrad.addColorStop(1, '#1c2120');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, cw, ch);
+
+        // 微弱战术网格与地形等高弧
+        ctx.strokeStyle = 'rgba(255,255,255,0.035)';
+        ctx.lineWidth = 1;
+        const gridStep = 48;
+        for (let x = 0; x < cw; x += gridStep) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, ch); ctx.stroke();
+        }
+        for (let y = 0; y < ch; y += gridStep) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cw, y); ctx.stroke();
+        }
+
+        // 2) Airbase 主跑道与滑行道（斜向透视构图）
+        ctx.save();
+        ctx.translate(cw * 0.48, ch * 0.52);
+        ctx.rotate(-0.24);
+        ctx.fillStyle = '#33383c';
+        ctx.fillRect(-cw * 0.7, -42, cw * 1.4, 84);
+        ctx.fillStyle = '#2b3034';
+        ctx.fillRect(-cw * 0.7, -46, cw * 1.4, 4);
+        ctx.fillRect(-cw * 0.7, 42, cw * 1.4, 4);
+
+        // 跑道中心标线
+        ctx.strokeStyle = 'rgba(235, 224, 196, 0.42)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([18, 14]);
+        ctx.beginPath();
+        ctx.moveTo(-cw * 0.65, 0);
+        ctx.lineTo(cw * 0.65, 0);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 停机坪与机库简模阴影
+        ctx.fillStyle = '#2b2f35';
+        ctx.fillRect(-165, -125, 130, 72);
+        ctx.fillRect(45, -135, 150, 82);
+        ctx.fillStyle = '#3e4248';
+        ctx.fillRect(-150, -116, 44, 28);
+        ctx.fillRect(-94, -116, 44, 28);
+        ctx.fillRect(62, -122, 58, 34);
+        ctx.fillStyle = 'rgba(0,0,0,0.34)';
+        ctx.fillRect(-146, -88, 44, 7);
+        ctx.fillRect(-90, -88, 44, 7);
+        ctx.fillRect(66, -88, 58, 8);
+        ctx.restore();
+
+        // 3) 三域友军单位实时示意
+        const t = nowMs * 0.001;
+        const m1 = { x: cw * 0.34, y: ch * 0.57, col: '#38e5c0', sel: sim.unit === 'ground' || sim.unit === 'mixed' };
+        const ah = { x: cw * 0.28 + Math.sin(t * 0.9) * 8, y: ch * 0.39 + Math.cos(t * 1.1) * 5, col: '#68c8ff', sel: sim.unit === 'heli' || sim.unit === 'mixed' };
+        const orbitCx = cw * 0.66, orbitCy = ch * 0.42, orbitR = Math.min(cw, ch) * 0.21;
+        const a10Ang = t * 0.52;
+        const a10 = {
+          x: orbitCx + Math.cos(a10Ang) * orbitR,
+          y: orbitCy + Math.sin(a10Ang) * orbitR * 0.72,
+          col: '#b197fc',
+          sel: sim.unit === 'plane' || sim.unit === 'mixed',
+        };
+
+        // 固定翼贴地主范围圈（遵循 V2.2 紫色淡填充与双层描边）
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(orbitCx, orbitCy, orbitR, orbitR * 0.72, 0, 0, Math.PI * 2);
+        ctx.fillStyle = a10.sel ? 'rgba(177, 151, 252, 0.11)' : 'rgba(177, 151, 252, 0.04)';
+        ctx.fill();
+        ctx.strokeStyle = a10.sel ? 'rgba(177, 151, 252, 0.56)' : 'rgba(177, 151, 252, 0.24)';
+        ctx.lineWidth = a10.sel ? 1.6 : 1;
+        ctx.setLineDash([6, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // 若警戒守备开启，为选中地面/旋翼绘制射程圈
+        if (sim.guardOn && (sim.unit === 'ground' || sim.unit === 'heli')) {
+          const uPt = sim.unit === 'heli' ? ah : m1;
+          ctx.beginPath();
+          ctx.arc(uPt.x, uPt.y, 76, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(60, 214, 159, 0.55)';
+          ctx.fillStyle = 'rgba(60, 214, 159, 0.07)';
+          ctx.lineWidth = 1.4;
+          ctx.setLineDash([5, 4]);
+          ctx.fill();
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // 绘制单位底盘环与机体块
+        const drawUnit = (pt, tag) => {
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.sel ? 13 : 10, 0, Math.PI * 2);
+          ctx.strokeStyle = pt.sel ? '#f0d372' : pt.col;
+          ctx.lineWidth = pt.sel ? 2 : 1.3;
+          ctx.stroke();
+          ctx.fillStyle = pt.col;
+          ctx.fillRect(pt.x - 5, pt.y - 3, 10, 6);
+          ctx.fillStyle = 'rgba(13,14,19,0.82)';
+          ctx.fillRect(pt.x - 24, pt.y + 13, 48, 13);
+          ctx.fillStyle = pt.sel ? '#f0d372' : '#d6dae4';
+          ctx.font = '700 9px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(tag, pt.x, pt.y + 22);
+        };
+        drawUnit(m1, 'M1A2');
+        drawUnit(ah, 'AH-64D');
+        drawUnit(a10, 'A-10C');
+
+        // 4) 远端尸群红区集群（模拟压迫感背景）
+        const hordeX = cw * 0.78;
+        const hordeY = ch * 0.66;
+        ctx.fillStyle = 'rgba(255, 82, 102, 0.12)';
+        ctx.beginPath();
+        ctx.arc(hordeX, hordeY, 44, 0, Math.PI * 2);
+        ctx.fill();
+        for (let k = 0; k < 24; k++) {
+          const ang = k * 2.399 + t * 0.15;
+          const r = 6 + (k % 7) * 5;
+          const zx = hordeX + Math.cos(ang) * r;
+          const zy = hordeY + Math.sin(ang) * r * 0.78;
+          ctx.fillStyle = k % 4 === 0 ? '#ff5266' : 'rgba(255, 112, 128, 0.76)';
+          ctx.fillRect(zx - 1.5, zy - 1.5, 3, 3);
+        }
+
+        // 5) 执行指令后的瞬时视觉脉冲（热诱弹 / 警戒 / 停航）
+        sim.fxPulses = sim.fxPulses.filter(p => nowMs - p.t0 < p.dur);
+        for (const fx of sim.fxPulses) {
+          const prog = (nowMs - fx.t0) / fx.dur;
+          const alpha = 1 - prog;
+          if (fx.kind === 'flare') {
+            for (let f = 0; f < 6; f++) {
+              const fa = a10Ang + Math.PI + (f - 2.5) * 0.24;
+              const fd = 12 + prog * 54 + f * 3;
+              const fxX = a10.x + Math.cos(fa) * fd;
+              const fxY = a10.y + Math.sin(fa) * fd;
+              ctx.fillStyle = `rgba(255, 226, 128, ${alpha.toFixed(2)})`;
+              ctx.beginPath();
+              ctx.arc(fxX, fxY, 2.5 * (1 - prog * 0.5), 0, Math.PI * 2);
+              ctx.fill();
+            }
+          } else {
+            const targetPt = sim.unit === 'plane' ? a10 : (sim.unit === 'heli' ? ah : m1);
+            ctx.beginPath();
+            ctx.arc(targetPt.x, targetPt.y, 14 + prog * 58, 0, Math.PI * 2);
+            ctx.strokeStyle = fx.color;
+            ctx.globalAlpha = alpha * 0.85;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+        }
+
+        ctx.restore();
+      }
+
+      /* ========================================================================
+         9. UI 同步、状态机与事件绑定
+         ======================================================================== */
+      function showToast(msg, tone = 'select') {
+        const el = document.getElementById('mode-toast');
+        el.dataset.tone = tone;
+        document.getElementById('mode-toast-text').textContent = msg;
+      }
+
+      function updateTelemetry() {
+        const modeMap = {
+          pinned: '审阅常驻',
+          hold_flick: '按住 Space 甩选中',
+          tap_click: '轻按 Space 单击模式',
+          closed: '待命（按住 Space 呼出）',
+        };
+        document.getElementById('tel-mode').textContent = sim.wheelOpen ? (modeMap[sim.interactionKind] || '展开') : modeMap.closed;
+        const slots = getWheelSlotsForCurrentUnit();
+        if (!sim.wheelOpen) {
+          document.getElementById('tel-sector').textContent = '未呼出';
+        } else if (sim.hoveredSector < 0) {
+          document.getElementById('tel-sector').textContent = '中心死区（取消）';
+        } else {
+          const s = slots[sim.hoveredSector];
+          document.getElementById('tel-sector').textContent = s
+            ? `${COMPASS_LABELS[sim.hoveredSector]} → ${s.label} [${s.key}]`
+            : `${COMPASS_LABELS[sim.hoveredSector]} → 空置槽位`;
+        }
+        document.getElementById('tel-last').textContent = sim.lastActionText;
+      }
+
+      function syncChromeUi() {
+        // 方案按钮与文案
+        document.querySelectorAll('#scheme-seg button').forEach(b => {
+          b.classList.toggle('active', Number(b.dataset.scheme) === sim.scheme);
+        });
+        const meta = SCHEMES[sim.scheme];
+        document.getElementById('main-tag-title').textContent = meta.title;
+        document.getElementById('main-tag-sub').textContent = meta.sub;
+        document.getElementById('main-pane-tag').classList.toggle('is-baseline', sim.scheme === 0);
+        document.getElementById('main-pane-tag').classList.toggle('is-candidate', sim.scheme !== 0);
+        document.getElementById('spec-title').textContent = meta.title;
+        document.getElementById('spec-size').textContent = meta.sizeText;
+        document.getElementById('spec-occlusion').textContent = meta.occText;
+        document.getElementById('spec-readability').textContent = meta.readText;
+        document.getElementById('spec-desc').textContent = meta.desc;
+
+        // 对比与画幅
+        const frame = document.getElementById('stage-frame');
+        frame.classList.toggle('is-split', sim.split);
+        frame.classList.toggle('ratio-16-9', sim.ratio === '16:9');
+        frame.classList.toggle('ratio-21-9', sim.ratio === '21:9');
+        document.getElementById('pane-left').hidden = !sim.split;
+        document.getElementById('btn-split').classList.toggle('active', sim.split);
+        document.querySelectorAll('#ratio-seg button').forEach(b => {
+          b.classList.toggle('active', b.dataset.ratio === sim.ratio);
+        });
+
+        // 兵种 / 工况 / 锚点 / 模式
+        document.querySelectorAll('#unit-seg button').forEach(b => b.classList.toggle('active', b.dataset.unit === sim.unit));
+        document.querySelectorAll('#state-seg button').forEach(b => b.classList.toggle('active', b.dataset.state === sim.scenario));
+        document.querySelectorAll('#anchor-seg button').forEach(b => b.classList.toggle('active', b.dataset.anchor === sim.anchor));
+        document.querySelectorAll('#playmode-seg button').forEach(b => b.classList.toggle('active', b.dataset.playmode === sim.playMode));
+        document.getElementById('btn-safe').classList.toggle('active', sim.showSafe);
+        document.getElementById('safe-main').classList.toggle('is-visible', sim.showSafe);
+        document.getElementById('safe-left').classList.toggle('is-visible', sim.showSafe);
+      }
+
+      function renderAll() {
+        syncChromeUi();
+        renderSchemeBDock();
+        renderWheelsOnly();
+      }
+
+      function closeWheel(reasonText = '') {
+        sim.wheelOpen = false;
+        sim.spaceDown = false;
+        sim.spacePassedDeadzone = false;
+        sim.hoveredSector = -1;
+        sim.interactionKind = 'closed';
+        if (reasonText) showToast(`轮盘已关闭：${reasonText}`, 'select');
+        renderWheelsOnly();
+      }
+
+      function openLiveWheelAtPointer() {
+        const pane = document.getElementById('pane-main');
+        const rect = pane.getBoundingClientRect();
+        const px = Number.isFinite(sim.pointerPt.x) && sim.pointerPt.x > 0 ? sim.pointerPt.x : rect.width * 0.5;
+        const py = Number.isFinite(sim.pointerPt.y) && sim.pointerPt.y > 0 ? sim.pointerPt.y : rect.height * 0.48;
+        sim.originPt = { x: px, y: py };
+        sim.wheelOpen = true;
+        sim.interactionKind = 'hold_flick';
+        sim.spaceDown = true;
+        sim.spacePassedDeadzone = false;
+        sim.hoveredSector = -1;
+        showToast('按住 Space 甩选：鼠标划出中心死区并松开即执行（不移动轻按则转为单击模式）', 'select');
+        renderWheelsOnly();
+      }
+
+      // 绑定控件按钮
+      document.querySelectorAll('#scheme-seg button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sim.scheme = Number(btn.dataset.scheme);
+          renderAll();
+        });
+      });
+
+      document.getElementById('btn-split').addEventListener('click', () => {
+        sim.split = !sim.split;
+        if (sim.split && sim.scheme === 0) sim.scheme = 1;
+        renderAll();
+      });
+
+      document.querySelectorAll('#ratio-seg button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sim.ratio = btn.dataset.ratio;
+          renderAll();
+        });
+      });
+
+      document.querySelectorAll('#unit-seg button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sim.unit = btn.dataset.unit;
+          applyScenarioPreset(sim.scenario);
+        });
+      });
+
+      document.querySelectorAll('#state-seg button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          applyScenarioPreset(btn.dataset.state);
+        });
+      });
+
+      document.querySelectorAll('#anchor-seg button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sim.anchor = btn.dataset.anchor;
+          sim.playMode = 'pinned';
+          sim.interactionKind = 'pinned';
+          sim.wheelOpen = true;
+          sim.hoveredSector = -1;
+          renderAll();
+          showToast(`已切换边角测试锚点：${btn.textContent}（注意边缘自动内推与按键原点防误触偏移线）`, 'ground');
+        });
+      });
+
+      document.getElementById('btn-safe').addEventListener('click', () => {
+        sim.showSafe = !sim.showSafe;
+        syncChromeUi();
+      });
+
+      document.querySelectorAll('#playmode-seg button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sim.playMode = btn.dataset.playmode;
+          if (sim.playMode === 'pinned') {
+            sim.wheelOpen = true;
+            sim.interactionKind = 'pinned';
+            sim.hoveredSector = -1;
+            showToast('审阅常驻模式：移动鼠标即可预览各扇区与中心盘实时反馈', 'select');
+          } else {
+            sim.wheelOpen = false;
+            sim.interactionKind = 'closed';
+            sim.hoveredSector = -1;
+            showToast('实战测试模式：在战场任意位置按住 Space 甩选，或轻按 Space 进入单击模式', 'select');
+          }
+          renderAll();
+        });
+      });
+
+      // 视口指针追踪（实时计算无限外延 45° 扇区）
+      const stageMain = document.getElementById('wheel-stage-main');
+      stageMain.addEventListener('pointermove', e => {
+        const rect = document.getElementById('pane-main').getBoundingClientRect();
+        sim.pointerPt = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        if (!sim.wheelOpen || sim.scheme === 0) return;
+
+        const refCenter = sim.interactionKind === 'hold_flick' ? sim.originPt : sim.visualCenter;
+        const hit = resolveSectorFromVector(
+          sim.pointerPt.x - refCenter.x,
+          sim.pointerPt.y - refCenter.y,
+          sim.scheme === 3 ? 40 : DEADZONE_PX
+        );
+        if (sim.interactionKind === 'hold_flick' && hit.idx >= 0) {
+          sim.spacePassedDeadzone = true;
+        }
+        sim.hoveredSector = hit.idx;
+        renderWheelsOnly();
+      });
+
+      stageMain.addEventListener('pointerdown', e => {
+        if (e.target === stageMain && sim.playMode === 'live' && sim.wheelOpen && sim.interactionKind === 'tap_click') {
+          closeWheel('点击外部空白取消');
+        }
+      });
+
+      // 全局键盘监听（Space Q12-A 甩选+单击兼容 / Esc 取消 / 0-3 切方案 / C 对比）
+      window.addEventListener('keydown', e => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          if (e.repeat) return; // 严格忽略按键连发重复
+
+          // 若当前处于审阅常驻模式，按 Space 自动切入实战测试体验！
+          if (sim.playMode === 'pinned') {
+            sim.playMode = 'live';
+            syncChromeUi();
+            openLiveWheelAtPointer();
+            return;
+          }
+
+          if (sim.wheelOpen && sim.interactionKind === 'tap_click') {
+            closeWheel('再次按下 Space 关闭');
+            return;
+          }
+          if (!sim.wheelOpen) {
+            openLiveWheelAtPointer();
+          }
+          return;
+        }
+
+        if (e.code === 'Escape') {
+          if (sim.playMode === 'live' && sim.wheelOpen) {
+            e.preventDefault();
+            closeWheel('Esc 取消');
+          } else if (sim.targetingCmd) {
+            sim.targetingCmd = null;
+            showToast('Esc：已退出当前瞄准模式', 'select');
+            renderAll();
+          }
+          return;
+        }
+
+        if (e.repeat) return;
+        const k = e.key.toLowerCase();
+        if (k === '0' || k === '1' || k === '2' || k === '3') {
+          sim.scheme = Number(k);
+          renderAll();
+        } else if (k === 'c') {
+          sim.split = !sim.split;
+          if (sim.split && sim.scheme === 0) sim.scheme = 1;
+          renderAll();
+        }
+      });
+
+      window.addEventListener('keyup', e => {
+        if (e.code !== 'Space' || !sim.spaceDown) return;
+        e.preventDefault();
+        sim.spaceDown = false;
+
+        if (!sim.wheelOpen || sim.interactionKind !== 'hold_flick') return;
+
+        // 松开时重新校验最终扇区
+        const slots = getWheelSlotsForCurrentUnit();
+        if (sim.hoveredSector >= 0) {
+          const targetSlot = slots[sim.hoveredSector];
+          executeCommand(targetSlot, 'Space 甩选');
+          closeWheel();
+        } else if (sim.spacePassedDeadzone) {
+          // 甩出后又回到中心死区：明确取消关闭
+          closeWheel('甩回中心死区取消');
+        } else {
+          // 轻按 Space 且未离开死区：保留展开进入单击模式
+          sim.interactionKind = 'tap_click';
+          showToast('轻按 Space → 已保留单击模式（点击任意槽位执行，再按 Space 或 Esc 关闭）', 'safe');
+          renderWheelsOnly();
+        }
+      });
+
+      window.addEventListener('blur', () => {
+        if (sim.playMode === 'live' && sim.wheelOpen) {
+          closeWheel('窗口失焦自动安全取消');
+        }
+      });
+
+      window.addEventListener('resize', () => renderWheelsOnly());
+
+      /* ========================================================================
+         10. 主循环：驱动 680p 背景画布动画 + 实时冷却倒计时（时间戳差值，不用 sleep）
+         ======================================================================== */
+      let lastTs = performance.now();
+      let lastCdUiTs = 0;
+
+      function tick(nowMs) {
+        const dtSec = Math.min(0.1, Math.max(0, (nowMs - lastTs) / 1000));
+        lastTs = nowMs;
+
+        let anyCooling = false;
+        for (const key of Object.keys(sim.cooldowns)) {
+          const cd = sim.cooldowns[key];
+          if (cd.rem > 0) {
+            cd.rem = Math.max(0, cd.rem - dtSec);
+            anyCooling = true;
+          }
+        }
+
+        drawBattlefield(document.getElementById('canvas-main'), nowMs);
+        if (sim.split) {
+          drawBattlefield(document.getElementById('canvas-left'), nowMs);
+        }
+
+        if (anyCooling && nowMs - lastCdUiTs > 80) {
+          lastCdUiTs = nowMs;
+          renderSchemeBDock();
+          renderWheelsOnly();
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      // 初始化
+      renderAll();
+      requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,3120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scavenger · 载具卡片与详情参数跨页重构对比预览 V001</title>
+  <style>
+    /* ==========================================================================
+       Code SSOT V2.2 同源设计令牌（离线自包含，零外部依赖）
+       配色：A3 烟炭双金融合 | 按钮：B2 微描边精工 | 倒角：C4 外柔内锐
+       硬红线：常驻战斗 HUD 零 backdrop-filter、零 transform: scale()
+       ========================================================================== */
+    :root {
+      color-scheme: dark;
+      --slate-950: #0a0b10;
+      --slate-900: #0d0e13;
+      --slate-850: #13141c;
+      --slate-800: #1b1c24;
+      --slate-750: #232530;
+      --slate-700: #2e303e;
+      --slate-400: #838896;
+      --slate-200: #b6bac5;
+      --slate-50: #f5f6f9;
+
+      --ui-bg-canvas: #0d0e13;
+      --ui-bg-pod: rgba(19, 20, 28, 0.92);
+      --ui-bg-pod-elevated: #14151e;
+      --ui-bg-slot: rgba(35, 37, 48, 0.88);
+      --ui-bg-hover: rgba(255, 255, 255, 0.085);
+
+      --ui-line-subtle: rgba(255, 255, 255, 0.09);
+      --ui-line-base: rgba(255, 255, 255, 0.19);
+      --ui-line-strong: rgba(255, 255, 255, 0.34);
+      --ui-line-accent: rgba(240, 211, 114, 0.52);
+
+      --ui-text-primary: #f5f6f9;
+      --ui-text-secondary: #b6bac5;
+      --ui-text-muted: #838896;
+      --ui-text-inverse: #0d0e13;
+
+      --ui-accent-grad: linear-gradient(135deg, #f6de86 0%, #e5b73e 100%);
+      --ui-rim-top: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+      --ui-shadow-pod: 0 14px 36px rgba(4, 5, 10, 0.56), 0 4px 12px rgba(0, 0, 0, 0.34);
+
+      /* Tier 3 七维零撞色语义通道 */
+      --ui-ch-ground: #38e5c0;
+      --ui-ch-ground-inner: #9bf5e0;
+      --ui-ch-ground-fill: rgba(56, 229, 192, 0.15);
+
+      --ui-ch-heli: #68c8ff;
+      --ui-ch-heli-inner: #bae4ff;
+      --ui-ch-heli-fill: rgba(104, 200, 255, 0.15);
+
+      --ui-ch-plane: #b197fc;
+      --ui-ch-plane-inner: #dcd0ff;
+      --ui-ch-plane-fill: rgba(177, 151, 252, 0.15);
+
+      --ui-state-select: #f0d372;
+      --ui-state-select-inner: #f6de86;
+      --ui-state-select-fill: rgba(240, 211, 114, 0.16);
+
+      --ui-state-warn: #ffb800;
+      --ui-state-warn-fill: rgba(255, 184, 0, 0.16);
+
+      --ui-state-danger: #ff5266;
+      --ui-state-danger-fill: rgba(255, 82, 102, 0.18);
+
+      --ui-state-safe: #3cd69f;
+      --ui-state-safe-fill: rgba(60, 214, 159, 0.15);
+
+      --ui-font-display: "Bahnschrift Condensed", "DIN Condensed", "Impact", "HarmonyOS Sans SC", "Microsoft YaHei UI", sans-serif;
+      --ui-font-sans: "Bahnschrift", "DIN Alternate", "HarmonyOS Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+      --ui-font-mono: "Cascadia Mono", "Consolas", "JetBrains Mono", "Microsoft YaHei UI", monospace;
+
+      --ui-fs-2xs: 10px;
+      --ui-fs-xs: 11px;
+      --ui-fs-sm: 12px;
+      --ui-fs-md: 13.5px;
+      --ui-fs-lg: 16px;
+
+      --ui-r-surface: 12px;
+      --ui-r-control: 5px;
+      --ui-r-sm: 4px;
+      --ui-r-pill: 9999px;
+
+      --ui-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ui-dur-micro: 100ms;
+      --ui-dur-standard: 200ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(960px 420px at 82% -8%, rgba(240, 211, 114, 0.08), transparent 60%),
+        radial-gradient(780px 380px at 14% 22%, rgba(56, 229, 192, 0.05), transparent 60%),
+        #090a0f;
+      color: var(--ui-text-primary);
+      font-family: var(--ui-font-sans);
+      font-size: var(--ui-fs-sm);
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input { font-family: inherit; color: inherit; }
+
+    .mono { font-family: var(--ui-font-mono); font-variant-numeric: tabular-nums; }
+
+    /* ====== 顶部评审总控条 ====== */
+    .review-shell {
+      max-width: 1640px;
+      margin: 0 auto;
+      padding: 12px 16px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ctrl-bar {
+      background: var(--ui-bg-pod-elevated);
+      border: 1px solid var(--ui-line-base);
+      border-radius: var(--ui-r-surface);
+      box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .ctrl-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 12px;
+    }
+
+    .ctrl-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ctrl-brand-badge {
+      padding: 2px 8px;
+      border-radius: var(--ui-r-sm);
+      background: var(--ui-state-select-fill);
+      border: 1px solid var(--ui-line-accent);
+      color: var(--ui-state-select);
+      font-family: var(--ui-font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .ctrl-brand h1 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .ctrl-brand small {
+      color: var(--ui-text-muted);
+      font-size: 11px;
+    }
+
+    .ctrl-groups {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+    }
+
+    .ctrl-grp {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 7px;
+      background: rgba(10, 11, 16, 0.72);
+      border: 1px solid var(--ui-line-subtle);
+    }
+
+    .ctrl-lbl {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--ui-text-muted);
+      padding: 0 6px 0 4px;
+      white-space: nowrap;
+    }
+
+    .c-btn {
+      border: 1px solid transparent;
+      border-radius: var(--ui-r-control);
+      background: transparent;
+      color: var(--ui-text-secondary);
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background var(--ui-dur-micro), border-color var(--ui-dur-micro), color var(--ui-dur-micro);
+    }
+
+    .c-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--ui-text-primary);
+    }
+
+    .c-btn.active {
+      background: var(--ui-state-select-fill);
+      border-color: var(--ui-state-select);
+      color: var(--ui-state-select);
+    }
+
+    .c-btn.is-ground.active {
+      background: var(--ui-ch-ground-fill);
+      border-color: var(--ui-ch-ground);
+      color: var(--ui-ch-ground);
+    }
+
+    .c-btn.is-heli.active {
+      background: var(--ui-ch-heli-fill);
+      border-color: var(--ui-ch-heli);
+      color: var(--ui-ch-heli);
+    }
+
+    .c-btn.is-plane.active {
+      background: var(--ui-ch-plane-fill);
+      border-color: var(--ui-ch-plane);
+      color: var(--ui-ch-plane);
+    }
+
+    .c-btn.is-danger.active {
+      background: var(--ui-state-danger-fill);
+      border-color: var(--ui-state-danger);
+      color: var(--ui-state-danger);
+    }
+
+    .c-kbd {
+      font-family: var(--ui-font-mono);
+      font-size: 9px;
+      padding: 0 4px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.10);
+      color: var(--ui-text-secondary);
+    }
+
+    /* 方案解读与实时像素诊断条 */
+    .diag-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 16px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(14, 16, 24, 0.92);
+      border: 1px solid var(--ui-line-subtle);
+      font-size: 11.5px;
+    }
+
+    .diag-desc {
+      color: var(--ui-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1 1 420px;
+    }
+
+    .diag-desc strong { color: var(--ui-state-select); white-space: nowrap; }
+
+    .diag-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .metric-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: var(--ui-r-sm);
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(255, 255, 255, 0.035);
+      font-family: var(--ui-font-mono);
+      font-size: 10.5px;
+      color: var(--ui-text-secondary);
+      white-space: nowrap;
+    }
+
+    .metric-pill b { color: var(--ui-text-primary); }
+    .metric-pill.ok { border-color: rgba(60, 214, 159, 0.42); background: rgba(60, 214, 159, 0.10); }
+    .metric-pill.ok b { color: var(--ui-state-safe); }
+    .metric-pill.warn { border-color: rgba(255, 184, 0, 0.48); background: rgba(255, 184, 0, 0.11); }
+    .metric-pill.warn b { color: var(--ui-state-warn); }
+    .metric-pill.bad { border-color: rgba(255, 82, 102, 0.52); background: rgba(255, 82, 102, 0.13); }
+    .metric-pill.bad b { color: var(--ui-state-danger); }
+
+    /* 固定翼燃油调试子条 */
+    .fuel-sim-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      background: rgba(177, 151, 252, 0.08);
+      border: 1px solid rgba(177, 151, 252, 0.30);
+      font-size: 11px;
+    }
+    .fuel-sim-bar[hidden] { display: none !important; }
+    .fuel-sim-bar input[type="range"] {
+      width: 150px;
+      accent-color: var(--ui-ch-plane);
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       主舞台容器：精确 1208×680 (16:9) 或 1588×680 (21:9) 物理画幅，绝不用 transform:scale
+       ========================================================================== */
+    .stage-scroll-wrap {
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .stage-frame {
+      position: relative;
+      width: 1208px;
+      height: 680px;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      border: 1px solid rgba(240, 211, 114, 0.36);
+      box-shadow: 0 22px 64px rgba(0, 0, 0, 0.78);
+      overflow: hidden;
+      background: #8a8370;
+      user-select: none;
+    }
+
+    .stage-frame[data-aspect="21:9"] {
+      width: 1588px;
+      border-color: rgba(56, 229, 192, 0.40);
+    }
+
+    /* 复古微缩 680p Airbase 模拟背景层 */
+    .battlefield-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      filter: contrast(1.06) saturate(1.06) sepia(0.06);
+      background:
+        radial-gradient(circle at 62% 48%, rgba(215, 206, 185, 0.28), transparent 52%),
+        linear-gradient(168deg, #8b8676 0%, #7d796c 38%, #6c6a60 72%, #595c50 100%);
+    }
+
+    .battlefield-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ==========================================================================
+       实战 HUD 三行骨架（与 src/程序化地图/实战HUD.css 保持精确比例与尺寸）
+       ========================================================================== */
+    .hud-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      padding: 10px 12px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .ui-pod {
+      background: var(--ui-bg-pod);
+      border: 1px solid var(--ui-line-base);
+      border-radius: var(--ui-r-surface);
+      box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+    }
+
+    .ui-pod--elevated {
+      background: var(--ui-bg-pod-elevated);
+    }
+
+    .ui-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1.5px 6px;
+      border: 1px solid var(--ui-line-base);
+      border-radius: var(--ui-r-sm);
+      background: var(--ui-bg-slot);
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      font-weight: 800;
+      color: var(--ui-text-secondary);
+      white-space: nowrap;
+      line-height: 1.25;
+    }
+    .ui-badge[data-tone="ground"] { border-color: var(--ui-ch-ground); background: var(--ui-ch-ground-fill); color: var(--ui-ch-ground); }
+    .ui-badge[data-tone="heli"]   { border-color: var(--ui-ch-heli);   background: var(--ui-ch-heli-fill);   color: var(--ui-ch-heli); }
+    .ui-badge[data-tone="plane"]  { border-color: var(--ui-ch-plane);  background: var(--ui-ch-plane-fill);  color: var(--ui-ch-plane); }
+    .ui-badge[data-tone="select"] { border-color: var(--ui-state-select); background: var(--ui-state-select-fill); color: var(--ui-state-select); }
+    .ui-badge[data-tone="warn"]   { border-color: var(--ui-state-warn);   background: var(--ui-state-warn-fill);   color: var(--ui-state-warn); }
+    .ui-badge[data-tone="danger"] { border-color: var(--ui-state-danger); background: var(--ui-state-danger-fill); color: var(--ui-state-danger); }
+    .ui-badge[data-tone="safe"]   { border-color: var(--ui-state-safe);   background: var(--ui-state-safe-fill);   color: var(--ui-state-safe); }
+
+    /* ROW 1: 顶栏 */
+    .hud-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .tele-pod {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      position: relative;
+    }
+
+    .tele-pts {
+      font-family: var(--ui-font-display);
+      font-size: 24px;
+      line-height: 0.95;
+      color: var(--ui-state-select);
+    }
+
+    .tele-meta {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .tele-meta strong { font-size: 11px; font-weight: 800; }
+    .tele-meta span { font-family: var(--ui-font-mono); font-size: 9.5px; color: var(--ui-text-secondary); }
+
+    .center-island {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 11px;
+      border-radius: var(--ui-r-pill);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .run-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ui-state-safe);
+      box-shadow: 0 0 7px var(--ui-state-safe);
+    }
+
+    .top-right-grp {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hud-mini-btn {
+      height: 26px;
+      padding: 0 8px;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-base);
+      background: rgba(19, 20, 28, 0.90);
+      color: var(--ui-text-primary);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* ROW 2: 中部安全走廊（左上增援轨） */
+    .hud-middle {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      min-height: 0;
+      pointer-events: none;
+    }
+
+    .deploy-rail {
+      pointer-events: auto;
+      width: 108px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: opacity 160ms;
+    }
+
+    .stage-frame[data-ui-size="compact"] .deploy-rail { width: 96px; padding: 5px; gap: 3px; }
+    .stage-frame[data-ui-size="xl"] .deploy-rail { width: 120px; padding: 7px; }
+    .deploy-rail.is-hidden-by-old { opacity: 0.14; border-style: dashed; border-color: var(--ui-state-danger); }
+
+    .drail-head {
+      display: flex;
+      justify-content: space-between;
+      padding: 1px 2px 4px;
+      border-bottom: 1px solid var(--ui-line-subtle);
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--ui-text-muted);
+    }
+
+    .drail-head b { color: var(--ui-state-select); font-family: var(--ui-font-mono); }
+
+    .drail-item {
+      padding: 4px 6px;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(255, 255, 255, 0.035);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--ui-text-secondary);
+    }
+
+    .drail-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+
+    /* 轻量 Toast */
+    .hud-toast {
+      position: absolute;
+      top: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+      padding: 4px 12px;
+      border-radius: var(--ui-r-pill);
+      border: 1px solid var(--ui-line-accent);
+      background: rgba(14, 15, 22, 0.95);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ui-state-select);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 180ms;
+      white-space: nowrap;
+    }
+    .hud-toast.is-show { opacity: 1; }
+
+    /* ROW 3: 底部三舱指挥台 */
+    .hud-bottom {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    /* 左下雷达一体舱 */
+    .bl-wing {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      flex: 0 0 auto;
+      pointer-events: none;
+    }
+    .bl-wing > * { pointer-events: auto; }
+
+    .radar-dock {
+      --mm-sz: 236px;
+      width: calc(var(--mm-sz) + 2px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .stage-frame[data-ui-size="compact"] .radar-dock { --mm-sz: 204px; }
+    .stage-frame[data-ui-size="xl"] .radar-dock { --mm-sz: 262px; }
+
+    .radar-top {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 5px;
+      background: rgba(24, 27, 38, 0.98);
+      border-bottom: 1px solid var(--ui-line-subtle);
+      gap: 4px;
+    }
+
+    .r-pill {
+      padding: 2px 5px;
+      border-radius: 3px;
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--ui-text-secondary);
+    }
+    .r-pill.on { border-color: var(--ui-ch-ground); color: var(--ui-ch-ground); background: var(--ui-ch-ground-fill); }
+
+    .radar-map {
+      position: relative;
+      width: var(--mm-sz);
+      height: var(--mm-sz);
+      background: #1b2421;
+    }
+
+    .radar-cg {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      border-top: 1px solid var(--ui-line-subtle);
+      background: rgba(13, 15, 22, 0.96);
+    }
+    .radar-cg span {
+      height: 24px;
+      display: grid;
+      place-items: center;
+      font-family: var(--ui-font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--ui-text-muted);
+      border-right: 1px solid var(--ui-line-subtle);
+    }
+    .radar-cg span:first-child { background: #f5f6f9; color: #0d0e13; }
+    .radar-cg span:last-child { border-right: 0; }
+
+    /* 左下老版本触发条（仅方案0与方案B显示） */
+    .detail-toggle-bar {
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .detail-toggle-bar[hidden] { display: none !important; }
+
+    .detail-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-accent);
+      background: rgba(19, 20, 28, 0.94);
+      color: var(--ui-text-primary);
+      font-size: 10.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .detail-toggle-btn.active {
+      background: var(--ui-accent-grad);
+      border-color: transparent;
+      color: var(--ui-text-inverse);
+    }
+    .detail-toggle-btn kbd {
+      font-family: var(--ui-font-mono);
+      font-size: 9px;
+      padding: 0 4px;
+      border-radius: 3px;
+      background: rgba(0, 0, 0, 0.24);
+    }
+
+    /* 底中兵牌坞 */
+    .deck-slot {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      pointer-events: none;
+    }
+
+    .card-deck {
+      position: relative;
+      pointer-events: auto;
+      padding: 6px 8px 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-width: 100%;
+    }
+
+    .deck-tabs {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 10px;
+    }
+
+    .deck-tab-grp {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .d-tab {
+      padding: 2px 7px;
+      border-radius: var(--ui-r-sm);
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--ui-text-secondary);
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .d-tab.active {
+      border-color: var(--ui-state-select);
+      background: var(--ui-state-select-fill);
+      color: var(--ui-state-select);
+    }
+
+    .deck-hint {
+      font-size: 9.5px;
+      color: var(--ui-state-select);
+      font-weight: 700;
+    }
+
+    .cards-grid {
+      display: flex;
+      align-items: stretch;
+      gap: 6px;
+    }
+
+    .banner-card {
+      position: relative;
+      width: 72px;
+      height: 94px;
+      border-radius: 6px;
+      border: 1px solid var(--ui-line-base);
+      background: linear-gradient(180deg, rgba(35, 38, 52, 0.94) 0%, rgba(13, 14, 21, 0.98) 100%);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: border-color var(--ui-dur-micro), box-shadow var(--ui-dur-micro);
+    }
+    .stage-frame[data-ui-size="compact"] .banner-card { width: 64px; height: 84px; }
+    .stage-frame[data-ui-size="xl"] .banner-card { width: 80px; height: 102px; }
+
+    .banner-card::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 2px;
+      background: var(--ui-ch-ground);
+    }
+    .banner-card[data-channel="heli"]::before { background: var(--ui-ch-heli); }
+    .banner-card[data-channel="plane"]::before { background: var(--ui-ch-plane); }
+    .banner-card[data-channel="ground"] { background: linear-gradient(180deg, rgba(42, 56, 48, 0.92) 0%, rgba(13, 15, 20, 0.98) 100%); }
+    .banner-card[data-channel="heli"]   { background: linear-gradient(180deg, rgba(28, 52, 68, 0.92) 0%, rgba(12, 15, 22, 0.98) 100%); }
+    .banner-card[data-channel="plane"]  { background: linear-gradient(180deg, rgba(46, 36, 70, 0.92) 0%, rgba(13, 14, 22, 0.98) 100%); }
+
+    .banner-card:hover { border-color: var(--ui-line-strong); }
+    .banner-card.active {
+      border-color: var(--ui-state-select);
+      box-shadow: 0 0 0 1px var(--ui-state-select), 0 0 14px rgba(240, 211, 114, 0.28);
+    }
+
+    .bc-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 4px 0;
+      z-index: 2;
+    }
+
+    .bc-tag {
+      font-family: var(--ui-font-mono);
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 0 4px;
+      border-radius: 3px;
+      background: rgba(10, 11, 16, 0.80);
+      border: 1px solid var(--ui-line-subtle);
+      color: var(--ui-text-secondary);
+    }
+
+    .bc-count-btn {
+      font-family: var(--ui-font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      padding: 0 4px;
+      border-radius: 3px;
+      background: rgba(10, 11, 16, 0.88);
+      border: 1px solid var(--ui-line-accent);
+      color: var(--ui-state-select);
+      cursor: pointer;
+    }
+
+    .bc-art {
+      display: grid;
+      place-items: center;
+      opacity: 0.9;
+    }
+
+    .bc-foot {
+      padding: 5px 4px 4px;
+      background: linear-gradient(180deg, rgba(10, 12, 18, 0) 0%, rgba(10, 12, 18, 0.92) 45%, rgba(10, 12, 18, 0.98) 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 2.5px;
+    }
+
+    .bc-name {
+      font-size: 9.5px;
+      font-weight: 800;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bc-bar {
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.14);
+      overflow: hidden;
+    }
+    .bc-bar i { display: block; height: 100%; border-radius: 2px; }
+    .bc-ammo { height: 2px; border-radius: 2px; background: rgba(255, 255, 255, 0.10); overflow: hidden; }
+    .bc-ammo i { display: block; height: 100%; background: var(--ui-state-select); }
+
+    /* 聚合单机列表弹卡（与悬停精简浮卡互斥） */
+    .deck-popover {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 8px;
+      width: 220px;
+      padding: 7px;
+      border-radius: var(--ui-r-surface);
+      background: var(--ui-bg-pod-elevated);
+      border: 1px solid var(--ui-state-select);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.84);
+      z-index: 48;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .deck-popover[hidden] { display: none !important; }
+    .pop-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--ui-state-select);
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--ui-line-subtle);
+    }
+    .pop-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 6px;
+      border-radius: var(--ui-r-sm);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 10.5px;
+    }
+
+    /* 右下主选检视舱与方案 B 命令盘 */
+    .br-wing {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      flex: 0 0 auto;
+      pointer-events: none;
+    }
+    .br-wing > * { pointer-events: auto; }
+
+    .right-dock {
+      width: 400px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .stage-frame[data-ui-size="compact"] .right-dock { width: 356px; padding: 6px 8px; gap: 5px; }
+    .stage-frame[data-ui-size="xl"] .right-dock { width: 432px; padding: 9px 11px; gap: 8px; }
+
+    .pip-hero {
+      display: grid;
+      grid-template-columns: 122px minmax(0, 1fr);
+      gap: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--ui-line-subtle);
+      align-items: stretch;
+    }
+    .stage-frame[data-ui-size="compact"] .pip-hero { grid-template-columns: 104px minmax(0, 1fr); }
+
+    .pip-box {
+      height: 82px;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-accent);
+      background: radial-gradient(circle at 50% 42%, rgba(92, 98, 114, 0.42), #0a0c12 82%);
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .stage-frame[data-ui-size="compact"] .pip-box { height: 70px; }
+
+    .pip-pill {
+      position: absolute;
+      top: 4px; left: 4px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: rgba(10, 11, 16, 0.84);
+      border: 1px solid rgba(60, 214, 159, 0.5);
+      color: var(--ui-state-safe);
+      font-family: var(--ui-font-mono);
+      font-size: 8.5px;
+      font-weight: 800;
+    }
+
+    .insp-meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+      gap: 4px;
+    }
+
+    .insp-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .insp-name-grp {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .insp-name-grp strong {
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .insp-detail-btn {
+      height: 22px;
+      padding: 0 7px;
+      border-radius: var(--ui-r-sm);
+      border: 1px solid var(--ui-line-accent);
+      background: rgba(240, 211, 114, 0.12);
+      color: var(--ui-state-select);
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+    .insp-detail-btn.active {
+      background: var(--ui-accent-grad);
+      border-color: transparent;
+      color: var(--ui-text-inverse);
+    }
+    .insp-detail-btn[hidden] { display: none !important; }
+
+    .insp-kv-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      color: var(--ui-text-secondary);
+    }
+    .insp-kv-row span {
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.04);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .insp-bar-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .insp-bar-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9.5px;
+      font-family: var(--ui-font-mono);
+    }
+
+    .cmd-b-mock {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 32px;
+      gap: 5px;
+    }
+
+    .cmd-b-left {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .cmd-wep-2x2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    .cmd-wep-slot {
+      height: 44px;
+      padding: 4px 7px;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-base);
+      background: linear-gradient(180deg, rgba(29, 31, 44, 0.96), rgba(20, 22, 31, 0.98));
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 6px;
+      align-items: center;
+    }
+    .stage-frame[data-ui-size="compact"] .cmd-wep-slot { height: 38px; }
+
+    .cmd-wep-ico {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      background: rgba(10, 11, 17, 0.72);
+      border: 1px solid var(--ui-line-subtle);
+      display: grid;
+      place-items: center;
+    }
+
+    .cmd-wep-txt { min-width: 0; }
+    .cmd-wep-txt strong { display: block; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cmd-wep-txt small { display: block; font-size: 9px; color: var(--ui-text-muted); font-family: var(--ui-font-mono); }
+
+    .cmd-util-2x1 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px;
+    }
+    .cmd-util-btn {
+      height: 26px;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-base);
+      background: rgba(18, 20, 28, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--ui-text-secondary);
+    }
+
+    .cmd-pager-mock {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cmd-pager-mock span {
+      flex: 1;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(16, 18, 26, 0.90);
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--ui-text-muted);
+    }
+    .cmd-pager-mock span.active {
+      border-color: var(--ui-state-select);
+      background: var(--ui-state-select-fill);
+      color: var(--ui-state-select);
+    }
+
+    /* ==========================================================================
+       方案 0：现状基线详情卡（精确复现截图的拥挤、撞顶栏、武器截断痛点）
+       ========================================================================== */
+    .legacy-detail-card {
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 5px);
+      width: 252px;
+      max-height: 334px;
+      padding: 8px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-y: auto;
+      background: var(--ui-bg-pod-elevated);
+      border: 1px solid var(--ui-line-accent);
+      border-radius: var(--ui-r-surface);
+      box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+      z-index: 42;
+      scrollbar-width: thin;
+    }
+    .stage-frame[data-ui-size="compact"] .legacy-detail-card {
+      width: 228px;
+      max-height: 296px;
+    }
+    .legacy-detail-card[hidden] { display: none !important; }
+
+    .legacy-head {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--ui-line-subtle);
+    }
+    .legacy-portrait {
+      width: 44px; height: 54px;
+      border-radius: 4px;
+      border: 1px solid var(--ui-line-base);
+      background: linear-gradient(180deg, rgba(44, 54, 46, 0.90), rgba(12, 14, 18, 0.96));
+      display: grid; place-items: center;
+    }
+    .legacy-core-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px;
+    }
+    .legacy-kv {
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .legacy-kv span { display: block; font-size: 9px; color: var(--ui-text-muted); }
+    .legacy-kv b { display: block; font-family: var(--ui-font-mono); font-size: 10.5px; }
+
+    /* 诊断叠加告警标尺（仅现状基线触发碰撞时高亮） */
+    .collision-callout {
+      position: absolute;
+      z-index: 65;
+      pointer-events: none;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255, 82, 102, 0.94);
+      color: #0d0e13;
+      font-size: 10.5px;
+      font-weight: 900;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+      white-space: nowrap;
+    }
+    .collision-callout[hidden] { display: none !important; }
+
+    /* ==========================================================================
+       Code SSOT V2.2 拟沉淀共享组件：.ui-vd-card（完整档 + 悬停精简档 + 武器库档）
+       ========================================================================== */
+    @keyframes vd-bingo-pulse {
+      0%, 100% { border-color: var(--ui-state-danger); box-shadow: 0 0 0 1px rgba(255, 82, 102, 0.52); }
+      50%      { border-color: #ff9aa6; box-shadow: 0 0 14px rgba(255, 82, 102, 0.42); }
+    }
+
+    .ui-vd-card {
+      background: var(--ui-bg-pod-elevated);
+      border: 1px solid var(--ui-line-base);
+      border-radius: var(--ui-r-surface);
+      box-shadow: var(--ui-rim-top), var(--ui-shadow-pod);
+      color: var(--ui-text-primary);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px 10px;
+      min-width: 0;
+      position: relative;
+    }
+
+    .ui-vd-card::before {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 0;
+      height: 2px;
+      border-radius: 0 0 2px 2px;
+      background: var(--vd-ch, var(--ui-ch-ground));
+    }
+
+    .ui-vd-card[data-channel="ground"] { --vd-ch: var(--ui-ch-ground); --vd-ch-fill: var(--ui-ch-ground-fill); }
+    .ui-vd-card[data-channel="heli"]   { --vd-ch: var(--ui-ch-heli);   --vd-ch-fill: var(--ui-ch-heli-fill); }
+    .ui-vd-card[data-channel="plane"]  { --vd-ch: var(--ui-ch-plane);  --vd-ch-fill: var(--ui-ch-plane-fill); }
+
+    .ui-vd-card.is-bingo {
+      animation: vd-bingo-pulse 1.05s ease-in-out infinite;
+    }
+
+    /* 方案 A：锚定右下舱正上方，与右下舱同宽（356~432px） */
+    .vd-anchor-a {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 7px);
+      width: 400px;
+      z-index: 44;
+    }
+    .stage-frame[data-ui-size="compact"] .vd-anchor-a { width: 356px; padding: 6px 8px; gap: 5px; }
+    .stage-frame[data-ui-size="xl"] .vd-anchor-a { width: 432px; padding: 9px 11px; gap: 7px; }
+
+    /* 方案 B：锚定左下雷达右侧边缘，脱离雷达顶盖，绝不撞顶栏 */
+    .vd-anchor-b {
+      position: absolute;
+      left: calc(100% + 10px);
+      bottom: 136px;
+      width: 372px;
+      z-index: 44;
+    }
+    .stage-frame[data-ui-size="compact"] .vd-anchor-b { width: 344px; bottom: 120px; padding: 6px 8px; gap: 5px; }
+    .stage-frame[data-ui-size="xl"] .vd-anchor-b { width: 404px; bottom: 146px; }
+
+    /* 方案 C：右侧贴边窄抽屉（308px，与 /armory 右栏 1:1 同宽同构） */
+    .vd-anchor-c {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 7px);
+      width: 308px;
+      max-height: 368px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      z-index: 44;
+    }
+    .stage-frame[data-ui-size="compact"] .vd-anchor-c { width: 292px; max-height: 344px; padding: 6px 8px; gap: 5px; }
+    .stage-frame[data-ui-size="xl"] .vd-anchor-c { width: 326px; max-height: 390px; }
+
+    .ui-vd-card[hidden] { display: none !important; }
+
+    /* 顶层：紧凑单行头部 */
+    .ui-vd-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--ui-line-subtle);
+    }
+
+    .ui-vd-id {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .ui-vd-ico {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--ui-r-control);
+      background: var(--vd-ch-fill);
+      border: 1px solid color-mix(in srgb, var(--vd-ch) 45%, transparent);
+      color: var(--vd-ch);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .ui-vd-titles {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+
+    .ui-vd-titles strong {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--ui-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ui-vd-titles small {
+      font-size: 10px;
+      color: var(--ui-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ui-vd-badges {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex: 0 0 auto;
+    }
+
+    .ui-vd-close {
+      width: 22px;
+      height: 22px;
+      border-radius: var(--ui-r-sm);
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--ui-text-secondary);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+    }
+    .ui-vd-close:hover { border-color: var(--ui-state-select); color: var(--ui-state-select); }
+
+    /* 核心状态条（HP + 反应甲 / 固定翼战术燃油 + 动态 Bingo 红线） */
+    .ui-vd-status {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .ui-vd-status-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 10.5px;
+    }
+
+    .ui-vd-status-lbl {
+      color: var(--ui-text-secondary);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ui-vd-status-val {
+      font-family: var(--ui-font-mono);
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      font-size: 11px;
+    }
+
+    .ui-vd-track {
+      position: relative;
+      height: 8px;
+      border-radius: var(--ui-r-sm);
+      background: rgba(8, 9, 14, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      overflow: hidden;
+    }
+
+    .ui-vd-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      transition: width 140ms var(--ui-ease-out), background 160ms;
+    }
+
+    .ui-vd-bonus {
+      position: absolute;
+      top: 0; bottom: 0;
+      background: var(--ui-ch-heli);
+      border-left: 1.5px solid #ffffff;
+    }
+
+    .ui-vd-bingo-tick {
+      position: absolute;
+      top: -1px; bottom: -1px;
+      width: 2px;
+      background: var(--ui-state-danger);
+      box-shadow: 0 0 6px var(--ui-state-danger);
+      z-index: 3;
+    }
+
+    /* 分兵种单行 4 列高价值指标条 */
+    .ui-vd-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .ui-vd-kpi {
+      padding: 4px 6px;
+      border-radius: var(--ui-r-sm);
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(255, 255, 255, 0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+    .ui-vd-kpi span {
+      font-size: 9px;
+      color: var(--ui-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ui-vd-kpi b {
+      font-family: var(--ui-font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: 10.5px;
+      color: var(--ui-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 单行 3~4 项直观能力微条（大幅降噪，省下 60px） */
+    .ui-vd-caps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+      padding: 4px 6px;
+      border-radius: var(--ui-r-sm);
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(10, 11, 16, 0.56);
+    }
+
+    .ui-vd-cap {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5px;
+      min-width: 0;
+    }
+
+    .ui-vd-cap-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9.5px;
+      color: var(--ui-text-secondary);
+      font-weight: 700;
+    }
+    .ui-vd-cap-top b {
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      color: var(--ui-text-primary);
+    }
+
+    .ui-vd-pips {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      height: 5px;
+    }
+    .ui-vd-pips i {
+      border-radius: 1px;
+      background: rgba(255, 255, 255, 0.11);
+    }
+    .ui-vd-pips i.lit-ground { background: var(--ui-ch-ground); }
+    .ui-vd-pips i.lit-select { background: var(--ui-state-select); }
+    .ui-vd-pips i.lit-danger { background: var(--ui-state-danger); }
+    .ui-vd-pips i.lit-heli   { background: var(--ui-ch-heli); }
+    .ui-vd-pips i.lit-plane  { background: var(--ui-ch-plane); }
+
+    /* 中层：武器卡片组（宽体模式 2 列零滚动；窄栏模式 1 列紧凑） */
+    .ui-vd-weps {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px;
+    }
+    .ui-vd-card.is-narrow .ui-vd-weps {
+      grid-template-columns: 1fr;
+    }
+    .ui-vd-card.is-narrow .ui-vd-kpi-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ui-vd-wep {
+      padding: 5px 6px;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-subtle);
+      background: rgba(255, 255, 255, 0.035);
+      display: grid;
+      grid-template-columns: 24px minmax(0, 1fr);
+      gap: 6px;
+      align-items: center;
+      text-align: left;
+      transition: border-color var(--ui-dur-micro), background var(--ui-dur-micro);
+    }
+    .ui-vd-wep.is-clickable { cursor: pointer; }
+    .ui-vd-wep.is-clickable:hover {
+      border-color: var(--vd-ch);
+      background: var(--vd-ch-fill);
+    }
+
+    .ui-vd-wep-ico {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      background: rgba(9, 10, 15, 0.78);
+      border: 1px solid var(--ui-line-subtle);
+      color: var(--vd-ch);
+      display: grid;
+      place-items: center;
+    }
+
+    .ui-vd-wep-body {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ui-vd-wep-r1 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    .ui-vd-wep-r1 strong {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--ui-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ui-vd-wep-r1 b {
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      color: var(--ui-state-select);
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .ui-vd-wep-r2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      font-family: var(--ui-font-mono);
+      font-size: 9px;
+      color: var(--ui-text-secondary);
+    }
+
+    .ui-vd-role-tag {
+      padding: 0 4px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--ui-text-primary);
+      font-family: var(--ui-font-sans);
+      font-size: 8.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    /* 底层：低频原始参数默认折叠 */
+    .ui-vd-fold {
+      border-top: 1px solid var(--ui-line-subtle);
+      padding-top: 4px;
+      font-size: 9.5px;
+      color: var(--ui-text-muted);
+    }
+    .ui-vd-fold summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      color: var(--ui-text-muted);
+    }
+    .ui-vd-fold summary:hover { color: var(--ui-text-secondary); }
+    .ui-vd-fold summary::-webkit-details-marker { display: none; }
+
+    .ui-vd-fold-grid {
+      margin-top: 5px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3px 8px;
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+      padding: 5px 6px;
+      border-radius: var(--ui-r-sm);
+      background: rgba(9, 10, 15, 0.65);
+      border: 1px solid var(--ui-line-subtle);
+    }
+    .ui-vd-fold-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .ui-vd-fold-row span { color: var(--ui-text-muted); }
+    .ui-vd-fold-row b { color: var(--ui-text-secondary); }
+
+    /* ==========================================================================
+       共享组件 · 悬停精简浮卡档（.ui-vd-hover）
+       位于兵牌坞外部上方，永不被横向滚动裁切，支持单机卡与 ×N 聚合卡
+       ========================================================================== */
+    .ui-vd-hover {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      width: 256px;
+      padding: 7px 9px;
+      gap: 5px;
+      z-index: 52;
+      pointer-events: none;
+      border-color: color-mix(in srgb, var(--vd-ch) 52%, var(--ui-line-base));
+    }
+    .ui-vd-hover[hidden] { display: none !important; }
+
+    .ui-vd-hover-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-family: var(--ui-font-mono);
+      font-size: 9.5px;
+    }
+    .ui-vd-hover-stats span {
+      padding: 1.5px 5px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--ui-line-subtle);
+      color: var(--ui-text-secondary);
+    }
+    .ui-vd-hover-stats b { color: var(--ui-text-primary); }
+
+    .ui-vd-hover-weps {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5px;
+      padding-top: 3px;
+      border-top: 1px solid var(--ui-line-subtle);
+    }
+    .ui-vd-hover-wep {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 9.5px;
+    }
+    .ui-vd-hover-wep-l {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--ui-text-primary);
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ui-vd-hover-wep-r {
+      font-family: var(--ui-font-mono);
+      color: var(--ui-text-secondary);
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    /* ==========================================================================
+       视图 2：/armory 4B 武器库同源右栏演示
+       ========================================================================== */
+    .armory-stage {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      background:
+        radial-gradient(640px 360px at 50% 48%, rgba(214, 224, 232, 0.34), transparent 64%),
+        linear-gradient(180deg, #98b2c4 0%, #b5c3c7 46%, #8e8777 52%, #6d695e 100%);
+      display: flex;
+      flex-direction: column;
+    }
+    .armory-stage[hidden] { display: none !important; }
+
+    .armory-topbar {
+      height: 44px;
+      padding: 0 14px;
+      background: rgba(20, 21, 30, 0.94);
+      border-bottom: 1px solid var(--ui-line-base);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .armory-body {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .armory-left {
+      position: absolute;
+      top: 12px; left: 12px; bottom: 12px;
+      width: 256px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      background: rgba(16, 18, 25, 0.88);
+    }
+
+    .armory-list-item {
+      padding: 6px 8px;
+      border-radius: var(--ui-r-control);
+      border: 1px solid var(--ui-line-subtle);
+      border-left: 3px solid var(--ui-ch-ground);
+      background: rgba(35, 37, 48, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .armory-list-item[data-channel="heli"] { border-left-color: var(--ui-ch-heli); }
+    .armory-list-item[data-channel="plane"] { border-left-color: var(--ui-ch-plane); }
+    .armory-list-item.active {
+      border-color: var(--ui-state-select);
+      background: var(--ui-state-select-fill);
+    }
+
+    .armory-center-badge {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 14px;
+      border-radius: var(--ui-r-surface);
+      background: rgba(16, 18, 25, 0.86);
+      border: 1px solid var(--ui-line-base);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .armory-3d-pedestal {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+
+    .armory-right {
+      position: absolute;
+      top: 12px; right: 12px; bottom: 12px;
+      width: 324px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(16, 18, 25, 0.90);
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    .armory-right-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--ui-line-subtle);
+    }
+
+    .armory-cta {
+      height: 32px;
+      border-radius: var(--ui-r-control);
+      border: 0;
+      background: var(--ui-accent-grad);
+      color: var(--ui-text-inverse);
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       视图 3：三落点并排同源总览 + 4 方案对比矩阵
+       ========================================================================== */
+    .overview-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .overview-wrap[hidden] { display: none !important; }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .ov-col {
+      background: var(--ui-bg-pod-elevated);
+      border: 1px solid var(--ui-line-base);
+      border-radius: var(--ui-r-surface);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ov-col-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--ui-line-subtle);
+    }
+    .ov-col-head strong { font-size: 13px; color: var(--ui-state-select); }
+    .ov-col-head span { font-family: var(--ui-font-mono); font-size: 10px; color: var(--ui-text-muted); }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--ui-bg-pod-elevated);
+      border: 1px solid var(--ui-line-base);
+      border-radius: var(--ui-r-surface);
+      overflow: hidden;
+      font-size: 11.5px;
+    }
+    .matrix-table th, .matrix-table td {
+      padding: 8px 11px;
+      border-bottom: 1px solid var(--ui-line-subtle);
+      text-align: left;
+      vertical-align: top;
+    }
+    .matrix-table th {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--ui-state-select);
+      font-weight: 800;
+    }
+    .matrix-table tr.is-rec {
+      background: rgba(240, 211, 114, 0.07);
+    }
+    .matrix-table td.bad { color: var(--ui-state-danger); font-weight: 700; }
+    .matrix-table td.ok { color: var(--ui-state-safe); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="review-shell">
+    <!-- 顶部总控台 -->
+    <section class="ctrl-bar" aria-label="方案对比控制条">
+      <div class="ctrl-row">
+        <div class="ctrl-brand">
+          <span class="ctrl-brand-badge">SCAV-12 // V001</span>
+          <div>
+            <h1>载具卡片与详情参数 UI 跨页重构 · 多方案布局对比沙盒</h1>
+            <small>遵循 Code SSOT V2.2（A3 烟炭双金 · 零 backdrop-filter · 零 transform:scale） · 快捷键：0/1/2/3 切方案，I 开关详情卡，悬停底部兵牌看精简浮卡</small>
+          </div>
+        </div>
+
+        <div class="ctrl-groups">
+          <div class="ctrl-grp" id="grp-view">
+            <span class="ctrl-lbl">场景</span>
+            <button type="button" class="c-btn active" data-view="play">/play 实战三舱</button>
+            <button type="button" class="c-btn" data-view="armory">/armory 4B武器库</button>
+            <button type="button" class="c-btn" data-view="overview">三落点同源总览</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctrl-row">
+        <div class="ctrl-groups">
+          <div class="ctrl-grp" id="grp-scheme">
+            <span class="ctrl-lbl">布局方案</span>
+            <button type="button" class="c-btn is-danger" data-scheme="0"><span class="c-kbd">0</span> 现状基线</button>
+            <button type="button" class="c-btn active" data-scheme="A"><span class="c-kbd">1</span> 方案A · 右下舱上浮宽体（推荐）</button>
+            <button type="button" class="c-btn" data-scheme="B"><span class="c-kbd">2</span> 方案B · 雷达右侧矮宽浮卡</button>
+            <button type="button" class="c-btn" data-scheme="C"><span class="c-kbd">3</span> 方案C · 右缘同构窄抽屉</button>
+          </div>
+
+          <div class="ctrl-grp" id="grp-unit">
+            <span class="ctrl-lbl">兵种模板</span>
+            <button type="button" class="c-btn is-ground active" data-unit="US_M1A2">M1A2 地面</button>
+            <button type="button" class="c-btn is-heli" data-unit="US_AH64D">AH-64D 旋翼</button>
+            <button type="button" class="c-btn is-plane" data-unit="US_A10">A-10C 固定翼(燃油)</button>
+          </div>
+        </div>
+
+        <div class="ctrl-groups">
+          <div class="ctrl-grp" id="grp-aspect">
+            <span class="ctrl-lbl">画幅</span>
+            <button type="button" class="c-btn active" data-aspect="16:9">16:9 (1208×680)</button>
+            <button type="button" class="c-btn" data-aspect="21:9">21:9 (1588×680)</button>
+          </div>
+
+          <div class="ctrl-grp" id="grp-size">
+            <span class="ctrl-lbl">物理尺码</span>
+            <button type="button" class="c-btn" data-size="compact">compact</button>
+            <button type="button" class="c-btn active" data-size="lg">lg</button>
+            <button type="button" class="c-btn" data-size="xl">xl</button>
+          </div>
+
+          <button type="button" class="c-btn active" id="btn-toggle-open" style="border:1px solid var(--ui-line-accent)">详情卡已展开 <span class="c-kbd">I</span></button>
+        </div>
+      </div>
+
+      <!-- 固定翼燃油与工况模拟器（对接 SCAV-6 方案B 定型口径） -->
+      <div class="fuel-sim-bar" id="fuel-sim-bar" hidden>
+        <strong style="color:var(--ui-ch-plane)">SCAV-6 固定翼燃油实况模拟（无血量制）：</strong>
+        <label style="display:inline-flex;align-items:center;gap:6px">
+          <span>余油</span>
+          <input type="range" id="fuel-range" min="5" max="100" value="78" />
+          <b class="mono" id="fuel-range-val" style="color:var(--ui-text-primary);width:38px">78%</b>
+        </label>
+        <div class="ctrl-grp" id="grp-fuel-preset">
+          <button type="button" class="c-btn" data-fuel="100">满油 100%</button>
+          <button type="button" class="c-btn" data-fuel="22">低油预警 22%</button>
+          <button type="button" class="c-btn is-danger" data-fuel="12">触 Bingo 12%</button>
+        </div>
+        <div class="ctrl-grp" id="grp-burn">
+          <span class="ctrl-lbl">工况</span>
+          <button type="button" class="c-btn active" data-burn="cruise">巡航 1.0×</button>
+          <button type="button" class="c-btn" data-burn="transit">入航 1.2×</button>
+          <button type="button" class="c-btn" data-burn="attack">突击 1.45×</button>
+          <button type="button" class="c-btn" data-burn="afterburner">加力 1.85×</button>
+        </div>
+      </div>
+
+      <!-- 实时空间像素诊断条 -->
+      <div class="diag-strip" id="diag-strip">
+        <div class="diag-desc" id="diag-desc"></div>
+        <div class="diag-metrics" id="diag-metrics"></div>
+      </div>
+    </section>
+
+    <!-- 主视口舞台（/play 或 /armory） -->
+    <div class="stage-scroll-wrap" id="stage-scroll-wrap">
+      <div class="stage-frame" id="stage-frame" data-aspect="16:9" data-ui-size="lg">
+        <!-- 底层：680p 复古微缩 Airbase 模拟背景 -->
+        <div class="battlefield-bg" aria-hidden="true">
+          <svg class="battlefield-svg" viewBox="0 0 1588 680" preserveAspectRatio="xMidYMid slice">
+            <!-- 停机坪分块与跑道 -->
+            <rect x="0" y="0" width="1588" height="680" fill="#827e70" />
+            <rect x="0" y="78" width="1588" height="86" fill="#6f6d64" />
+            <line x1="0" y1="121" x2="1588" y2="121" stroke="#d8be6a" stroke-width="3" stroke-dasharray="28 24" opacity="0.72" />
+            <!-- 机库与建筑 -->
+            <rect x="740" y="210" width="290" height="106" rx="4" fill="#6d6f74" stroke="#484a50" stroke-width="3" />
+            <rect x="740" y="210" width="290" height="22" fill="#5e6167" />
+            <rect x="730" y="390" width="310" height="122" rx="4" fill="#737477" stroke="#494a4f" stroke-width="3" />
+            <rect x="465" y="456" width="146" height="156" rx="18" fill="#5b6f47" opacity="0.88" />
+            <circle cx="516" cy="522" r="36" fill="#4f6c3d" />
+            <circle cx="564" cy="552" r="32" fill="#476335" />
+            <!-- 固定翼贴地主范围圈（淡紫虚线） -->
+            <ellipse cx="940" cy="240" rx="340" ry="230" fill="rgba(177,151,252,0.06)" stroke="#b197fc" stroke-width="2" stroke-dasharray="10 8" opacity="0.65" />
+            <!-- 地面单位贴地双环 + 名牌 -->
+            <g transform="translate(1060, 326)">
+              <ellipse cx="0" cy="0" rx="38" ry="24" fill="rgba(240,211,114,0.16)" stroke="#f0d372" stroke-width="2.5" />
+              <ellipse cx="0" cy="0" rx="28" ry="17" fill="none" stroke="#38e5c0" stroke-width="1.6" />
+              <rect x="-15" y="-7" width="30" height="14" rx="2" fill="#595748" stroke="#1e201b" stroke-width="1.5" />
+              <line x1="8" y1="0" x2="26" y2="-3" stroke="#3c3b32" stroke-width="3" />
+              <text x="0" y="34" text-anchor="middle" fill="#f5f6f9" stroke="#090a0f" stroke-width="3.2" paint-order="stroke fill" font-size="12" font-weight="800" font-family="Bahnschrift, Microsoft YaHei UI">M1A2 SEP v3</text>
+            </g>
+            <!-- 旋翼单位 30m 虚线垂足 -->
+            <g transform="translate(895, 344)">
+              <ellipse cx="0" cy="40" rx="30" ry="18" fill="rgba(104,200,255,0.14)" stroke="#68c8ff" stroke-width="2" />
+              <line x1="0" y1="0" x2="0" y2="40" stroke="#68c8ff" stroke-width="1.4" stroke-dasharray="4 4" />
+              <rect x="-24" y="-6" width="48" height="10" rx="4" fill="#3a4337" stroke="#151914" stroke-width="1.5" />
+              <line x1="-38" y1="-10" x2="38" y2="-10" stroke="#1f2329" stroke-width="2.4" />
+              <text x="0" y="-18" text-anchor="middle" fill="#bae4ff" stroke="#090a0f" stroke-width="3" paint-order="stroke fill" font-size="11" font-weight="800" font-family="Bahnschrift, Microsoft YaHei UI">AH-64D · 30m</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 视图 1：/play 实战三舱 HUD -->
+        <div class="hud-grid" id="play-hud">
+          <!-- 诊断碰撞标记（仅方案0重叠时可见） -->
+          <div class="collision-callout" id="collision-badge" hidden>⚠ 撞穿左上顶栏 + 武器腰斩滚动</div>
+          <div class="hud-toast" id="hud-toast"></div>
+
+          <!-- ROW 1：顶栏 -->
+          <header class="hud-top">
+            <div class="ui-pod tele-pod" id="top-tele-pod">
+              <strong class="tele-pts mono">1450</strong>
+              <div class="tele-meta">
+                <strong>AIRBASE 9KM · 战术演训</strong>
+                <span>680p Stylized · 60 FPS</span>
+              </div>
+            </div>
+
+            <div class="ui-pod center-island">
+              <i class="run-dot"></i>
+              <span>运行中</span>
+              <span style="color:var(--ui-line-strong)">|</span>
+              <span class="mono" style="color:var(--ui-text-secondary)">中景 · 310m</span>
+              <span style="color:var(--ui-line-strong)">|</span>
+              <span style="color:var(--ui-state-select)">全军 5 单位</span>
+            </div>
+
+            <div class="top-right-grp">
+              <button type="button" class="hud-mini-btn">16:9</button>
+              <button type="button" class="hud-mini-btn">引擎音 开</button>
+              <button type="button" class="hud-mini-btn">暂停 [P]</button>
+            </div>
+          </header>
+
+          <!-- ROW 2：中部安全区（左上增援轨） -->
+          <section class="hud-middle">
+            <aside class="ui-pod deploy-rail" id="deploy-rail">
+              <div class="drail-head"><span>增援配额</span><b>5/50</b></div>
+              <div class="drail-item"><span><i class="drail-dot" style="background:var(--ui-ch-ground)"></i>重甲</span><b class="mono">3/12</b></div>
+              <div class="drail-item"><span><i class="drail-dot" style="background:var(--ui-ch-ground)"></i>战车</span><b class="mono">0/16</b></div>
+              <div class="drail-item"><span><i class="drail-dot" style="background:var(--ui-ch-ground)"></i>火炮</span><b class="mono">0/8</b></div>
+              <div class="drail-item"><span><i class="drail-dot" style="background:var(--ui-ch-heli)"></i>旋翼</span><b class="mono">1/8</b></div>
+              <div class="drail-item"><span><i class="drail-dot" style="background:var(--ui-ch-plane)"></i>固定翼</span><b class="mono">1/6</b></div>
+            </aside>
+          </section>
+
+          <!-- ROW 3：底部三舱 -->
+          <footer class="hud-bottom">
+            <!-- 左舱：雷达 + 方案0旧卡 / 方案B右侧矮宽卡 -->
+            <div class="bl-wing" id="bl-wing">
+              <!-- 方案 0 现状旧卡 -->
+              <aside class="legacy-detail-card" id="legacy-detail-card" hidden></aside>
+              <!-- 方案 B 雷达右侧矮宽卡 -->
+              <aside class="ui-vd-card vd-anchor-b" id="vd-card-b" hidden></aside>
+
+              <!-- 方案 0 与方案 B 的左下触发条 -->
+              <div class="detail-toggle-bar" id="left-detail-bar" hidden>
+                <button type="button" class="detail-toggle-btn active" id="btn-left-detail-toggle">
+                  <span>参数详情</span>
+                  <span id="left-toggle-unit">M1A2 SEP v3</span>
+                  <kbd>I</kbd>
+                </button>
+              </div>
+
+              <section class="ui-pod radar-dock" id="radar-dock">
+                <div class="radar-top">
+                  <div style="display:flex;gap:3px">
+                    <span class="r-pill on">9KM</span>
+                    <span class="r-pill">航线</span>
+                    <span class="r-pill">网格</span>
+                  </div>
+                  <div style="display:flex;gap:3px">
+                    <span class="r-pill">跟随</span>
+                    <span class="r-pill">F</span>
+                  </div>
+                </div>
+                <div class="radar-map">
+                  <svg viewBox="0 0 240 240" width="100%" height="100%">
+                    <rect width="240" height="240" fill="#1b2421" />
+                    <path d="M0 120 H240 M120 0 V240 M0 60 H240 M0 180 H240 M60 0 V240 M180 0 V240" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+                    <path d="M22 146 L218 112 M96 36 L142 216" stroke="#808b82" stroke-width="2.5" opacity="0.7" />
+                    <rect x="76" y="114" width="88" height="10" fill="#adb5ad" opacity="0.65" />
+                    <circle cx="118" cy="118" r="3.5" fill="#38e5c0" />
+                    <circle cx="128" cy="112" r="3.5" fill="#68c8ff" />
+                    <circle cx="106" cy="98" r="18" fill="none" stroke="#b197fc" stroke-width="1.3" stroke-dasharray="4 3" />
+                    <rect x="82" y="88" width="76" height="52" fill="none" stroke="#f0d372" stroke-width="1.2" opacity="0.85" />
+                    <text x="8" y="16" fill="#9bf5e0" font-family="Cascadia Mono, monospace" font-size="9">9KM · 1.0×</text>
+                    <text x="8" y="232" fill="#b6bac5" font-family="Cascadia Mono, monospace" font-size="9">(32, 83) · 238m</text>
+                  </svg>
+                </div>
+                <div class="radar-cg">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span>
+                </div>
+              </section>
+            </div>
+
+            <!-- 中舱：底部兵牌坞 + 共享悬停精简浮卡 + 聚合单机浮卡 -->
+            <div class="deck-slot">
+              <section class="ui-pod card-deck" id="card-deck">
+                <!-- 共享组件 · 底部兵牌悬停精简浮卡（位于兵牌坞正上方外部，零裁切） -->
+                <div class="ui-vd-card ui-vd-hover" id="deck-hover-card" hidden></div>
+
+                <!-- 聚合卡点击 ×3 弹出的单机列表（与悬停浮卡自动互斥） -->
+                <div class="deck-popover" id="deck-popover" hidden>
+                  <div class="pop-head">
+                    <span>M1A2 SEP v3（共 3 辆）</span>
+                    <button type="button" class="ui-vd-close" id="btn-close-pop">✕</button>
+                  </div>
+                  <div class="pop-row"><span>M1A2 #01</span><b class="mono" style="color:var(--ui-ch-ground)">100%</b></div>
+                  <div class="pop-row"><span>M1A2 #02</span><b class="mono" style="color:var(--ui-ch-ground)">86%</b></div>
+                  <div class="pop-row"><span>M1A2 #03</span><b class="mono" style="color:var(--ui-state-warn)">54%</b></div>
+                </div>
+
+                <div class="deck-tabs">
+                  <div class="deck-tab-grp">
+                    <span class="d-tab active">全军 (5)</span>
+                    <span class="d-tab">地面</span>
+                    <span class="d-tab">旋翼</span>
+                    <span class="d-tab">固定翼</span>
+                  </div>
+                  <span class="deck-hint">悬停任意兵牌预览精简浮卡 ▴</span>
+                </div>
+                <div class="cards-grid" id="deck-cards-grid"></div>
+              </section>
+            </div>
+
+            <!-- 右舱：Live PiP + 方案B命令盘 + 方案A宽体卡 / 方案C右缘窄抽屉 -->
+            <div class="br-wing" id="br-wing">
+              <!-- 方案 A 右下舱上浮宽体卡 -->
+              <aside class="ui-vd-card vd-anchor-a" id="vd-card-a" hidden></aside>
+              <!-- 方案 C 右缘同构窄抽屉 -->
+              <aside class="ui-vd-card is-narrow vd-anchor-c" id="vd-card-c" hidden></aside>
+
+              <section class="ui-pod right-dock" id="right-dock">
+                <div class="pip-hero">
+                  <div class="pip-box" id="pip-box">
+                    <span class="pip-pill">LIVE PiP</span>
+                    <div id="pip-silhouette"></div>
+                  </div>
+                  <div class="insp-meta">
+                    <div class="insp-head">
+                      <div class="insp-name-grp">
+                        <span id="insp-ico"></span>
+                        <strong id="insp-name">M1A2 SEP v3</strong>
+                      </div>
+                      <button type="button" class="insp-detail-btn active" id="btn-right-detail-toggle">
+                        <span>详情</span><kbd class="mono">I</kbd>
+                      </button>
+                    </div>
+                    <div class="insp-kv-row" id="insp-kv-row"></div>
+                    <div class="insp-bar-wrap" id="insp-bar-wrap"></div>
+                  </div>
+                </div>
+
+                <div class="cmd-b-mock">
+                  <div class="cmd-b-left">
+                    <div class="cmd-wep-2x2" id="cmd-wep-2x2"></div>
+                    <div class="cmd-util-2x1">
+                      <div class="cmd-util-btn"><span>聚焦视角</span><kbd class="mono">F</kbd></div>
+                      <div class="cmd-util-btn"><span>持续跟随</span><kbd class="mono">G</kbd></div>
+                    </div>
+                  </div>
+                  <div class="cmd-pager-mock">
+                    <span class="active">攻<br>击</span>
+                    <span>机<br>动</span>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </footer>
+        </div>
+
+        <!-- 视图 2：/armory 4B 武器库右侧参数卡（复用同一套 .ui-vd-card 渲染器） -->
+        <div class="armory-stage" id="armory-stage" hidden>
+          <header class="armory-topbar">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="color:var(--ui-state-select)">SCAVENGER // 4B 武器库 129 车全景整备台</span>
+              <span class="ui-badge" data-tone="select">同源共享组件实装预览</span>
+            </div>
+            <span class="mono" style="color:var(--ui-text-secondary);font-size:11px">右栏直接复用 .ui-vd-card (mode="armory")</span>
+          </header>
+
+          <div class="armory-body">
+            <aside class="ui-pod armory-left">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <strong>载具目录（3 兵种样例）</strong>
+                <span class="ui-badge" data-tone="select">129 辆</span>
+              </div>
+              <div id="armory-list" style="display:flex;flex-direction:column;gap:6px"></div>
+            </aside>
+
+            <div class="armory-center-badge" id="armory-center-badge"></div>
+
+            <div class="armory-3d-pedestal" id="armory-3d-pedestal"></div>
+
+            <aside class="ui-pod armory-right">
+              <div class="armory-right-head">
+                <strong>战术档案（共享详情卡）</strong>
+                <span class="ui-badge" data-tone="safe">★ 已编入编队</span>
+              </div>
+              <div id="armory-vd-mount"></div>
+              <button type="button" class="armory-cta" id="btn-armory-deploy">携编队部署 9km 战场 →</button>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 视图 3：三落点并排同源总览 + 4 方案对比矩阵 -->
+    <section class="overview-wrap" id="overview-wrap" hidden>
+      <div class="overview-grid">
+        <div class="ov-col">
+          <div class="ov-col-head">
+            <strong>落点 1：/play 实战完整详情卡（宽体双列）</strong>
+            <span>variant="full" · 356–416px</span>
+          </div>
+          <div id="ov-full-mount"></div>
+        </div>
+
+        <div class="ov-col">
+          <div class="ov-col-head">
+            <strong>落点 2：/play 底部兵牌悬停精简浮卡</strong>
+            <span>variant="hover" · 256px</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div>
+              <div style="font-size:10px;color:var(--ui-text-muted);margin-bottom:4px">单机兵牌悬停态：</div>
+              <div id="ov-hover-single-mount"></div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--ui-text-muted);margin-bottom:4px">×3 同型聚合兵牌悬停态（编队汇总）：</div>
+              <div id="ov-hover-group-mount"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ov-col">
+          <div class="ov-col-head">
+            <strong>落点 3：/armory 4B 武器库右侧参数卡</strong>
+            <span>variant="armory" · 306–324px</span>
+          </div>
+          <div id="ov-armory-mount"></div>
+        </div>
+      </div>
+
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th style="width:170px">布局方案</th>
+            <th style="width:155px">锚点与尺寸 (lg)</th>
+            <th style="width:120px">680p 撞顶栏？</th>
+            <th style="width:125px">全武器零滚动？</th>
+            <th style="width:125px">需藏左上增援轨？</th>
+            <th>核心优缺点与适用建议</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>0 · 现状基线</b></td>
+            <td class="mono">左下雷达顶盖<br>252 × 334px</td>
+            <td class="bad">✗ 直接撞穿遮挡</td>
+            <td class="bad">✗ 武器被腰斩</td>
+            <td class="bad">✗ 必须强制隐藏</td>
+            <td>窄宽竖堆 + 重复立绘标题 + 地面错显航速/高度 0m，实机已爆框。</td>
+          </tr>
+          <tr class="is-rec">
+            <td><b style="color:var(--ui-state-select)">1 · 方案 A（推荐）</b><br><small>右下舱上浮宽体</small></td>
+            <td class="mono">右下主选舱正上方<br>400 × ~218px</td>
+            <td class="ok">✓ 净空 ≥ 110px</td>
+            <td class="ok">✓ 2 列并排全览</td>
+            <td class="ok">✓ 零干扰全保留</td>
+            <td>视线完全闭环在右下角（选车→PiP→下令→查详情）；左半屏彻底清爽；A-10C 四把武器零滚动全览。</td>
+          </tr>
+          <tr>
+            <td><b>2 · 方案 B</b><br><small>雷达右侧矮宽浮卡</small></td>
+            <td class="mono">左下雷达右缘外扩<br>372 × ~218px</td>
+            <td class="ok">✓ 净空 ≥ 250px</td>
+            <td class="ok">✓ 2 列并排全览</td>
+            <td class="ok">✓ 零干扰全保留</td>
+            <td>保留左下雷达旁触发习惯；但浮在底中兵牌正上方，展开单车矩阵或 ×N 浮卡时需自动互斥收起。</td>
+          </tr>
+          <tr>
+            <td><b>3 · 方案 C</b><br><small>右缘同构窄抽屉</small></td>
+            <td class="mono">右下舱上方靠右<br>308 × ~310px</td>
+            <td class="ok">✓ 净空 ≥ 50px</td>
+            <td style="color:var(--ui-state-warn);font-weight:700">△ 4 武器略紧</td>
+            <td class="ok">✓ 零干扰全保留</td>
+            <td>与 `/armory` 右栏（306px）1:1 像素同构，样式复用率最高；但 A-10C 四把武器展开折叠区后接近高度上限。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       Code SSOT V2.2 矢量剪影路径源（直接取自 src/界面规范/图标与标绘.mjs）
+       ========================================================================== */
+    const VEHICLE_PATHS = {
+      mbt: 'M2.2 14.4 L4.2 11.8 L8.0 11.8 L9.4 8.6 L14.8 8.6 L16.0 10.1 L18.2 10.1 L18.2 9.6 L20.0 9.6 L20.0 10.1 L23.0 10.1 L23.0 11.4 L15.8 11.4 L15.4 12.1 L19.8 12.1 L21.6 14.3 L19.8 17.5 L3.8 17.5 Z M5.6 14.4h2.1v1.7H5.6Z M9.2 14.4h2.1v1.7H9.2Z M12.8 14.4h2.1v1.7H12.8Z M16.4 14.4h2.1v1.7H16.4Z',
+      attack_heli: 'M3.0 6.0 H21.6 V7.4 H13.6 V9.4 H12.0 V7.4 H3.0 Z M2.0 10.6 L3.6 9.4 L4.4 11.8 L9.8 11.8 L11.4 9.4 L15.6 9.4 L18.2 11.2 L21.8 12.6 L22.2 13.8 L18.4 14.8 L15.0 15.4 L14.0 16.6 H9.6 L8.8 14.6 L4.2 13.6 L3.0 15.0 L2.0 14.0 Z M12.2 10.4 H15.2 L16.8 11.8 H12.2 Z M9.6 17.4 H15.8 V18.4 H9.6 Z',
+      cas: 'M12.0 1.8 L13.4 5.2 L13.6 9.4 L22.2 10.0 V13.0 L13.6 12.8 L13.4 15.4 L14.6 15.8 V17.8 H13.2 L13.0 19.0 L17.0 19.6 V21.8 L12.6 21.0 L12.0 22.2 L11.4 21.0 L7.0 21.8 V19.6 L11.0 19.0 L10.8 17.8 H9.4 V15.8 L10.6 15.4 L10.4 12.8 L1.8 13.0 V10.0 L10.4 9.4 L10.6 5.2 Z M11.4 5.2 H12.6 V8.4 H11.4 Z',
+    };
+
+    const WEAPON_PATHS = {
+      cannon: 'M12 2.1 C13.5 4.2 14.1 6.3 14.1 8.4 H9.9 C9.9 6.3 10.5 4.2 12 2.1 Z M9.6 9.5 H14.4 V18.7 H9.6 Z M9.0 19.6 H15.0 V21.4 H9.0 Z M5.2 4.8 C6.5 6.6 7.0 8.4 7.0 10.2 H3.4 C3.4 8.4 3.9 6.6 5.2 4.8 Z M3.2 11.2 H7.2 V18.9 H3.2 Z M2.7 19.7 H7.7 V21.4 H2.7 Z M18.8 4.8 C20.1 6.6 20.6 8.4 20.6 10.2 H17.0 C17.0 8.4 17.5 6.6 18.8 4.8 Z M16.8 11.2 H20.8 V18.9 H16.8 Z M16.3 19.7 H21.3 V21.4 H16.3 Z',
+      rocket: 'M15.41 3.79 L14.49 6.83 L13.57 7.75 L11.45 5.63 L12.37 4.71 Z M10.81 6.27 L12.93 8.39 L9.26 12.06 L9.15 14.08 L8.44 14.79 L7.91 12.98 L6.22 11.29 L4.41 10.76 L5.12 10.05 L7.14 9.94 Z M5.76 12.24 L6.96 13.44 L3.39 15.81 Z M20.41 8.79 L19.49 11.83 L18.57 12.75 L16.45 10.63 L17.37 9.71 Z M15.81 11.27 L17.93 13.39 L14.26 17.06 L14.15 19.08 L13.44 19.79 L12.91 17.98 L11.22 16.29 L9.41 15.76 L10.12 15.05 L12.14 14.94 Z M10.76 17.24 L11.96 18.44 L8.39 20.81 Z',
+      missile: 'M20.63 3.37 L20.38 5.25 L19.53 6.8 L17.2 4.47 L18.75 3.62 Z M16.49 5.03 L18.97 7.51 L16.49 9.98 L15.54 16.1 L14.19 17.44 L11.61 14.86 L9.35 17.13 L9.74 20.63 L8.54 21.83 L7.01 19.04 L5.81 19.67 L4.33 18.19 L4.96 16.99 L2.17 15.46 L3.37 14.26 L6.87 14.65 L9.14 12.39 L6.56 9.81 L7.9 8.46 L14.02 7.51 Z M15.73 7.53 L16.47 8.27 L8.27 16.47 L7.53 15.73 Z',
+      bomb: 'M20.49 20.49 L18.72 19.99 L18.22 19.5 L19.5 18.22 L19.99 18.72 Z M19.74 17.83 L19.88 16.28 L19.18 14.44 L17.2 12.18 L14.69 10.16 L9.84 7.65 L7.65 9.84 L10.16 14.69 L12.18 17.2 L14.44 19.18 L16.28 19.88 L17.83 19.74 Z M16.91 13.59 L13.59 16.91 L12.74 16.07 L16.07 12.74 Z M9.38 7.26 L9.53 3.73 L7.4 1.61 L1.61 7.4 L3.73 9.53 L7.26 9.38 Z M8.68 4.86 L7.26 3.44 L5.85 4.86 L7.69 6.7 Z M4.86 8.68 L6.7 7.69 L4.86 5.85 L3.44 7.26 Z',
+    };
+
+    function svgVehicle(kind, size = 16) {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="${VEHICLE_PATHS[kind] || VEHICLE_PATHS.mbt}"/></svg>`;
+    }
+
+    function svgWeapon(kind, size = 14) {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="${WEAPON_PATHS[kind] || WEAPON_PATHS.cannon}"/></svg>`;
+    }
+
+    /* ==========================================================================
+       统一三兵种数据模型（地面 / 旋翼 / 固定翼 · 严格对齐 ba-source-ssot-v1 & SCAV-6）
+       ========================================================================== */
+    const BURN_MODES = {
+      cruise: { label: '巡航', rate: 1.0 },
+      transit: { label: '入航', rate: 1.2 },
+      attack: { label: '突击', rate: 1.45 },
+      afterburner: { label: '加力', rate: 1.85 },
+    };
+
+    const UNITS = {
+      US_M1A2: {
+        slug: 'US_M1A2',
+        shortName: 'M1A2 SEP v3',
+        subTitle: '重型主战坦克 · 反应甲强化',
+        channel: 'ground',
+        channelLabel: '地面',
+        iconKind: 'mbt',
+        cost: 285,
+        countInField: 3,
+        hp: 20,
+        maxHp: 20,
+        bonusArmorPct: 12,
+        liveTelemetry: ['坐标 32,83', '速度 54 km/h', '待命警戒'],
+        kpis: [
+          { k: '正面装甲', v: '700 / 1200' },
+          { k: '公路机动', v: '67 km/h' },
+          { k: '侦察视野', v: '1400m' },
+          { k: '主炮备弹', v: '42 发' },
+        ],
+        caps: [
+          { k: '装甲防护', score: 9, tone: 'ground' },
+          { k: '清尸压制', score: 8, tone: 'select' },
+          { k: '重甲攻坚', score: 9, tone: 'danger' },
+        ],
+        weapons: [
+          { id: 'm256_he', icon: 'cannon', name: '120mm 高爆弹', ammo: '24/28', range: '0–1400m', splash: '爆破 3/9m', dmg: '伤 12', roleTag: '面伤清群' },
+          { id: 'm1028', icon: 'cannon', name: 'M1028 霰弹', ammo: '12/14', range: '0–450m', splash: '扇面 18m', dmg: '伤 18', roleTag: '近距尸潮' },
+          { id: 'm240', icon: 'cannon', name: '7.62mm 同轴机枪', ammo: '1800/2000', range: '0–600m', splash: '单点连射', dmg: '伤 1.5', roleTag: '持续补刀' },
+        ],
+        foldMeta: [
+          ['型号代号', 'US_M1A2'],
+          ['实测尺度', '9.8 × 3.7 × 2.4 m'],
+          ['可动机构', '炮塔 · 炮管'],
+          ['炮塔回转', '42°/s · 稳定射击'],
+          ['数值基底', 'brokenarrowstats.com'],
+          ['全局倍率', 'GLOBAL_BALANCE_SCALES 1.0×'],
+        ],
+      },
+      US_AH64D: {
+        slug: 'US_AH64D',
+        shortName: 'AH-64D',
+        subTitle: '武装直升机 · 30m 贴地越障',
+        channel: 'heli',
+        channelLabel: '旋翼',
+        iconKind: 'attack_heli',
+        cost: 240,
+        countInField: 1,
+        hp: 15,
+        maxHp: 15,
+        bonusArmorPct: 0,
+        liveTelemetry: ['高度 30m', '航速 120 km/h', '悬停警戒'],
+        kpis: [
+          { k: '巡航高度', v: '低空 30m' },
+          { k: '机动航速', v: '220 km/h' },
+          { k: '光学视野', v: '2000m' },
+          { k: '挂载载荷', v: '3 挂点' },
+        ],
+        caps: [
+          { k: '清尸扫射', score: 8, tone: 'heli' },
+          { k: '精确反甲', score: 9, tone: 'select' },
+          { k: '立体机动', score: 8, tone: 'ground' },
+        ],
+        weapons: [
+          { id: 'm230', icon: 'cannon', name: 'M230 30mm 链炮', ammo: '980/1200', range: '0–1100m', splash: '爆破 2.5/6m', dmg: '伤 2.4', roleTag: '压制清群' },
+          { id: 'agm114', icon: 'missile', name: 'AGM-114 地狱火', ammo: '8/8', range: '300–1600m', splash: '爆破 4/10m', dmg: '伤 26', roleTag: '精确点杀' },
+          { id: 'hydra_h', icon: 'rocket', name: 'Hydra 70 火箭巢', ammo: '38/38', range: '200–1300m', splash: '爆破 5/14m', dmg: '伤 7.5', roleTag: '面域覆盖' },
+        ],
+        foldMeta: [
+          ['型号代号', 'US_AH64D'],
+          ['实测尺度', '15.0 × 14.6 × 4.6 m'],
+          ['可动机构', '主旋翼 · 尾桨 · 机炮'],
+          ['电子干扰', 'ECM 15% · 热诱弹 ×4'],
+          ['数值基底', 'brokenarrowstats.com'],
+          ['全局倍率', 'GLOBAL_BALANCE_SCALES 1.0×'],
+        ],
+      },
+      US_A10: {
+        slug: 'US_A10',
+        shortName: 'A-10C',
+        subTitle: '对地攻击机 · 燃油制无血量',
+        channel: 'plane',
+        channelLabel: '固定翼',
+        iconKind: 'cas',
+        cost: 345,
+        countInField: 1,
+        usesFuel: true,
+        fuelMaxSec: 480,
+        rearmSec: 35,
+        bingoPct: 14,
+        liveTelemetry: ['高度 165m', '盘旋 351 km/h', '纯手操'],
+        caps: [
+          { k: '轻甲清扫', score: 10, tone: 'ground' },
+          { k: '中甲压制', score: 9, tone: 'select' },
+          { k: '重型爆破', score: 9, tone: 'danger' },
+        ],
+        weapons: [
+          { id: 'gau8', icon: 'cannon', name: 'GAU-8/A 30mm', ammo: '1150/1150', range: '1000m', splash: '3/7m', dmg: '2.25 ×连射', roleTag: '拖线扫射', clickable: true },
+          { id: 'hydra', icon: 'rocket', name: 'Hydra 70 火箭', ammo: '42/42', range: '1100m', splash: '5/14m', dmg: '7.5 ×齐射', roleTag: '拖线覆盖', clickable: true },
+          { id: 'agm65', icon: 'missile', name: 'AGM-65 小牛', ammo: '6/6', range: '1250m', splash: '4/11m', dmg: '22 穿甲', roleTag: '点选精打', clickable: true },
+          { id: 'jdam', icon: 'bomb', name: 'GBU-31 JDAM', ammo: '4/4', range: '1000m', splash: '12/28m', dmg: '56 重爆', roleTag: '连点轰炸', clickable: true },
+        ],
+        foldMeta: [
+          ['型号代号', 'US_A10'],
+          ['实测尺度', '16.2 × 17.6 × 4.0 m'],
+          ['作战高度', '135–215m · 盘旋 R120–380m'],
+          ['工况油耗', '1.0× / 1.2× / 1.45× / 1.85×'],
+          ['电子防护', 'ECM 20% · 热诱弹 ×6'],
+          ['数值基底', 'ba-source-ssot-v1 (1.0×)'],
+        ],
+      },
+    };
+
+    /* ==========================================================================
+       应用状态
+       ========================================================================== */
+    const state = {
+      view: 'play',         // 'play' | 'armory' | 'overview'
+      scheme: 'A',          // '0' | 'A' | 'B' | 'C'
+      unitKey: 'US_M1A2',
+      aspect: '16:9',
+      uiSize: 'lg',
+      detailOpen: true,
+      fuelPct: 78,
+      burnMode: 'cruise',
+      popoverOpen: false,
+    };
+
+    const SCHEME_NOTES = {
+      '0': {
+        title: '现状基线（截图复现）',
+        text: '252px 窄卡压在左下雷达顶盖，680p 下直接撞穿左上顶栏遥测，被迫隐藏左上增援轨；重复标题 3 次、地面误显“作战高度 0m”、武器被裁切出内滚动条。',
+      },
+      'A': {
+        title: '方案 A · 右下舱上浮宽体（推荐）',
+        text: '详情卡归位到右下主选舱正上方（与右下舱同宽 356–432px），选车→PiP→下令→查详情全在右下角闭环；左半屏彻底清空零碰撞，4 把武器 2 列并排零滚动全览。',
+      },
+      'B': {
+        title: '方案 B · 雷达右侧矮宽浮卡',
+        text: '保留左下雷达旁 [详情 I] 入口习惯，但脱离雷达顶盖改为向右外扩的矮宽卡（~215px 高），彻底不撞左上顶栏、不藏增援轨；需与兵牌展开/×N 单机弹窗做互斥。',
+      },
+      'C': {
+        title: '方案 C · 右缘同构窄抽屉',
+        text: '在右下舱上方贴右缘展开 308px 窄栏，与 /armory 武器库右侧档案 1:1 同宽同构、复用成本最低；代价是武器单列排列，A-10C 四把武器高度偏高。',
+      },
+    };
+
+    function fmtClock(sec) {
+      const s = Math.max(0, Math.round(sec));
+      return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function getFuelSnapshot(u, isStaticArmory = false) {
+      const pct = isStaticArmory ? 100 : state.fuelPct;
+      const burn = isStaticArmory ? BURN_MODES.cruise : BURN_MODES[state.burnMode];
+      const remainSec = Math.round((u.fuelMaxSec * (pct / 100)) / burn.rate);
+      const isBingo = !isStaticArmory && pct <= u.bingoPct;
+      const isLow = !isStaticArmory && !isBingo && pct <= 26;
+      const color = isBingo ? 'var(--ui-state-danger)' : (isLow ? 'var(--ui-state-warn)' : 'var(--ui-ch-plane)');
+      return { pct, burn, remainSec, isBingo, isLow, color };
+    }
+
+    function buildPipsHtml(score, tone) {
+      const litCount = Math.max(1, Math.min(5, Math.round(score / 2)));
+      let s = '<span class="ui-vd-pips">';
+      for (let i = 0; i < 5; i += 1) {
+        s += `<i class="${i < litCount ? `lit-${tone}` : ''}"></i>`;
+      }
+      return s + '</span>';
+    }
+
+    /* ==========================================================================
+       统一渲染器：拟沉淀进 src/界面规范/ 的共享详情卡（完整档 / 武器库档 / 悬停精简档）
+       ========================================================================== */
+    function renderSharedDetailCardHtml(u, { mode = 'play', showClose = true, narrow = false } = {}) {
+      const isArmory = mode === 'armory';
+      const isPlane = Boolean(u.usesFuel);
+      const fuel = isPlane ? getFuelSnapshot(u, isArmory) : null;
+
+      // 顶层状态条
+      let statusLbl = '机体耐久 (HP)';
+      let statusVal = `${u.hp} / ${u.maxHp}${u.bonusArmorPct ? ` +${u.bonusArmorPct}% 反应甲` : ''}`;
+      let barPct = Math.round((u.hp / u.maxHp) * 100);
+      let barColor = `var(--ui-ch-${u.channel})`;
+      let valColor = 'var(--ui-text-primary)';
+      let bingoTickHtml = '';
+      let bonusHtml = u.bonusArmorPct ? `<div class="ui-vd-bonus" style="left:${Math.max(0, 100 - u.bonusArmorPct)}%;width:${u.bonusArmorPct}%"></div>` : '';
+
+      if (isPlane && fuel) {
+        statusLbl = isArmory
+          ? `战术燃油（无血量 · 巡航满油）`
+          : `战术燃油 · ${fuel.burn.label} ${fuel.burn.rate.toFixed(2).replace(/\.00$/, '.0')}×`;
+        statusVal = isArmory
+          ? `100% · ${fmtClock(u.fuelMaxSec)} (返航线 ${u.bingoPct}%)`
+          : `${fuel.pct}% · ${fmtClock(fuel.remainSec)}${fuel.isBingo ? ' [BINGO 返航]' : ` (红线 ${u.bingoPct}%)`}`;
+        barPct = fuel.pct;
+        barColor = fuel.color;
+        valColor = fuel.isBingo ? 'var(--ui-state-danger)' : (fuel.isLow ? 'var(--ui-state-warn)' : 'var(--ui-ch-plane-inner)');
+        bingoTickHtml = `<div class="ui-vd-bingo-tick" style="left:${u.bingoPct}%" title="动态 Bingo 返航红线 ${u.bingoPct}%"></div>`;
+        bonusHtml = '';
+      }
+
+      // 分兵种 4 项高价值 KPI
+      const kpis = isPlane
+        ? [
+            { k: isArmory ? '满油留空' : '当前余油', v: isArmory ? fmtClock(u.fuelMaxSec) : fmtClock(fuel.remainSec) },
+            { k: '工况油耗', v: `${fuel.burn.label} ${fuel.burn.rate}×` },
+            { k: '整备冷却', v: `${u.rearmSec}s` },
+            { k: '侦察视野', v: '2500m' },
+          ]
+        : u.kpis;
+
+      const extraBadge = isPlane
+        ? `<span class="ui-badge" data-tone="${fuel.isBingo ? 'danger' : (fuel.isLow ? 'warn' : 'plane')}">${fuel.isBingo ? '低油返航' : `整备 ${u.rearmSec}s`}</span>`
+        : '';
+
+      return `
+        <div class="ui-vd-head">
+          <div class="ui-vd-id">
+            <span class="ui-vd-ico">${svgVehicle(u.iconKind, 15)}</span>
+            <div class="ui-vd-titles">
+              <strong>${u.shortName}</strong>
+              <small>${u.subTitle}</small>
+            </div>
+          </div>
+          <div class="ui-vd-badges">
+            <span class="ui-badge" data-tone="${u.channel}">${u.channelLabel}</span>
+            <span class="ui-badge" data-tone="select">${u.cost} pt</span>
+            ${extraBadge}
+            ${showClose ? '<button type="button" class="ui-vd-close" data-vd-close="1" title="收起 [I / Esc]">✕</button>' : ''}
+          </div>
+        </div>
+
+        <div class="ui-vd-status">
+          <div class="ui-vd-status-head">
+            <span class="ui-vd-status-lbl">${statusLbl}</span>
+            <span class="ui-vd-status-val" style="color:${valColor}">${statusVal}</span>
+          </div>
+          <div class="ui-vd-track">
+            <div class="ui-vd-fill" style="width:${barPct}%;background:${barColor}"></div>
+            ${bonusHtml}
+            ${bingoTickHtml}
+          </div>
+        </div>
+
+        <div class="ui-vd-kpi-row">
+          ${kpis.map(it => `<div class="ui-vd-kpi"><span>${it.k}</span><b>${it.v}</b></div>`).join('')}
+        </div>
+
+        <div class="ui-vd-caps">
+          ${u.caps.map(c => `
+            <div class="ui-vd-cap">
+              <div class="ui-vd-cap-top"><span>${c.k}</span><b>${c.score}/10</b></div>
+              ${buildPipsHtml(c.score, c.tone)}
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="ui-vd-weps">
+          ${u.weapons.map(w => `
+            <button type="button" class="ui-vd-wep${w.clickable && !isArmory ? ' is-clickable' : ''}" data-wep-name="${w.name}" data-wep-tag="${w.roleTag}">
+              <span class="ui-vd-wep-ico">${svgWeapon(w.icon, 14)}</span>
+              <span class="ui-vd-wep-body">
+                <span class="ui-vd-wep-r1">
+                  <strong>${w.name}</strong>
+                  <b>${w.ammo}</b>
+                </span>
+                <span class="ui-vd-wep-r2">
+                  <span>${w.range} · ${w.splash}</span>
+                  <span class="ui-vd-role-tag">${w.roleTag}</span>
+                </span>
+              </span>
+            </button>
+          `).join('')}
+        </div>
+
+        <details class="ui-vd-fold">
+          <summary>
+            <span>▸ 更多原始参数与基底（默认折叠降噪）</span>
+            <span class="mono">ba-source-ssot-v1</span>
+          </summary>
+          <div class="ui-vd-fold-grid">
+            ${u.foldMeta.map(([k, v]) => `<div class="ui-vd-fold-row"><span>${k}</span><b>${v}</b></div>`).join('')}
+          </div>
+        </details>
+      `;
+    }
+
+    function renderHoverCardHtml(u, { isGroup = false } = {}) {
+      const isPlane = Boolean(u.usesFuel);
+      const fuel = isPlane ? getFuelSnapshot(u, false) : null;
+      const barPct = isPlane ? fuel.pct : (isGroup ? 80 : 100);
+      const barColor = isPlane ? fuel.color : `var(--ui-ch-${u.channel})`;
+      const statusRight = isPlane
+        ? `${fuel.pct}% · ${fmtClock(fuel.remainSec)} (${fuel.burn.label} ${fuel.burn.rate}×)`
+        : (isGroup ? `编队均血 80% · 在场 ×${u.countInField}` : `HP ${u.hp}/${u.maxHp}`);
+
+      const quickStats = isPlane
+        ? [['满油', fmtClock(u.fuelMaxSec)], ['红线', `${u.bingoPct}%`], ['整备', `${u.rearmSec}s`]]
+        : u.kpis.slice(0, 3).map(it => [it.k.slice(-2), it.v]);
+
+      return `
+        <div class="ui-vd-head" style="padding-bottom:4px">
+          <div class="ui-vd-id">
+            <span class="ui-vd-ico" style="width:22px;height:22px">${svgVehicle(u.iconKind, 13)}</span>
+            <div class="ui-vd-titles">
+              <strong style="font-size:12px">${u.shortName}${isGroup ? ` ×${u.countInField}` : ''}</strong>
+              <small>${isGroup ? '同型聚合编队 · 点击 ×N 选单机' : u.subTitle}</small>
+            </div>
+          </div>
+          <span class="ui-badge" data-tone="${u.channel}">${u.channelLabel}</span>
+        </div>
+
+        <div class="ui-vd-status">
+          <div class="ui-vd-status-head" style="font-size:9.5px">
+            <span class="ui-vd-status-lbl">${isPlane ? '战术燃油' : '耐久状态'}</span>
+            <span class="ui-vd-status-val" style="font-size:10px;color:${isPlane && fuel.isBingo ? 'var(--ui-state-danger)' : 'var(--ui-text-primary)'}">${statusRight}</span>
+          </div>
+          <div class="ui-vd-track" style="height:6px">
+            <div class="ui-vd-fill" style="width:${barPct}%;background:${barColor}"></div>
+            ${isPlane ? `<div class="ui-vd-bingo-tick" style="left:${u.bingoPct}%"></div>` : ''}
+          </div>
+        </div>
+
+        <div class="ui-vd-hover-stats">
+          ${quickStats.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join('')}
+        </div>
+
+        <div class="ui-vd-hover-weps">
+          ${u.weapons.slice(0, 3).map(w => `
+            <div class="ui-vd-hover-wep">
+              <span class="ui-vd-hover-wep-l" style="color:var(--ui-text-primary)">
+                <span style="color:var(--vd-ch);display:inline-flex">${svgWeapon(w.icon, 11)}</span>
+                <span>${w.name}</span>
+              </span>
+              <span class="ui-vd-hover-wep-r">${w.ammo} · ${w.roleTag}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    /* 现状基线旧卡复现（还原截图里的所有问题） */
+    function renderLegacyCardHtml(u) {
+      const isPlane = Boolean(u.usesFuel);
+      const fuel = isPlane ? getFuelSnapshot(u, false) : null;
+      const barPct = isPlane ? fuel.pct : 100;
+      const barColor = isPlane ? fuel.color : `var(--ui-ch-${u.channel})`;
+      return `
+        <div class="legacy-head">
+          <div class="legacy-portrait" style="color:var(--ui-ch-${u.channel})">${svgVehicle(u.iconKind, 26)}</div>
+          <div style="min-width:0">
+            <strong style="display:block;font-size:13px;color:var(--ui-state-select)">${u.shortName}</strong>
+            <small style="display:block;font-size:10px;color:var(--ui-text-secondary)">${u.shortName}</small>
+            <div style="display:flex;gap:4px;margin-top:3px">
+              <span class="ui-badge" data-tone="${u.channel}">${u.channelLabel}</span>
+              <span class="ui-badge" data-tone="select">${u.cost} pt</span>
+            </div>
+          </div>
+          <button type="button" class="ui-vd-close" data-vd-close="1">✕</button>
+        </div>
+
+        <div class="ui-vd-status">
+          <div class="ui-vd-status-head">
+            <span>${isPlane ? `战术燃油 · ${fuel.burn.label} ${fuel.burn.rate}×` : '机体耐久 (HP)'}</span>
+            <b class="mono">${isPlane ? `${fuel.pct}% · ${fmtClock(fuel.remainSec)}` : `${u.hp} / ${u.maxHp}`}</b>
+          </div>
+          <div class="ui-vd-track">
+            <div class="ui-vd-fill" style="width:${barPct}%;background:${barColor}"></div>
+          </div>
+        </div>
+
+        <div class="legacy-core-grid">
+          <div class="legacy-kv"><span>巡航 / 突击航速</span><b>${isPlane ? '351 / 450 km/h' : (u.channel === 'heli' ? '120 km/h' : '54 km/h')}</b></div>
+          <div class="legacy-kv"><span>作战高度</span><b>${isPlane ? '135–215m' : (u.channel === 'heli' ? '低空 22m' : '地面 0m')}</b></div>
+          <div class="legacy-kv"><span>${isPlane ? '盘旋半径区间' : '主武器射程'}</span><b>${isPlane ? '120–380m' : '180m'}</b></div>
+          <div class="legacy-kv"><span>侦察视野</span><b>${isPlane ? '2500m' : (u.channel === 'heli' ? '1050m' : '750m')}</b></div>
+        </div>
+
+        <div style="font-size:9.5px;color:var(--ui-text-muted);font-weight:800">对地火力评定（面向丧尸防线）</div>
+        <div style="padding:5px 6px;border-radius:4px;border:1px solid var(--ui-line-subtle);background:rgba(255,255,255,0.025);display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--ui-text-secondary)">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span>清扫尸群 (轻甲)</span><span style="width:94px">${buildPipsHtml(u.caps[0].score, 'ground')}</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span>压制装甲 (中甲)</span><span style="width:94px">${buildPipsHtml(u.caps[1].score, 'select')}</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span>重型爆破 (重甲)</span><span style="width:94px">${buildPipsHtml(u.caps[2].score, 'danger')}</span></div>
+        </div>
+
+        <div style="font-size:9.5px;color:var(--ui-text-muted);font-weight:800">独立武器参数（点击可进入瞄准）</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          ${u.weapons.map(w => `
+            <div style="padding:5px 6px;border-radius:4px;border:1px solid var(--ui-line-subtle);background:rgba(255,255,255,0.03)">
+              <div style="display:flex;justify-content:space-between;font-size:10.5px"><strong>${w.name}</strong><b class="mono" style="color:var(--ui-state-select)">${w.ammo}</b></div>
+              <div class="mono" style="font-size:9.5px;color:var(--ui-text-secondary)">射程 ${w.range} · ${w.splash} · ${w.dmg}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       Toast 提示 & 悬停浮卡调度（180ms 延迟防扫过误闪）
+       ========================================================================== */
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('hud-toast');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('is-show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('is-show'), 1800);
+    }
+
+    let hoverTimer = null;
+    function hideHoverCard() {
+      clearTimeout(hoverTimer);
+      const hc = document.getElementById('deck-hover-card');
+      if (hc) hc.hidden = true;
+    }
+
+    function scheduleHoverCard(cardEl, unitKey, isGroup) {
+      if (state.popoverOpen) return;
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => {
+        if (state.popoverOpen) return;
+        const u = UNITS[unitKey];
+        const hc = document.getElementById('deck-hover-card');
+        const deck = document.getElementById('card-deck');
+        if (!u || !hc || !deck) return;
+        hc.dataset.channel = u.channel;
+        hc.classList.toggle('is-bingo', Boolean(u.usesFuel && state.fuelPct <= u.bingoPct));
+        hc.innerHTML = renderHoverCardHtml(u, { isGroup });
+        const cRect = cardEl.getBoundingClientRect();
+        const dRect = deck.getBoundingClientRect();
+        const left = Math.max(0, Math.min(dRect.width - 256, cRect.left - dRect.left - 40));
+        hc.style.left = `${Math.round(left)}px`;
+        hc.hidden = false;
+      }, 180);
+    }
+
+    /* ==========================================================================
+       主渲染同步
+       ========================================================================== */
+    function renderAll() {
+      const u = UNITS[state.unitKey];
+      const stage = document.getElementById('stage-frame');
+      stage.dataset.aspect = state.aspect;
+      stage.dataset.uiSize = state.uiSize;
+
+      // 顶部按钮激活态
+      document.querySelectorAll('#grp-view .c-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
+      document.querySelectorAll('#grp-scheme .c-btn').forEach(b => b.classList.toggle('active', b.dataset.scheme === state.scheme));
+      document.querySelectorAll('#grp-unit .c-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === state.unitKey));
+      document.querySelectorAll('#grp-aspect .c-btn').forEach(b => b.classList.toggle('active', b.dataset.aspect === state.aspect));
+      document.querySelectorAll('#grp-size .c-btn').forEach(b => b.classList.toggle('active', b.dataset.size === state.uiSize));
+      document.querySelectorAll('#grp-burn .c-btn').forEach(b => b.classList.toggle('active', b.dataset.burn === state.burnMode));
+
+      const openBtn = document.getElementById('btn-toggle-open');
+      openBtn.classList.toggle('active', state.detailOpen);
+      openBtn.innerHTML = `${state.detailOpen ? '详情卡已展开' : '详情卡已收起'} <span class="c-kbd">I</span>`;
+
+      // 固定翼模拟条显隐
+      const fuelBar = document.getElementById('fuel-sim-bar');
+      fuelBar.hidden = !u.usesFuel;
+      document.getElementById('fuel-range').value = String(state.fuelPct);
+      document.getElementById('fuel-range-val').textContent = `${state.fuelPct}%`;
+
+      // 三个大视图显隐
+      document.getElementById('stage-scroll-wrap').hidden = state.view === 'overview';
+      document.getElementById('play-hud').hidden = state.view !== 'play';
+      document.getElementById('armory-stage').hidden = state.view !== 'armory';
+      document.getElementById('overview-wrap').hidden = state.view !== 'overview';
+
+      // 渲染底部兵牌坞
+      const deckGrid = document.getElementById('deck-cards-grid');
+      deckGrid.innerHTML = Object.values(UNITS).map(item => {
+        const isPlane = Boolean(item.usesFuel);
+        const f = isPlane ? getFuelSnapshot(item, false) : null;
+        const pct = isPlane ? f.pct : 100;
+        const color = isPlane ? f.color : `var(--ui-ch-${item.channel})`;
+        const isGroup = item.countInField > 1;
+        return `
+          <div class="banner-card${item.slug === state.unitKey ? ' active' : ''}"
+               data-channel="${item.channel}"
+               data-unit-key="${item.slug}"
+               data-is-group="${isGroup ? '1' : '0'}">
+            <div class="bc-top">
+              <span style="color:var(--ui-ch-${item.channel});display:inline-flex">${svgVehicle(item.iconKind, 12)}</span>
+              ${isGroup
+                ? `<button type="button" class="bc-count-btn" data-pop-btn="1">×${item.countInField}</button>`
+                : `<span class="bc-tag">${isPlane ? (f.isBingo ? '返航' : '盘旋') : '待命'}</span>`}
+            </div>
+            <div class="bc-art" style="color:var(--ui-ch-${item.channel})">${svgVehicle(item.iconKind, 34)}</div>
+            <div class="bc-foot">
+              <div class="bc-name">${item.shortName}</div>
+              <div class="bc-bar"><i style="width:${pct}%;background:${color}"></i></div>
+              ${isPlane ? '<div class="bc-ammo"><i style="width:100%"></i></div>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 绑定兵牌点击与悬停精简浮卡
+      deckGrid.querySelectorAll('.banner-card').forEach(cardEl => {
+        const key = cardEl.dataset.unitKey;
+        const isGroup = cardEl.dataset.isGroup === '1';
+        cardEl.addEventListener('pointerenter', () => scheduleHoverCard(cardEl, key, isGroup));
+        cardEl.addEventListener('pointerleave', hideHoverCard);
+        cardEl.addEventListener('click', e => {
+          if (e.target.closest('[data-pop-btn]')) {
+            e.stopPropagation();
+            state.popoverOpen = !state.popoverOpen;
+            document.getElementById('deck-popover').hidden = !state.popoverOpen;
+            if (state.popoverOpen) hideHoverCard();
+            return;
+          }
+          state.unitKey = key;
+          state.popoverOpen = false;
+          document.getElementById('deck-popover').hidden = true;
+          renderAll();
+        });
+      });
+
+      // 渲染右下主选舱 Live PiP + 命令盘
+      document.getElementById('pip-silhouette').innerHTML = `<span style="color:var(--ui-ch-${u.channel})">${svgVehicle(u.iconKind, 52)}</span>`;
+      document.getElementById('insp-ico').innerHTML = `<span style="color:var(--ui-ch-${u.channel});display:inline-flex">${svgVehicle(u.iconKind, 15)}</span>`;
+      document.getElementById('insp-name').textContent = u.shortName;
+      document.getElementById('insp-kv-row').innerHTML = u.liveTelemetry.map(t => `<span>${t}</span>`).join('');
+
+      const isPlane = Boolean(u.usesFuel);
+      const fuel = isPlane ? getFuelSnapshot(u, false) : null;
+      document.getElementById('insp-bar-wrap').innerHTML = `
+        <div class="insp-bar-head">
+          <span style="color:var(--ui-text-secondary)">${isPlane ? `燃油 · ${fuel.burn.label} ${fuel.burn.rate}×` : '机体耐久'}</span>
+          <b style="color:${isPlane && fuel.isBingo ? 'var(--ui-state-danger)' : 'var(--ui-text-primary)'}">${isPlane ? `${fuel.pct}% · ${fmtClock(fuel.remainSec)}` : `${u.hp}/${u.maxHp}`}</b>
+        </div>
+        <div class="ui-vd-track" style="height:6px">
+          <div class="ui-vd-fill" style="width:${isPlane ? fuel.pct : 100}%;background:${isPlane ? fuel.color : `var(--ui-ch-${u.channel})`}"></div>
+          ${isPlane ? `<div class="ui-vd-bingo-tick" style="left:${u.bingoPct}%"></div>` : ''}
+        </div>
+      `;
+
+      const cmdGrid = document.getElementById('cmd-wep-2x2');
+      const paddedWeps = [...u.weapons.slice(0, 4)];
+      while (paddedWeps.length < 4) paddedWeps.push(null);
+      cmdGrid.innerHTML = paddedWeps.map((w, idx) => w ? `
+        <div class="cmd-wep-slot">
+          <div class="cmd-wep-ico" style="color:var(--ui-ch-${u.channel})">${svgWeapon(w.icon, 15)}</div>
+          <div class="cmd-wep-txt">
+            <strong>${w.name}</strong>
+            <small>${w.ammo} · ${w.roleTag}</small>
+          </div>
+        </div>
+      ` : `
+        <div class="cmd-wep-slot" style="opacity:0.36;border-style:dashed">
+          <div class="cmd-wep-ico">—</div>
+          <div class="cmd-wep-txt"><strong>待命槽 ${idx + 1}</strong><small>无挂点</small></div>
+        </div>
+      `).join('');
+
+      // 渲染 4 套方案的详情卡与入口归属
+      const legacyEl = document.getElementById('legacy-detail-card');
+      const cardA = document.getElementById('vd-card-a');
+      const cardB = document.getElementById('vd-card-b');
+      const cardC = document.getElementById('vd-card-c');
+      const leftBar = document.getElementById('left-detail-bar');
+      const leftToggleBtn = document.getElementById('btn-left-detail-toggle');
+      const rightToggleBtn = document.getElementById('btn-right-detail-toggle');
+      const deployRail = document.getElementById('deploy-rail');
+
+      legacyEl.hidden = true;
+      cardA.hidden = true;
+      cardB.hidden = true;
+      cardC.hidden = true;
+
+      const useLeftEntry = state.scheme === '0' || state.scheme === 'B';
+      leftBar.hidden = !useLeftEntry;
+      rightToggleBtn.hidden = useLeftEntry;
+      leftToggleBtn.classList.toggle('active', state.detailOpen);
+      rightToggleBtn.classList.toggle('active', state.detailOpen);
+      document.getElementById('left-toggle-unit').textContent = u.shortName;
+
+      // 现状基线展开时被迫藏掉左上增援轨
+      deployRail.classList.toggle('is-hidden-by-old', state.scheme === '0' && state.detailOpen);
+
+      let activeCardEl = null;
+      if (state.detailOpen) {
+        if (state.scheme === '0') {
+          legacyEl.innerHTML = renderLegacyCardHtml(u);
+          legacyEl.hidden = false;
+          activeCardEl = legacyEl;
+        } else if (state.scheme === 'A') {
+          cardA.dataset.channel = u.channel;
+          cardA.classList.toggle('is-bingo', Boolean(isPlane && fuel.isBingo));
+          cardA.innerHTML = renderSharedDetailCardHtml(u, { mode: 'play', showClose: true });
+          cardA.hidden = false;
+          activeCardEl = cardA;
+        } else if (state.scheme === 'B') {
+          cardB.dataset.channel = u.channel;
+          cardB.classList.toggle('is-bingo', Boolean(isPlane && fuel.isBingo));
+          cardB.innerHTML = renderSharedDetailCardHtml(u, { mode: 'play', showClose: true });
+          cardB.hidden = false;
+          activeCardEl = cardB;
+        } else if (state.scheme === 'C') {
+          cardC.dataset.channel = u.channel;
+          cardC.classList.toggle('is-bingo', Boolean(isPlane && fuel.isBingo));
+          cardC.innerHTML = renderSharedDetailCardHtml(u, { mode: 'play', showClose: true, narrow: true });
+          cardC.hidden = false;
+          activeCardEl = cardC;
+        }
+      }
+
+      // 绑定卡片内关闭与点击武器
+      for (const container of [legacyEl, cardA, cardB, cardC]) {
+        container.querySelector('[data-vd-close]')?.addEventListener('click', () => {
+          state.detailOpen = false;
+          renderAll();
+        });
+        container.querySelectorAll('.ui-vd-wep.is-clickable').forEach(btn => {
+          btn.addEventListener('click', () => {
+            showToast(`已切换瞄准：${btn.dataset.wepName}（${btn.dataset.wepTag}）`);
+          });
+        });
+      }
+
+      // 渲染 /armory 视图
+      renderArmoryView(u);
+
+      // 渲染三落点同源总览
+      renderOverviewView(u);
+
+      // 计算真实像素碰撞与空间净空诊断
+      requestAnimationFrame(() => updateDiagnostics(activeCardEl));
+    }
+
+    function renderArmoryView(u) {
+      const listEl = document.getElementById('armory-list');
+      listEl.innerHTML = Object.values(UNITS).map(item => `
+        <div class="armory-list-item${item.slug === state.unitKey ? ' active' : ''}" data-channel="${item.channel}" data-arm-key="${item.slug}">
+          <span style="display:inline-flex;align-items:center;gap:6px">
+            <span style="color:var(--ui-ch-${item.channel});display:inline-flex">${svgVehicle(item.iconKind, 15)}</span>
+            <strong>${item.shortName}</strong>
+          </span>
+          <span class="mono" style="font-size:10px;color:var(--ui-text-muted)">${item.cost} pt</span>
+        </div>
+      `).join('');
+      listEl.querySelectorAll('[data-arm-key]').forEach(el => {
+        el.addEventListener('click', () => {
+          state.unitKey = el.dataset.armKey;
+          renderAll();
+        });
+      });
+
+      document.getElementById('armory-center-badge').innerHTML = `
+        <span style="color:var(--ui-ch-${u.channel});display:inline-flex">${svgVehicle(u.iconKind, 22)}</span>
+        <div>
+          <strong style="display:block;font-size:14px">${u.shortName}</strong>
+          <small class="mono" style="color:var(--ui-text-secondary);font-size:10px">${u.subTitle} · ${u.slug}</small>
+        </div>
+      `;
+
+      document.getElementById('armory-3d-pedestal').innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+          <div style="color:#1c2228;opacity:0.86;filter:drop-shadow(0 18px 20px rgba(0,0,0,0.34))">${svgVehicle(u.iconKind, 190)}</div>
+          <span class="ui-badge" data-tone="select">680p 复古微缩沙盘 3D 展台（示意）</span>
+        </div>
+      `;
+
+      const mount = document.getElementById('armory-vd-mount');
+      mount.innerHTML = `<div class="ui-vd-card is-narrow" data-channel="${u.channel}">${renderSharedDetailCardHtml(u, { mode: 'armory', showClose: false, narrow: true })}</div>`;
+    }
+
+    function renderOverviewView(u) {
+      document.getElementById('ov-full-mount').innerHTML =
+        `<div class="ui-vd-card" data-channel="${u.channel}">${renderSharedDetailCardHtml(u, { mode: 'play', showClose: true })}</div>`;
+      document.getElementById('ov-hover-single-mount').innerHTML =
+        `<div class="ui-vd-card" data-channel="${u.channel}" style="width:264px">${renderHoverCardHtml(u, { isGroup: false })}</div>`;
+      document.getElementById('ov-hover-group-mount').innerHTML =
+        `<div class="ui-vd-card" data-channel="ground" style="width:264px">${renderHoverCardHtml(UNITS.US_M1A2, { isGroup: true })}</div>`;
+      document.getElementById('ov-armory-mount').innerHTML =
+        `<div class="ui-vd-card is-narrow" data-channel="${u.channel}" style="max-width:324px">${renderSharedDetailCardHtml(u, { mode: 'armory', showClose: false, narrow: true })}</div>`;
+    }
+
+    function updateDiagnostics(activeCardEl) {
+      const note = SCHEME_NOTES[state.scheme];
+      document.getElementById('diag-desc').innerHTML = `<strong>${note.title}</strong><span>${note.text}</span>`;
+
+      const colBadge = document.getElementById('collision-badge');
+      const metricsEl = document.getElementById('diag-metrics');
+      if (state.view !== 'play' || !activeCardEl || activeCardEl.hidden) {
+        colBadge.hidden = true;
+        metricsEl.innerHTML = `<span class="metric-pill ok">当前模式 <b>${state.view === 'armory' ? '/armory 武器库同源右栏' : (state.view === 'overview' ? '三落点并排校验' : '详情卡已收起')}</b></span>`;
+        return;
+      }
+
+      const stageRect = document.getElementById('stage-frame').getBoundingClientRect();
+      const topRect = document.getElementById('top-tele-pod').getBoundingClientRect();
+      const cardRect = activeCardEl.getBoundingClientRect();
+
+      const gapToTopBar = Math.round(cardRect.top - topRect.bottom);
+      const hasOverflowScroll = activeCardEl.scrollHeight > activeCardEl.clientHeight + 2;
+      const hidesRail = state.scheme === '0';
+
+      if (gapToTopBar < 0) {
+        colBadge.hidden = false;
+        colBadge.style.left = `${Math.round(cardRect.left - stageRect.left + 8)}px`;
+        colBadge.style.top = `${Math.max(6, Math.round(topRect.bottom - stageRect.top - 10))}px`;
+      } else {
+        colBadge.hidden = true;
+      }
+
+      metricsEl.innerHTML = `
+        <span class="metric-pill">实测尺寸 <b>${Math.round(cardRect.width)}×${Math.round(cardRect.height)}px</b></span>
+        <span class="metric-pill ${gapToTopBar < 0 ? 'bad' : (gapToTopBar < 40 ? 'warn' : 'ok')}">距顶栏净空 <b>${gapToTopBar < 0 ? `重叠 ${Math.abs(gapToTopBar)}px` : `+${gapToTopBar}px`}</b></span>
+        <span class="metric-pill ${hasOverflowScroll ? 'bad' : 'ok'}">内滚动裁切 <b>${hasOverflowScroll ? '有裁切' : '零滚动'}</b></span>
+        <span class="metric-pill ${hidesRail ? 'bad' : 'ok'}">左上增援轨 <b>${hidesRail ? '被迫隐藏' : '完整常驻'}</b></span>
+      `;
+    }
+
+    /* ==========================================================================
+       交互事件绑定
+       ========================================================================== */
+    document.getElementById('grp-view').addEventListener('click', e => {
+      const b = e.target.closest('[data-view]');
+      if (!b) return;
+      state.view = b.dataset.view;
+      renderAll();
+    });
+
+    document.getElementById('grp-scheme').addEventListener('click', e => {
+      const b = e.target.closest('[data-scheme]');
+      if (!b) return;
+      state.scheme = b.dataset.scheme;
+      state.detailOpen = true;
+      renderAll();
+    });
+
+    document.getElementById('grp-unit').addEventListener('click', e => {
+      const b = e.target.closest('[data-unit]');
+      if (!b) return;
+      state.unitKey = b.dataset.unit;
+      renderAll();
+    });
+
+    document.getElementById('grp-aspect').addEventListener('click', e => {
+      const b = e.target.closest('[data-aspect]');
+      if (!b) return;
+      state.aspect = b.dataset.aspect;
+      renderAll();
+    });
+
+    document.getElementById('grp-size').addEventListener('click', e => {
+      const b = e.target.closest('[data-size]');
+      if (!b) return;
+      state.uiSize = b.dataset.size;
+      renderAll();
+    });
+
+    document.getElementById('btn-toggle-open').addEventListener('click', () => {
+      state.detailOpen = !state.detailOpen;
+      renderAll();
+    });
+
+    document.getElementById('btn-left-detail-toggle').addEventListener('click', () => {
+      state.detailOpen = !state.detailOpen;
+      renderAll();
+    });
+
+    document.getElementById('btn-right-detail-toggle').addEventListener('click', () => {
+      state.detailOpen = !state.detailOpen;
+      renderAll();
+    });
+
+    document.getElementById('btn-close-pop').addEventListener('click', () => {
+      state.popoverOpen = false;
+      document.getElementById('deck-popover').hidden = true;
+    });
+
+    document.getElementById('fuel-range').addEventListener('input', e => {
+      state.fuelPct = Number(e.target.value);
+      renderAll();
+    });
+
+    document.getElementById('grp-fuel-preset').addEventListener('click', e => {
+      const b = e.target.closest('[data-fuel]');
+      if (!b) return;
+      state.fuelPct = Number(b.dataset.fuel);
+      renderAll();
+    });
+
+    document.getElementById('grp-burn').addEventListener('click', e => {
+      const b = e.target.closest('[data-burn]');
+      if (!b) return;
+      state.burnMode = b.dataset.burn;
+      renderAll();
+    });
+
+    document.getElementById('btn-armory-deploy').addEventListener('click', () => {
+      state.view = 'play';
+      renderAll();
+      showToast('已切换回 /play 实战视角');
+    });
+
+    window.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT') return;
+      const k = e.key.toLowerCase();
+      if (k === '0') { state.scheme = '0'; state.detailOpen = true; renderAll(); }
+      else if (k === '1') { state.scheme = 'A'; state.detailOpen = true; renderAll(); }
+      else if (k === '2') { state.scheme = 'B'; state.detailOpen = true; renderAll(); }
+      else if (k === '3') { state.scheme = 'C'; state.detailOpen = true; renderAll(); }
+      else if (k === 'i') { state.detailOpen = !state.detailOpen; renderAll(); }
+      else if (k === 'escape') {
+        if (state.popoverOpen) {
+          state.popoverOpen = false;
+          document.getElementById('deck-popover').hidden = true;
+        } else if (state.detailOpen) {
+          state.detailOpen = false;
+          renderAll();
+        }
+      }
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>

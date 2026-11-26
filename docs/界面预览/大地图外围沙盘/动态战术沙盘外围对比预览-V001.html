@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scavenger · 地图外围动态战术沙盘多方案对比预览 V001</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-canvas: #0d0e13;
+      --bg-pod: rgba(19, 20, 28, 0.92);
+      --bg-slot: rgba(35, 37, 48, 0.88);
+      --line-subtle: rgba(255, 255, 255, 0.10);
+      --line-base: rgba(255, 255, 255, 0.20);
+      --gold: #f0d372;
+      --gold-grad: linear-gradient(135deg, #f6de86 0%, #e5b73e 100%);
+      --safe: #3cd69f;
+      --danger: #ff5266;
+      --ground: #38e5c0;
+      --text-primary: #f5f6f9;
+      --text-secondary: #b6bac5;
+      --text-muted: #838896;
+      --font-sans: "Bahnschrift", "HarmonyOS Sans SC", "Microsoft YaHei UI", sans-serif;
+      --font-mono: "Cascadia Mono", "Consolas", "Microsoft YaHei UI", monospace;
+    }
+
+    * { box-sizing: border-box; user-select: none; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    .top-bar {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-pod);
+      border-bottom: 1px solid var(--line-base);
+      z-index: 20;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0d0e13;
+      background: var(--gold-grad);
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .mode-group, .action-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 4px;
+      border: 1px solid var(--line-base);
+      background: var(--bg-slot);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.14s, background-color 0.14s, color 0.14s;
+    }
+
+    .btn:hover {
+      border-color: rgba(255, 255, 255, 0.36);
+      color: var(--text-primary);
+      background: rgba(52, 55, 70, 0.92);
+    }
+
+    .btn.active {
+      background: rgba(240, 211, 114, 0.18);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn.active-safe {
+      background: rgba(60, 214, 159, 0.18);
+      border-color: var(--safe);
+      color: #9ff3d4;
+    }
+
+    .btn.active-ground {
+      background: rgba(56, 229, 192, 0.16);
+      border-color: var(--ground);
+      color: #98f7e4;
+    }
+
+    .kbd {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: inherit;
+    }
+
+    .stage-wrap {
+      position: relative;
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2px;
+      background: #06070a;
+      min-height: 0;
+    }
+
+    .stage-wrap.split {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .viewport-pane {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0c1013;
+    }
+
+    .viewport-pane.hidden {
+      display: none;
+    }
+
+    /* 严格对齐项目 680p 复古微缩 Stylized 画布层 */
+    .scene-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      filter: contrast(1.08) saturate(1.10) sepia(0.06);
+      cursor: crosshair;
+    }
+
+    .pane-header {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .pane-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      background: rgba(15, 17, 23, 0.88);
+      border: 1px solid var(--line-base);
+      max-width: 100%;
+    }
+
+    .pane-tag.baseline { border-color: rgba(255, 82, 102, 0.52); }
+    .pane-tag.candidate { border-color: rgba(60, 214, 159, 0.56); }
+
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+    .pane-tag-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .pane-tag-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+    .telemetry-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .pill {
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(15, 17, 23, 0.88);
+      border: 1px solid var(--line-subtle);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .pill.safe {
+      border-color: rgba(60, 214, 159, 0.58);
+      color: #82f0c8;
+      background: rgba(14, 42, 33, 0.88);
+    }
+
+    .pane-callout {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      max-width: min(520px, calc(100% - 20px));
+      padding: 7px 11px;
+      border-radius: 4px;
+      background: rgba(15, 17, 23, 0.88);
+      border: 1px solid var(--line-subtle);
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-secondary);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .pane-callout strong { color: var(--gold); }
+
+    .bottom-dock {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 14px;
+      background: var(--bg-pod);
+      border-top: 1px solid var(--line-base);
+      z-index: 20;
+    }
+
+    .summary-card {
+      flex: 1 1 540px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .summary-card b { color: var(--gold); }
+
+    .control-hints {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="top-bar">
+    <div class="brand-group">
+      <span class="brand-badge">外围沙盘对比 V001</span>
+      <span class="brand-title">9km 地图外围动态战术沙盘多方案预览</span>
+      <span class="brand-sub">参考 WARNO / Broken Arrow / ARES 沙盘</span>
+    </div>
+
+    <div class="mode-group" id="mode-buttons">
+      <button class="btn" data-mode="0"><span class="kbd">0</span> 现状漩涡对照</button>
+      <button class="btn" data-mode="1"><span class="kbd">1</span> 方案A：烟炭全息等高线</button>
+      <button class="btn" data-mode="2"><span class="kbd">2</span> 方案B：实体剖面底座</button>
+      <button class="btn" data-mode="3"><span class="kbd">3</span> 方案C：暗调雾化等高</button>
+      <button class="btn active" data-mode="4"><span class="kbd">4</span> 方案A+B混搭（推荐）</button>
+    </div>
+
+    <div class="action-group">
+      <button class="btn active-ground" id="btn-view"><span class="kbd">V</span> 视角：边界特写</button>
+      <button class="btn active-safe" id="btn-split"><span class="kbd">C</span> 双屏对比：开</button>
+      <button class="btn" id="btn-fx-rate"><span class="kbd">F</span> 动效强度：标准</button>
+    </div>
+  </header>
+
+  <main class="stage-wrap split" id="stage-wrap">
+    <!-- 左对照窗口 -->
+    <section class="viewport-pane" id="pane-left">
+      <canvas class="scene-canvas" id="canvas-left"></canvas>
+      <div class="pane-header">
+        <div class="pane-tag baseline">
+          <span class="dot" style="background: var(--danger);"></span>
+          <div>
+            <div class="pane-tag-title">对照组 · 0 当前镜像漩涡外围</div>
+            <div class="pane-tag-desc">外围呈模糊大理石彩纹 + 单调细虚线，边界缺少战术沙盘秩序与动态呼吸感</div>
+          </div>
+        </div>
+        <div class="telemetry-pills">
+          <span class="pill">DrawCall: 1</span>
+          <span class="pill">无战术坐标/动效</span>
+        </div>
+      </div>
+      <div class="pane-callout">
+        <strong>现状问题对照：</strong> 右上角战区边界外直接延续低频镜像彩色噪点，近看像糊掉的油画，既不区分“战区内外”，也缺乏现代军事指挥台质感。
+      </div>
+    </section>
+
+    <!-- 右方案窗口 -->
+    <section class="viewport-pane" id="pane-right">
+      <canvas class="scene-canvas" id="canvas-right"></canvas>
+      <div class="pane-header">
+        <div class="pane-tag candidate">
+          <span class="dot" id="right-dot" style="background: var(--safe);"></span>
+          <div>
+            <div class="pane-tag-title" id="right-title"></div>
+            <div class="pane-tag-desc" id="right-desc"></div>
+          </div>
+        </div>
+        <div class="telemetry-pills" id="right-pills"></div>
+      </div>
+      <div class="pane-callout" id="right-callout"></div>
+    </section>
+  </main>
+
+  <footer class="bottom-dock">
+    <div class="summary-card">
+      <b>方案审阅要点：</b><span id="summary-text"></span>
+    </div>
+    <div class="control-hints">
+      移动鼠标可在外围产生光标提亮联动 · 滚轮缩放 · 左拖平移 · 快捷键 <span class="kbd">0-4</span> <span class="kbd">V</span> <span class="kbd">C</span> <span class="kbd">F</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const SCHEMES = {
+    0: {
+      title: '0 当前镜像漩涡外围',
+      desc: '外围延展模糊泥土彩纹 + 细虚线，缺少地理网格与指挥台层次',
+      callout: '<strong>现状特征：</strong> 镜像彩纹虽然消除了 1px 拉丝，但在边界特写与总览下显得浑浊杂乱，缺乏战略纵深与军标识别度。',
+      summary: '对照基准：无动态扫描、无等高线/MGRS 坐标、边缘仅有一条静态浅虚线。',
+      dot: '#ff5266',
+      pills: ['DrawCall: 1', '静态贴图延展'],
+    },
+    1: {
+      title: '方案 A：烟炭全息等高线战术沙盘',
+      desc: '深烟炭山体基底 #101518 + 连续地形等高线 + MGRS 坐标网 + 外扩高程扫描波',
+      callout: '<strong>参考 WARNO / Broken Arrow × 美军 ARES：</strong> 外围彻底沉入深烟炭暗色并实时渲染抗锯齿地形等高线与 1km 网格，每 6 秒由战区边界向外推开克制的青绿/金扫描波。',
+      summary: '纯 Shader 1 Draw Call 即可实现，与烟炭双金 HUD 天生一体，现代军事科技感最强。',
+      dot: '#38e5c0',
+      pills: ['纯 Shader 1 DC', '实时等高线 + 外扩脉冲'],
+    },
+    2: {
+      title: '方案 B：实体剖面沙盘底座 + 指挥桌面',
+      desc: '9km 战场带 3D 地层切面与拉丝金属包边 + 桌面 AO 投影 + 极克制雷达扇扫微光',
+      callout: '<strong>参考 R.U.S.E. 战情室桌面模型：</strong> 9km 战场像一块实体微缩沙盘模型带表土/岩层/炭黑剖面，金属镶边四角嵌微灯，外部桌面铺淡蓝图与慢速雷达扇扫。',
+      summary: '桌游微缩 diorama 仪式感最强，9km 总览惊艳；边界近看有稳固的“沙盘金属框”阻隔边界穿帮。',
+      dot: '#68c8ff',
+      pills: ['2 Draw Calls', '3D 剖面 + 雷达桌面'],
+    },
+    3: {
+      title: '方案 C：暗调雾化远丘 + 叠加等高网',
+      desc: '砍掉花哨镜像彩纹 · 低对比暗橄榄灰延展山脉 + 半透明地形等高线 + 流光警戒带',
+      callout: '<strong>写实克制折中：</strong> 保留微弱山体轮廓衔接入远雾，上面轻叠等高线与慢速雷达弧扫高光，既不让战场像悬空方块，又干干净净衬托战斗区。',
+      summary: '最稳妥的折中方案，视觉干扰最低，但战术指挥桌的惊艳辨识度弱于 A 与 A+B。',
+      dot: '#b6bac5',
+      pills: ['纯 Shader 1 DC', '雾化远丘 + 轻等高线'],
+    },
+    4: {
+      title: '方案 A+B 混搭（强烈推荐）',
+      desc: '9km 边缘 3D 实体剖面金属刻度框 + 外部深烟炭全息等高线山体 + 动态扩散扫描波与光标联动',
+      callout: '<strong>强烈推荐组合：</strong> 用方案 B 的“微缩地层切边 + 枪灰金属刻尺边框 + AO 落影”干净利落收住战场边界，同时外部保留方案 A 的暗烟炭起伏山体 + 等高线与外扩战术扫描波！',
+      summary: '兼顾“桌面微缩实体边界”与“动态全息等高沙盘纵深”，9km 总览与近距离边界特写双杀（预计 15 分钟可实装进程序化地形.mjs）。',
+      dot: '#f0d372',
+      pills: ['1-2 DC · 零额外贴图', '推荐组合 · 近远皆佳'],
+    },
+  };
+
+  const state = {
+    mode: 4,
+    view: 'corner', // 'corner' | 'overview'
+    split: true,
+    fxLevel: 1, // 0=克制, 1=标准, 2=演示
+    fxScale: [0.55, 1.0, 1.45],
+    fxLabel: ['克制', '标准', '演示'],
+    timeSec: 0,
+    zoomMul: 1.0,
+    panX: 0,
+    panY: 0,
+    mouseWorld: { x: 4620, z: -3820, active: false },
+  };
+
+  // --- 确定性连续地形高度 & 树林点生成（高度还原工程师上传图中的东北角边界） ---
+  function terrainHeight(wx, wz) {
+    // 归一化公里坐标
+    const kx = wx * 0.0012;
+    const kz = wz * 0.0012;
+    return (
+      Math.sin(kx * 2.1 + Math.cos(kz * 1.7)) * 18 +
+      Math.cos(kz * 2.6 - kx * 1.3) * 14 +
+      Math.sin((kx + kz) * 3.8) * 7 +
+      Math.cos(kx * 5.2 - kz * 4.4) * 3.5 + 22
+    );
+  }
+
+  // 作战区常量 (同真机 9km 区域: [-4425..4575], [-4150..4850]，此处聚焦东北角 [+4575, -4150])
+  const MAX_X = 4575;
+  const MIN_Z = -4150;
+  const MIN_X = -4425;
+  const MAX_Z = 4850;
+
+  function makeProjector(rw, rh) {
+    if (state.view === 'corner') {
+      // 精准对齐用户截图构图：东北角在屏幕偏中右上方 (约占左/下为战场，右/上为Map外围)
+      const cx = (MAX_X - 420) + state.panX;
+      const cz = (MIN_Z + 430) + state.panY;
+      const scale = (rw / 2150) * state.zoomMul;
+      const cosY = 0.72;
+      const liftY = 0.58;
+      return {
+        scale, cosY, liftY, rw, rh,
+        toPx(wx, wy, wz) {
+          return {
+            x: rw * 0.45 + (wx - cx) * scale - (wz - cz) * scale * 0.16,
+            y: rh * 0.50 + (wz - cz) * scale * cosY + (wx - cx) * scale * 0.09 - wy * scale * liftY,
+          };
+        },
+        toWorld(px, py) {
+          // 精确 2x2 线性逆矩阵（消除边界交叉伪影）
+          const ax = (px - rw * 0.45) / scale;
+          const ay = (py - rh * 0.50) / scale;
+          const invDet = 1.0 / (cosY + 0.16 * 0.09);
+          return {
+            x: cx + (cosY * ax + 0.16 * ay) * invDet,
+            z: cz + (-0.09 * ax + ay) * invDet,
+          };
+        },
+      };
+    } else {
+      // 9km 全景总览（稍微倾斜 RTS 视角俯瞰整块 9km 沙盘与四周外围）
+      const cx = 75 + state.panX * 4;
+      const cz = 350 + state.panY * 4;
+      const scale = (Math.min(rw, rh * 1.35) / 14500) * state.zoomMul;
+      const cosY = 0.70;
+      const liftY = 0.85;
+      return {
+        scale, cosY, liftY, rw, rh,
+        toPx(wx, wy, wz) {
+          return {
+            x: rw * 0.5 + (wx - cx) * scale,
+            y: rh * 0.5 + (wz - cz) * scale * cosY - wy * scale * liftY,
+          };
+        },
+        toWorld(px, py) {
+          return {
+            x: cx + (px - rw * 0.5) / scale,
+            z: cz + (py - rh * 0.5) / (scale * cosY),
+          };
+        },
+      };
+    }
+  }
+
+  // 预生成东北角战场内的林区与柱网点（用于复刻截图里的绿色大林块和建筑群）
+  function insidePlayZone(wx, wz) {
+    return wx >= MIN_X && wx <= MAX_X && wz >= MIN_Z && wz <= MAX_Z;
+  }
+
+  const offPool = new Map();
+  function getOffscreenBuffer(key, bw, bh) {
+    let item = offPool.get(key);
+    if (!item || item.canvas.width !== bw || item.canvas.height !== bh) {
+      const c = document.createElement('canvas');
+      c.width = bw;
+      c.height = bh;
+      const octx = c.getContext('2d');
+      item = { canvas: c, ctx: octx, img: octx.createImageData(bw, bh) };
+      offPool.set(key, item);
+    }
+    return item;
+  }
+
+  function smooth01(e0, e1, x) {
+    const k = Math.max(0, Math.min(1, (x - e0) / (e1 - e0)));
+    return k * k * (3 - 2 * k);
+  }
+
+  // --- 绘制外围平滑连续地形底座（屏幕空间 fwidth 等值线抗锯齿，零马赛克颗粒） ---
+  function renderOuterTerrainMesh(ctx, proj, rw, rh, mode, bufKey) {
+    const t = state.timeSec;
+    const fx = state.fxScale[state.fxLevel];
+
+    // 高精离线像素渲染 + 浏览器双线性平滑放大，确保 60FPS 且等高线顺滑 1px 抗锯齿
+    const bw = Math.min(480, Math.max(320, Math.round(rw * 0.72)));
+    const bh = Math.min(340, Math.max(220, Math.round(rh * 0.72)));
+    const buf = getOffscreenBuffer(bufKey, bw, bh);
+    const data = buf.img.data;
+
+    const scaleX = rw / bw;
+    const scaleY = rh / bh;
+    const waveCycle = (t * 0.16 * fx) % 1.0;
+    const waveDist = waveCycle * 2800;
+    const sweepAng = (t * 0.45 * fx) % (Math.PI * 2) - Math.PI;
+    const mActive = state.mouseWorld.active;
+    const mx = state.mouseWorld.x;
+    const mz = state.mouseWorld.z;
+    const cRad = state.view === 'corner' ? 340 : 1500;
+    const mStep = Math.max(4.0, (1.0 / proj.scale) * scaleX * 1.15);
+
+    for (let y = 0; y < bh; y++) {
+      const py = (y + 0.5) * scaleY;
+      for (let x = 0; x < bw; x++) {
+        const px = (x + 0.5) * scaleX;
+        const w0 = proj.toWorld(px, py);
+        const wx = w0.x;
+        const wz = w0.z;
+        const off = (y * bw + x) * 4;
+
+        const dx = Math.max(MIN_X - wx, 0, wx - MAX_X);
+        const dz = Math.max(MIN_Z - wz, 0, wz - MAX_Z);
+        const outDist = Math.hypot(dx, dz);
+        const elev = terrainHeight(wx, wz);
+
+        let cr = 14, cg = 19, cb = 23;
+
+        if (mode === 0) {
+          // 现状：平滑渐变泥土漩涡彩纹
+          const sw = Math.sin(elev * 0.24 + Math.cos(wx * 0.003) * 2.2) * 0.5 + 0.5;
+          const sw2 = Math.cos(wx * 0.0025 + wz * 0.003) * 0.5 + 0.5;
+          cr = 86 + sw * 62 + sw2 * 24;
+          cg = 90 + sw * 46 + (1 - sw2) * 18;
+          cb = 56 + sw * 28;
+        } else if (mode === 1 || mode === 4) {
+          // 计算局部地形屏幕空间梯度 (模拟 GLSL fwidth 实现 1px 丝滑反走样等高线)
+          const ex = terrainHeight(wx + mStep, wz) - elev;
+          const ez = terrainHeight(wx, wz + mStep) - elev;
+          const gradPerPx = Math.max(0.08, Math.hypot(ex, ez));
+          const shade = 0.5 + 0.5 * ((ex - ez) / (gradPerPx + 0.2));
+
+          const baseV = 0.72 + 0.36 * (elev / 48) + 0.16 * shade;
+          const fadeOut = Math.max(0.24, 1.0 - outDist / 3800);
+          cr = 13 * baseV * fadeOut + 9;
+          cg = 20 * baseV * fadeOut + 12;
+          cb = 24 * baseV * fadeOut + 15;
+
+          const waveBand = Math.exp(-Math.pow((outDist - waveDist) / 140, 2));
+          let cursorGlow = 0;
+          if (mActive) {
+            const cDist = Math.hypot(wx - mx, wz - mz);
+            cursorGlow = Math.exp(-Math.pow(cDist / cRad, 2));
+          }
+
+          // 12m 主等高线 & 4m 细等高线屏幕像素距离
+          const fMain = Math.abs((((elev / 12.0) % 1 + 1) % 1) - 0.5) * 12.0 / gradPerPx;
+          const fSub = Math.abs((((elev / 4.0) % 1 + 1) % 1) - 0.5) * 4.0 / gradPerPx;
+          const aMain = smooth01(1.35, 0.20, fMain);
+          const aSub = smooth01(1.10, 0.15, fSub);
+
+          const glowM = aMain * (0.34 + 0.72 * waveBand * fx + 0.60 * cursorGlow) * fadeOut;
+          const glowS = aSub * (1 - aMain) * (0.14 + 0.45 * waveBand * fx + 0.38 * cursorGlow) * fadeOut;
+
+          cr += glowM * 205 + glowS * 52 + 20 * waveBand * fx * fadeOut;
+          cg += glowM * 184 + glowS * 165 + 52 * waveBand * fx * fadeOut;
+          cb += glowM * 96 + glowS * 140 + 46 * waveBand * fx * fadeOut;
+        } else if (mode === 2) {
+          // 方案 B：深暗战情指挥桌 + 慢速全景雷达扇扫
+          const fadeTable = Math.max(0.45, 1 - outDist / 5200);
+          cr = 11 * fadeTable;
+          cg = 15 * fadeTable;
+          cb = 20 * fadeTable;
+
+          const ang = Math.atan2(wz - 350, wx - 75);
+          let diff = (ang - sweepAng + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+          if (diff > -0.75 && diff <= 0.0) {
+            const beam = (1.0 + diff / 0.75) * 0.28 * fx;
+            cr += 35 * beam;
+            cg += 118 * beam;
+            cb += 104 * beam;
+          }
+        } else if (mode === 3) {
+          // 方案 C：暗橄榄灰柔和雾化远山 + 抗锯齿轻等高线
+          const ex = terrainHeight(wx + mStep, wz) - elev;
+          const ez = terrainHeight(wx, wz + mStep) - elev;
+          const gradPerPx = Math.max(0.08, Math.hypot(ex, ez));
+          const fog = Math.min(1, outDist / 2600);
+          const ridge = 0.75 + 0.36 * (elev / 48);
+          cr = (46 * ridge) * (1 - fog) + 17 * fog;
+          cg = (54 * ridge) * (1 - fog) + 22 * fog;
+          cb = (44 * ridge) * (1 - fog) + 21 * fog;
+
+          const fC = Math.abs((((elev / 10.0) % 1 + 1) % 1) - 0.5) * 10.0 / gradPerPx;
+          const aC = smooth01(1.25, 0.20, fC) * (1 - fog) * 0.42;
+          cr += 105 * aC;
+          cg += 140 * aC;
+          cb += 112 * aC;
+        }
+
+        data[off + 0] = Math.min(255, Math.round(cr));
+        data[off + 1] = Math.min(255, Math.round(cg));
+        data[off + 2] = Math.min(255, Math.round(cb));
+        data[off + 3] = 255;
+      }
+    }
+
+    buf.ctx.putImageData(buf.img, 0, 0);
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(buf.canvas, 0, 0, rw, rh);
+    ctx.restore();
+
+    // 方案 A / A+B / B / C 叠加高精度向量 MGRS 网格线与刻度线（100% 锐利无锯齿！）
+    if (mode >= 1) {
+      ctx.save();
+      const stepM = state.view === 'corner' ? 500 : 1500;
+      const startX = Math.floor((MAX_X - 4500) / stepM) * stepM;
+      const endX = MAX_X + 4500;
+      const startZ = MIN_Z - 4500;
+      const endZ = MAX_Z + 4500;
+
+      ctx.strokeStyle = mode === 2 ? 'rgba(104, 200, 255, 0.08)' : mode === 3 ? 'rgba(182, 186, 197, 0.09)' : 'rgba(56, 229, 192, 0.14)';
+      ctx.lineWidth = 1;
+
+      // 横纵 MGRS 坐标网（裁掉战区内部，只在外围绘制）
+      for (let gx = startX; gx <= endX; gx += stepM) {
+        const p0 = proj.toPx(gx, 0, startZ);
+        const p1 = proj.toPx(gx, 0, endZ);
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+      }
+      for (let gz = startZ; gz <= endZ; gz += stepM) {
+        const p0 = proj.toPx(startX, 0, gz);
+        const p1 = proj.toPx(endX, 0, gz);
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+      }
+
+      // 方案 A / A+B 在 MGRS 交叉点打战术十字准星与外围网格序号
+      if (mode === 1 || mode === 4) {
+        ctx.font = '600 10px Cascadia Mono, Consolas, monospace';
+        ctx.fillStyle = 'rgba(240, 211, 114, 0.52)';
+        const labelStep = state.view === 'corner' ? 500 : 3000;
+        for (let gx = startX; gx <= endX; gx += labelStep) {
+          for (let gz = startZ; gz <= endZ; gz += labelStep) {
+            if (insidePlayZone(gx, gz)) continue;
+            const p = proj.toPx(gx, 0, gz);
+            if (p.x < -30 || p.x > rw + 30 || p.y < -30 || p.y > rh + 30) continue;
+            ctx.strokeStyle = 'rgba(240, 211, 114, 0.35)';
+            ctx.beginPath();
+            ctx.moveTo(p.x - 4, p.y); ctx.lineTo(p.x + 4, p.y);
+            ctx.moveTo(p.x, p.y - 4); ctx.lineTo(p.x, p.y + 4);
+            ctx.stroke();
+            if (state.view === 'corner' && ((Math.abs(gx) + Math.abs(gz)) % 1000 === 0)) {
+              ctx.fillText(`SECTOR ${(Math.abs(gx) / 100).toFixed(0)}·${(Math.abs(gz) / 100).toFixed(0)}`, p.x + 6, p.y - 4);
+            }
+          }
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  // --- 绘制 9km 作战区内实景（绿色森林 + 棕土路 + 农业黄地 + 白色小镇立柱） ---
+  function renderInnerPlayZone(ctx, proj, rw, rh, mode) {
+    const pNW = proj.toPx(MIN_X, 0, MIN_Z);
+    const pNE = proj.toPx(MAX_X, 0, MIN_Z);
+    const pSE = proj.toPx(MAX_X, 0, MAX_Z);
+    const pSW = proj.toPx(MIN_X, 0, MAX_Z);
+
+    // 若模式 B 或 A+B：先绘制沙盘底下的柔和 AO 桌面投影与 3D 厚地层剖面底座！
+    if (mode === 2 || mode === 4) {
+      const slabH = (state.view === 'corner' ? 38 : 260) * proj.scale;
+      // 1) 向外围桌面投影的柔和 AO 阴影
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.56)';
+      ctx.beginPath();
+      ctx.moveTo(pSW.x + 12, pSW.y + slabH + 14);
+      ctx.lineTo(pSE.x + 18, pSE.y + slabH + 16);
+      ctx.lineTo(pNE.x + 18, pNE.y + slabH + 12);
+      ctx.lineTo(pNE.x, pNE.y);
+      ctx.lineTo(pSE.x, pSE.y);
+      ctx.lineTo(pSW.x, pSW.y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // 2) 南面/东面 3D 沙盘实体地层剖面侧壁（表土棕→岩层灰→深炭金属底）
+      const layers = [
+        { frac0: 0.0, frac1: 0.25, col: '#5b523b' },
+        { frac0: 0.25, frac1: 0.62, col: '#34363a' },
+        { frac0: 0.62, frac1: 1.0, col: '#181a20' },
+      ];
+      // 南缘 (SW -> SE) 与 东缘 (SE -> NE)
+      const edges = [[pSW, pSE], [pSE, pNE]];
+      for (const [a, b] of edges) {
+        for (const ly of layers) {
+          const yOff0 = slabH * ly.frac0;
+          const yOff1 = slabH * ly.frac1;
+          ctx.fillStyle = ly.col;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y + yOff0);
+          ctx.lineTo(b.x, b.y + yOff0);
+          ctx.lineTo(b.x, b.y + yOff1);
+          ctx.lineTo(a.x, a.y + yOff1);
+          ctx.closePath();
+          ctx.fill();
+        }
+        // 拉丝枪灰金属底边与铆钉亮点
+        ctx.strokeStyle = 'rgba(240, 211, 114, 0.35)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y + slabH);
+        ctx.lineTo(b.x, b.y + slabH);
+        ctx.stroke();
+      }
+    }
+
+    // 裁剪进入 9km 正方形作战区内部，保证一像素也不越界
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(pNW.x, pNW.y);
+    ctx.lineTo(pNE.x, pNE.y);
+    ctx.lineTo(pSE.x, pSE.y);
+    ctx.lineTo(pSW.x, pSW.y);
+    ctx.closePath();
+    ctx.clip();
+
+    // 地表微缩草绿+麦田黄渐变底
+    const bgG = ctx.createLinearGradient(pNW.x, pNE.y, pSE.x, pSW.y);
+    bgG.addColorStop(0, '#728c3a');
+    bgG.addColorStop(0.45, '#969348');
+    bgG.addColorStop(1, '#5e7a2f');
+    ctx.fillStyle = bgG;
+    ctx.fillRect(0, 0, rw, rh);
+
+    if (state.view === 'corner') {
+      // 还原东北角特色地貌：黄褐农业平地 + 交叉柏油路 + 成片深绿松林带 + 两条林间土路
+      // 农田斑块
+      ctx.fillStyle = '#c4ac5b';
+      ctx.beginPath();
+      const f1 = proj.toPx(MAX_X - 1800, 0, MIN_Z);
+      const f2 = proj.toPx(MAX_X - 750, 0, MIN_Z);
+      const f3 = proj.toPx(MAX_X - 650, 0, MIN_Z + 950);
+      const f4 = proj.toPx(MAX_X - 1700, 0, MIN_Z + 1150);
+      ctx.moveTo(f1.x, f1.y); ctx.lineTo(f2.x, f2.y); ctx.lineTo(f3.x, f3.y); ctx.lineTo(f4.x, f4.y);
+      ctx.closePath();
+      ctx.fill();
+
+      // 东北大片深绿林冠带
+      ctx.fillStyle = '#406b23';
+      ctx.beginPath();
+      const g1 = proj.toPx(MAX_X - 960, 0, MIN_Z + 140);
+      const g2 = proj.toPx(MAX_X - 40, 0, MIN_Z + 20);
+      const g3 = proj.toPx(MAX_X, 0, MIN_Z + 1480);
+      const g4 = proj.toPx(MAX_X - 920, 0, MIN_Z + 980);
+      ctx.moveTo(g1.x, g1.y); ctx.lineTo(g2.x, g2.y); ctx.lineTo(g3.x, g3.y); ctx.lineTo(g4.x, g4.y);
+      ctx.closePath();
+      ctx.fill();
+
+      // 两条林间土路穿过森林（跟玩家截图如出一辙）
+      ctx.strokeStyle = '#997a54';
+      ctx.lineWidth = Math.max(8, 52 * proj.scale);
+      ctx.lineCap = 'round';
+      for (const off of [0, 310]) {
+        const s0 = proj.toPx(MAX_X - 880 + off * 0.7, 0, MIN_Z + 820 + off * 0.4);
+        const s1 = proj.toPx(MAX_X - 480 + off * 0.55, 0, MIN_Z + 380 + off * 0.5);
+        const s2 = proj.toPx(MAX_X - 150, 0, MIN_Z + 95 + off * 0.4);
+        ctx.beginPath();
+        ctx.moveTo(s0.x, s0.y); ctx.quadraticCurveTo(s1.x, s1.y, s2.x, s2.y);
+        ctx.stroke();
+      }
+
+      // 柏油主路（纵向 + 交叉）
+      ctx.strokeStyle = '#4f5253';
+      ctx.lineWidth = Math.max(4, 16 * proj.scale);
+      const rA = proj.toPx(MAX_X - 1350, 0, MIN_Z);
+      const rB = proj.toPx(MAX_X - 980, 0, MIN_Z + 1650);
+      ctx.beginPath(); ctx.moveTo(rA.x, rA.y); ctx.lineTo(rB.x, rB.y); ctx.stroke();
+
+      // 小镇与白色围柱列阵（还原截图中规整的白建筑群）
+      ctx.fillStyle = '#dcd9cf';
+      ctx.strokeStyle = 'rgba(0,0,0,0.28)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 6; i++) {
+        for (let j = 0; j < 4; j++) {
+          const bx = MAX_X - 1320 + j * 115;
+          const bz = MIN_Z + 180 + i * 115;
+          const bp = proj.toPx(bx, 18, bz);
+          const bs = proj.toPx(bx, 0, bz);
+          const wPx = 22 * proj.scale;
+          ctx.fillStyle = '#8b9094';
+          ctx.fillRect(bs.x, bp.y, wPx * 0.75, bs.y - bp.y);
+          ctx.fillStyle = '#e2dfd5';
+          ctx.fillRect(bp.x - wPx * 0.3, bp.y - 4, wPx, 6);
+        }
+      }
+      // 沿着下方绿带的一排白房
+      for (let i = 0; i < 16; i++) {
+        const bx = MAX_X - 1050 + i * 68;
+        const bz = MIN_Z + 960 + i * 24;
+        const bp = proj.toPx(bx, 16, bz);
+        const bs = proj.toPx(bx, 0, bz);
+        ctx.fillStyle = '#e5e2d8';
+        ctx.fillRect(bp.x - 3, bp.y, 7, Math.max(4, bs.y - bp.y));
+      }
+    } else {
+      // 9km 全景视图：机场跑道 + 林冠区块 + 公路网
+      const r1 = proj.toPx(-1400, 0, 120);
+      const r2 = proj.toPx(1600, 0, 120);
+      ctx.strokeStyle = '#5a5f61';
+      ctx.lineWidth = Math.max(4, 140 * proj.scale);
+      ctx.beginPath(); ctx.moveTo(r1.x, r1.y); ctx.lineTo(r2.x, r2.y); ctx.stroke();
+
+      // 森林绿斑块
+      ctx.fillStyle = '#3f6a22';
+      const blocks = [
+        [-2800, -2400, 1800, 1100], [1800, -2900, 2100, 1300],
+        [-3100, 1500, 2200, 1400], [1600, 2100, 1900, 1200],
+        [-600, -1400, 1100, 680], [2200, -200, 1400, 950],
+      ];
+      for (const [fx, fz, fw, fd] of blocks) {
+        const p = proj.toPx(fx, 0, fz);
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, fw * proj.scale * 0.5, fd * proj.scale * proj.cosY * 0.5, 0.25, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // 机场旁城镇集群
+      ctx.fillStyle = '#dad7ce';
+      for (let i = 0; i < 48; i++) {
+        const bx = -1800 + (i % 12) * 320;
+        const bz = -680 + Math.floor(i / 12) * 460;
+        const p = proj.toPx(bx, 12, bz);
+        ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+      }
+    }
+    ctx.restore();
+
+    // --- 绘制 9km 作战区边界动效（各方案的核心区分点之一） ---
+    const t = state.timeSec;
+    const fx = state.fxScale[state.fxLevel];
+
+    ctx.save();
+    if (mode === 0) {
+      // 现状：单调细白黄虚线
+      ctx.strokeStyle = 'rgba(235, 220, 150, 0.72)';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([7, 6]);
+      ctx.beginPath();
+      ctx.moveTo(pNW.x, pNW.y); ctx.lineTo(pNE.x, pNE.y);
+      ctx.lineTo(pSE.x, pSE.y); ctx.lineTo(pSW.x, pSW.y);
+      ctx.closePath();
+      ctx.stroke();
+    } else if (mode === 1 || mode === 4) {
+      // 方案 A / A+B：金属微光双层边界（内层香槟金实线 + 外层青绿缓慢流动刻度线）
+      ctx.strokeStyle = mode === 4 ? 'rgba(130, 140, 150, 0.92)' : 'rgba(240, 211, 114, 0.85)';
+      ctx.lineWidth = mode === 4 ? 3.0 : 2.0;
+      ctx.beginPath();
+      ctx.moveTo(pNW.x, pNW.y); ctx.lineTo(pNE.x, pNE.y);
+      ctx.lineTo(pSE.x, pSE.y); ctx.lineTo(pSW.x, pSW.y);
+      ctx.closePath();
+      ctx.stroke();
+
+      // 内嵌香槟金流动虚线光带
+      ctx.strokeStyle = 'rgba(240, 211, 114, 0.88)';
+      ctx.lineWidth = 1.4;
+      ctx.setLineDash([12, 8]);
+      ctx.lineDashOffset = -t * 18 * fx;
+      ctx.beginPath();
+      ctx.moveTo(pNW.x, pNW.y); ctx.lineTo(pNE.x, pNE.y);
+      ctx.lineTo(pSE.x, pSE.y); ctx.lineTo(pSW.x, pSW.y);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 东北角L型角标锚点 + 边界文字标牌（置于外围空白区不压战场）
+      ctx.fillStyle = '#f0d372';
+      ctx.beginPath();
+      ctx.arc(pNE.x, pNE.y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      const lblTxt = 'AO-9KM // NE [4575, -4150]';
+      ctx.font = '700 10px Cascadia Mono, Consolas, monospace';
+      const tw = ctx.measureText(lblTxt).width + 10;
+      const lx = Math.min(rw - tw - 8, pNE.x + 10);
+      const ly = Math.max(66, pNE.y - 18);
+      ctx.fillStyle = 'rgba(13, 14, 19, 0.82)';
+      ctx.fillRect(lx, ly - 11, tw, 16);
+      ctx.fillStyle = '#f0d372';
+      ctx.fillText(lblTxt, lx + 5, ly);
+    } else if (mode === 2) {
+      // 方案 B：枪灰金属边框 + 四角绿色微灯呼吸
+      ctx.strokeStyle = '#6c747e';
+      ctx.lineWidth = 4.2;
+      ctx.beginPath();
+      ctx.moveTo(pNW.x, pNW.y); ctx.lineTo(pNE.x, pNE.y);
+      ctx.lineTo(pSE.x, pSE.y); ctx.lineTo(pSW.x, pSW.y);
+      ctx.closePath();
+      ctx.stroke();
+
+      const pulse = 0.5 + 0.5 * Math.sin(t * 2.4 * fx);
+      ctx.fillStyle = `rgba(60, 214, 159, ${(0.5 + 0.5 * pulse).toFixed(2)})`;
+      for (const corner of [pNW, pNE, pSE, pSW]) {
+        ctx.beginPath();
+        ctx.arc(corner.x, corner.y, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (mode === 3) {
+      // 方案 C：低调警戒流光虚线
+      ctx.strokeStyle = 'rgba(255, 184, 0, 0.52)';
+      ctx.lineWidth = 2.0;
+      ctx.setLineDash([10, 6]);
+      ctx.lineDashOffset = -t * 14 * fx;
+      ctx.beginPath();
+      ctx.moveTo(pNW.x, pNW.y); ctx.lineTo(pNE.x, pNE.y);
+      ctx.lineTo(pSE.x, pSE.y); ctx.lineTo(pSW.x, pSW.y);
+      ctx.closePath();
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function renderPane(canvas, mode, bufKey) {
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(320, Math.round(rect.width));
+    const h = Math.max(220, Math.round(rect.height));
+    const renderScale = Math.min(1, 680 / Math.max(1, h));
+    const rw = Math.max(320, Math.round(w * renderScale));
+    const rh = Math.max(220, Math.round(h * renderScale));
+    if (canvas.width !== rw || canvas.height !== rh) {
+      canvas.width = rw;
+      canvas.height = rh;
+    }
+    const ctx = canvas.getContext('2d');
+    const proj = makeProjector(rw, rh);
+    ctx.clearRect(0, 0, rw, rh);
+
+    renderOuterTerrainMesh(ctx, proj, rw, rh, mode, bufKey);
+    renderInnerPlayZone(ctx, proj, rw, rh, mode);
+  }
+
+  function syncChrome() {
+    const meta = SCHEMES[state.mode];
+    document.getElementById('right-dot').style.background = meta.dot;
+    document.getElementById('right-title').textContent = meta.title;
+    document.getElementById('right-desc').textContent = meta.desc;
+    document.getElementById('right-callout').innerHTML = meta.callout;
+    document.getElementById('summary-text').textContent = meta.summary;
+    document.getElementById('right-pills').innerHTML = meta.pills
+      .map(p => `<span class="pill safe">${p}</span>`)
+      .join('');
+
+    document.querySelectorAll('#mode-buttons .btn').forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.mode) === state.mode);
+    });
+
+    const stageWrap = document.getElementById('stage-wrap');
+    const paneLeft = document.getElementById('pane-left');
+    const btnSplit = document.getElementById('btn-split');
+    stageWrap.classList.toggle('split', state.split);
+    paneLeft.classList.toggle('hidden', !state.split);
+    btnSplit.innerHTML = `<span class="kbd">C</span> 双屏对比：${state.split ? '开' : '关'}`;
+    btnSplit.classList.toggle('active-safe', state.split);
+
+    document.getElementById('btn-view').innerHTML =
+      `<span class="kbd">V</span> 视角：${state.view === 'corner' ? '边界特写' : '9km 总览'}`;
+    document.getElementById('btn-fx-rate').innerHTML =
+      `<span class="kbd">F</span> 动效强度：${state.fxLabel[state.fxLevel]}`;
+  }
+
+  function setMode(m) {
+    state.mode = Number(m);
+    syncChrome();
+  }
+
+  function toggleView() {
+    state.view = state.view === 'corner' ? 'overview' : 'corner';
+    state.zoomMul = 1.0;
+    state.panX = 0;
+    state.panY = 0;
+    syncChrome();
+  }
+
+  function toggleSplit() {
+    state.split = !state.split;
+    syncChrome();
+  }
+
+  function cycleFxLevel() {
+    state.fxLevel = (state.fxLevel + 1) % 3;
+    syncChrome();
+  }
+
+  document.querySelectorAll('#mode-buttons .btn').forEach(b => {
+    b.addEventListener('click', () => setMode(b.dataset.mode));
+  });
+  document.getElementById('btn-view').addEventListener('click', toggleView);
+  document.getElementById('btn-split').addEventListener('click', toggleSplit);
+  document.getElementById('btn-fx-rate').addEventListener('click', cycleFxLevel);
+
+  let dragging = false;
+  let lastPt = { x: 0, y: 0 };
+  [document.getElementById('canvas-left'), document.getElementById('canvas-right')].forEach(cv => {
+    cv.addEventListener('wheel', e => {
+      e.preventDefault();
+      const factor = Math.pow(1.0012, -e.deltaY);
+      state.zoomMul = Math.max(0.55, Math.min(2.4, state.zoomMul * factor));
+    }, { passive: false });
+
+    cv.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      dragging = true;
+      lastPt = { x: e.clientX, y: e.clientY };
+    });
+
+    cv.addEventListener('pointermove', e => {
+      const rect = cv.getBoundingClientRect();
+      const proj = makeProjector(cv.width || 640, cv.height || 360);
+      const cx = ((e.clientX - rect.left) / Math.max(1, rect.width)) * proj.rw;
+      const cy = ((e.clientY - rect.top) / Math.max(1, rect.height)) * proj.rh;
+      const wPt = proj.toWorld(cx, cy);
+      state.mouseWorld = { x: wPt.x, z: wPt.z, active: true };
+    });
+
+    cv.addEventListener('pointerleave', () => {
+      state.mouseWorld.active = false;
+    });
+  });
+
+  window.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - lastPt.x;
+    const dy = e.clientY - lastPt.y;
+    lastPt = { x: e.clientX, y: e.clientY };
+    const rate = 2.0 / Math.max(0.4, state.zoomMul);
+    state.panX = Math.max(-900, Math.min(900, state.panX - dx * rate));
+    state.panY = Math.max(-900, Math.min(900, state.panY - dy * rate));
+  });
+  window.addEventListener('pointerup', () => { dragging = false; });
+
+  window.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '4') setMode(Number(e.key));
+    else if (e.key.toLowerCase() === 'v') toggleView();
+    else if (e.key.toLowerCase() === 'c') toggleSplit();
+    else if (e.key.toLowerCase() === 'f') cycleFxLevel();
+  });
+
+  const cvLeft = document.getElementById('canvas-left');
+  const cvRight = document.getElementById('canvas-right');
+  let lastT = performance.now();
+
+  function tick(now) {
+    const dt = Math.min(0.05, Math.max(0.001, (now - lastT) / 1000));
+    lastT = now;
+    state.timeSec += dt;
+
+    if (state.split) renderPane(cvLeft, 0, 'left');
+    renderPane(cvRight, state.mode, 'right');
+    requestAnimationFrame(tick);
+  }
+
+  syncChrome();
+  requestAnimationFrame(tick);
+
+  window.__SANDTABLE_PREVIEW__ = {
+    getState: () => ({ mode: state.mode, view: state.view, split: state.split, fxLevel: state.fxLevel }),
+    setMode,
+    toggleView,
+    toggleSplit,
+  };
+})();
+</script>
+</body>
+</html>

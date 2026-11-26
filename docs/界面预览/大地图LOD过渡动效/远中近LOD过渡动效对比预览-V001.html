@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scavenger · 远中近 LOD 过渡动效多方案对比预览 V001</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-canvas: #0d0e13;
+      --bg-pod: rgba(19, 20, 28, 0.92);
+      --bg-slot: rgba(35, 37, 48, 0.88);
+      --line-subtle: rgba(255, 255, 255, 0.10);
+      --line-base: rgba(255, 255, 255, 0.20);
+      --line-gold: rgba(240, 211, 114, 0.56);
+      --text-primary: #f5f6f9;
+      --text-secondary: #b6bac5;
+      --text-muted: #838896;
+      --gold: #f0d372;
+      --gold-grad: linear-gradient(135deg, #f6de86 0%, #e5b73e 100%);
+      --safe: #3cd69f;
+      --warn: #ffb800;
+      --danger: #ff5266;
+      --ch-ground: #38e5c0;
+      --font-sans: "Bahnschrift", "HarmonyOS Sans SC", "Microsoft YaHei UI", sans-serif;
+      --font-mono: "Cascadia Mono", "Consolas", "Microsoft YaHei UI", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 顶部原生高清 HUD 工具栏（无滤镜） */
+    .top-bar {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-pod);
+      border-bottom: 1px solid var(--line-base);
+      z-index: 20;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-badge {
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #0d0e13;
+      background: var(--gold-grad);
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .mode-group, .action-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 4px;
+      border: 1px solid var(--line-base);
+      background: var(--bg-slot);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.14s, background-color 0.14s, color 0.14s;
+    }
+
+    .btn:hover {
+      border-color: rgba(255, 255, 255, 0.36);
+      color: var(--text-primary);
+      background: rgba(52, 55, 70, 0.92);
+    }
+
+    .btn.active {
+      background: rgba(240, 211, 114, 0.18);
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+
+    .btn.active-danger {
+      background: rgba(255, 82, 102, 0.18);
+      border-color: var(--danger);
+      color: #ff9aa6;
+    }
+
+    .btn.active-safe {
+      background: rgba(60, 214, 159, 0.18);
+      border-color: var(--safe);
+      color: #9ff3d4;
+    }
+
+    .kbd {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: inherit;
+    }
+
+    /* 主画布区域 */
+    .stage-wrap {
+      position: relative;
+      flex: 1 1 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2px;
+      background: #07080b;
+      min-height: 0;
+    }
+
+    .stage-wrap.split {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .viewport-pane {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #141a13;
+    }
+
+    .viewport-pane.hidden {
+      display: none;
+    }
+
+    /* 对齐项目 680p 复古微缩 Stylized 渲染基线 */
+    .scene-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      filter: contrast(1.08) saturate(1.10) sepia(0.06);
+      cursor: grab;
+    }
+
+    .scene-canvas:active {
+      cursor: grabbing;
+    }
+
+    /* 视口角标（原生高清层） */
+    .pane-header {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .pane-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      background: rgba(15, 17, 23, 0.88);
+      border: 1px solid var(--line-base);
+      backdrop-filter: blur(4px);
+    }
+
+    .pane-tag.baseline {
+      border-color: rgba(255, 82, 102, 0.52);
+    }
+
+    .pane-tag.candidate {
+      border-color: rgba(60, 214, 159, 0.56);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    .pane-tag-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .pane-tag-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .telemetry-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .pill {
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: rgba(15, 17, 23, 0.88);
+      border: 1px solid var(--line-subtle);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .pill.danger {
+      border-color: rgba(255, 82, 102, 0.68);
+      color: #ff8e9c;
+      background: rgba(58, 18, 24, 0.88);
+    }
+
+    .pill.warn {
+      border-color: rgba(255, 184, 0, 0.65);
+      color: #ffd466;
+      background: rgba(48, 36, 12, 0.88);
+    }
+
+    .pill.safe {
+      border-color: rgba(60, 214, 159, 0.62);
+      color: #82f0c8;
+      background: rgba(14, 42, 33, 0.88);
+    }
+
+    /* 右下/底部浮层问题与特性标牌 */
+    .pane-callout {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      max-width: min(500px, calc(100% - 20px));
+      padding: 7px 11px;
+      border-radius: 4px;
+      background: rgba(15, 17, 23, 0.88);
+      border: 1px solid var(--line-subtle);
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-secondary);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .pane-callout strong {
+      color: var(--gold);
+    }
+
+    /* 底部跨度滑块与遥测控制舱 */
+    .bottom-dock {
+      flex: 0 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 14px;
+      background: var(--bg-pod);
+      border-top: 1px solid var(--line-base);
+      z-index: 20;
+    }
+
+    .slider-panel {
+      flex: 1 1 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 280px;
+    }
+
+    .slider-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .span-readout {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .threshold-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .chip-btn {
+      padding: 2px 7px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      border-radius: 3px;
+      border: 1px solid var(--line-subtle);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    input[type="range"].span-slider {
+      width: 100%;
+      accent-color: #f0d372;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .scheme-summary {
+      flex: 1 1 360px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line-subtle);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .scheme-summary b {
+      color: var(--gold);
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- 顶部切换与控制栏 -->
+  <header class="top-bar">
+    <div class="brand-group">
+      <span class="brand-badge">离线对比沙盒 V001</span>
+      <span class="brand-title">远 ↔ 中 ↔ 近景 LOD 过渡动效方案评审台</span>
+      <span class="brand-sub">680p 复古微缩 Stylized · 离线自包含</span>
+    </div>
+
+    <div class="mode-group" id="mode-buttons">
+      <button class="btn" data-mode="0" title="还原当前 8820 实景的 5 项闪烁/空窗痛点"><span class="kbd">0</span> 现状问题基线</button>
+      <button class="btn active" data-mode="1" title="推荐：时间缓动 + 高空轻雾 + 原型就绪锁"><span class="kbd">1</span> 方案1：时间缓动微雾（推荐）</button>
+      <button class="btn" data-mode="2" title="唯一 620m 分界线，整体 0.25s 交叉淡融"><span class="kbd">2</span> 方案2：单分界线整体交叉</button>
+      <button class="btn" data-mode="3" title="沿相机同心波纹柔和微缩生长/收拢"><span class="kbd">3</span> 方案3：微缩波纹生长</button>
+    </div>
+
+    <div class="action-group">
+      <button class="btn active-safe" id="btn-split" title="左右并排：左=现状问题，右=当前方案"><span class="kbd">C</span> 双屏对比：开</button>
+      <button class="btn" id="btn-zoom-in" title="平滑从远景推进至近景">▶ 自动推近</button>
+      <button class="btn" id="btn-zoom-out" title="平滑从近景拉远至远景">◀ 自动拉远</button>
+      <button class="btn" id="btn-cruise" title="持续来回穿透 1200m ↔ 100m 切换带"><span class="kbd">Space</span> 往返巡航：开</button>
+      <button class="btn active-danger" id="btn-async-lag" title="模拟首次切近景下载 GLB 耗时 180ms">⚡ 模拟异步延迟(180ms)：开</button>
+    </div>
+  </header>
+
+  <!-- 主视区：单屏 或 左右同步双屏 -->
+  <main class="stage-wrap split" id="stage-wrap">
+    <!-- 左视口（双屏对比时固定显示现状基线；单屏时隐藏） -->
+    <section class="viewport-pane" id="pane-left">
+      <canvas class="scene-canvas" id="canvas-left"></canvas>
+      <div class="pane-header">
+        <div class="pane-tag baseline">
+          <span class="dot" style="background: var(--danger);"></span>
+          <div>
+            <div class="pane-tag-title">对照组 · 0 现状问题基线</div>
+            <div class="pane-tag-desc">45ms 阶梯卡顿 + 180ms 异步空窗 + 大楼半边 Z-fighting + 树影/草窗硬切</div>
+          </div>
+        </div>
+        <div class="telemetry-pills" id="tele-left"></div>
+      </div>
+      <div class="pane-callout" id="callout-left">
+        <strong>注意观察闪烁源：</strong> 推近穿过 <span style="color:#ff8e9c">740m→520m</span> 时城镇建筑会短暂真空消失；大型机库半边重影闪烁；穿过 <span style="color:#ffd466">385m</span> 树影瞬间硬开关；穿过 <span style="color:#ff8e9c">115m</span> 草团全体跳移。
+      </div>
+    </section>
+
+    <!-- 右视口（或单屏主视口：显示当前选中方案） -->
+    <section class="viewport-pane" id="pane-right">
+      <canvas class="scene-canvas" id="canvas-right"></canvas>
+      <div class="pane-header">
+        <div class="pane-tag candidate" id="pane-right-tag">
+          <span class="dot" id="pane-right-dot" style="background: var(--safe);"></span>
+          <div>
+            <div class="pane-tag-title" id="pane-right-title">方案 1（推荐）：时间缓动 + 高空微雾 + 就绪锁</div>
+            <div class="pane-tag-desc" id="pane-right-desc">每帧同步相机参数 · 就绪锁防建筑消失 · 0.22s 平滑熔接与柔和树影退出</div>
+          </div>
+        </div>
+        <div class="telemetry-pills" id="tele-right"></div>
+      </div>
+      <div class="pane-callout" id="callout-right"></div>
+    </section>
+  </main>
+
+  <!-- 底部控制舱 -->
+  <footer class="bottom-dock">
+    <div class="slider-panel">
+      <div class="slider-top">
+        <div>
+          相机视野跨度：<span class="span-readout" id="span-readout">680 m</span>
+          <span style="color:var(--text-muted); margin-left:8px;" id="tier-readout">中景-远景过渡区</span>
+        </div>
+        <div class="threshold-chips">
+          <button class="chip-btn" data-span="1100">远景 1100m</button>
+          <button class="chip-btn" data-span="720">建筑上限 720m</button>
+          <button class="chip-btn" data-span="580">重影区 580m</button>
+          <button class="chip-btn" data-span="385">树影临界 385m</button>
+          <button class="chip-btn" data-span="115">草窗跳点 115m</button>
+          <button class="chip-btn" data-span="95">近景 95m</button>
+        </div>
+      </div>
+      <input class="span-slider" id="span-slider" type="range" min="90" max="1350" step="1" value="680" />
+    </div>
+
+    <div class="scheme-summary" id="scheme-summary">
+      <div><b>当前审阅结论：</b><span id="summary-text"></span></div>
+      <div class="legend-row">滚轮缩放 / 左键拖拽平移 / 快捷键 <span class="kbd">0-3</span> <span class="kbd">C</span> <span class="kbd">Space</span></div>
+    </div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // --- 方案元数据 ---
+  const SCHEME_META = {
+    0: {
+      title: '0 现状问题基线',
+      desc: '45ms 阶梯节流 + 异步下载空窗闪黑 + 边缘半径缺口 + 中心/像素公式混用重影',
+      callout: '<strong>当前线上疼痛点还原：</strong> 无就绪锁导致 GLB 下载期间城镇消失；45ms 才更新一次 Shader 参数形成顿闪；385m 树影硬关与 115m 草窗瞬移。',
+      summary: '高空到中近景存在 3 处结构性闪烁（建筑空窗/重影、树木 Z-fighting 与阴影硬切、草团瞬移）。',
+      tagClass: 'baseline',
+      dotColor: '#ff5266',
+    },
+    1: {
+      title: '方案 1（推荐）：时间缓动 + 高空微雾 + 就绪锁',
+      desc: '每帧同步参数 · 远景锁死至 GLB 就绪 (0 空窗) · 0.22s 高空微雾与色调无缝熔接',
+      callout: '<strong>为什么最稳：</strong> 不论滚轮多快，远景包络与精细建筑同一坐标驱动且必须等解码完毕才交接；用极轻的高空微雾 + 0.22s 时间缓动吞掉几何差，树影与草团全部柔和淡出。',
+      summary: '保留 9km 无级丝滑缩放与军事写实感，0 建筑空窗、0 重影、0 草窗跳移（预计实装 25–30 分钟）。',
+      tagClass: 'candidate',
+      dotColor: '#3cd69f',
+    },
+    2: {
+      title: '方案 2：单分界线战略/战术整体交叉转场',
+      desc: '取消全部中景替换 · 在 620m 唯一分界线触发 0.25s 全局平滑交叉淡融',
+      callout: '<strong>架构最简：</strong> &lt;620m 全战术实景、&gt;620m 全战略沙盘，跨越分界线时整张画面用 0.25s 整体平顺淡融切换，彻底消灭局部建筑/树木撕裂，仅 460–620m 面数略高。',
+      summary: '逻辑最简单、零半边撕裂，有清晰“战术↔战略”仪式感；中远景需多承担约 25% 近景面数。',
+      tagClass: 'candidate',
+      dotColor: '#68c8ff',
+    },
+    3: {
+      title: '方案 3：复古微缩波纹生长 / 收拢动效',
+      desc: '以镜头中心为起点按径向波纹用 0.18s 柔和缩放生长/收拢细节（无夸张弹跳）',
+      callout: '<strong>微缩沙盘质感：</strong> 推近时精细屋檐、围栏、单棵树冠与草团按波纹柔和从沙盘体块里微缩拔起；拉远时有序收拢回远景沙盘，完全不躲闪，视觉反而更精致。',
+      summary: '高度契合 680p 复古微缩桌面沙盘风格，切换清晰克制无闪屏；写实感略偏模型沙盘风。',
+      tagClass: 'candidate',
+      dotColor: '#f0d372',
+    },
+  };
+
+  // --- 全局交互与仿真状态 ---
+  const state = {
+    mode: 1,
+    split: true,
+    cruise: true,
+    cruiseDir: -1,
+    asyncLagEnabled: true,
+    targetSpan: 780,
+    displaySpan: 780,
+    camX: 0,
+    camZ: 0,
+    timeSec: 0,
+    autoMoveTarget: null,
+  };
+
+  // --- 确定性伪随机，构建贴近 Airbase 风格的微缩城镇+机场+森林场景 ---
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a |= 0;
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rng = mulberry32(20261120);
+
+  // 建筑定义：刻意包含 1 栋位于中偏左的大型机库（易暴露中心 vs 像素距离差异引发的半边重影），以及高/低/农舍混合街区
+  const BUILDINGS = [
+    { id: 'hangar_main', name: '双跨大型机库', x: -125, z: -20, w: 94, d: 62, h: 24, roof: '#8f98a0', wall: '#c7ccd0', far: '#979fa6', windows: 6, isLarge: true },
+    { id: 'tower_cmd', name: '航站指挥塔', x: -24, z: -85, w: 32, d: 30, h: 42, roof: '#76828d', wall: '#d5cfc4', far: '#a6a49d', windows: 4 },
+    { id: 'apt_north', name: '营房公寓 A', x: 92, z: -95, w: 58, d: 34, h: 32, roof: '#8a5d48', wall: '#d2c2ad', far: '#ad947e', windows: 5 },
+    { id: 'apt_east', name: '营房公寓 B', x: 165, z: -48, w: 46, d: 48, h: 28, roof: '#7e6c5a', wall: '#cbc1b1', far: '#a39787', windows: 4 },
+    { id: 'warehouse', name: '物资仓库', x: 112, z: 38, w: 66, d: 38, h: 20, roof: '#697967', wall: '#b8bdb3', far: '#8b9587', windows: 3 },
+    { id: 'barn_farm', name: '农庄谷仓 #036', x: -195, z: 98, w: 52, d: 36, h: 22, roof: '#8c4e3e', wall: '#cdbba6', far: '#a78370', windows: 3 },
+    { id: 'outpost_w', name: '西哨站', x: -255, z: -95, w: 38, d: 32, h: 17, roof: '#6c7260', wall: '#bfc2b6', far: '#909586', windows: 2 },
+    { id: 'depot_edge', name: '外缘变电站', x: 255, z: 115, w: 48, d: 38, h: 20, roof: '#737982', wall: '#b9bfc4', far: '#91979e', windows: 3 },
+  ];
+
+  // 小道具（围栏/货箱/路障）
+  const PROPS = [];
+  for (let i = 0; i < 38; i++) {
+    const b = BUILDINGS[i % BUILDINGS.length];
+    const ang = rng() * Math.PI * 2;
+    const rad = Math.max(b.w, b.d) * 0.68 + 8 + rng() * 22;
+    PROPS.push({
+      x: b.x + Math.cos(ang) * rad,
+      z: b.z + Math.sin(ang) * rad,
+      kind: i % 2 === 0 ? 'crate' : 'barrier',
+      s: 4.2 + rng() * 2.5,
+    });
+  }
+
+  // 成片森林群落（同时供林冠壳 + 中景代理树 + 近景精细树使用）
+  const FOREST_CLUSTERS = [
+    { x: -185, z: -155, rx: 110, rz: 70 },
+    { x: -15, z: 145, rx: 145, rz: 68 },
+    { x: 225, z: -145, rx: 98, rz: 76 },
+    { x: 235, z: 15, rx: 75, rz: 90 },
+  ];
+
+  const TREES = [];
+  for (const cl of FOREST_CLUSTERS) {
+    for (let i = 0; i < 52; i++) {
+      const a = rng() * Math.PI * 2;
+      const r = Math.sqrt(rng());
+      const x = cl.x + Math.cos(a) * cl.rx * r;
+      const z = cl.z + Math.sin(a) * cl.rz * r;
+      const isPine = rng() < 0.42;
+      TREES.push({
+        x, z,
+        r: isPine ? (7.5 + rng() * 4) : (9.5 + rng() * 5),
+        h: isPine ? (20 + rng() * 8) : (16 + rng() * 7),
+        isPine,
+        tone: 0.85 + rng() * 0.3,
+        seed: rng() * 100,
+      });
+    }
+  }
+  // 沿路散生树
+  for (let i = 0; i < 34; i++) {
+    TREES.push({
+      x: -320 + rng() * 640,
+      z: -210 + rng() * 420,
+      r: 8 + rng() * 4,
+      h: 15 + rng() * 6,
+      isPine: rng() < 0.3,
+      tone: 0.9 + rng() * 0.2,
+      seed: rng() * 100,
+    });
+  }
+
+  // 草团基础锚点
+  const GRASS_SPOTS = [];
+  for (let i = 0; i < 160; i++) {
+    const gx = (rng() - 0.5) * 320;
+    const gz = (rng() - 0.5) * 260;
+    // 避开中心柏油跑道带
+    if (Math.abs(gz - 22) < 26) continue;
+    GRASS_SPOTS.push({ x: gx, z: gz, s: 0.8 + rng() * 0.6, seed: rng() * 12 });
+  }
+
+  // --- 每套视口独立的运行态（跟踪加载状态、45ms 节流、时间缓动、闪烁告警统计） ---
+  function createEngineState(mode) {
+    return {
+      mode,
+      // 现状模式使用的 45ms 阶梯 span
+      throttledSpan: state.displaySpan,
+      lastThrottleMs: 0,
+      prevSpan: state.displaySpan,
+      // 模拟异步加载状态（跨过 760m 时重置）
+      nearLoaded: state.displaySpan <= 760,
+      nearLoadingUntilMs: 0,
+      wasFarZone: state.displaySpan > 760,
+      // 方案 1/2/3 平滑时间缓动状态
+      smoothNearBlend: state.displaySpan < 640 ? 1 : 0, // 0=全远景, 1=全近景
+      smoothTreeBlend: state.displaySpan < 400 ? 0 : state.displaySpan < 620 ? 0.5 : 1.0,
+      crossFadeProgress: state.displaySpan < 620 ? 1 : 0, // 方案 2 专用: 1=战术实景, 0=战略沙盘
+      crossFadeTarget: state.displaySpan < 620 ? 1 : 0,
+      rippleProgress: state.displaySpan < 620 ? 1 : 0, // 方案 3 专用: 波纹生长进度
+      // 115m 草窗洗牌种子（仅基线模式在跨过 115m 时改变触发洗牌瞬移）
+      grassShuffleCount: 0,
+      wasGrassTight: state.displaySpan <= 115,
+      // 诊断告警统计
+      voidFlashFrames: 0,
+      voidEventCount: 0,
+      inVoidNow: false,
+      zFightActive: false,
+      hardPopAlerts: 0,
+      lastTreeShadowOn: state.displaySpan <= 385,
+      lastCanopyOn: state.displaySpan >= 350,
+    };
+  }
+
+  const leftEngine = createEngineState(0);
+  const rightEngine = createEngineState(state.mode);
+
+  // --- 投影：模拟 RTS 斜 45° 等距视角 ---
+  function makeProjector(w, h, span, camX, camZ) {
+    // span 代表可视横向地面米数
+    const scale = w / Math.max(85, span);
+    const cosY = 0.76; // Z 轴斜俯视压缩比
+    const liftY = 0.82; // 高度垂直拉伸，体现复古微缩立体感
+    return {
+      scale,
+      w,
+      h,
+      px(wx, wy, wz) {
+        return {
+          x: w * 0.5 + (wx - camX) * scale,
+          y: h * 0.52 + (wz - camZ) * scale * cosY - wy * scale * liftY,
+        };
+      },
+    };
+  }
+
+  function smoothstep(edge0, edge1, x) {
+    const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+    return t * t * (3 - 2 * t);
+  }
+
+  function damp(cur, target, lambda, dt) {
+    return cur + (target - cur) * (1 - Math.exp(-lambda * dt));
+  }
+
+  // --- 更新各模式内部切换状态 ---
+  function stepEngine(eng, dtSec, nowMs, realSpan) {
+    const m = eng.mode;
+
+    if (m === 0) {
+      // 【模式 0：真实还原当前 8820 的问题基线】
+      // 1) 45ms 节流导致 shader uniform 阶梯跳变
+      if (nowMs - eng.lastThrottleMs >= 52) {
+        eng.lastThrottleMs = nowMs;
+        eng.throttledSpan = realSpan;
+      }
+      const sp = eng.throttledSpan;
+
+      // 2) 从 >760m 进入 <=760m 触发异步加载模拟（180ms 延迟）
+      if (sp > 760) {
+        eng.wasFarZone = true;
+        eng.nearLoaded = false;
+      } else if (eng.wasFarZone) {
+        eng.wasFarZone = false;
+        if (state.asyncLagEnabled) {
+          eng.nearLoaded = false;
+          eng.nearLoadingUntilMs = nowMs + 220;
+        } else {
+          eng.nearLoaded = true;
+        }
+      }
+      if (!eng.nearLoaded && nowMs >= eng.nearLoadingUntilMs && sp <= 760) {
+        eng.nearLoaded = true;
+      }
+
+      // 检测建筑是否陷入“远景已 discard 且近景尚未就绪”的真空空窗期
+      const macroShaderMorphS = smoothstep(520, 740, sp);
+      const macroDiscardedByShader = macroShaderMorphS < 0.985 || sp < 460;
+      const inVoid = sp <= 760 && macroDiscardedByShader && !eng.nearLoaded;
+      if (inVoid) {
+        eng.voidFlashFrames++;
+        if (!eng.inVoidNow) eng.voidEventCount++;
+      }
+      eng.inVoidNow = inVoid;
+
+      // 3) 检测 115m 草窗突变洗牌
+      const isTight = sp <= 115;
+      if (isTight !== eng.wasGrassTight) {
+        eng.wasGrassTight = isTight;
+        eng.grassShuffleCount++;
+        eng.hardPopAlerts++;
+      }
+
+      // 4) 检测 385m 树影硬关与 350m 林冠壳硬切
+      const treeShadowOn = sp <= 385;
+      if (treeShadowOn !== eng.lastTreeShadowOn) {
+        eng.lastTreeShadowOn = treeShadowOn;
+        eng.hardPopAlerts++;
+      }
+      const canopyOn = sp >= 350;
+      if (canopyOn !== eng.lastCanopyOn) {
+        eng.lastCanopyOn = canopyOn;
+        eng.hardPopAlerts++;
+      }
+      eng.zFightActive = sp >= 490 && sp <= 710 && eng.nearLoaded;
+      return;
+    }
+
+    // --- 以下是 3 套重构方案，全部每帧实时跟手，且带“原型就绪锁” ---
+    if (realSpan > 840) {
+      eng.wasFarZone = true;
+      eng.nearLoaded = false;
+    } else if (eng.wasFarZone && realSpan <= 840) {
+      // 提前至 840m 预热加载！在进入切换带前早已解码完毕
+      eng.wasFarZone = false;
+      if (state.asyncLagEnabled) {
+        eng.nearLoaded = false;
+        eng.nearLoadingUntilMs = nowMs + 220;
+      } else {
+        eng.nearLoaded = true;
+      }
+    }
+    if (!eng.nearLoaded && nowMs >= eng.nearLoadingUntilMs && realSpan <= 840) {
+      eng.nearLoaded = true;
+    }
+
+    eng.inVoidNow = false;
+    eng.zFightActive = false;
+
+    if (m === 1) {
+      // 【方案 1：时间缓动 + 高空微雾 + 原型就绪锁】
+      // 若还在模拟加载，锁定远景（nearBlend = 0）直到就绪
+      const desiredNear = (!eng.nearLoaded) ? 0.0 : (1.0 - smoothstep(500, 740, realSpan));
+      eng.smoothNearBlend = damp(eng.smoothNearBlend, desiredNear, 12.0, dtSec);
+      const desiredTreeFar = smoothstep(320, 620, realSpan);
+      eng.smoothTreeBlend = damp(eng.smoothTreeBlend, desiredTreeFar, 12.0, dtSec);
+    } else if (m === 2) {
+      // 【方案 2：单分界线 620m 战略/战术整体交叉转场】
+      // 带微小滞回避免恰好停在 620m 抖动
+      if (eng.crossFadeTarget > 0.5 && realSpan > 645) eng.crossFadeTarget = 0;
+      else if (eng.crossFadeTarget < 0.5 && realSpan < 595) eng.crossFadeTarget = 1;
+      const lockedTarget = (!eng.nearLoaded && eng.crossFadeTarget > 0.5) ? 0 : eng.crossFadeTarget;
+      // 严格 0.25s 恒定时间缓动
+      const speed = 1.0 / 0.25;
+      if (eng.crossFadeProgress < lockedTarget) {
+        eng.crossFadeProgress = Math.min(lockedTarget, eng.crossFadeProgress + speed * dtSec);
+      } else if (eng.crossFadeProgress > lockedTarget) {
+        eng.crossFadeProgress = Math.max(lockedTarget, eng.crossFadeProgress - speed * dtSec);
+      }
+    } else if (m === 3) {
+      // 【方案 3：复古微缩波纹生长/收拢动效】
+      const rawTarget = (!eng.nearLoaded) ? 0.0 : (realSpan < 640 ? 1.0 : 0.0);
+      const speed = 1.0 / 0.22;
+      if (eng.rippleProgress < rawTarget) {
+        eng.rippleProgress = Math.min(rawTarget, eng.rippleProgress + speed * dtSec);
+      } else if (eng.rippleProgress > rawTarget) {
+        eng.rippleProgress = Math.max(rawTarget, eng.rippleProgress - speed * dtSec);
+      }
+    }
+  }
+
+  // --- 绘制立体远景包络盒 / 精细建筑 ---
+  function drawBox3D(ctx, proj, x, z, w, d, h, topCol, frontCol, sideCol, alpha = 1, outline = null, detailLevel = 0) {
+    if (alpha <= 0.01 || h <= 0.2) return;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+    const hw = w * 0.5;
+    const hd = d * 0.5;
+
+    // 4 个底角 + 4 个顶角
+    const b1 = proj.px(x - hw, 0, z + hd);
+    const b2 = proj.px(x + hw, 0, z + hd);
+    const b3 = proj.px(x + hw, 0, z - hd);
+    const t0 = proj.px(x - hw, h, z - hd);
+    const t1 = proj.px(x - hw, h, z + hd);
+    const t2 = proj.px(x + hw, h, z + hd);
+    const t3 = proj.px(x + hw, h, z - hd);
+
+    // 右侧立体阴影
+    ctx.fillStyle = 'rgba(10, 14, 10, 0.26)';
+    ctx.beginPath();
+    ctx.moveTo(b2.x, b2.y);
+    ctx.lineTo(b2.x + h * proj.scale * 0.65, b2.y + h * proj.scale * 0.25);
+    ctx.lineTo(b3.x + h * proj.scale * 0.65, b3.y + h * proj.scale * 0.25);
+    ctx.lineTo(b3.x, b3.y);
+    ctx.closePath();
+    ctx.fill();
+
+    // 前立面
+    ctx.fillStyle = frontCol;
+    ctx.beginPath();
+    ctx.moveTo(b1.x, b1.y);
+    ctx.lineTo(b2.x, b2.y);
+    ctx.lineTo(t2.x, t2.y);
+    ctx.lineTo(t1.x, t1.y);
+    ctx.closePath();
+    ctx.fill();
+
+    // 窗户纹理（仅精细层面显示）
+    if (detailLevel > 0.08 && Math.abs(b2.x - b1.x) > 16) {
+      ctx.save();
+      ctx.globalAlpha *= detailLevel * 0.72;
+      ctx.fillStyle = '#242c33';
+      const cols = Math.max(2, Math.floor(w / 14));
+      const rows = Math.max(1, Math.floor(h / 12));
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const fx = (c + 0.3) / cols;
+          const fy = 0.22 + (r / rows) * 0.62;
+          const wx0 = x - hw + fx * w;
+          const wy0 = h * fy;
+          const wp = proj.px(wx0, wy0, z + hd);
+          const ww = Math.max(2, (w / cols) * 0.44 * proj.scale);
+          const wh = Math.max(2, (h / rows) * 0.42 * proj.scale * 0.78);
+          ctx.fillRect(wp.x, wp.y - wh, ww, wh);
+        }
+      }
+      ctx.restore();
+    }
+
+    // 顶面（坡屋脊或平顶）
+    ctx.fillStyle = topCol;
+    ctx.beginPath();
+    ctx.moveTo(t0.x, t0.y);
+    ctx.lineTo(t1.x, t1.y);
+    ctx.lineTo(t2.x, t2.y);
+    ctx.lineTo(t3.x, t3.y);
+    ctx.closePath();
+    ctx.fill();
+
+    if (detailLevel > 0.08) {
+      // 精细斜脊与檐口微缩高光
+      ctx.save();
+      ctx.globalAlpha *= detailLevel;
+      const ridgeLeft = proj.px(x - hw * 0.76, h + 4.5, z);
+      const ridgeRight = proj.px(x + hw * 0.76, h + 4.5, z);
+      ctx.fillStyle = 'rgba(255, 250, 232, 0.16)';
+      ctx.beginPath();
+      ctx.moveTo(t0.x, t0.y);
+      ctx.lineTo(ridgeLeft.x, ridgeLeft.y);
+      ctx.lineTo(ridgeRight.x, ridgeRight.y);
+      ctx.lineTo(t3.x, t3.y);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255, 245, 210, 0.35)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(ridgeLeft.x, ridgeLeft.y);
+      ctx.lineTo(ridgeRight.x, ridgeRight.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    if (outline) {
+      ctx.strokeStyle = outline;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(t0.x, t0.y);
+      ctx.lineTo(t1.x, t1.y);
+      ctx.lineTo(t2.x, t2.y);
+      ctx.lineTo(t3.x, t3.y);
+      ctx.closePath();
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // --- 核心渲染函数：绘制单边视口 ---
+  function renderViewport(canvas, eng, realSpan, isLeftBaseline) {
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(320, Math.round(rect.width));
+    const h = Math.max(220, Math.round(rect.height));
+    // 遵循 680p 复古微缩理念适当限定垂直像素上限以还原紧致微缩像素边沿
+    const renderScale = Math.min(1, 680 / Math.max(1, h));
+    const rw = Math.max(320, Math.round(w * renderScale));
+    const rh = Math.max(220, Math.round(h * renderScale));
+    if (canvas.width !== rw || canvas.height !== rh) {
+      canvas.width = rw;
+      canvas.height = rh;
+    }
+    const ctx = canvas.getContext('2d');
+    const sp = eng.mode === 0 ? eng.throttledSpan : realSpan;
+    const proj = makeProjector(rw, rh, sp, state.camX, state.camZ);
+
+    // 1. 地表微缩渐变背景 + 地形高度轻微跳闪（仅模式0跨1800前高程基准抖动或大视角显示）
+    const grad = ctx.createLinearGradient(0, 0, rw, rh);
+    grad.addColorStop(0, '#687b42');
+    grad.addColorStop(0.55, '#7c8a47');
+    grad.addColorStop(1, '#8c8349');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, rw, rh);
+
+    // 有机农田/枯草斑块（避免单调）
+    ctx.save();
+    ctx.fillStyle = 'rgba(165, 146, 84, 0.28)';
+    for (let i = 0; i < 6; i++) {
+      const p = proj.px(-240 + i * 95, 0, (i % 2 === 0 ? -90 : 85));
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, 75 * proj.scale, 46 * proj.scale, 0.25 * i, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 2. 机场主跑道 + 柏油公路
+    ctx.save();
+    const rA = proj.px(-480, 0, 22);
+    const rB = proj.px(480, 0, 22);
+    ctx.strokeStyle = '#585c5e';
+    ctx.lineWidth = Math.max(4, 34 * proj.scale);
+    ctx.beginPath();
+    ctx.moveTo(rA.x, rA.y);
+    ctx.lineTo(rB.x, rB.y);
+    ctx.stroke();
+
+    // 跑道中心标线
+    ctx.strokeStyle = 'rgba(235, 234, 224, 0.72)';
+    ctx.lineWidth = Math.max(1, 2.5 * proj.scale);
+    ctx.setLineDash([12 * proj.scale, 10 * proj.scale]);
+    ctx.beginPath();
+    ctx.moveTo(rA.x, rA.y);
+    ctx.lineTo(rB.x, rB.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 纵穿支路
+    const vA = proj.px(-35, 0, -280);
+    const vB = proj.px(25, 0, 280);
+    ctx.strokeStyle = '#4f5253';
+    ctx.lineWidth = Math.max(3, 18 * proj.scale);
+    ctx.beginPath();
+    ctx.moveTo(vA.x, vA.y);
+    ctx.lineTo(vB.x, vB.y);
+    ctx.stroke();
+    ctx.restore();
+
+    // 3. 近景 3D 草团
+    const renderGrass = () => {
+      let grassAlpha = 0;
+      let shuffleOffset = 0;
+      if (eng.mode === 0) {
+        grassAlpha = sp <= 155 ? 0.92 : 0;
+        shuffleOffset = eng.grassShuffleCount * 17.3; // 跨 115m 瞬间全体洗牌跳移！
+      } else if (eng.mode === 1) {
+        grassAlpha = 1.0 - smoothstep(130, 240, sp);
+      } else if (eng.mode === 2) {
+        grassAlpha = (1.0 - smoothstep(140, 240, sp)) * eng.crossFadeProgress;
+      } else if (eng.mode === 3) {
+        grassAlpha = (1.0 - smoothstep(135, 240, sp)) * smoothstep(0.15, 0.85, eng.rippleProgress);
+      }
+      if (grassAlpha <= 0.02) return;
+
+      ctx.save();
+      ctx.globalAlpha = grassAlpha;
+      for (let i = 0; i < GRASS_SPOTS.length; i++) {
+        const g = GRASS_SPOTS[i];
+        // 模式 0 在 115m 临界点洗牌瞬移的复现
+        const jx = shuffleOffset > 0 ? Math.sin(i * 1.7 + shuffleOffset) * 24 : 0;
+        const jz = shuffleOffset > 0 ? Math.cos(i * 2.3 + shuffleOffset) * 20 : 0;
+        let grow = 1;
+        if (eng.mode === 3) {
+          const distN = Math.min(1, Math.hypot(g.x - state.camX, g.z - state.camZ) / 360);
+          grow = smoothstep(distN * 0.45, distN * 0.45 + 0.45, eng.rippleProgress);
+        }
+        const p = proj.px(g.x + jx, 0, g.z + jz);
+        const hPx = Math.max(2, 6.2 * g.s * proj.scale * grow);
+        const wPx = Math.max(2, 3.6 * g.s * proj.scale);
+        ctx.fillStyle = '#536e2c';
+        ctx.beginPath();
+        ctx.moveTo(p.x - wPx, p.y);
+        ctx.lineTo(p.x - wPx * 0.25, p.y - hPx);
+        ctx.lineTo(p.x + wPx * 0.35, p.y - hPx * 0.82);
+        ctx.lineTo(p.x + wPx, p.y);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    };
+    renderGrass();
+
+    // 4. 远景森林集群林冠壳（仅底层柔和体积底色）
+    const renderCanopyShell = () => {
+      let canopyAlpha = 0;
+      let canopyRise = 1;
+      if (eng.mode === 0) {
+        // 350m 硬关闭，430–560m 突兀隆起
+        canopyAlpha = sp >= 350 ? smoothstep(430, 560, sp) : 0;
+        canopyRise = smoothstep(430, 560, sp);
+      } else if (eng.mode === 1) {
+        canopyAlpha = smoothstep(320, 580, sp);
+        canopyRise = 0.55 + 0.45 * canopyAlpha;
+      } else if (eng.mode === 2) {
+        canopyAlpha = 1.0 - eng.crossFadeProgress;
+        canopyRise = 1.0;
+      } else if (eng.mode === 3) {
+        canopyAlpha = smoothstep(0.55, 0.05, eng.rippleProgress) * smoothstep(340, 620, sp);
+        canopyRise = 0.65 + 0.35 * canopyAlpha;
+      }
+      if (canopyAlpha <= 0.02) return;
+
+      ctx.save();
+      ctx.globalAlpha = canopyAlpha * 0.92;
+      for (const cl of FOREST_CLUSTERS) {
+        const p = proj.px(cl.x, 7 * canopyRise, cl.z);
+        const rxPx = cl.rx * proj.scale;
+        const ryPx = cl.rz * proj.scale * 0.76;
+        // 集群投影
+        ctx.fillStyle = 'rgba(18, 28, 12, 0.34)';
+        ctx.beginPath();
+        ctx.ellipse(p.x + 6 * proj.scale, p.y + 8 * proj.scale, rxPx * 1.02, ryPx * 0.98, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // 集群绿色冠块
+        const cg = ctx.createRadialGradient(p.x - rxPx * 0.25, p.y - ryPx * 0.25, rxPx * 0.1, p.x, p.y, rxPx);
+        cg.addColorStop(0, '#5a8231');
+        cg.addColorStop(0.68, '#3f6422');
+        cg.addColorStop(1, '#2d4918');
+        ctx.fillStyle = cg;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, rxPx, ryPx, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    };
+    renderCanopyShell();
+
+    // 5. 收集树木与建筑按屏幕 Y 排序，实现正确遮挡关系
+    const drawItems = [];
+
+    for (const tr of TREES) {
+      drawItems.push({ kind: 'tree', zSort: tr.z, data: tr });
+    }
+    for (const pr of PROPS) {
+      drawItems.push({ kind: 'prop', zSort: pr.z, data: pr });
+    }
+    for (const b of BUILDINGS) {
+      drawItems.push({ kind: 'bldg', zSort: b.z, data: b });
+    }
+    drawItems.sort((a, b) => a.zSort - b.zSort);
+
+    for (const item of drawItems) {
+      if (item.kind === 'tree') {
+        const tr = item.data;
+        const dist = Math.hypot(tr.x - state.camX, tr.z - state.camZ);
+
+        if (eng.mode === 0) {
+          // 模式 0 树木：385m 阴影硬开关 + 320–390m near/mid 打架闪烁 + >650m 全灭
+          if (sp > 650) continue;
+          const fT = Math.max(smoothstep(300, 370, dist), smoothstep(320, 390, sp));
+          const farT = Math.max(smoothstep(480, 620, dist), smoothstep(490, 635, sp));
+          const showNear = sp <= 385 && fT < 0.985;
+          const showMid = fT >= 0.96 && farT < 0.95;
+
+          const p = proj.px(tr.x, 0, tr.z);
+          const rad = tr.r * proj.scale;
+          const th = tr.h * proj.scale * (farT > 0.01 ? (1 - farT * 0.85) : 1);
+
+          // 385m 硬切真实阴影
+          if (sp <= 385) {
+            ctx.fillStyle = 'rgba(12, 20, 9, 0.38)';
+            ctx.beginPath();
+            ctx.ellipse(p.x + rad * 0.85, p.y + rad * 0.22, rad * 1.1, rad * 0.55, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // 0.96 <= fT < 0.985 重叠 Z-fighting 闪暗区
+          const isZFight = showNear && showMid;
+          const col = isZFight && (Math.floor(state.timeSec * 24) % 2 === 0)
+            ? '#223614'
+            : (showNear ? (tr.isPine ? '#2f5e24' : '#5f8a34') : '#456a25');
+
+          ctx.fillStyle = col;
+          ctx.beginPath();
+          if (showNear && tr.isPine) {
+            ctx.moveTo(p.x, p.y - th);
+            ctx.lineTo(p.x - rad * 0.8, p.y);
+            ctx.lineTo(p.x + rad * 0.8, p.y);
+            ctx.closePath();
+          } else {
+            ctx.arc(p.x, p.y - th * 0.45, Math.max(1.5, rad * (showNear ? 0.85 : 0.72)), 0, Math.PI * 2);
+          }
+          ctx.fill();
+        } else if (eng.mode === 1) {
+          // 方案 1：平滑软阴影淡出 + 近/中无闪烁渐变融入林冠
+          const fadeOut = 1 - smoothstep(460, 660, Math.max(sp, dist * 1.15));
+          if (fadeOut <= 0.02) continue;
+          const p = proj.px(tr.x, 0, tr.z);
+          const rad = tr.r * proj.scale * (0.75 + 0.25 * fadeOut);
+          const th = tr.h * proj.scale * (0.65 + 0.35 * fadeOut);
+          const shadowAlpha = (1 - smoothstep(260, 480, sp)) * 0.36 * fadeOut;
+
+          if (shadowAlpha > 0.01) {
+            ctx.fillStyle = `rgba(12, 20, 9, ${shadowAlpha.toFixed(3)})`;
+            ctx.beginPath();
+            ctx.ellipse(p.x + rad * 0.85, p.y + rad * 0.22, rad * 1.1, rad * 0.55, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.save();
+          ctx.globalAlpha = fadeOut;
+          ctx.fillStyle = tr.isPine ? '#336226' : '#5c8832';
+          ctx.beginPath();
+          if (tr.isPine && sp < 460) {
+            ctx.moveTo(p.x, p.y - th);
+            ctx.lineTo(p.x - rad * 0.8, p.y);
+            ctx.lineTo(p.x + rad * 0.8, p.y);
+            ctx.closePath();
+          } else {
+            ctx.arc(p.x, p.y - th * 0.45, Math.max(1.5, rad * 0.84), 0, Math.PI * 2);
+          }
+          ctx.fill();
+          ctx.restore();
+        } else if (eng.mode === 2) {
+          // 方案 2：跟全局 crossFadeProgress 走，620m 下全细节树，上全林冠
+          const a = eng.crossFadeProgress;
+          if (a <= 0.02) continue;
+          const p = proj.px(tr.x, 0, tr.z);
+          const rad = tr.r * proj.scale;
+          const th = tr.h * proj.scale;
+          ctx.save();
+          ctx.globalAlpha = a;
+          ctx.fillStyle = 'rgba(12, 20, 9, 0.34)';
+          ctx.beginPath();
+          ctx.ellipse(p.x + rad * 0.85, p.y + rad * 0.22, rad * 1.1, rad * 0.55, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = tr.isPine ? '#336226' : '#5c8832';
+          ctx.beginPath();
+          if (tr.isPine) {
+            ctx.moveTo(p.x, p.y - th);
+            ctx.lineTo(p.x - rad * 0.8, p.y);
+            ctx.lineTo(p.x + rad * 0.8, p.y);
+            ctx.closePath();
+          } else {
+            ctx.arc(p.x, p.y - th * 0.45, Math.max(1.5, rad * 0.84), 0, Math.PI * 2);
+          }
+          ctx.fill();
+          ctx.restore();
+        } else if (eng.mode === 3) {
+          // 方案 3：波纹柔和微缩生长/收拢
+          const distN = Math.min(1, dist / 360);
+          const grow = smoothstep(distN * 0.48, distN * 0.48 + 0.48, eng.rippleProgress);
+          if (grow <= 0.04) continue;
+          const p = proj.px(tr.x, 0, tr.z);
+          const rad = tr.r * proj.scale * (0.35 + 0.65 * grow);
+          const th = tr.h * proj.scale * grow;
+          ctx.save();
+          ctx.globalAlpha = smoothstep(0, 0.3, grow);
+          ctx.fillStyle = `rgba(12, 20, 9, ${(0.34 * grow).toFixed(3)})`;
+          ctx.beginPath();
+          ctx.ellipse(p.x + rad * 0.85, p.y + rad * 0.22, rad * 1.1, rad * 0.55, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = tr.isPine ? '#336226' : '#5c8832';
+          ctx.beginPath();
+          if (tr.isPine) {
+            ctx.moveTo(p.x, p.y - th);
+            ctx.lineTo(p.x - rad * 0.8, p.y);
+            ctx.lineTo(p.x + rad * 0.8, p.y);
+            ctx.closePath();
+          } else {
+            ctx.arc(p.x, p.y - th * 0.45, Math.max(1.5, rad * 0.84), 0, Math.PI * 2);
+          }
+          ctx.fill();
+          ctx.restore();
+        }
+        continue;
+      }
+
+      if (item.kind === 'prop') {
+        const pr = item.data;
+        let pAlpha = 0;
+        let pScale = 1;
+        if (eng.mode === 0) {
+          pAlpha = sp < 520 ? (eng.nearLoaded ? 1 : 0) : 0;
+        } else if (eng.mode === 1) {
+          pAlpha = eng.smoothNearBlend * (1 - smoothstep(380, 560, sp));
+          pScale = 0.5 + 0.5 * pAlpha;
+        } else if (eng.mode === 2) {
+          pAlpha = eng.crossFadeProgress * (1 - smoothstep(500, 620, sp));
+        } else if (eng.mode === 3) {
+          const distN = Math.min(1, Math.hypot(pr.x - state.camX, pr.z - state.camZ) / 360);
+          pScale = smoothstep(distN * 0.48, distN * 0.48 + 0.44, eng.rippleProgress);
+          pAlpha = pScale;
+        }
+        if (pAlpha > 0.04) {
+          drawBox3D(
+            ctx, proj, pr.x, pr.z,
+            pr.s * pScale, pr.s * pScale, pr.s * 0.8 * pScale,
+            pr.kind === 'crate' ? '#8c7651' : '#70757a',
+            pr.kind === 'crate' ? '#6d5839' : '#52565b',
+            '#404040',
+            pAlpha
+          );
+        }
+        continue;
+      }
+
+      // --- 建筑绘制：清晰暴露 基线闪烁 vs 3 种重构方案 ---
+      const b = item.data;
+      const distC = Math.hypot(b.x - state.camX, b.z - state.camZ);
+
+      if (eng.mode === 0) {
+        // 1) 外缘半径错位裁切 (bldgRadius 写死 580 但远景 680 才切)
+        const inRadius = distC <= Math.min(580, Math.max(260, sp * 1.85));
+        const macroShow = sp >= 460;
+        const mT = Math.max(smoothstep(500, 680, distC), smoothstep(520, 740, sp));
+        const vMorphT = Math.max(smoothstep(500, 680, distC), smoothstep(520, 740, sp));
+
+        const macroVisible = macroShow && mT >= 0.985;
+        const nearVisible = sp <= 760 && eng.nearLoaded && inRadius && vMorphT < 0.992;
+
+        if (macroVisible) {
+          drawBox3D(ctx, proj, b.x, b.z, b.w, b.d, b.h, b.far, '#6b6d67', '#565853', 1, null, 0);
+        }
+
+        if (nearVisible) {
+          // 大建筑中心点 vs 边缘像素公式不一致导致的“半边重影 Z-fighting”复现
+          if (b.isLarge && sp >= 490 && sp <= 710) {
+            drawBox3D(ctx, proj, b.x, b.z, b.w, b.d, b.h, b.roof, b.wall, '#999', 1, '#ff5266', 1 - vMorphT);
+            // 叠加半边 Z-fighting 条纹闪烁
+            const pL = proj.px(b.x - b.w * 0.48, b.h + 0.5, b.z);
+            const pR = proj.px(b.x, b.h + 0.5, b.z);
+            ctx.save();
+            ctx.fillStyle = (Math.floor(state.timeSec * 22) % 2 === 0) ? 'rgba(255, 82, 102, 0.45)' : 'rgba(60, 65, 60, 0.72)';
+            ctx.fillRect(Math.min(pL.x, pR.x), pL.y - 12 * proj.scale, Math.abs(pR.x - pL.x), 24 * proj.scale);
+            ctx.restore();
+          } else {
+            drawBox3D(ctx, proj, b.x, b.z, b.w, b.d, b.h, b.roof, b.wall, '#999', 1, null, 1 - vMorphT);
+          }
+        }
+
+        // 若正处真空消失状态，绘制虚线警示框标明“本该有楼但闪没了”
+        if (!macroVisible && !nearVisible) {
+          const pc = proj.px(b.x, 4, b.z);
+          ctx.save();
+          ctx.strokeStyle = 'rgba(255, 82, 102, 0.85)';
+          ctx.lineWidth = 1.4;
+          ctx.setLineDash([4, 3]);
+          ctx.strokeRect(pc.x - b.w * 0.4 * proj.scale, pc.y - b.d * 0.25 * proj.scale, b.w * 0.8 * proj.scale, b.d * 0.5 * proj.scale);
+          ctx.restore();
+        }
+      } else if (eng.mode === 1) {
+        // 【方案 1：时间缓动 + 同源基准 + 就绪锁 + 颜色提前平滑熔接】
+        const nb = eng.smoothNearBlend; // 0..1
+        // 色彩提前对齐远景主色调，保证交接毫无跳变
+        const detailStrength = smoothstep(0.25, 0.95, nb);
+        const macroAlpha = 1.0 - smoothstep(0.15, 0.85, nb);
+
+        if (macroAlpha > 0.02) {
+          drawBox3D(ctx, proj, b.x, b.z, b.w, b.d, b.h, b.far, '#6b6d67', '#565853', macroAlpha, null, 0);
+        }
+        if (nb > 0.02) {
+          // 融合屋顶色：近景从远景 far 色渐变成真实屋顶/墙色
+          drawBox3D(ctx, proj, b.x, b.z, b.w, b.d, b.h, b.roof, b.wall, '#999', nb, null, detailStrength);
+        }
+      } else if (eng.mode === 2) {
+        // 【方案 2：单分界线 620m 整体交叉淡融】
+        const cf = eng.crossFadeProgress;
+        if (1 - cf > 0.02) {
+          drawBox3D(ctx, proj, b.x, b.z, b.w, b.d, b.h, b.far, '#6b6d67', '#565853', 1 - cf, null, 0);
+        }
+        if (cf > 0.02) {
+          drawBox3D(ctx, proj, b.x, b.z, b.w, b.d, b.h, b.roof, b.wall, '#999', cf, null, cf);
+        }
+      } else if (eng.mode === 3) {
+        // 【方案 3：复古微缩波纹拔起/收拢】
+        const distN = Math.min(1, distC / 360);
+        const grow = smoothstep(distN * 0.42, distN * 0.42 + 0.46, eng.rippleProgress);
+        // 远景底座始终在底层接住，近景屋顶/墙面沿波纹柔和生长包覆
+        drawBox3D(ctx, proj, b.x, b.z, b.w, b.d, b.h, b.far, '#6b6d67', '#565853', 1.0 - grow * 0.85, null, 0);
+        if (grow > 0.03) {
+          const sScale = 0.86 + 0.14 * grow;
+          drawBox3D(ctx, proj, b.x, b.z, b.w * sScale, b.d * sScale, b.h * (0.72 + 0.28 * grow), b.roof, b.wall, '#999', grow, null, grow);
+        }
+      }
+    }
+
+    // 6. 方案专属辅助视觉层（非常克制！）
+    if (eng.mode === 1) {
+      // 方案 1：仅在穿过 480–760m 过渡区间时叠加一层极轻的高空微雾（最大 11% 不透明度）
+      const fogBell = Math.sin(smoothstep(440, 780, realSpan) * Math.PI);
+      if (fogBell > 0.01) {
+        ctx.fillStyle = `rgba(210, 218, 198, ${(fogBell * 0.11).toFixed(3)})`;
+        ctx.fillRect(0, 0, rw, rh);
+      }
+    } else if (eng.mode === 2) {
+      // 方案 2：在 0.25s 整体交叉期间叠加一道轻柔战略网格脉冲线
+      const pulse = Math.sin(eng.crossFadeProgress * Math.PI);
+      if (pulse > 0.02) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(240, 211, 114, ${(pulse * 0.22).toFixed(3)})`;
+        ctx.lineWidth = 1;
+        const step = 48;
+        for (let gx = (rw % step) * 0.5; gx < rw; gx += step) {
+          ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, rh); ctx.stroke();
+        }
+        for (let gy = (rh % step) * 0.5; gy < rh; gy += step) {
+          ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(rw, gy); ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+
+    // 如果是左基线视口且正发生真空消失或 Z-fighting，在中心角落微闪提示
+    if (isLeftBaseline && eng.inVoidNow) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 82, 102, 0.14)';
+      ctx.fillRect(0, 0, rw, rh);
+      ctx.restore();
+    }
+  }
+
+  // --- 刷新 UI 文本与遥测徽章 ---
+  function renderTelemetry(containerEl, eng, realSpan) {
+    const sp = eng.mode === 0 ? eng.throttledSpan : realSpan;
+    const isVoid = eng.inVoidNow;
+    const bldgLayer = eng.mode === 0
+      ? (isVoid ? '空窗闪灭!' : eng.zFightActive ? '重影打架!' : sp > 680 ? '远景盒' : '近景GLB')
+      : eng.mode === 2
+      ? (eng.crossFadeProgress > 0.85 ? '战术实景' : eng.crossFadeProgress < 0.15 ? '战略沙盘' : '0.25s淡融')
+      : (eng.smoothNearBlend > 0.85 ? '战术实景' : eng.smoothNearBlend < 0.15 ? '远景沙盘' : '平滑缓动');
+
+    const voidCls = eng.voidEventCount > 0 ? 'danger' : 'safe';
+    const zfCls = (eng.zFightActive || eng.hardPopAlerts > 0) ? 'warn' : 'safe';
+
+    containerEl.innerHTML = `
+      <span class="pill">建筑层: ${bldgLayer}</span>
+      <span class="pill ${voidCls}">空窗闪灭: ${eng.voidEventCount}次</span>
+      <span class="pill ${zfCls}">${eng.mode === 0 ? `硬切告警: ${eng.hardPopAlerts}次` : '重影/硬切: 0次'}</span>
+    `;
+  }
+
+  function syncModeChrome() {
+    const meta = SCHEME_META[state.mode];
+    const rightTag = document.getElementById('pane-right-tag');
+    rightTag.className = `pane-tag ${meta.tagClass}`;
+    document.getElementById('pane-right-dot').style.background = meta.dotColor;
+    document.getElementById('pane-right-title').textContent = meta.title;
+    document.getElementById('pane-right-desc').textContent = meta.desc;
+    document.getElementById('callout-right').innerHTML = meta.callout;
+    document.getElementById('summary-text').textContent = meta.summary;
+
+    document.querySelectorAll('#mode-buttons .btn').forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.mode) === state.mode);
+    });
+
+    const stageWrap = document.getElementById('stage-wrap');
+    const paneLeft = document.getElementById('pane-left');
+    const splitBtn = document.getElementById('btn-split');
+    stageWrap.classList.toggle('split', state.split);
+    paneLeft.classList.toggle('hidden', !state.split);
+    splitBtn.textContent = '';
+    splitBtn.innerHTML = `<span class="kbd">C</span> 双屏对比：${state.split ? '开' : '关'}`;
+    splitBtn.classList.toggle('active-safe', state.split);
+
+    // 切换方案时同步重置右侧引擎状态以便直观对比
+    Object.assign(rightEngine, createEngineState(state.mode));
+  }
+
+  function setMode(m) {
+    state.mode = Number(m);
+    syncModeChrome();
+  }
+
+  function toggleSplit() {
+    state.split = !state.split;
+    syncModeChrome();
+  }
+
+  function setCruise(flag) {
+    state.cruise = Boolean(flag);
+    const btn = document.getElementById('btn-cruise');
+    btn.innerHTML = `<span class="kbd">Space</span> 往返巡航：${state.cruise ? '开' : '关'}`;
+    btn.classList.toggle('active', state.cruise);
+  }
+
+  // --- 事件绑定 ---
+  document.querySelectorAll('#mode-buttons .btn').forEach(btn => {
+    btn.addEventListener('click', () => setMode(btn.dataset.mode));
+  });
+  document.getElementById('btn-split').addEventListener('click', toggleSplit);
+  document.getElementById('btn-cruise').addEventListener('click', () => {
+    state.autoMoveTarget = null;
+    setCruise(!state.cruise);
+  });
+  document.getElementById('btn-zoom-in').addEventListener('click', () => {
+    setCruise(false);
+    state.targetSpan = 960;
+    state.displaySpan = 960;
+    state.autoMoveTarget = 100;
+  });
+  document.getElementById('btn-zoom-out').addEventListener('click', () => {
+    setCruise(false);
+    state.targetSpan = 100;
+    state.displaySpan = 100;
+    state.autoMoveTarget = 980;
+  });
+  document.getElementById('btn-async-lag').addEventListener('click', e => {
+    state.asyncLagEnabled = !state.asyncLagEnabled;
+    e.currentTarget.textContent = `⚡ 模拟异步延迟(180ms)：${state.asyncLagEnabled ? '开' : '关'}`;
+    e.currentTarget.classList.toggle('active-danger', state.asyncLagEnabled);
+  });
+
+  const slider = document.getElementById('span-slider');
+  slider.addEventListener('input', () => {
+    setCruise(false);
+    state.autoMoveTarget = null;
+    state.targetSpan = Number(slider.value);
+  });
+
+  document.querySelectorAll('.chip-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setCruise(false);
+      state.autoMoveTarget = Number(btn.dataset.span);
+    });
+  });
+
+  // 滚轮缩放 & 左键拖拽平移（双画布共享操控）
+  let dragging = false;
+  let dragLastX = 0;
+  let dragLastY = 0;
+  [document.getElementById('canvas-left'), document.getElementById('canvas-right')].forEach(cv => {
+    cv.addEventListener('wheel', e => {
+      e.preventDefault();
+      setCruise(false);
+      state.autoMoveTarget = null;
+      const factor = Math.pow(1.0014, e.deltaY);
+      state.targetSpan = Math.max(90, Math.min(1350, state.targetSpan * factor));
+    }, { passive: false });
+
+    cv.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      dragging = true;
+      dragLastX = e.clientX;
+      dragLastY = e.clientY;
+    });
+  });
+  window.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - dragLastX;
+    const dy = e.clientY - dragLastY;
+    dragLastX = e.clientX;
+    dragLastY = e.clientY;
+    const panRate = state.displaySpan / 900;
+    state.camX = Math.max(-220, Math.min(220, state.camX - dx * panRate));
+    state.camZ = Math.max(-180, Math.min(180, state.camZ - dy * panRate * 1.25));
+  });
+  window.addEventListener('pointerup', () => { dragging = false; });
+
+  window.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '3') setMode(Number(e.key));
+    else if (e.key.toLowerCase() === 'c') toggleSplit();
+    else if (e.code === 'Space') {
+      e.preventDefault();
+      state.autoMoveTarget = null;
+      setCruise(!state.cruise);
+    }
+  });
+
+  // --- 主动画循环 ---
+  const canvasLeft = document.getElementById('canvas-left');
+  const canvasRight = document.getElementById('canvas-right');
+  const teleLeft = document.getElementById('tele-left');
+  const teleRight = document.getElementById('tele-right');
+  const spanReadout = document.getElementById('span-readout');
+  const tierReadout = document.getElementById('tier-readout');
+
+  let lastT = performance.now();
+  function frame(now) {
+    const dtSec = Math.min(0.05, Math.max(0.001, (now - lastT) / 1000));
+    lastT = now;
+    state.timeSec += dtSec;
+
+    if (state.cruise) {
+      // 对数空间匀速来回扫过 960m ↔ 100m 切换区
+      const logMin = Math.log(100);
+      const logMax = Math.log(960);
+      let logCur = Math.log(Math.max(100, Math.min(960, state.targetSpan)));
+      logCur += state.cruiseDir * 0.42 * dtSec;
+      if (logCur <= logMin) { logCur = logMin; state.cruiseDir = 1; }
+      else if (logCur >= logMax) { logCur = logMax; state.cruiseDir = -1; }
+      state.targetSpan = Math.exp(logCur);
+    } else if (state.autoMoveTarget !== null) {
+      state.targetSpan = damp(state.targetSpan, state.autoMoveTarget, 3.2, dtSec);
+      if (Math.abs(state.targetSpan - state.autoMoveTarget) < 1.5) {
+        state.targetSpan = state.autoMoveTarget;
+        state.autoMoveTarget = null;
+      }
+    }
+
+    state.displaySpan = damp(state.displaySpan, state.targetSpan, 14.0, dtSec);
+    slider.value = Math.round(state.displaySpan);
+    spanReadout.textContent = `${Math.round(state.displaySpan)} m`;
+    tierReadout.textContent =
+      state.displaySpan > 740 ? '远景沙盘区（林冠+包络）'
+      : state.displaySpan > 460 ? '高危切换区（建筑/林冠交接）'
+      : state.displaySpan > 160 ? '中近景切换区（树影/近景树）'
+      : '贴近微缩区（3D草团+精细建筑）';
+
+    stepEngine(leftEngine, dtSec, now, state.displaySpan);
+    stepEngine(rightEngine, dtSec, now, state.displaySpan);
+
+    if (state.split) {
+      renderViewport(canvasLeft, leftEngine, state.displaySpan, true);
+      renderTelemetry(teleLeft, leftEngine, state.displaySpan);
+    }
+    renderViewport(canvasRight, rightEngine, state.displaySpan, false);
+    renderTelemetry(teleRight, rightEngine, state.displaySpan);
+
+    requestAnimationFrame(frame);
+  }
+
+  syncModeChrome();
+  requestAnimationFrame(frame);
+
+  // 供本地脚本无头自检的状态钩子
+  window.__LOD_PREVIEW__ = {
+    getState: () => ({
+      mode: state.mode,
+      split: state.split,
+      span: Number(state.displaySpan.toFixed(1)),
+      leftVoidCount: leftEngine.voidEventCount,
+      rightVoidCount: rightEngine.voidEventCount,
+    }),
+    setMode,
+    toggleSplit,
+    setSpan: (sp) => { setCruise(false); state.autoMoveTarget = null; state.targetSpan = sp; state.displaySpan = sp; },
+  };
+})();
+</script>
+</body>
+</html>

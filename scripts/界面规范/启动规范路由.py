@@ -38,13 +38,23 @@ STATIC_ROUTES = {
     "/ui/规范页.mjs": "规范页.mjs",
 }
 
-FAVICON_SVG = (
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" '
-    'stroke="#f0d372" stroke-width="1.8">'
-    '<path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>'
-    '<circle cx="12" cy="12" r="4"/>'
-    "</svg>"
+FAVICON_FILE = SPEC_DIR / "favicon.svg"
+FAVICON_FALLBACK_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">'
+    '<rect width="24" height="24" rx="4" fill="#0d0e13"/>'
+    '<path fill="#f0d372" fill-opacity="0.16" stroke="#f0d372" stroke-width="1.6" stroke-linejoin="round" '
+    'd="M4.5 5.2 L12 3 L19.5 5.2 V13.2 C19.5 16.2 16.2 18.8 12 20.8 C7.8 18.8 4.5 16.2 4.5 13.2 Z"/>'
+    '<path fill="#f0d372" d="M9.1 7.6 L12 6.5 L14.9 7.6 L13.4 10.6 L12 10.0 L10.6 10.6 Z '
+    'M17.5 12.1 L17.0 15.1 L14.6 17.0 L13.0 14.3 L14.2 13.4 L14.3 12.0 Z '
+    'M6.5 12.1 L9.7 12.0 L9.8 13.4 L11.0 14.3 L9.4 17.0 L7.0 15.1 Z"/>'
+    '<path fill="#ffb800" d="M12 10.6 L13.5 12.1 L12 13.6 L10.5 12.1 Z"/></svg>'
 ).encode("utf-8")
+
+
+def read_favicon_svg() -> bytes:
+    if FAVICON_FILE.is_file():
+        return FAVICON_FILE.read_bytes()
+    return FAVICON_FALLBACK_SVG
 
 mimetypes.add_type("application/javascript; charset=utf-8", ".mjs")
 mimetypes.add_type("text/css; charset=utf-8", ".css")
@@ -125,8 +135,8 @@ class SpecHandler(BaseHTTPRequestHandler):
             self.send_error(400)
             return
 
-        if route == "/favicon.svg":
-            self._send_bytes(200, "image/svg+xml; charset=utf-8", FAVICON_SVG, head_only)
+        if route in ("/favicon.svg", "/ui/favicon.svg"):
+            self._send_bytes(200, "image/svg+xml; charset=utf-8", read_favicon_svg(), head_only)
             return
         if route == "/favicon.ico":
             self.send_response(204)

@@ -1,13 +1,22 @@
 /** 全局战术 UI/UX 活体规范台交互逻辑（100% 同源读取 令牌.css 与 图标与标绘.mjs）。 */
 import {
+  BRAND_IDENTITY,
+  BRAND_LOGO_LAYERS,
   VEHICLE_SILHOUETTES,
   VEHICLE_PRIMARY_CLASSES,
   VEHICLE_META,
+  WEAPON_ICONS,
   HAZARD_ICONS,
   HUD_ICONS,
+  createBrandLogoSvg,
+  createBrandLockup,
+  buildBrandFaviconSvgString,
+  drawBrandLogoCanvas,
   createSilhouetteSvg,
+  createWeaponIconSvg,
   createHazardIconSvg,
   createHudIconSvg,
+  resolveWeaponIconKind,
   readSemanticPalette,
   computeContrastRatio,
   resolveRouteStyle,
@@ -21,11 +30,31 @@ import {
   drawEtaBadge,
   GroundNameplateCollision,
   cycleOverlappingUnits,
+  ZOOM_ICON_TIERS,
+  resolveZoomIconTier,
+  clusterScreenUnits,
+  drawZoomTierUnitIcon,
+  drawGroundOrbitZone,
+  drawAirTurnArc,
+  warmSilhouettePathCache,
 } from '/ui/图标与标绘.mjs';
 import {
   bindAllUiSelects,
   createEscStack,
   createUiSizeController,
+  loadUiPrefs,
+  saveUiPrefs,
+  playUiSfx,
+  syncCmdPagerIndicator,
+  runCmdPageTransition,
+  TACTICAL_WHEEL_CONFIG,
+  resolveWheelSectorFromVector,
+  clampWheelVisualCenter,
+  canCommitWheelSlot,
+  renderTacticalWheel,
+  renderVehicleDetailCard,
+  renderVehicleHoverCard,
+  attachDeckHoverCardController,
   UI_SIZE_LABELS,
 } from '/ui/交互控件.mjs';
 
@@ -49,7 +78,7 @@ function showToast(msg) {
 
 /* ====== 顶栏徽标与同源摘要查询 ====== */
 const brandSigil = document.getElementById('brand-sigil');
-brandSigil.append(createHudIconSvg('focus', { size: 18 }));
+brandSigil.append(createBrandLogoSvg({ variant: 'sigil', size: 22 }));
 
 let statusIdentity = null;
 async function loadStatusIdentity() {
@@ -209,8 +238,161 @@ function tickTelemetry(now) {
   document.getElementById('tel-clock').textContent = `${mm}:${ss}.${ds}`;
 }
 
-/* ====== 03 武器库 12 兵种剪影、4 枚情景警示与 19 枚 HUD 图标展区 ====== */
+/* ====== 03 品牌标识（生化肃清三楔盾）、12 兵种剪影、4 武器剪影、4 情景警示与 26 HUD 图标展区 ====== */
+function renderBrandIdentityShowcase() {
+  const mount = document.getElementById('brand-identity-mount');
+  const toneSeg = document.getElementById('brand-tone-seg');
+  const animBtn = document.getElementById('brand-anim-toggle');
+  if (!mount) return;
+
+  let activeTone = 'a3';
+  let activeAnimated = false;
+
+  const paintStencilCanvas = (canvas) => {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const cssW = 196;
+    const cssH = 76;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = '#3b3e42';
+    ctx.fillRect(0, 0, cssW, cssH);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    for (let x = 24; x < cssW; x += 24) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, cssH);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(240, 211, 114, 0.28)';
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(0, cssH - 8);
+    ctx.lineTo(cssW, cssH - 8);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    drawBrandLogoCanvas(ctx, 56, 36, 52, {
+      variant: 'stencil',
+      tone: 'mono',
+      color: 'rgba(245, 246, 249, 0.86)',
+      alpha: 0.9,
+    });
+    drawBrandLogoCanvas(ctx, 140, 36, 52, {
+      variant: 'mark',
+      tone: activeTone,
+      alpha: 0.96,
+    });
+  };
+
+  const renderCards = () => {
+    mount.replaceChildren();
+    const bgSwatch = document.querySelector('#icon-bg-seg button.active')?.dataset?.bg || 'dark';
+
+    const makeCard = (title, codeTag, noteText) => {
+      const card = document.createElement('div');
+      card.className = 'brand-spec-card';
+      const head = document.createElement('div');
+      head.className = 'swatch-meta';
+      head.innerHTML = `<strong>${title}</strong><code class="swatch-var">${codeTag}</code>`;
+      const stage = document.createElement('div');
+      stage.className = 'brand-spec-stage';
+      stage.dataset.bgSwatch = bgSwatch;
+      const note = document.createElement('span');
+      note.style.fontSize = 'var(--ui-fs-2xs)';
+      note.style.color = 'var(--ui-text-muted)';
+      note.textContent = noteText;
+      card.append(head, stage, note);
+      return { card, stage };
+    };
+
+    const markCard = makeCard(
+      '主标与横版 Lockup（48px+）',
+      `variant="mark" · tone="${activeTone}"`,
+      '大厅主视觉、加载屏与战区简报页头；支持三域彩蛋（陆/旋/固）与加载向心锁定动效。',
+    );
+    markCard.stage.append(
+      createBrandLogoSvg({ variant: 'mark', size: 58, tone: activeTone, animated: activeAnimated }),
+      createBrandLockup({
+        layout: 'horizontal',
+        tone: activeTone,
+        subtitle: BRAND_IDENTITY.tagline,
+        markSize: 38,
+        animated: activeAnimated,
+      }),
+    );
+    mount.append(markCard.card);
+
+    const sigilCard = makeCard(
+      '顶栏单色徽章（28~48px）',
+      'variant="sigil" · evenodd',
+      '香槟金实底与烟炭描边双态，纯 currentColor 负空间实心渲染，供顶栏与 HUD 徽标直接复用。',
+    );
+    const goldChip = document.createElement('span');
+    goldChip.className = 'brand-sigil-chip is-gold';
+    goldChip.append(createBrandLogoSvg({ variant: 'sigil', size: 24, animated: activeAnimated }));
+    const darkChip = document.createElement('span');
+    darkChip.className = 'brand-sigil-chip is-dark';
+    darkChip.append(createBrandLogoSvg({ variant: 'sigil', size: 24, animated: activeAnimated }));
+    const mono24 = createBrandLogoSvg({ variant: 'sigil', size: 32, animated: activeAnimated });
+    mono24.style.color = 'var(--ui-text-primary)';
+    sigilCard.stage.append(goldChip, darkChip, mono24);
+    mount.append(sigilCard.card);
+
+    const favCard = makeCard(
+      '浏览器标签光学精简版（16~24px）',
+      'variant="favicon" · /favicon.svg',
+      `内置 #0d0e13 暗底与粗化护盾三楔，前后端同源读取 src/界面规范/favicon.svg（${buildBrandFaviconSvgString().length} B）。`,
+    );
+    const tab16 = document.createElement('span');
+    tab16.className = 'brand-fav-pill';
+    tab16.append(createBrandLogoSvg({ variant: 'favicon', size: 16, tone: activeTone }), document.createTextNode('Scavenger · 16px'));
+    const tab24 = document.createElement('span');
+    tab24.className = 'brand-fav-pill';
+    tab24.append(createBrandLogoSvg({ variant: 'favicon', size: 24, tone: activeTone }), document.createTextNode('24px'));
+    favCard.stage.append(tab16, tab24);
+    mount.append(favCard.card);
+
+    const stencilCard = makeCard(
+      '军工漏印与 Path2D 停机坪贴花',
+      'variant="stencil" + drawBrandLogoCanvas',
+      '保留 4 处结构桥接缺口，基于离屏 Path2D 缓存零开销绘入 2D 雷达与 3D 停机坪 CanvasTexture。',
+    );
+    const stencilSvg = createBrandLogoSvg({ variant: 'stencil', size: 52, animated: activeAnimated });
+    stencilSvg.style.color = 'var(--ui-text-primary)';
+    const stencilCanvas = document.createElement('canvas');
+    stencilCanvas.id = 'brand-stencil-canvas';
+    stencilCanvas.className = 'brand-stencil-canvas';
+    stencilCanvas.setAttribute('aria-label', '品牌标识停机坪 Path2D 贴花实绘');
+    stencilCard.stage.append(stencilSvg, stencilCanvas);
+    paintStencilCanvas(stencilCanvas);
+    mount.append(stencilCard.card);
+  };
+
+  toneSeg?.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-tone]');
+    if (!btn) return;
+    activeTone = btn.dataset.tone || 'a3';
+    toneSeg.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+    playUiSfx('toggle', { resume: true });
+    renderCards();
+  });
+
+  animBtn?.addEventListener('click', () => {
+    activeAnimated = !activeAnimated;
+    animBtn.setAttribute('aria-pressed', String(activeAnimated));
+    animBtn.textContent = `加载锁定动效：${activeAnimated ? '开' : '关'}`;
+    playUiSfx('toggle', { resume: true });
+    renderCards();
+  });
+
+  renderCards();
+}
+
 function renderIconShowcase() {
+  renderBrandIdentityShowcase();
   const pal = readSemanticPalette();
   const mount = document.getElementById('silhouette-mount');
   const channelColor = {
@@ -251,6 +433,38 @@ function renderIconShowcase() {
     mount.append(card);
   }
 
+  const weaponMount = document.getElementById('weapon-icon-mount');
+  if (weaponMount) {
+    for (const [key, cfg] of Object.entries(WEAPON_ICONS)) {
+      const card = document.createElement('div');
+      card.className = 'weapon-icon-card';
+      const head = document.createElement('div');
+      head.className = 'weapon-icon-head';
+      head.innerHTML = `<strong style="font-size:12.5px">${cfg.label}</strong><code class="swatch-var">${key}</code>`;
+      const stage = document.createElement('div');
+      stage.className = 'weapon-icon-stage';
+      const heroWrap = document.createElement('div');
+      heroWrap.className = 'weapon-icon-sample is-hero';
+      heroWrap.append(createWeaponIconSvg(key, { size: 36 }));
+      const heroLbl = document.createElement('span');
+      heroLbl.textContent = '36px';
+      heroWrap.append(heroLbl);
+      const hudWrap = document.createElement('div');
+      hudWrap.className = 'weapon-icon-sample';
+      hudWrap.append(createWeaponIconSvg(key, { size: 24 }));
+      const hudLbl = document.createElement('span');
+      hudLbl.textContent = '24px 实装';
+      hudWrap.append(hudLbl);
+      stage.append(heroWrap, hudWrap);
+      const scope = document.createElement('span');
+      scope.style.fontSize = 'var(--ui-fs-2xs)';
+      scope.style.color = 'var(--ui-text-muted)';
+      scope.textContent = cfg.scope;
+      card.append(head, stage, scope);
+      weaponMount.append(card);
+    }
+  }
+
   const hazardMount = document.getElementById('hazard-icon-mount');
   const toneColor = { warn: pal.warn, select: pal.select, toxic: pal.toxic, danger: pal.danger };
   for (const [key, cfg] of Object.entries(HAZARD_ICONS)) {
@@ -270,7 +484,7 @@ function renderIconShowcase() {
     if (!btn) return;
     document.querySelectorAll('#icon-bg-seg button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.querySelectorAll('.silhouette-stage').forEach(el => {
+    document.querySelectorAll('.silhouette-stage, .brand-spec-stage').forEach(el => {
       el.dataset.bgSwatch = btn.dataset.bg;
     });
   });
@@ -415,16 +629,16 @@ function initSandbox() {
     const w = Math.max(1, stage.clientWidth);
     const h = Math.max(1, stage.clientHeight);
     const nativeDpr = Math.min(window.devicePixelRatio || 1, 2);
-    const lowDpr = prefs.pixelSim ? (640 / w) : nativeDpr;
+    const lowDpr = prefs.pixelSim ? (680 / Math.max(h, 1)) : nativeDpr;
     for (const c of [groundCanvas, vehicleCanvas]) {
       c.width = Math.max(1, Math.round(w * lowDpr));
-      c.height = Math.max(1, Math.round(h * lowDpr));
+      c.height = prefs.pixelSim ? 680 : Math.max(1, Math.round(h * nativeDpr));
     }
     airCanvas.width = Math.max(1, Math.round(w * nativeDpr));
     airCanvas.height = Math.max(1, Math.round(h * nativeDpr));
     ringSvg.setAttribute('viewBox', `0 0 ${w} ${h}`);
     dprBadge.textContent = prefs.pixelSim
-      ? `3D 640px 模拟 ｜ UI 原生 ${nativeDpr}x`
+      ? `3D 680p 暖滤镜模拟 ｜ UI 原生 ${nativeDpr}x`
       : `双层原生 ${nativeDpr}x 高清`;
     document.getElementById('sb-m-3d').textContent = `${groundCanvas.width} × ${groundCanvas.height}`;
     document.getElementById('sb-m-ui').textContent = `${airCanvas.width} × ${airCanvas.height}`;
@@ -1175,9 +1389,9 @@ function initSandbox() {
   function setPixelSim(enabled) {
     prefs.pixelSim = Boolean(enabled);
     pixelBtn.setAttribute('aria-pressed', String(prefs.pixelSim));
-    pixelBtn.textContent = `640px 3D 画布模拟：${prefs.pixelSim ? '开' : '关'}`;
+    pixelBtn.textContent = `680p 复古微缩暖滤镜模拟：${prefs.pixelSim ? '开' : '关'}`;
     stage.classList.toggle('is-pixel-3d', prefs.pixelSim);
-    document.getElementById('drawer-quality').value = prefs.pixelSim ? '640' : 'native';
+    document.getElementById('drawer-quality').value = prefs.pixelSim ? '680p-16x9' : 'native';
     resize();
   }
 
@@ -1300,8 +1514,12 @@ function initSandbox() {
     getMetrics: () => ({
       pixelSim: prefs.pixelSim,
       groundCanvasWidth: groundCanvas.width,
+      groundCanvasHeight: groundCanvas.height,
       vehicleCanvasWidth: vehicleCanvas.width,
+      vehicleCanvasHeight: vehicleCanvas.height,
       airCanvasWidth: airCanvas.width,
+      airCanvasHeight: airCanvas.height,
+      groundFilter: getComputedStyle(groundCanvas).filter,
       stageCssWidth: stage.clientWidth,
       devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
       planeRingVisible: domCache.get('thunder-1')?.ringGroup.style.display !== 'none',
@@ -1532,6 +1750,14 @@ function initHudScaleSection() {
       const asp = aspects[aIdx];
       sizeCtrl.syncForAspect(asp, { silent: true });
       aspectBtn.textContent = `画幅：${asp === 'full' ? '全屏' : asp}`;
+      const hint = document.getElementById('scale-aspect-hint');
+      if (hint) {
+        hint.textContent = asp === '16:9'
+          ? '16:9 (1208×680) 锁定紧凑 680p 尺码 · 中央 60% 零遮挡'
+          : asp === '21:9'
+            ? '21:9 (1588×680 Hor+) 自动横向展开视野 · 保持紧凑安全区'
+            : '全屏自由安全区 · 中央 60% 严禁常驻实心面板';
+      }
       updateReadout();
       showToast(`07 实操台画幅：${asp === 'full' ? '全屏自适应' : asp + ' (自动紧凑 680p)'}`);
     });
@@ -1548,6 +1774,996 @@ function initHudScaleSection() {
   });
 }
 
+/* ====== V2.2 完整组件实操初始化（输入框/开关/受击血条/8槽轮盘/扫光页签/模态弹窗/音效） ====== */
+function initV22Showcase() {
+  const input = document.getElementById('v22-callsign-input');
+  const errEl = document.getElementById('v22-input-err');
+  if (input && errEl) {
+    input.addEventListener('input', () => {
+      const val = input.value.trim();
+      const bad = !val || val.length > 20;
+      input.classList.toggle('is-error', bad);
+      errEl.hidden = !bad;
+    });
+  }
+
+  const sfxToggle = document.getElementById('v22-sfx-toggle');
+  if (sfxToggle) {
+    sfxToggle.addEventListener('click', () => {
+      const next = sfxToggle.getAttribute('aria-checked') !== 'true';
+      sfxToggle.setAttribute('aria-checked', String(next));
+      playUiSfx('toggle', { enabled: next, resume: true });
+      showToast(`UI 交互音效示例：${next ? '已开启' : '已静音'}`);
+    });
+  }
+
+  document.querySelectorAll('[data-sfx]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const enabled = sfxToggle?.getAttribute('aria-checked') !== 'false';
+      playUiSfx(btn.dataset.sfx, { enabled, volume: 0.45, resume: true });
+      showToast(`已触发 Web Audio 音效契约：${btn.dataset.sfx}`);
+    });
+  });
+
+  // 双段延迟血条与夺点条互动
+  let hp = 76;
+  const hpTrack = document.getElementById('v22-hp-track');
+  const hpTrail = document.getElementById('v22-hp-trail');
+  const hpFill = document.getElementById('v22-hp-fill');
+  const hpBonus = document.getElementById('v22-hp-bonus');
+  const capFill = document.getElementById('v22-cap-fill');
+  const capPct = document.getElementById('v22-cap-pct');
+  function syncHp() {
+    if (!hpFill || !hpTrail || !hpBonus || !hpTrack) return;
+    hpFill.style.width = `${hp}%`;
+    hpTrail.style.width = `${hp}%`;
+    hpFill.style.background = hp <= 25 ? 'var(--ui-state-danger)' : hp <= 50 ? 'var(--ui-state-warn)' : 'var(--ui-ch-ground)';
+    hpTrack.classList.toggle('is-critical', hp <= 25);
+    const bonus = Math.max(0, Math.min(14, 100 - hp));
+    hpBonus.style.left = `${hp}%`;
+    hpBonus.style.width = `${bonus}%`;
+    if (capFill && capPct) {
+      const cap = Math.max(12, Math.min(100, hp + 10));
+      capFill.style.width = `${cap}%`;
+      capPct.textContent = `${cap}%`;
+    }
+  }
+  document.getElementById('v22-hp-hit')?.addEventListener('click', () => {
+    hp = Math.max(8, hp - 28);
+    syncHp();
+    playUiSfx('alert', { resume: true });
+  });
+  document.getElementById('v22-hp-reset')?.addEventListener('click', () => {
+    hp = 76;
+    syncHp();
+    playUiSfx('confirm', { resume: true });
+  });
+
+  // 8 槽战术指令轮盘构建（Code SSOT V2.2 方案 A：连续八扇区军工仪表盘，零提示音）
+  const wheelEl = document.getElementById('v22-wheel');
+  const wheelSpecState = {
+    unit: 'ground',
+    wstate: 'normal',
+    hoveredIndex: 1,
+    pointerAngleDeg: -45,
+    hasPointerAngle: true,
+    guardOn: true,
+    followOn: false,
+    lowAltOn: true,
+  };
+
+  function buildSpecWheelModel() {
+    const isCool = wheelSpecState.wstate === 'cooling';
+    const isDis = wheelSpecState.wstate === 'disabled';
+    if (wheelSpecState.unit === 'plane') {
+      return {
+        eyebrow: 'A-10C · 固定翼',
+        eyebrowTone: 'plane',
+        slots: [
+          { id: 'gau8', label: 'GAU-8 扫射', key: '1', modeTag: '拖线', iconType: 'weapon', iconName: 'cannon', tone: 'plane', status: isDis ? 'disabled' : 'ready', charge: isDis ? '0' : '1150', reason: isDis ? '主炮弹药耗尽（0 发）' : '' },
+          { id: 'sprint', label: '高速直飞', key: 'M', modeTag: '点选', iconType: 'hud', iconName: 'sprint', tone: 'plane', status: isCool ? 'cooling' : 'ready', cooldownSec: isCool ? 4.2 : 0, cooldownTotalSec: 6.0 },
+          { id: 'stop', label: '停航待命', key: 'X', modeTag: '瞬发', iconType: 'hud', iconName: 'stop', tone: 'neutral', status: 'ready' },
+          { id: 'evacuate', label: '撤离战区', key: 'T', modeTag: 'RTB', iconType: 'hud', iconName: 'evacuate', tone: 'danger', status: isDis ? 'disabled' : 'ready', reason: isDis ? '正在进场阶段' : '' },
+          { id: 'follow', label: '持续跟随', key: 'G', modeTag: '开关', iconType: 'hud', iconName: 'follow', tone: 'neutral', status: wheelSpecState.followOn ? 'active' : 'ready', charge: wheelSpecState.followOn ? '跟随' : '' },
+          { id: 'focus', label: '聚焦视野', key: 'F', modeTag: '瞬发', iconType: 'hud', iconName: 'focus', tone: 'neutral', status: 'ready' },
+          { id: 'flare', label: '热诱弹', key: 'C', modeTag: '瞬发', iconType: 'hud', iconName: 'flare', tone: 'plane', status: isCool ? 'cooling' : 'ready', cooldownSec: isCool ? 5.6 : 0, cooldownTotalSec: 8.0, charge: '6' },
+          { id: 'altitude', label: wheelSpecState.lowAltOn ? '低空 135m' : '高空 215m', key: 'V', modeTag: '开关', iconType: 'hud', iconName: 'altitude', tone: 'plane', status: wheelSpecState.lowAltOn ? 'active' : 'ready' },
+        ],
+      };
+    }
+    if (wheelSpecState.unit === 'mixed') {
+      return {
+        eyebrow: '混选 · 3 单位',
+        eyebrowTone: 'select',
+        slots: [
+          null,
+          null,
+          { id: 'stop', label: '停航待命', key: 'X', modeTag: '全组', iconType: 'hud', iconName: 'stop', tone: 'neutral', status: isDis ? 'disabled' : 'ready', reason: isDis ? '选区待命无队列' : '' },
+          { id: 'resetView', label: '视野复位', key: 'R', modeTag: '瞬发', iconType: 'hud', iconName: 'reset', tone: 'neutral', status: 'ready' },
+          { id: 'follow', label: '持续跟随', key: 'G', modeTag: '开关', iconType: 'hud', iconName: 'follow', tone: 'neutral', status: wheelSpecState.followOn ? 'active' : 'ready', charge: wheelSpecState.followOn ? '跟随' : '' },
+          { id: 'focus', label: '聚焦视野', key: 'F', modeTag: '选区', iconType: 'hud', iconName: 'focus', tone: 'neutral', status: 'ready' },
+          null,
+          null,
+        ],
+      };
+    }
+    const isHeli = wheelSpecState.unit === 'heli';
+    const tone = isHeli ? 'heli' : 'ground';
+    return {
+      eyebrow: isHeli ? 'AH-64D · 旋翼' : 'M1A2 · 地面',
+      eyebrowTone: tone,
+      slots: [
+        { id: 'attackGround', label: '强制攻地', key: 'K', modeTag: '瞄准', iconType: 'hud', iconName: 'attack', tone, status: isDis ? 'disabled' : (isCool ? 'cooling' : 'ready'), cooldownSec: isCool ? 3.5 : 0, cooldownTotalSec: 4.5, reason: isDis ? '无有效射界' : '' },
+        { id: 'guard', label: wheelSpecState.guardOn ? '警戒中' : '警戒守备', key: 'Z', modeTag: '开关', iconType: 'hud', iconName: 'shield', tone, status: wheelSpecState.guardOn ? 'active' : 'ready', charge: wheelSpecState.guardOn ? '已开' : '' },
+        { id: 'stop', label: '停航待命', key: 'X', modeTag: '瞬发', iconType: 'hud', iconName: 'stop', tone: 'neutral', status: 'ready' },
+        { id: 'resetView', label: '视野复位', key: 'R', modeTag: '瞬发', iconType: 'hud', iconName: 'reset', tone: 'neutral', status: 'ready' },
+        { id: 'follow', label: '持续跟随', key: 'G', modeTag: '开关', iconType: 'hud', iconName: 'follow', tone: 'neutral', status: wheelSpecState.followOn ? 'active' : 'ready', charge: wheelSpecState.followOn ? '跟随' : '' },
+        { id: 'focus', label: '聚焦视野', key: 'F', modeTag: '瞬发', iconType: 'hud', iconName: 'focus', tone: 'neutral', status: 'ready' },
+        null,
+        null,
+      ],
+    };
+  }
+
+  function renderSpecWheel() {
+    if (!wheelEl) return;
+    const model = buildSpecWheelModel();
+    renderTacticalWheel(wheelEl, model, {
+      hoveredIndex: wheelSpecState.hoveredIndex,
+      pointerAngleDeg: wheelSpecState.pointerAngleDeg,
+      hasPointerAngle: wheelSpecState.hasPointerAngle,
+      interactionMode: 'tap_click',
+      onSelect: (slot) => {
+        const check = canCommitWheelSlot(slot);
+        if (!check.ok) {
+          if (check.status !== 'empty') showToast(`${slot?.label || '槽位'}：${check.reason}`);
+          return;
+        }
+        if (slot.id === 'guard') wheelSpecState.guardOn = !wheelSpecState.guardOn;
+        else if (slot.id === 'follow') wheelSpecState.followOn = !wheelSpecState.followOn;
+        else if (slot.id === 'altitude') wheelSpecState.lowAltOn = !wheelSpecState.lowAltOn;
+        renderSpecWheel();
+        showToast(`轮盘指令：${slot.label} [${slot.key}]`);
+      },
+      onCancel: () => {
+        wheelSpecState.hoveredIndex = -1;
+        wheelSpecState.hasPointerAngle = false;
+        renderSpecWheel();
+        showToast('中心死区：已取消轮盘选定');
+      },
+    });
+  }
+
+  if (wheelEl) {
+    renderSpecWheel();
+    wheelEl.addEventListener('pointermove', e => {
+      const r = wheelEl.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width * 0.5);
+      const dy = e.clientY - (r.top + r.height * 0.5);
+      const hit = resolveWheelSectorFromVector(dx, dy, TACTICAL_WHEEL_CONFIG.deadzonePx);
+      if (hit.index !== wheelSpecState.hoveredIndex || Math.abs(hit.angleDeg - wheelSpecState.pointerAngleDeg) > 4) {
+        wheelSpecState.hoveredIndex = hit.index;
+        wheelSpecState.pointerAngleDeg = hit.angleDeg;
+        wheelSpecState.hasPointerAngle = !hit.inDeadzone;
+        renderSpecWheel();
+      }
+    });
+    document.getElementById('v22-wheel-unit-seg')?.addEventListener('click', e => {
+      const btn = e.target.closest('[data-unit]');
+      if (!btn) return;
+      wheelSpecState.unit = btn.dataset.unit;
+      document.querySelectorAll('#v22-wheel-unit-seg button').forEach(b => b.classList.toggle('active', b === btn));
+      renderSpecWheel();
+    });
+    document.getElementById('v22-wheel-state-seg')?.addEventListener('click', e => {
+      const btn = e.target.closest('[data-wstate]');
+      if (!btn) return;
+      wheelSpecState.wstate = btn.dataset.wstate;
+      document.querySelectorAll('#v22-wheel-state-seg button').forEach(b => b.classList.toggle('active', b === btn));
+      renderSpecWheel();
+    });
+  }
+
+  // 斜切标签页切换
+  document.getElementById('v22-skew-tabs')?.addEventListener('click', e => {
+    const tab = e.target.closest('[data-tab]');
+    if (!tab) return;
+    document.querySelectorAll('#v22-skew-tabs .ui-skew-tab').forEach(b => {
+      const hit = b === tab;
+      b.classList.toggle('is-active', hit);
+      b.setAttribute('aria-selected', String(hit));
+    });
+    ['wheel', 'menu', 'empty'].forEach(k => {
+      const pane = document.getElementById(`v22-panel-${k}`);
+      if (pane) pane.hidden = tab.dataset.tab !== k;
+    });
+  });
+
+  // 模态二次确认弹窗＋LIFO ESC 注册
+  const modalBg = document.getElementById('v22-modal-backdrop');
+  const openModal = open => {
+    if (!modalBg) return;
+    modalBg.hidden = !open;
+  };
+  document.getElementById('v22-open-modal')?.addEventListener('click', () => openModal(true));
+  document.getElementById('v22-modal-close')?.addEventListener('click', () => openModal(false));
+  document.getElementById('v22-modal-cancel')?.addEventListener('click', () => openModal(false));
+  document.getElementById('v22-modal-confirm')?.addEventListener('click', () => {
+    openModal(false);
+    playUiSfx('denied', { resume: true });
+    showToast('已模拟执行模态危险确认');
+  });
+  modalBg?.addEventListener('click', e => {
+    if (e.target === modalBg) openModal(false);
+  });
+  escStack.register('v22-modal', () => modalBg && !modalBg.hidden, () => openModal(false));
+}
+
+/* ====== 08 V2.2 实战扩展基元、4 级视距图标与固定翼贴地标绘 ====== */
+function initV22CombatHudSection() {
+  warmSilhouettePathCache();
+  const pal = readSemanticPalette();
+
+  // 8.1 全战竖长条兵牌 + 10 格火力评定条
+  const bannerUnits = [
+    {
+      id: 'm1a2',
+      name: 'M1A2 SEP v3',
+      fullName: 'M1A2 SEP v3 主战坦克',
+      role: '地面装甲通道 · 重甲突击',
+      channel: 'ground',
+      iconKind: 'mbt',
+      count: 3,
+      hp: 88,
+      ammo: 74,
+      ratings: [
+        { label: '反装甲穿深', score: 9, tone: 'select' },
+        { label: '反尸群面杀伤', score: 6, tone: 'ground' },
+        { label: '正面复合装甲', score: 10, tone: 'ground' },
+        { label: '野战机动性', score: 7, tone: 'select' },
+      ],
+    },
+    {
+      id: 'ah64e',
+      name: 'AH-64E',
+      fullName: 'AH-64E 阿帕奇武装直升机',
+      role: '旋翼通道 (30m) · 悬停舔地',
+      channel: 'heli',
+      iconKind: 'attack_heli',
+      count: 2,
+      hp: 76,
+      ammo: 62,
+      ratings: [
+        { label: '反装甲穿深', score: 8, tone: 'select' },
+        { label: '反尸群面杀伤', score: 8, tone: 'danger' },
+        { label: '机身防护装甲', score: 4, tone: 'ground' },
+        { label: '越障机动性', score: 9, tone: 'select' },
+      ],
+    },
+    {
+      id: 'a10c',
+      name: 'A-10C',
+      fullName: 'A-10C 雷电 II 攻击机',
+      role: '固定翼通道 (234m) · 贴地盘旋',
+      channel: 'plane',
+      iconKind: 'cas',
+      count: 1,
+      hp: 94,
+      ammo: 85,
+      ratings: [
+        { label: '30mm 机炮穿甲', score: 10, tone: 'plane' },
+        { label: '反尸群扫射', score: 9, tone: 'danger' },
+        { label: '钛合金浴缸甲', score: 7, tone: 'plane' },
+        { label: '高空巡航速', score: 10, tone: 'plane' },
+      ],
+    },
+  ];
+  let activeBannerId = 'm1a2';
+  const bannerStrip = document.getElementById('v22-banner-strip');
+  const ratingRows = document.getElementById('v22-rating-rows');
+  const ratingUnitName = document.getElementById('v22-rating-unit-name');
+  const ratingUnitRole = document.getElementById('v22-rating-unit-role');
+  const bannerBadge = document.getElementById('v22-banner-selected-badge');
+
+  function renderBannerAndRatings() {
+    if (!bannerStrip || !ratingRows) return;
+    bannerStrip.innerHTML = '';
+    const activeUnit = bannerUnits.find(u => u.id === activeBannerId) || bannerUnits[0];
+    for (const u of bannerUnits) {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = `ui-banner-card${u.id === activeUnit.id ? ' active' : ''}`;
+      card.dataset.channel = u.channel;
+      card.setAttribute('role', 'option');
+      card.setAttribute('aria-selected', String(u.id === activeUnit.id));
+
+      const art = document.createElement('div');
+      art.className = 'ui-banner-card-art';
+      const svg = createSilhouetteSvg(u.iconKind, { size: 52 });
+      svg.style.color = u.channel === 'heli' ? pal.heliInner : u.channel === 'plane' ? pal.planeInner : pal.groundInner;
+      art.append(svg);
+
+      const cnt = document.createElement('span');
+      cnt.className = 'v22-banner-count';
+      cnt.textContent = `×${u.count}`;
+
+      const foot = document.createElement('div');
+      foot.className = 'v22-banner-foot';
+      const hpColor = u.channel === 'heli' ? 'var(--ui-ch-heli)' : u.channel === 'plane' ? 'var(--ui-ch-plane)' : 'var(--ui-ch-ground)';
+      foot.innerHTML = `
+        <span class="v22-banner-name">${u.name}</span>
+        <div class="v22-banner-bars">
+          <span class="v22-banner-bar"><i style="width:${u.hp}%;background:${hpColor}"></i></span>
+          <span class="v22-banner-bar"><i style="width:${u.ammo}%;background:var(--ui-state-select)"></i></span>
+        </div>`;
+
+      card.append(art, cnt, foot);
+      card.addEventListener('click', () => {
+        activeBannerId = u.id;
+        renderBannerAndRatings();
+        playUiSfx('toggle', { resume: true });
+      });
+      bannerStrip.append(card);
+    }
+
+    if (ratingUnitName) ratingUnitName.textContent = activeUnit.fullName;
+    if (ratingUnitRole) ratingUnitRole.textContent = activeUnit.role;
+    if (bannerBadge) bannerBadge.textContent = activeUnit.name;
+
+    ratingRows.innerHTML = '';
+    for (const r of activeUnit.ratings) {
+      const row = document.createElement('div');
+      row.className = 'v22-rating-row';
+      const label = document.createElement('span');
+      label.textContent = r.label;
+      const pips = document.createElement('div');
+      pips.className = 'ui-rating-pips';
+      pips.setAttribute('aria-label', `${r.label} ${r.score}/10`);
+      for (let i = 0; i < 10; i += 1) {
+        const pip = document.createElement('span');
+        pip.className = `ui-rating-pip${i < r.score ? ' is-lit' : ''}`;
+        if (i < r.score && r.tone !== 'select') pip.dataset.tone = r.tone;
+        pips.append(pip);
+      }
+      row.append(label, pips);
+      ratingRows.append(row);
+    }
+  }
+  renderBannerAndRatings();
+
+  // 8.2 右下竖向翻页命令栏（全页统一方案 B + 方向切页动效与滑块指示条）
+  const pagedDeckConfigs = {
+    attack: {
+      cards: [
+        { kbd: '1', iconType: 'weapon', icon: 'autocannon', txt: 'GAU-8/A', charge: '1150', sub: '30mm 机炮', mode: '拖线', tone: 'plane', isWeapon: true, active: true },
+        { kbd: '2', iconType: 'weapon', icon: 'rocket', txt: 'Hydra 70', charge: '21', sub: '火箭弹', mode: '拖线', tone: 'plane', isWeapon: true },
+        { kbd: '3', iconType: 'weapon', icon: 'missile', txt: 'AGM-65E2', charge: '6', sub: '空地导弹', mode: '点选', tone: 'plane', isWeapon: true },
+        { kbd: '4', iconType: 'weapon', icon: 'bomb', txt: 'GBU-31', charge: '4', sub: '制导航弹', mode: '连点', tone: 'plane', isWeapon: true },
+      ],
+      utils: [
+        { kbd: 'C', ico: 'flare', txt: '热诱弹', planeCmd: true },
+        { kbd: 'V', ico: 'altitude', txt: '高空 215m', planeCmd: true },
+      ],
+    },
+    move: {
+      cards: [
+        { kbd: 'M', iconType: 'hud', icon: 'sprint', txt: '高速直飞', charge: '待命', chargeTone: 'muted', sub: '极速突防切入', mode: '点选', tone: 'plane' },
+        { kbd: 'X', iconType: 'hud', icon: 'stop', txt: '停航待命', charge: '', sub: '清空航路与打击', mode: '中止', tone: 'neutral' },
+        { kbd: 'R', iconType: 'hud', icon: 'reset', txt: '视野复位', charge: '', sub: '回归跑道核心视野', mode: '复位', tone: 'neutral' },
+        { kbd: 'T', iconType: 'hud', icon: 'evacuate', txt: '撤离战区', charge: '返航', chargeTone: 'danger', sub: '抛焰爬升离场', mode: 'RTB', tone: 'danger' },
+      ],
+      utils: [
+        { kbd: 'F', ico: 'focus', txt: '聚焦视野' },
+        { kbd: 'G', ico: 'follow', txt: '持续跟随', active: true },
+      ],
+    },
+    debug: {
+      cards: [
+        { kbd: '1', iconType: 'hud', icon: 'airstrike', txt: '盘旋测试', charge: '激活', chargeTone: 'on', sub: '重置跑道标准盘旋', mode: '工况', tone: 'plane', active: true },
+        { kbd: '2', iconType: 'hud', icon: 'attack', txt: '舔地触发', charge: '待命', chargeTone: 'muted', sub: '触发模拟对地扫射', mode: '演训', tone: 'plane' },
+        { kbd: '3', iconType: 'hud', icon: 'play', txt: '刷新尸群', charge: '就绪', chargeTone: 'on', sub: '重置地面靶区丧尸', mode: '靶场', tone: 'ground' },
+        { kbd: '4', iconType: 'hud', icon: 'pause', txt: '冻结模拟', charge: '', sub: '步进冻结物理时间', mode: '调试', tone: 'neutral' },
+      ],
+      utils: [
+        { kbd: '5', ico: 'wheel', txt: '战术轮盘' },
+        { kbd: '6', ico: 'copy', txt: '导出快照' },
+      ],
+    },
+  };
+  const pageOrder = ['attack', 'move', 'debug'];
+  let activeCmdPage = 'attack';
+  const pagedGrid = document.getElementById('v22-paged-cmd-grid');
+  const pagedExitLayer = document.getElementById('v22-paged-cmd-exit');
+  const pagerEl = document.getElementById('v22-cmd-pager');
+  const pagerBadge = document.getElementById('v22-pager-badge');
+  const pageLabels = { attack: '攻击', move: '机动', debug: '调试' };
+
+  function renderPagedCommands({ animateDir = null } = {}) {
+    if (!pagedGrid) return;
+    const cfg = pagedDeckConfigs[activeCmdPage] || pagedDeckConfigs.attack;
+    const activeIdx = Math.max(0, pageOrder.indexOf(activeCmdPage));
+    syncCmdPagerIndicator(pagerEl, {
+      activeIndex: activeIdx,
+      count: pageOrder.length,
+      activeTone: activeCmdPage === 'debug' ? 'plane' : 'select',
+    });
+
+    const applyDom = () => {
+      pagedGrid.classList.add('is-partitioned');
+      pagedGrid.replaceChildren();
+      const wepGrid = document.createElement('div');
+      wepGrid.className = 'ui-cmd-wep-grid';
+      for (let i = 0; i < cfg.cards.length; i += 1) {
+        const c = cfg.cards[i];
+        const toneCls = c.tone === 'plane'
+          ? 'is-plane-cmd'
+          : (c.tone === 'ground'
+            ? 'is-ground-cmd'
+            : (c.tone === 'danger' ? 'is-danger-cmd' : 'is-neutral-cmd'));
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = [
+          'ui-cmd-wep-card',
+          toneCls,
+          c.isWeapon ? 'is-weapon-card' : '',
+          c.active ? 'is-active-mode' : '',
+        ].filter(Boolean).join(' ');
+        btn.style.setProperty('--cmd-idx', String(i));
+        btn.dataset.cmdKey = c.kbd;
+
+        const well = document.createElement('div');
+        well.className = 'ui-cmd-wep-well';
+        const kbd = document.createElement('span');
+        kbd.className = 'c-kbd';
+        kbd.textContent = c.kbd;
+        const ico = document.createElement('span');
+        ico.className = 'c-ico';
+        ico.setAttribute('aria-hidden', 'true');
+        if (c.iconType === 'weapon') {
+          const wepKind = resolveWeaponIconKind(c.icon);
+          ico.append(createWeaponIconSvg(wepKind, { size: 24 }));
+        } else {
+          ico.append(createHudIconSvg(c.icon, { size: 22 }));
+        }
+        well.append(kbd, ico);
+
+        const info = document.createElement('div');
+        info.className = 'ui-cmd-wep-info';
+        const row1 = document.createElement('div');
+        row1.className = 'ui-cmd-wep-row1';
+        const txtEl = document.createElement('span');
+        txtEl.className = 'c-txt';
+        txtEl.textContent = c.txt;
+        row1.append(txtEl);
+        if (c.charge) {
+          const chgEl = document.createElement('span');
+          chgEl.className = [
+            'c-charge',
+            c.chargeTone === 'muted' ? 'is-muted' : '',
+            c.chargeTone === 'on' ? 'is-on' : '',
+            c.chargeTone === 'danger' ? 'is-danger' : '',
+          ].filter(Boolean).join(' ');
+          chgEl.textContent = c.charge;
+          row1.append(chgEl);
+        }
+
+        const row2 = document.createElement('div');
+        row2.className = 'ui-cmd-wep-row2';
+        const subEl = document.createElement('span');
+        subEl.className = 'c-subtxt';
+        subEl.textContent = c.sub;
+        const modeEl = document.createElement('span');
+        modeEl.className = 'ui-cmd-wep-mode';
+        modeEl.textContent = c.mode;
+        row2.append(subEl, modeEl);
+
+        info.append(row1, row2);
+        btn.append(well, info);
+        btn.addEventListener('click', () => {
+          playUiSfx('confirm', { resume: true });
+          showToast(`方案 B [${pageLabels[activeCmdPage]}]：${c.txt} (${c.sub})`);
+        });
+        wepGrid.append(btn);
+      }
+
+      const utilBar = document.createElement('div');
+      utilBar.className = 'ui-cmd-util-bar';
+      for (const uItem of cfg.utils) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `ui-cmd-util-btn${uItem.planeCmd ? ' is-plane-cmd' : ''}${uItem.active ? ' is-active-mode' : ''}`;
+        btn.dataset.cmdKey = uItem.kbd;
+        const left = document.createElement('span');
+        left.className = 'ui-cmd-util-left';
+        const ico = document.createElement('span');
+        ico.className = 'c-ico';
+        ico.setAttribute('aria-hidden', 'true');
+        ico.append(createHudIconSvg(uItem.ico, { size: 18 }));
+        const txt = document.createElement('span');
+        txt.className = 'c-txt';
+        txt.textContent = uItem.txt;
+        left.append(ico, txt);
+        const kbd = document.createElement('span');
+        kbd.className = 'c-kbd';
+        kbd.textContent = uItem.kbd;
+        btn.append(left, kbd);
+        btn.addEventListener('click', () => {
+          playUiSfx('confirm', { resume: true });
+          showToast(`方案 B 辅助条 [${uItem.ico}]：${uItem.txt}`);
+        });
+        utilBar.append(btn);
+      }
+      pagedGrid.append(wepGrid, utilBar);
+    };
+
+    if (animateDir) {
+      runCmdPageTransition(pagedGrid, {
+        direction: animateDir,
+        exitLayerEl: pagedExitLayer,
+        renderContent: applyDom,
+      });
+    } else {
+      applyDom();
+    }
+    if (pagerBadge) pagerBadge.textContent = `当前页：${pageLabels[activeCmdPage]}`;
+  }
+  pagerEl?.addEventListener('click', e => {
+    const tab = e.target.closest('.ui-cmd-pager-tab');
+    if (!tab) return;
+    const nextPage = tab.dataset.page || 'attack';
+    if (nextPage === activeCmdPage) return;
+    const prevIdx = Math.max(0, pageOrder.indexOf(activeCmdPage));
+    const nextIdx = Math.max(0, pageOrder.indexOf(nextPage));
+    const dir = nextIdx >= prevIdx ? 'down' : 'up';
+    activeCmdPage = nextPage;
+    pagerEl.querySelectorAll('.ui-cmd-pager-tab').forEach(t => {
+      const hit = t === tab;
+      t.classList.toggle('active', hit);
+      t.setAttribute('aria-selected', String(hit));
+    });
+    renderPagedCommands({ animateDir: dir });
+    playUiSfx('toggle', { resume: true });
+  });
+  renderPagedCommands();
+
+  // 8.3 4 级视距 span 战术图标分层与同通道簇聚合
+  const zoomCanvas = document.getElementById('v22-zoom-canvas');
+  const zoomRange = document.getElementById('v22-zoom-span-range');
+  const zoomValEl = document.getElementById('v22-zoom-span-val');
+  const zoomBadge = document.getElementById('v22-zoom-tier-badge');
+  const zoomExpandBtn = document.getElementById('v22-zoom-expand-btn');
+  let zoomSpan = Number(zoomRange?.value || 960);
+  let showClusterExpand = true;
+  let lastZoomTier = resolveZoomIconTier(zoomSpan);
+
+  const zoomTierLabels = {
+    [ZOOM_ICON_TIERS.NONE]: 'L0 · 贴身名牌（无2D徽章）',
+    [ZOOM_ICON_TIERS.COMPACT]: 'L1 · 紧凑剪影 (22×16)',
+    [ZOOM_ICON_TIERS.CHIP]: 'L2 · 战术筹码 + 簇聚合 (26×18)',
+    [ZOOM_ICON_TIERS.OVERVIEW]: 'L3 · 战略点标 + 簇聚合 (18×14)',
+  };
+
+  function renderZoomTierCanvas() {
+    if (!zoomCanvas) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const cssW = 520;
+    const cssH = 210;
+    if (zoomCanvas.width !== cssW * dpr || zoomCanvas.height !== cssH * dpr) {
+      zoomCanvas.width = cssW * dpr;
+      zoomCanvas.height = cssH * dpr;
+    }
+    const ctx = zoomCanvas.getContext('2d');
+    if (!ctx) return;
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cssW, cssH);
+
+    // 战术底格
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    for (let x = 26; x < cssW; x += 40) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, cssH); ctx.stroke();
+    }
+    for (let y = 26; y < cssH; y += 40) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cssW, y); ctx.stroke();
+    }
+
+    const tier = resolveZoomIconTier(zoomSpan);
+    lastZoomTier = tier;
+    if (zoomValEl) zoomValEl.textContent = `${zoomSpan} m`;
+    if (zoomBadge) zoomBadge.textContent = zoomTierLabels[tier] || tier;
+
+    // 模拟 3 组同通道编队（随 span 增大自动向中心收缩以演示簇聚合）
+    const spread = Math.max(4, Math.min(34, (650 / Math.max(120, zoomSpan)) * 22));
+    const sampleUnits = [
+      // 地面 4 车重装簇
+      { id: 'g1', channel: 'ground', iconKind: 'mbt', x: 132 - spread * 0.5, y: 112 - spread * 0.3, hp: 92, selected: true },
+      { id: 'g2', channel: 'ground', iconKind: 'mbt', x: 132 + spread * 0.4, y: 112 + spread * 0.2, hp: 78 },
+      { id: 'g3', channel: 'ground', iconKind: 'ifv', x: 132 - spread * 0.2, y: 112 + spread * 0.45, hp: 64 },
+      { id: 'g4', channel: 'ground', iconKind: 'supply', x: 132 + spread * 0.55, y: 112 - spread * 0.4, hp: 100 },
+      // 旋翼 3 机编队
+      { id: 'h1', channel: 'heli', iconKind: 'attack_heli', x: 288 - spread * 0.35, y: 82, hp: 85 },
+      { id: 'h2', channel: 'heli', iconKind: 'attack_heli', x: 288 + spread * 0.35, y: 86, hp: 72 },
+      { id: 'h3', channel: 'heli', iconKind: 'trans_heli', x: 288, y: 82 + spread * 0.45, hp: 95 },
+      // 固定翼单机
+      { id: 'p1', channel: 'plane', iconKind: 'cas', x: 422, y: 98, hp: 96, hovered: true },
+    ];
+
+    if (tier === ZOOM_ICON_TIERS.NONE) {
+      ctx.fillStyle = 'rgba(245, 246, 249, 0.88)';
+      ctx.font = '700 12px "Microsoft YaHei UI",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('L0 近景 (span ≤ 260m)：2D 标绘层关闭战术图标，完整保留 680p 微缩实景与贴身 DOM 名牌', cssW * 0.5, 42);
+      for (const u of sampleUnits) {
+        const col = u.channel === 'heli' ? pal.heli : u.channel === 'plane' ? pal.plane : pal.ground;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(u.x, u.y, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = '700 10px "Cascadia Mono","Consolas",monospace';
+        ctx.fillStyle = pal.textPrimary;
+        ctx.fillText(u.id.toUpperCase(), u.x, u.y + 15);
+      }
+    } else {
+      const nodes = (tier === ZOOM_ICON_TIERS.CHIP || tier === ZOOM_ICON_TIERS.OVERVIEW)
+        ? clusterScreenUnits(sampleUnits, { radiusPx: 18, minClusterSize: 3 })
+        : sampleUnits.map(u => ({
+            isCluster: false,
+            id: u.id,
+            channel: u.channel,
+            iconKind: u.iconKind,
+            count: 1,
+            screenPt: { x: u.x, y: u.y },
+            selectedCount: u.selected ? 1 : 0,
+            hoveredCount: u.hovered ? 1 : 0,
+            hp: u.hp,
+          }));
+      for (const node of nodes) {
+        drawZoomTierUnitIcon(ctx, node, tier, pal, { showExpandHint: showClusterExpand });
+      }
+      ctx.fillStyle = 'rgba(182, 186, 197, 0.86)';
+      ctx.font = '700 11px "Cascadia Mono","Consolas",monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`渲染节点: ${nodes.length} (原始 ${sampleUnits.length} 单位) · 档位: ${tier}`, 14, cssH - 12);
+    }
+    ctx.restore();
+  }
+
+  zoomRange?.addEventListener('input', () => {
+    zoomSpan = Number(zoomRange.value);
+    renderZoomTierCanvas();
+  });
+  zoomExpandBtn?.addEventListener('click', () => {
+    showClusterExpand = !showClusterExpand;
+    zoomExpandBtn.setAttribute('aria-pressed', String(showClusterExpand));
+    zoomExpandBtn.textContent = `簇悬停放射：${showClusterExpand ? '开' : '关'}`;
+    renderZoomTierCanvas();
+  });
+  renderZoomTierCanvas();
+
+  // 8.4 固定翼贴地主范围圈 + 35°转向虚弧 + 独立载具空间音效偏好
+  const orbitCanvas = document.getElementById('v22-orbit-canvas');
+  const orbitHlBtn = document.getElementById('v22-orbit-hl-btn');
+  let orbitHighlighted = true;
+  let orbitPhase = 0.65;
+
+  function renderOrbitCanvas() {
+    if (!orbitCanvas) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const cssW = 520;
+    const cssH = 170;
+    if (orbitCanvas.width !== cssW * dpr || orbitCanvas.height !== cssH * dpr) {
+      orbitCanvas.width = cssW * dpr;
+      orbitCanvas.height = cssH * dpr;
+    }
+    const ctx = orbitCanvas.getContext('2d');
+    if (!ctx) return;
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cssW, cssH);
+
+    const projectOrbit = (wx, wy, wz) => ({
+      x: cssW * 0.5 + wx * 1.45,
+      y: cssH * 0.64 + wz * 0.52 - wy * 0.28,
+    });
+    const queryGround = (wx, wz) => Math.sin(wx * 0.04) * 2.5 + Math.cos(wz * 0.05) * 2.0;
+    const center = { x: 0, z: 0 };
+    const radius = 85;
+    const planePos = {
+      x: Math.cos(orbitPhase) * radius,
+      y: 234,
+      z: Math.sin(orbitPhase) * radius,
+    };
+    const style = resolveRouteStyle('plane', orbitHighlighted ? 'selected' : 'normal', pal);
+
+    drawGroundOrbitZone(ctx, center, radius, queryGround, projectOrbit, style, orbitHighlighted, {
+      planePos,
+      radiusLabel: 'R 85m · 贴地主范围圈',
+      palette: pal,
+    });
+    drawAirTurnArc(ctx, planePos, center, radius, projectOrbit, style, {
+      arcDeg: 35,
+      turnDir: 1,
+      highlighted: orbitHighlighted,
+      onlyOnOrbit: true,
+    });
+
+    // 高空机身剪影锚点
+    const bodyScr = projectOrbit(planePos.x, planePos.y, planePos.z);
+    ctx.fillStyle = orbitHighlighted ? pal.select : pal.planeInner;
+    ctx.beginPath();
+    ctx.arc(bodyScr.x, bodyScr.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = '700 10.5px "Cascadia Mono","Consolas",monospace';
+    ctx.fillStyle = pal.textPrimary;
+    ctx.textAlign = 'left';
+    ctx.fillText('A-10C · ALT 234m (35°转向虚弧)', bodyScr.x + 8, bodyScr.y + 3);
+    ctx.restore();
+  }
+
+  orbitHlBtn?.addEventListener('click', () => {
+    orbitHighlighted = !orbitHighlighted;
+    orbitHlBtn.setAttribute('aria-pressed', String(orbitHighlighted));
+    orbitHlBtn.textContent = `选中高亮：${orbitHighlighted ? '开' : '关'}`;
+    renderOrbitCanvas();
+  });
+  renderOrbitCanvas();
+  if (!REDUCED_MOTION) {
+    window.setInterval(() => {
+      orbitPhase = (orbitPhase + 0.03) % (Math.PI * 2);
+      renderOrbitCanvas();
+    }, 90);
+  }
+
+  // 独立载具空间引擎音偏好键（与菜单 sfxEnabled 解耦）
+  const vehAudioToggle = document.getElementById('v22-veh-audio-toggle');
+  const vehAudioVol = document.getElementById('v22-veh-audio-vol');
+  const vehAudioVolVal = document.getElementById('v22-veh-audio-vol-val');
+  const initPrefs = loadUiPrefs();
+  if (vehAudioToggle) vehAudioToggle.setAttribute('aria-checked', String(initPrefs.vehicleAudioEnabled));
+  if (vehAudioVol) vehAudioVol.value = String(Math.round(initPrefs.vehicleAudioVolume * 100));
+  if (vehAudioVolVal) vehAudioVolVal.textContent = `${Math.round(initPrefs.vehicleAudioVolume * 100)}%`;
+
+  vehAudioToggle?.addEventListener('click', () => {
+    const next = vehAudioToggle.getAttribute('aria-checked') !== 'true';
+    vehAudioToggle.setAttribute('aria-checked', String(next));
+    saveUiPrefs({ vehicleAudioEnabled: next });
+    playUiSfx('toggle', { resume: true });
+    showToast(`载具空间引擎音偏好已保存：${next ? '开启' : '静音'}`);
+  });
+  vehAudioVol?.addEventListener('input', () => {
+    const pct = Number(vehAudioVol.value);
+    if (vehAudioVolVal) vehAudioVolVal.textContent = `${pct}%`;
+    saveUiPrefs({ vehicleAudioVolume: pct / 100 });
+  });
+
+  // 680p 复古微缩移轴景深偏好键（dofMode: 'off' | 'soft' | 'standard'）
+  const dofSeg = document.getElementById('v22-dof-seg');
+  const syncV22DofSeg = (mode) => {
+    if (!dofSeg) return;
+    dofSeg.querySelectorAll('[data-dof]').forEach(btn => {
+      const hit = btn.dataset.dof === mode;
+      btn.classList.toggle('active', hit);
+      btn.setAttribute('aria-pressed', String(hit));
+    });
+  };
+  syncV22DofSeg(initPrefs.dofMode || 'soft');
+  dofSeg?.addEventListener('click', e => {
+    const btn = e.target.closest('[data-dof]');
+    if (!btn) return;
+    const mode = ['off', 'soft', 'standard'].includes(btn.dataset.dof) ? btn.dataset.dof : 'soft';
+    saveUiPrefs({ dofMode: mode });
+    syncV22DofSeg(mode);
+    playUiSfx('toggle', { resume: true });
+    showToast(`移轴微缩景深偏好已保存：${mode}`);
+  });
+
+  // 8.5 跨页共享载具参数详情组件（.ui-vd-card + .ui-vd-hover，覆盖地面/旋翼/固定翼无血量燃油制）
+  const vdUnitSeg = document.getElementById('v22-vd-unit-seg');
+  const vdBingoBtn = document.getElementById('v22-vd-bingo-btn');
+  const vdFullMount = document.getElementById('v22-vd-full-mount');
+  const vdHoverMount = document.getElementById('v22-vd-hover-mount');
+  const vdArmoryMount = document.getElementById('v22-vd-armory-mount');
+  let vdActiveUnit = 'ground';
+  let vdBingoDemo = false;
+
+  const buildSpecDemoModel = (unitKey, mode = 'play') => {
+    if (unitKey === 'heli') {
+      return {
+        slug: 'US_AH64D',
+        shortName: 'AH-64D',
+        subTitle: '武装直升机 · 30m 贴地越障',
+        iconKind: 'attack_heli',
+        channel: 'heli',
+        channelLabel: '旋翼',
+        cost: 240,
+        mode,
+        usesFuel: false,
+        hp: 15,
+        maxHp: 15,
+        bonusArmorPct: 0,
+        kpis: [
+          { k: '巡航高度', v: '低空 30m' },
+          { k: '载荷挂点', v: '3 挂点' },
+          { k: '机动航速', v: '220 km/h' },
+          { k: '侦察视野', v: '2000m' },
+        ],
+        caps: [
+          { k: '清尸扫射', score: 8, tone: 'heli' },
+          { k: '精确反甲', score: 9, tone: 'select' },
+          { k: '立体机动', score: 8, tone: 'ground' },
+        ],
+        weapons: [
+          { id: 'm230', kind: 'cannon', name: 'M230 30mm 链炮', ammo: 1200, maxAmmo: 1200, minRangeM: 0, maxRangeM: 1100, splashInnerM: 2.5, splashOuterM: 6, damage: 2.4, roleTag: '压制清群' },
+          { id: 'agm114', kind: 'missile', name: 'AGM-114 地狱火', ammo: 8, maxAmmo: 8, minRangeM: 260, maxRangeM: 1600, splashInnerM: 4, splashOuterM: 10, damage: 26, roleTag: '精确点杀' },
+          { id: 'hydra_h', kind: 'rocket', name: 'Hydra 70 火箭巢', ammo: 38, maxAmmo: 38, minRangeM: 200, maxRangeM: 1300, splashInnerM: 5, splashOuterM: 14, damage: 7.5, roleTag: '面域覆盖' },
+        ],
+        foldMeta: [
+          ['型号代号', 'US_AH64D'],
+          ['实测尺度', '15.0 × 14.6 × 4.6 m'],
+          ['可动机构', '主旋翼 · 尾桨 · 机炮'],
+          ['基底来源', 'brokenarrowstats.com'],
+        ],
+        specVersion: 'ba-source-ssot-v1',
+      };
+    }
+    if (unitKey === 'plane') {
+      const isArm = mode === 'armory';
+      const pct = isArm ? 100 : (vdBingoDemo ? 12 : 76);
+      const bingoState = isArm ? 'nominal' : (vdBingoDemo ? 'rtb_bingo' : 'nominal');
+      const burnRate = isArm ? 1.0 : (vdBingoDemo ? 1.45 : 1.0);
+      const remainSec = Math.round((480 * (pct / 100)) / burnRate);
+      return {
+        slug: 'US_A10',
+        shortName: 'A-10C',
+        subTitle: '对地攻击机 · 燃油制无血量',
+        iconKind: 'cas',
+        channel: 'plane',
+        channelLabel: '固定翼',
+        cost: 345,
+        mode,
+        usesFuel: true,
+        hp: null,
+        maxHp: null,
+        fuel: {
+          pct,
+          remainSec,
+          maxSec: 480,
+          burnRate,
+          modeLabel: isArm ? '满油巡航' : (vdBingoDemo ? '突击' : '巡航'),
+          bingoThresholdPct: 14,
+          bingoState,
+          rearmCooldownSec: 35,
+        },
+        kpis: [
+          { k: isArm ? '满油留空' : '当前余油', v: isArm ? '8:00' : `${Math.floor(remainSec / 60)}:${String(remainSec % 60).padStart(2, '0')}` },
+          { k: '工况油耗', v: isArm ? '1.0–1.45×' : `${vdBingoDemo ? '突击 1.45×' : '巡航 1.0×'}` },
+          { k: '整备冷却', v: '35s' },
+          { k: '侦察视野', v: '2500m' },
+        ],
+        caps: [
+          { k: '轻甲清扫', score: 10, tone: 'ground' },
+          { k: '中甲压制', score: 9, tone: 'select' },
+          { k: '重型爆破', score: 9, tone: 'danger' },
+        ],
+        weapons: [
+          { id: 'gau8', kind: 'cannon', name: 'GAU-8/A 30mm', ammo: 1150, maxAmmo: 1150, minRangeM: 0, maxRangeM: 1000, splashInnerM: 3, splashOuterM: 7, damage: 2.25, roleTag: '拖线扫射', actionCmd: 'strafe', clickable: !isArm },
+          { id: 'hydra', kind: 'rocket', name: 'Hydra 70 火箭', ammo: 42, maxAmmo: 42, minRangeM: 140, maxRangeM: 1100, splashInnerM: 5, splashOuterM: 14, damage: 7.5, roleTag: '拖线覆盖', actionCmd: 'rocket', clickable: !isArm },
+          { id: 'agm65', kind: 'missile', name: 'AGM-65 小牛', ammo: 6, maxAmmo: 6, minRangeM: 200, maxRangeM: 1250, splashInnerM: 4, splashOuterM: 11, damage: 22, roleTag: '点选精打', actionCmd: 'missile', clickable: !isArm },
+          { id: 'jdam', kind: 'bomb', name: 'GBU-31 JDAM', ammo: 4, maxAmmo: 4, minRangeM: 180, maxRangeM: 1000, splashInnerM: 12, splashOuterM: 28, damage: 56, roleTag: '连点轰炸', actionCmd: 'bomb', clickable: !isArm },
+        ],
+        foldMeta: [
+          ['型号代号', 'US_A10'],
+          ['作战高度', '135–215m · 盘旋 R120–380m'],
+          ['电子防护', 'ECM 20%'],
+          ['基底来源', 'brokenarrowstats.com'],
+        ],
+        specVersion: 'ba-source-ssot-v1',
+      };
+    }
+    return {
+      slug: 'US_M1A2',
+      shortName: 'M1A2 SEP v3',
+      subTitle: '重型主战坦克 · 反应甲强化',
+      iconKind: 'mbt',
+      channel: 'ground',
+      channelLabel: '地面',
+      cost: 285,
+      mode,
+      usesFuel: false,
+      hp: 20,
+      maxHp: 20,
+      bonusArmorPct: 12,
+      kpis: [
+        { k: '装甲防护', v: '700 / 1200' },
+        { k: '公路机动', v: '67 km/h' },
+        { k: '侦察视野', v: '1400m' },
+        { k: '主炮弹药', v: '28/28' },
+      ],
+      caps: [
+        { k: '装甲防护', score: 9, tone: 'ground' },
+        { k: '清尸压制', score: 8, tone: 'select' },
+        { k: '重甲攻坚', score: 9, tone: 'danger' },
+      ],
+      weapons: [
+        { id: 'm256_he', kind: 'cannon', name: '120mm 高爆弹', ammo: 28, maxAmmo: 28, minRangeM: 0, maxRangeM: 1400, splashInnerM: 3, splashOuterM: 9, damage: 12, roleTag: '面伤清群' },
+        { id: 'm1028', kind: 'cannon', name: 'M1028 霰弹', ammo: 14, maxAmmo: 14, minRangeM: 0, maxRangeM: 450, splashInnerM: 6, splashOuterM: 18, damage: 18, roleTag: '近距尸潮' },
+        { id: 'm240', kind: 'cannon', name: '7.62mm 同轴机枪', ammo: 2000, maxAmmo: 2000, minRangeM: 0, maxRangeM: 600, splashInnerM: 0, splashOuterM: 0, damage: 1.5, roleTag: '持续补刀' },
+      ],
+      foldMeta: [
+        ['型号代号', 'US_M1A2'],
+        ['实测尺度', '9.8 × 3.7 × 2.4 m'],
+        ['可动机构', '炮塔 · 炮管'],
+        ['基底来源', 'brokenarrowstats.com'],
+      ],
+      specVersion: 'ba-source-ssot-v1',
+    };
+  };
+
+  const renderVdShowcase = () => {
+    if (!vdFullMount || !vdHoverMount || !vdArmoryMount) return;
+    if (vdBingoBtn) {
+      vdBingoBtn.hidden = vdActiveUnit !== 'plane';
+      vdBingoBtn.setAttribute('aria-pressed', String(vdBingoDemo));
+      vdBingoBtn.textContent = vdBingoDemo ? '恢复满油巡航' : '模拟低油 Bingo';
+    }
+    const playModel = buildSpecDemoModel(vdActiveUnit, 'play');
+    const armoryModel = buildSpecDemoModel(vdActiveUnit, 'armory');
+    renderVehicleDetailCard(vdFullMount, playModel, {
+      narrow: false,
+      showClose: true,
+      onClose: () => showToast('演示卡收起回调已触发（快捷键 I / Esc）'),
+      onWeaponClick: w => showToast(`点击固定翼武器直入瞄准：${w.name}`),
+    });
+    renderVehicleHoverCard(vdHoverMount, playModel, {
+      isGroup: vdActiveUnit === 'ground',
+      count: vdActiveUnit === 'ground' ? 3 : 1,
+      avgPct: vdActiveUnit === 'ground' ? 86 : undefined,
+    });
+    renderVehicleDetailCard(vdArmoryMount, armoryModel, {
+      narrow: true,
+      showClose: false,
+    });
+  };
+
+  vdUnitSeg?.addEventListener('click', e => {
+    const btn = e.target.closest('[data-vd-unit]');
+    if (!btn) return;
+    vdActiveUnit = btn.dataset.vdUnit || 'ground';
+    vdUnitSeg.querySelectorAll('[data-vd-unit]').forEach(b => b.classList.toggle('active', b === btn));
+    renderVdShowcase();
+    playUiSfx('toggle', { resume: true });
+  });
+  vdBingoBtn?.addEventListener('click', () => {
+    vdBingoDemo = !vdBingoDemo;
+    renderVdShowcase();
+    playUiSfx('alert', { resume: true });
+  });
+  renderVdShowcase();
+
+  // 确认 attachDeckHoverCardController 可正常挂载（零异常导出核验）
+  const noopHoverCtrl = attachDeckHoverCardController({});
+  noopHoverCtrl.destroy();
+
+  return Object.freeze({
+    getMetrics: () => ({
+      bannerCount: document.querySelectorAll('#v22-banner-strip .ui-banner-card').length,
+      ratingPipsCount: document.querySelectorAll('#v22-rating-rows .ui-rating-pips').length,
+      pagerTabCount: document.querySelectorAll('#v22-cmd-pager .ui-cmd-pager-tab').length,
+      vdCardCount: document.querySelectorAll('#sec-combat-hud .ui-vd-card').length,
+      vdHoverCount: document.querySelectorAll('#sec-combat-hud .ui-vd-hover').length,
+      vdActiveUnit,
+      vdBingoDemo,
+      activeCmdPage,
+      zoomSpan,
+      zoomTier: lastZoomTier,
+      orbitHighlighted,
+      vehicleAudioEnabled: loadUiPrefs().vehicleAudioEnabled,
+      dofMode: loadUiPrefs().dofMode,
+    }),
+  });
+}
+
 /* ====== 初始化全部展区并暴露只读查询接口 ====== */
 await loadStatusIdentity();
 const sandboxCtrl = initSandbox();
@@ -1559,16 +2775,71 @@ renderIconShowcase();
 renderUnitCardDemo();
 const clusterCtrl = initClusterDemo();
 const hudScaleCtrl = initHudScaleSection();
+initV22Showcase();
+const combatHudCtrl = initV22CombatHudSection();
 
 window.uiSpec = Object.freeze({
+  version: 'V2.2',
   ready: true,
   getStatusIdentity: () => statusIdentity,
   getPalette: () => readSemanticPalette(),
+  getBrandIdentity: () => ({ ...BRAND_IDENTITY, layerKeys: Object.keys(BRAND_LOGO_LAYERS) }),
   getSilhouettes: () => ({ ...VEHICLE_SILHOUETTES }),
+  getWeaponIcons: () => ({ ...WEAPON_ICONS }),
   isDrawerOpen: () => !drawerEl.hidden,
   getSandboxMetrics: () => sandboxCtrl.getMetrics(),
   getClusterMetrics: () => clusterCtrl.getMetrics(),
   setClusterSpacing: m => clusterCtrl.setSpacing(m),
   setHudScale: s => hudScaleCtrl.setSize(s),
   getHudScaleMetrics: () => hudScaleCtrl.getMetrics(),
+  getV22CombatHudMetrics: () => combatHudCtrl.getMetrics(),
+  getWheelMetrics: () => {
+    const svg = document.querySelector('#v22-wheel .ui-wheel-svg');
+    const slots = [...document.querySelectorAll('#v22-wheel .ui-wheel-slot')];
+    const center = document.querySelector('#v22-wheel .ui-wheel-center');
+    const clampSample = clampWheelVisualCenter({ x: 10, y: 10 }, 1208, 680);
+    return {
+      hasSvg: Boolean(svg),
+      slotCount: slots.length,
+      activeCount: slots.filter(el => el.dataset.slotState === 'active').length,
+      emptyCount: slots.filter(el => el.dataset.slotState === 'empty').length,
+      coolingCount: slots.filter(el => el.dataset.slotState === 'cooling').length,
+      disabledCount: slots.filter(el => el.dataset.slotState === 'disabled').length,
+      hasCenter: Boolean(center),
+      clampCornerOk: clampSample.clamped && clampSample.x >= TACTICAL_WHEEL_CONFIG.visualRadius && clampSample.y >= TACTICAL_WHEEL_CONFIG.visualRadius,
+    };
+  },
+  getV22ComponentsReady: () => Boolean(
+    document.querySelector('.ui-input')
+    && document.querySelector('.ui-toggle')
+    && document.querySelector('.ui-wheel')
+    && document.querySelector('#v22-wheel .ui-wheel-svg')
+    && document.querySelectorAll('#v22-wheel .ui-wheel-slot').length === 8
+    && document.querySelector('.ui-cap-bar')
+    && document.querySelector('.ui-cur-action')
+    && document.getElementById('v22-modal-backdrop')
+    && document.querySelector('.ui-banner-card')
+    && document.querySelector('.ui-rating-pips')
+    && document.querySelector('.ui-cmd-shell-paged')
+    && document.querySelector('.ui-cmd-viewport')
+    && document.querySelector('.ui-cmd-pager-tab')
+    && document.querySelector('.ui-cmd-pager-indicator')
+    && document.querySelector('#brand-sigil svg[data-brand-logo="bio-purge-triad-shield"]')
+    && document.querySelector('#brand-identity-mount .ui-brand-lockup')
+    && document.querySelectorAll('#brand-identity-mount svg[data-brand-logo="bio-purge-triad-shield"]').length >= 6
+    && document.getElementById('brand-stencil-canvas')
+    && document.querySelectorAll('#weapon-icon-mount .weapon-icon-card').length === 4
+    && document.querySelectorAll('#weapon-icon-mount svg[data-weapon-icon]').length === 8
+    && document.querySelector('.ui-cmd-wep-grid')
+    && document.querySelector('.ui-cmd-wep-card')
+    && document.querySelector('.ui-cmd-util-bar')
+    && document.querySelector('.ui-cmd-util-btn')
+    && document.getElementById('v22-zoom-canvas')
+    && document.getElementById('v22-orbit-canvas')
+    && document.getElementById('v22-veh-audio-toggle')
+    && document.querySelector('.ui-back-home')
+    && document.querySelector('#v22-vd-full-mount .ui-vd-card')
+    && document.querySelector('#v22-vd-hover-mount .ui-vd-hover')
+    && document.querySelector('#v22-vd-armory-mount .ui-vd-card.is-narrow')
+  ),
 });
